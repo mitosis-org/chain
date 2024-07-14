@@ -1,0 +1,3 @@
+[submodule "ethos"]
+	path = ethos
+	url = https://github.com/mitosis-org/ethos
