@@ -13,7 +13,7 @@ import (
 	icstestingutils "github.com/ethos-works/ethos/ethos-chain/testutil/ibc_testing"
 	consumertypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/types"
 	ccvtypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/types"
-	mitosisApp "github.com/mitosis-org/core/app"
+	mitosisapp "github.com/mitosis-org/core/app"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -23,11 +23,11 @@ var (
 )
 
 func init() {
-	ccvSuite = integration.NewCCVTestSuite[*providerApp.App, *mitosisApp.MitosisApp](
+	ccvSuite = integration.NewCCVTestSuite[*providerApp.App, *mitosisapp.MitosisApp](
 		icstestingutils.ProviderAppIniter, SetupValSetAppIniter, []string{})
 }
 
-// TODO(thai): `mitosisApp.SetupConfig()` should be called
+// TODO(thai): `mitosisapp.SetupConfig()` should be called
 func TestCCVTestSuite(t *testing.T) {
 	suite.Run(t, ccvSuite)
 }
@@ -39,12 +39,14 @@ func SetupValSetAppIniter(initValUpdates []cometbfttypes.ValidatorUpdate) icstes
 
 func SetupTestingApp(initValUpdates []cometbfttypes.ValidatorUpdate) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
-		app := mitosisApp.NewMitosisApp(
+		app := mitosisapp.NewMitosisApp(
 			log.NewNopLogger(),
 			dbm.NewMemDB(),
 			nil,
+			nil, // maybe ok
+			nil, // maybe ok
 			false,
-			mitosisApp.EmptyAppOptions{},
+			mitosisapp.EmptyAppOptions{},
 		)
 		encoding := app.AppCodec()
 

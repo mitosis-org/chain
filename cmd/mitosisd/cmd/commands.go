@@ -3,11 +3,13 @@ package cmd
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/mitosis-org/core/app/params"
 	"io"
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
+	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -31,14 +33,14 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, b
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
+		InitCmd(basicManager, app.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	addServerCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	rootCmd.AddCommand(
 		server.StatusCommand(),
@@ -49,8 +51,33 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, b
 	)
 }
 
-func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
+func addServerCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator servertypes.AppCreator, appExport servertypes.AppExporter, addStartFlags servertypes.ModuleInitFlags) {
+	cometCmd := &cobra.Command{
+		Use:     "comet",
+		Aliases: []string{"cometbft", "tendermint"},
+		Short:   "CometBFT subcommands",
+	}
+
+	cometCmd.AddCommand(
+		server.ShowNodeIDCmd(),
+		server.ShowValidatorCmd(),
+		server.ShowAddressCmd(),
+		server.VersionCmd(),
+		cmtcmd.ResetAllCmd,
+		cmtcmd.ResetStateCmd,
+		server.BootstrapStateCmd(appCreator),
+	)
+
+	startCmd := StartCmd(appCreator, defaultNodeHome)
+	addStartFlags(startCmd)
+
+	rootCmd.AddCommand(
+		startCmd,
+		cometCmd,
+		server.ExportCmd(appExport, defaultNodeHome),
+		version.NewVersionCommand(),
+		server.NewRollbackCmd(appCreator, defaultNodeHome),
+	)
 }
 
 func genesisCommand(encodingConfig params.EncodingConfig, defaultNodeHome string, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
@@ -108,6 +135,10 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
+func addModuleInitFlags(startCmd *cobra.Command) {
+	crisis.AddModuleInitFlags(startCmd)
+}
+
 func newApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -120,6 +151,8 @@ func newApp(
 		logger,
 		db,
 		traceStore,
+		engineCl,
+		addrProvider,
 		true,
 		appOpts,
 		baseappOptions...,
@@ -152,6 +185,8 @@ func appExport(
 		logger,
 		db,
 		traceStore,
+		engineCl,
+		addrProvider,
 		loadLatest,
 		appOpts,
 	)

@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"context"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
+	pvm "github.com/cometbft/cometbft/privval"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/mitosis-org/core/app/params"
+	"github.com/omni-network/omni/lib/ethclient"
+	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,11 +30,16 @@ import (
 
 const EnvPrefix = "MITO"
 
+var (
+	serverCtx    *server.Context
+	addrProvider evmengtypes.AddressProvider
+	engineCl     ethclient.EngineClient
+)
+
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	app.SetupConfig()
 
 	tmpApp := newTempApp()
-
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tmpApp.InterfaceRegistry(),
 		Codec:             tmpApp.AppCodec(),
@@ -89,7 +98,11 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
 
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
+			if err = server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig); err != nil {
+				return err
+			}
+
+			return initGlobalState(cmd)
 		},
 	}
 
@@ -108,7 +121,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 }
 
 func newTempApp() *app.MitosisApp {
-	return app.NewMitosisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, app.EmptyAppOptions{})
+	return app.NewMitosisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, nil, nil, true, app.EmptyAppOptions{})
 }
 
 func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context) (autocli.AppOptions, error) {
@@ -124,4 +137,66 @@ func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context)
 	}
 
 	return autoCliOpts, nil
+}
+
+func initGlobalState(rootCmd *cobra.Command) error {
+	var err error
+
+	// serverCtx
+	serverCtx = server.GetServerContextFromCmd(rootCmd)
+
+	conf := DefaultAppConfig()
+	if err = serverCtx.Viper.Unmarshal(&conf); err != nil {
+		return err
+	}
+
+	// addrProvider
+	addrProvider = &NoAddressProvider{}
+	if conf.Engine.ValidatorMode {
+		addrProvider, err = newAddrProvider(rootCmd)
+		if err != nil {
+			return err
+		}
+	}
+
+	// engineCl
+	engineCl, err = newEngineClient(rootCmd.Context(), conf.Engine)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func newAddrProvider(rootCmd *cobra.Command) (evmengtypes.AddressProvider, error) {
+	serverCtx := server.GetServerContextFromCmd(rootCmd)
+
+	cfg := serverCtx.Config
+
+	privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+
+	pubKey, err := privVal.GetPubKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return &SimpleAddressProvider{pubKey}, nil
+}
+
+func newEngineClient(ctx context.Context, engineCfg *EngineConfig) (ethclient.EngineClient, error) {
+	if engineCfg.Mock {
+		return ethclient.NewEngineMock()
+	}
+
+	jwtSecret, err := ethclient.LoadJWTHexFile(engineCfg.JWTFile)
+	if err != nil {
+		return nil, err
+	}
+
+	engineClient, err := ethclient.NewAuthClient(ctx, engineCfg.Endpoint, jwtSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	return engineClient, nil
 }

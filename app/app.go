@@ -14,10 +14,12 @@ import (
 	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
 	appante "github.com/mitosis-org/core/app/ante"
 	"github.com/mitosis-org/core/app/params"
+	"github.com/omni-network/omni/lib/ethclient"
 	"github.com/spf13/cast"
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
@@ -95,6 +97,10 @@ import (
 	ethosconsumermodule "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer"
 	ethosconsumerkeeper "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/keeper"
 	ethosconsumertypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/types"
+
+	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
+	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
+	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
 var (
@@ -146,6 +152,9 @@ type MitosisApp struct {
 	// ethos keepers
 	ConsumerKeeper ethosconsumerkeeper.Keeper
 
+	// EVM keepers
+	EVMEngKeeper *evmengkeeper.Keeper
+
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -175,6 +184,8 @@ func NewMitosisApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
+	engineCl ethclient.EngineClient,
+	addrProvider evmengtypes.AddressProvider,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -187,6 +198,7 @@ func NewMitosisApp(
 
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)
+	evmengtypes.RegisterInterfaces(interfaceRegistry)
 
 	bApp := baseapp.NewBaseApp(version.AppName, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
@@ -201,9 +213,10 @@ func NewMitosisApp(
 		consensusparamtypes.StoreKey, evidencetypes.StoreKey,
 		ibcexported.StoreKey, ibctransfertypes.StoreKey,
 		ethosconsumertypes.StoreKey,
+		evmengtypes.StoreKey,
 	)
 	tkeys := storetypes.NewTransientStoreKeys()
-	memKeys := storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	memKeys := storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, evmengtypes.MemStoreKey)
 
 	// register streaming services
 	if err := bApp.RegisterStreamingServices(appOpts, keys); err != nil {
@@ -410,6 +423,31 @@ func NewMitosisApp(
 	})
 	app.EvidenceKeeper.SetRouter(router)
 
+	///////////////////////////////////////////////////////////////////
+	// Integration with Execution Layer through Engine API
+	///////////////////////////////////////////////////////////////////
+
+	evmEngKeeper, err := evmengkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(keys[evmengtypes.StoreKey]),
+		engineCl,
+		txConfig,
+		addrProvider,
+		&burnEVMFees{}, // TODO(thai): give fees to block proposer
+	)
+	if err != nil {
+		return nil
+	}
+	app.EVMEngKeeper = evmEngKeeper
+
+	app.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
+	app.SetProcessProposal(makeProcessProposalHandler(makeProcessProposalRouter(app), txConfig))
+
+	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
+	// TODO(thai): make it configurable
+	app.EVMEngKeeper.SetBuildDelay(time.Millisecond * 600) // 100ms longer than geth's --miner.recommit=500ms.
+	app.EVMEngKeeper.SetBuildOptimistic(true)
+
 	////////////////////////////////////////////
 	// Module Options
 	////////////////////////////////////////////
@@ -436,6 +474,9 @@ func NewMitosisApp(
 
 		// Ethos modules
 		consumerModule,
+
+		// EVM modules
+		evmengmodule.NewAppModule(appCodec, app.EVMEngKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -487,6 +528,7 @@ func NewMitosisApp(
 		upgradetypes.ModuleName, consensusparamtypes.ModuleName,
 		ibcexported.ModuleName, ibctransfertypes.ModuleName,
 		ethosconsumertypes.ModuleName,
+		evmengtypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
@@ -525,7 +567,7 @@ func NewMitosisApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	// set ante handler
-	app.setAnteHandler(txConfig)
+	//app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
 
 	// At startup, after all modules have been registered, check that all prot
 	// annotations are correct.
@@ -709,6 +751,8 @@ func (app *MitosisApp) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		cmtApp.Query,
 	)
+
+	app.EVMEngKeeper.SetCometAPI(NewCometAPI(clientCtx.Client))
 }
 
 func (app *MitosisApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {

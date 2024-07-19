@@ -6,10 +6,10 @@ VERSION := '0.0.1'
 COMMIT := $(shell git log -1 --format='%H')
 
 BUILD_DIR ?= $(CURDIR)/build
-MITOSISD_HOME = $(CURDIR)/tmp/localnet
+MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
 LEDGER_ENABLED ?= true
 
-CHAIN_ID = 'mitosis-devnet-1'
+CHAIN_ID = 'mitosis-localnet-1'
 
 # ********** Golang configs **********
 
@@ -165,29 +165,70 @@ format:
 ###                                Localnet                                 ###
 ###############################################################################
 
-setup-localnet: build
-	@rm -rf $(MITOSISD_HOME)
-	@./build/mitosisd init localnet --chain-id $(CHAIN_ID) --default-denom thai --home $(MITOSISD_HOME)
-	@./build/mitosisd config set client chain-id $(CHAIN_ID) --home $(MITOSISD_HOME)
-	@./build/mitosisd config set client keyring-backend test --home $(MITOSISD_HOME)
-#	@./build/mitosisd keys add validator --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd keys add alice --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd keys add bob --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd genesis add-genesis-account validator 10000000000000000000000000stake --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd genesis add-genesis-account alice 1000000000000000000stake --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd genesis add-genesis-account bob 1000000000000000000stake --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd genesis gentx validator 1000000000stake --chain-id $(CHAIN_ID) --home $(MITOSISD_HOME) --keyring-backend test
-#	@./build/mitosisd genesis collect-gentxs --home $(MITOSISD_HOME)
-	@sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
+ETH_INFRA_DIR = ./infra/localnet/geth
+ETH_DATA_DIR = ./tmp/localnet/geth
 
-run-localnet: setup-localnet
-	@(./build/mitosisd start \
-		--consensus.create_empty_blocks "false" \
-		--p2p.pex "false" \
+clean-geth:
+	rm -rf $(MITOSISD_HOME)
+
+setup-geth:
+	rm -rf $(ETH_DATA_DIR)
+	docker run --rm \
+		-v $(ETH_INFRA_DIR):/infra \
+		-v $(ETH_DATA_DIR):/.data \
+		ethereum/client-go init \
+		--datadir /.data \
+		/infra/genesis.json
+
+run-geth:
+	docker run --rm \
+		-p 30303:30303 \
+		-p 8545:8545 \
+		-p 8551:8551 \
+		-v $(ETH_INFRA_DIR):/infra \
+		-v $(ETH_DATA_DIR):/.data \
+		ethereum/client-go \
+		--http \
+		--http.addr 0.0.0.0 \
+		--http.api eth,net \
+		--authrpc.addr 0.0.0.0 \
+		--authrpc.jwtsecret /infra/jwt.hex \
+		--authrpc.vhosts "*" \
+		--datadir /.data \
+		--miner.recommit=500ms
+
+setup-localnet: build
+	rm -rf $(MITOSISD_HOME)
+
+	./build/mitosisd init localnet --chain-id $(CHAIN_ID) --default-denom thai --home $(MITOSISD_HOME)
+	./build/mitosisd config set client chain-id $(CHAIN_ID) --home $(MITOSISD_HOME)
+	./build/mitosisd config set client keyring-backend test --home $(MITOSISD_HOME)
+	./build/mitosisd keys add olivia --keyring-backend test --home $(MITOSISD_HOME)
+	./build/mitosisd genesis add-genesis-account olivia 10000000000000000000000000thai --keyring-backend test --home $(MITOSISD_HOME)
+
+	cp ./infra/localnet/mitosisd/priv_validator_key.json $(MITOSISD_HOME)/config/
+	jq --argfile ccv ./infra/localnet/mitosisd/ccv-state.json '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+	jq --arg hash `cast block --rpc-url http://127.0.0.1:8545 | grep hash | awk '{print $$2}' | xxd -r -p | base64` \
+	 '.app_state.evmengine.execution_block_hash = $$hash' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+	jq '.consensus.params.block.max_bytes = "-1"' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+
+	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
+	#sed -i.bak'' 's/validator-mode = false/validator-mode = true/' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's/mock = true/mock = false/' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(ETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
+
+	sed -i.bak'' 's/type = "flood"/type = "nop"/' $(MITOSISD_HOME)/config/config.toml
+
+clean-localnet:
+	rm -rf $(MITOSISD_HOME)
+
+run-localnet:
+	./build/mitosisd start \
 		--home $(MITOSISD_HOME) \
 		--api.enabled-unsafe-cors \
 		--api.enable \
-		--log_level "debug")
+		--log_level "debug"
 
 
 ###############################################################################
