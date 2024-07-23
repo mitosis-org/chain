@@ -440,9 +440,6 @@ func NewMitosisApp(
 	}
 	app.EVMEngKeeper = evmEngKeeper
 
-	app.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
-	app.SetProcessProposal(makeProcessProposalHandler(makeProcessProposalRouter(app), txConfig))
-
 	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
 	// TODO(thai): make it configurable
 	app.EVMEngKeeper.SetBuildDelay(time.Millisecond * 600) // 100ms longer than geth's --miner.recommit=500ms.
@@ -568,6 +565,9 @@ func NewMitosisApp(
 
 	// set ante handler
 	//app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
+
+	app.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
+	app.SetProcessProposal(makeProcessProposalHandler(app, txConfig))
 
 	// At startup, after all modules have been registered, check that all prot
 	// annotations are correct.
