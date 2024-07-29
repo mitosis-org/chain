@@ -1,0 +1,151 @@
+version: "3.9"
+
+networks:
+  val-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.50.0.0/16
+
+services:
+  _base: &base
+    profiles:
+      - _
+    image: mitosis:devnet
+    build:
+      context: ./
+      dockerfile: ./infra/devnet/devnet.Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment: &base_environment
+      INFRA_DIR: /infra
+      DB_DIR: /db
+    volumes:
+      - &infra-volume ./infra/devnet:/infra:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512m"
+        max-file: "10"
+
+  _val-geth: &val-geth
+    <<: *base
+    entrypoint: /infra/geth/scripts/run-geth.sh
+
+  _val-mitosisd: &val-mitosisd
+    <<: *base
+    entrypoint: /infra/mitosisd/scripts/validator.sh
+    environment: &val-mitosisd-environment
+      <<: *base_environment
+      MITOSIS_CHAIN_ID: mitosis-devnet-1
+      MITOSISD: /usr/bin/mitosisd
+      MITOSISD_GENESIS_FILE: /artifacts/genesis-final.json
+    volumes:
+      - *infra-volume
+      - &artifact-volume ./tmp/devnet/register-to-ethos/artifacts:/artifacts:ro
+
+  register-to-ethos:
+    <<: *base
+    hostname: register-to-ethos
+    profiles:
+      - register-to-ethos
+    entrypoint: /infra/mitosisd/scripts/register-to-ethos.sh
+    environment:
+      <<: *base_environment
+      MITOSIS_CHAIN_ID: mitosis-devnet-1
+      MITOSISD: /usr/bin/mitosisd
+      ETHOSD: /usr/bin/ethosd
+      ETHOS_RPC: http://host.docker.internal:26657
+    volumes:
+      - *infra-volume
+      - ./tmp/devnet/register-to-ethos:/db
+    networks:
+      val-net:
+        ipv4_address: 172.50.1.1
+
+  val-1-geth:
+    <<: *val-geth
+    hostname: val-1-geth
+    profiles:
+      - validator
+    environment:
+      <<: *base_environment
+      ISOLATED_CONFIG_DIR: /infra/geth/config/val-1
+    ports:
+      - "40303:30303"
+      - "18545:8545"
+      - "18551:8551"
+    volumes:
+      - *infra-volume
+      - ./tmp/devnet/val-1:/db
+    networks:
+      val-net:
+        ipv4_address: 172.50.1.1
+
+  val-1-mitosisd:
+    <<: *val-mitosisd
+    hostname: val-1-mitosisd
+    profiles:
+      - validator
+    environment:
+      <<: *val-mitosisd-environment
+      EXECUTION_ENDPOINT: http://host.docker.internal:18551
+      VAL_KEY_FILE: /infra/mitosisd/keys/val-1/priv_validator_key.json
+    ports:
+      - "36657:26657" # rpc
+      - "19090:9090" # grpc
+      - "11317:1317" # api
+      - "36660:26660" # prometheus
+      - "36656:26656" # p2p
+    volumes:
+      - *infra-volume
+      - *artifact-volume
+      - ./tmp/devnet/val-1:/db
+    networks:
+      val-net:
+        ipv4_address: 172.50.1.2
+
+  val-2-geth:
+    <<: *val-geth
+    hostname: val-2-geth
+    profiles:
+      - validator
+    environment:
+      <<: *base_environment
+      ISOLATED_CONFIG_DIR: /infra/geth/config/val-2
+    ports:
+      - "50303:30303"
+      - "28545:8545"
+      - "28551:8551"
+    volumes:
+      - *infra-volume
+      - ./tmp/devnet/val-2:/db
+    networks:
+      val-net:
+        ipv4_address: 172.50.2.1
+
+  val-2-mitosisd:
+    <<: *val-mitosisd
+    hostname: val-2-mitosisd
+    profiles:
+      - validator
+    environment:
+      <<: *val-mitosisd-environment
+      EXECUTION_ENDPOINT: http://host.docker.internal:28551
+      VAL_KEY_FILE: /infra/mitosisd/keys/val-2/priv_validator_key.json
+      PEER_RPC: host.docker.internal:36657
+      PEER_P2P: host.docker.internal:36656
+    ports:
+      - "46657:26657" # rpc
+      - "29090:9090" # grpc
+      - "21317:1317" # api
+      - "46660:26660" # prometheus
+      - "46656:26656" # p2p
+    volumes:
+      - *infra-volume
+      - *artifact-volume
+      - ./tmp/devnet/val-2:/db
+    networks:
+      val-net:
+        ipv4_address: 172.50.2.2

@@ -6,10 +6,7 @@ VERSION := '0.0.1'
 COMMIT := $(shell git log -1 --format='%H')
 
 BUILD_DIR ?= $(CURDIR)/build
-MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
 LEDGER_ENABLED ?= true
-
-CHAIN_ID = 'mitosis-localnet-1'
 
 # ********** Golang configs **********
 
@@ -131,14 +128,6 @@ clean:
 .PHONY: clean
 
 ###############################################################################
-###                                  Docker                                 ###
-###############################################################################
-
-docker-mitosisd-build:
-	@echo "Building docker image for mitosisd"
-	docker build -f mitosisd.Dockerfile -t mitosisd .
-
-###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
 golangci_lint_cmd=golangci-lint
@@ -162,76 +151,6 @@ format:
 .PHONY: format
 
 ###############################################################################
-###                                Localnet                                 ###
-###############################################################################
-
-ETH_INFRA_DIR = ./infra/localnet/geth
-ETH_DATA_DIR = ./tmp/localnet/geth
-
-clean-geth:
-	rm -rf $(MITOSISD_HOME)
-
-setup-geth:
-	rm -rf $(ETH_DATA_DIR)
-	docker run --rm \
-		-v $(ETH_INFRA_DIR):/infra \
-		-v $(ETH_DATA_DIR):/.data \
-		ethereum/client-go init \
-		--datadir /.data \
-		/infra/genesis.json
-
-run-geth:
-	docker run --rm \
-		-p 30303:30303 \
-		-p 8545:8545 \
-		-p 8551:8551 \
-		-v $(ETH_INFRA_DIR):/infra \
-		-v $(ETH_DATA_DIR):/.data \
-		ethereum/client-go \
-		--http \
-		--http.addr 0.0.0.0 \
-		--http.api eth,net \
-		--authrpc.addr 0.0.0.0 \
-		--authrpc.jwtsecret /infra/jwt.hex \
-		--authrpc.vhosts "*" \
-		--datadir /.data \
-		--miner.recommit=500ms
-
-setup-localnet: build
-	rm -rf $(MITOSISD_HOME)
-
-	./build/mitosisd init localnet --chain-id $(CHAIN_ID) --default-denom thai --home $(MITOSISD_HOME)
-	./build/mitosisd config set client chain-id $(CHAIN_ID) --home $(MITOSISD_HOME)
-	./build/mitosisd config set client keyring-backend test --home $(MITOSISD_HOME)
-	./build/mitosisd keys add olivia --keyring-backend test --home $(MITOSISD_HOME)
-	./build/mitosisd genesis add-genesis-account olivia 10000000000000000000000000thai --keyring-backend test --home $(MITOSISD_HOME)
-
-	cp ./infra/localnet/mitosisd/priv_validator_key.json $(MITOSISD_HOME)/config/
-	jq --argfile ccv ./infra/localnet/mitosisd/ccv-state.json '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
-	jq --arg hash `cast block --rpc-url http://127.0.0.1:8545 | grep hash | awk '{print $$2}' | xxd -r -p | base64` \
-	 '.app_state.evmengine.execution_block_hash = $$hash' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
-	jq '.consensus.params.block.max_bytes = "-1"' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && cp $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
-
-	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
-	#sed -i.bak'' 's/validator-mode = false/validator-mode = true/' $(MITOSISD_HOME)/config/app.toml
-	sed -i.bak'' 's/mock = true/mock = false/' $(MITOSISD_HOME)/config/app.toml
-	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
-	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(ETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
-
-	sed -i.bak'' 's/type = "flood"/type = "nop"/' $(MITOSISD_HOME)/config/config.toml
-
-clean-localnet:
-	rm -rf $(MITOSISD_HOME)
-
-run-localnet:
-	./build/mitosisd start \
-		--home $(MITOSISD_HOME) \
-		--api.enabled-unsafe-cors \
-		--api.enable \
-		--log_level "debug"
-
-
-###############################################################################
 ###                           Tests & Simulation                            ###
 ###############################################################################
 PACKAGES_UNIT=$(shell go list ./... | grep -v -e '/tests/e2e')
@@ -253,3 +172,103 @@ else
 	@echo "--> Running tests"
 	@go test -mod=readonly $(ARGS) $(TEST_PACKAGES)
 endif
+
+###############################################################################
+###                                Localnet                                 ###
+###############################################################################
+
+CHAIN_ID = 'mitosis-localnet-1'
+MITOSISD_DENOM = thai
+MITOSISD_HOME = ./tmp/localnet/mitosisd
+MITOSISD_INFRA_DIR = ./infra/localnet/mitosisd
+GETH_INFRA_DIR = ./infra/localnet/geth
+GETH_DATA_DIR = ./tmp/localnet/geth
+
+clean-geth:
+	rm -rf $(GETH_DATA_DIR)
+
+setup-geth: clean-geth
+	docker run --rm \
+		-v $(GETH_INFRA_DIR):/infra \
+		-v $(GETH_DATA_DIR):/data \
+		ethereum/client-go init \
+			--datadir /data \
+			/infra/genesis.json
+
+run-geth:
+	docker run --rm \
+		-p 30303:30303 \
+		-p 8545:8545 \
+		-p 8551:8551 \
+		-v $(GETH_INFRA_DIR):/infra \
+		-v $(GETH_DATA_DIR):/data \
+		ethereum/client-go \
+			--http \
+			--http.addr 0.0.0.0 \
+			--http.api eth,net,web3,mempool \
+			--authrpc.addr 0.0.0.0 \
+			--authrpc.jwtsecret /infra/jwt.hex \
+			--authrpc.vhosts "*" \
+			--datadir /data \
+			--miner.recommit=500ms
+
+clean-mitosisd:
+	rm -rf $(MITOSISD_HOME)
+
+setup-mitosisd: build clean-mitosisd
+	./build/mitosisd init localnet --chain-id $(CHAIN_ID) --default-denom $(MITOSISD_DENOM) --home $(MITOSISD_HOME)
+	./build/mitosisd config set client chain-id $(CHAIN_ID) --home $(MITOSISD_HOME)
+	./build/mitosisd config set client keyring-backend test --home $(MITOSISD_HOME)
+	./build/mitosisd keys add olivia --keyring-backend test --home $(MITOSISD_HOME)
+	./build/mitosisd genesis add-genesis-account olivia 1000000000000000000000000$(MITOSISD_DENOM) --keyring-backend test --home $(MITOSISD_HOME)
+
+	cp $(MITOSISD_INFRA_DIR)/priv_validator_key.json $(MITOSISD_HOME)/config/
+	jq --arg hash `cast block --rpc-url http://127.0.0.1:8545 | grep hash | awk '{print $$2}' | xxd -r -p | base64` \
+		'.app_state.evmengine.execution_block_hash = $$hash' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+	jq '.consensus.params.block.max_bytes = "-1"' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+	jq --argfile ccv $(MITOSISD_INFRA_DIR)/ccv-state.json '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+
+	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's/validator-mode = false/validator-mode = false/' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's/mock = true/mock = false/' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(GETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
+
+	sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' $(MITOSISD_HOME)/config/config.toml
+	sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' $(MITOSISD_HOME)/config/config.toml
+
+run-mitosisd:
+	./build/mitosisd start \
+		--home $(MITOSISD_HOME) \
+		--p2p.laddr=tcp://0.0.0.0:26656 \
+		--rpc.laddr=tcp://0.0.0.0:26657 \
+		--grpc.enable \
+		--grpc.address=0.0.0.0:9090 \
+		--api.enable \
+		--api.address=tcp://0.0.0.0:1317 \
+		--api.enabled-unsafe-cors \
+		--log_level "info"
+
+###############################################################################
+###                                  Devnet                                 ###
+###############################################################################
+
+# Note that it doesn't remove any docker resources.
+devnet-clean:
+	rm -rf ./tmp/devnet
+
+devnet-build:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile '*' build
+
+devnet-register-to-ethos:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile register-to-ethos up -d
+
+devnet-up:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile validator up -d
+
+devnet-down:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile '*' down
