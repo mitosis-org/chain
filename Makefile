@@ -179,10 +179,10 @@ endif
 
 CHAIN_ID = 'mitosis-localnet-1'
 MITOSISD_DENOM = thai
-MITOSISD_HOME = ./tmp/localnet/mitosisd
-MITOSISD_INFRA_DIR = ./infra/localnet/mitosisd
-GETH_INFRA_DIR = ./infra/localnet/geth
-GETH_DATA_DIR = ./tmp/localnet/geth
+MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
+MITOSISD_INFRA_DIR = $(CURDIR)/infra/localnet/mitosisd
+GETH_INFRA_DIR = $(CURDIR)/infra/localnet/geth
+GETH_DATA_DIR = $(CURDIR)/tmp/localnet/geth
 
 clean-geth:
 	rm -rf $(GETH_DATA_DIR)
@@ -231,7 +231,7 @@ setup-mitosisd: build clean-mitosisd
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
 	#sed -i.bak'' 's/mock = false/mock = true/' $(MITOSISD_HOME)/config/app.toml # Comment out this line to mock execution engine instead of using real geth.
 	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
-	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(GETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
+	sed -i.bak'' 's@jwt-file = ""@jwt-file = "$(GETH_INFRA_DIR)/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
 
 	sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' $(MITOSISD_HOME)/config/config.toml
 	sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' $(MITOSISD_HOME)/config/config.toml
