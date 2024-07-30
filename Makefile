@@ -117,10 +117,17 @@ init-submodules:
 
 BUILD_TARGETS := build install
 
-build: init-submodules BUILD_ARGS=-o $(BUILD_DIR)/
+BUILD_ARGS ?= -o $(BUILD_DIR)/
+
+build: init-submodules
+	@echo "Building with args: $(BUILD_ARGS)"
+	@$(MAKE) _build
 
 build-mitosisd: init-submodules
-	BINARY_NAME=mitosisd $(MAKE) build
+	@BINARY_NAME=mitosisd $(MAKE) _build
+
+_build: go.sum $(BUILD_DIR)/
+	cd ${CURDIR}/cmd/$(BINARY_NAME) && go build -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
@@ -128,7 +135,8 @@ $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 $(BUILD_DIR)/:
 	mkdir -p $(BUILD_DIR)/
 
-.PHONY: build init-submodules
+.PHONY: build init-submodules _build
+
 clean:
 	rm -rf $(BUILD_DIR)/ artifacts/
 
