@@ -36,6 +36,7 @@ fi
 geth --config "$DATA_DIR/config.toml" \
     --http \
     --http.addr 0.0.0.0 \
+    --http.vhosts "*" \
     --http.api eth,net,web3,mempool \
     --authrpc.addr 0.0.0.0 \
     --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
