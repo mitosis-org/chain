@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
 	pvm "github.com/cometbft/cometbft/privval"
@@ -31,9 +30,7 @@ import (
 const EnvPrefix = "MITO"
 
 var (
-	serverCtx    *server.Context
-	addrProvider evmengtypes.AddressProvider
-	engineCl     ethclient.EngineClient
+	runningCmd *cobra.Command
 )
 
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -102,7 +99,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			return initGlobalState(cmd)
+			runningCmd = cmd
+
+			return nil
 		},
 	}
 
@@ -139,35 +138,6 @@ func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context)
 	return autoCliOpts, nil
 }
 
-func initGlobalState(rootCmd *cobra.Command) error {
-	var err error
-
-	// serverCtx
-	serverCtx = server.GetServerContextFromCmd(rootCmd)
-
-	conf := DefaultAppConfig()
-	if err = serverCtx.Viper.Unmarshal(&conf); err != nil {
-		return err
-	}
-
-	// addrProvider
-	addrProvider = &NoAddressProvider{}
-	if conf.Engine.ValidatorMode {
-		addrProvider, err = newAddrProvider(rootCmd)
-		if err != nil {
-			return err
-		}
-	}
-
-	// engineCl
-	engineCl, err = newEngineClient(rootCmd.Context(), conf.Engine)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func newAddrProvider(rootCmd *cobra.Command) (evmengtypes.AddressProvider, error) {
 	serverCtx := server.GetServerContextFromCmd(rootCmd)
 
@@ -183,17 +153,24 @@ func newAddrProvider(rootCmd *cobra.Command) (evmengtypes.AddressProvider, error
 	return &SimpleAddressProvider{pubKey}, nil
 }
 
-func newEngineClient(ctx context.Context, engineCfg *EngineConfig) (ethclient.EngineClient, error) {
-	if engineCfg.Mock {
+func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {
+	serverCtx := server.GetServerContextFromCmd(rootCmd)
+
+	conf := DefaultAppConfig()
+	if err := serverCtx.Viper.Unmarshal(&conf); err != nil {
+		return nil, err
+	}
+
+	if conf.Engine.Mock {
 		return ethclient.NewEngineMock()
 	}
 
-	jwtSecret, err := ethclient.LoadJWTHexFile(engineCfg.JWTFile)
+	jwtSecret, err := ethclient.LoadJWTHexFile(conf.Engine.JWTFile)
 	if err != nil {
 		return nil, err
 	}
 
-	engineClient, err := ethclient.NewAuthClient(ctx, engineCfg.Endpoint, jwtSecret)
+	engineClient, err := ethclient.NewAuthClient(rootCmd.Context(), conf.Engine.Endpoint, jwtSecret)
 	if err != nil {
 		return nil, err
 	}

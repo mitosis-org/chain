@@ -11,10 +11,9 @@ type AppConfig struct {
 }
 
 type EngineConfig struct {
-	ValidatorMode bool   `mapstructure:"validator-mode"`
-	Mock          bool   `mapstructure:"mock"`
-	Endpoint      string `mapstructure:"endpoint"`
-	JWTFile       string `mapstructure:"jwt-file"`
+	Mock     bool   `mapstructure:"mock"`
+	Endpoint string `mapstructure:"endpoint"`
+	JWTFile  string `mapstructure:"jwt-file"`
 }
 
 func DefaultAppConfig() AppConfig {
@@ -25,10 +24,9 @@ func DefaultAppConfig() AppConfig {
 	return AppConfig{
 		Config: *srvCfg,
 		Engine: &EngineConfig{
-			ValidatorMode: false,
-			Mock:          true,
-			Endpoint:      "",
-			JWTFile:       "",
+			Mock:     true,
+			Endpoint: "",
+			JWTFile:  "",
 		},
 	}
 }
@@ -42,9 +40,6 @@ func initAppConfig() (string, AppConfig) {
 ###############################################################################
 
 [engine]
-
-# If you're running a validator node, must set this to true.
-validator-mode = {{ .Engine.ValidatorMode }}
 
 # If it is true, the execution client will be mocked and endpoint and jwt-file will be ignored.
 # Otherwise, it will be connect to a real execution client.

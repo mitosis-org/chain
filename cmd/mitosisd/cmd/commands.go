@@ -147,6 +147,16 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
+	engineCl, err := newEngineClient(runningCmd)
+	if err != nil {
+		return nil
+	}
+
+	addrProvider, err := newAddrProvider(runningCmd)
+	if err != nil {
+		return nil
+	}
+
 	return app.NewMitosisApp(
 		logger,
 		db,
@@ -179,6 +189,16 @@ func appExport(
 	var loadLatest bool
 	if height == -1 {
 		loadLatest = true
+	}
+
+	engineCl, err := newEngineClient(runningCmd)
+	if err != nil {
+		return servertypes.ExportedApp{}, nil
+	}
+
+	addrProvider, err := newAddrProvider(runningCmd)
+	if err != nil {
+		return servertypes.ExportedApp{}, nil
 	}
 
 	mitosisApp = app.NewMitosisApp(
