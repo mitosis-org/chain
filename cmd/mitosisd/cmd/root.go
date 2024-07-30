@@ -7,7 +7,7 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/mitosis-org/core/app/params"
+	"github.com/mitosis-org/chain/app/params"
 	"github.com/omni-network/omni/lib/ethclient"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 	"os"
@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 
-	"github.com/mitosis-org/core/app"
+	"github.com/mitosis-org/chain/app"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"

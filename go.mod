@@ -1,4 +1,4 @@
-module github.com/mitosis-org/core
+module github.com/mitosis-org/chain
 
 go 1.22.0
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	mitosisapp "github.com/mitosis-org/core/app"
+	mitosisapp "github.com/mitosis-org/chain/app"
 	"io"
 	"net"
 	"os"

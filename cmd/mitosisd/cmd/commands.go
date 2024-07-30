@@ -4,7 +4,7 @@ import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/mitosis-org/core/app/params"
+	"github.com/mitosis-org/chain/app/params"
 	"io"
 
 	"cosmossdk.io/log"
@@ -24,7 +24,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/mitosis-org/core/app"
+	"github.com/mitosis-org/chain/app"
 	"github.com/spf13/cobra"
 )
 

@@ -3,11 +3,11 @@ package main
 import (
 	"os"
 
-	"github.com/mitosis-org/core/app"
+	"github.com/mitosis-org/chain/app"
 
 	"cosmossdk.io/log"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/mitosis-org/core/cmd/mitosisd/cmd"
+	"github.com/mitosis-org/chain/cmd/mitosisd/cmd"
 )
 
 func main() {

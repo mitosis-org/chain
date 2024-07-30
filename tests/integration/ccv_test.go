@@ -13,7 +13,7 @@ import (
 	icstestingutils "github.com/ethos-works/ethos/ethos-chain/testutil/ibc_testing"
 	consumertypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/types"
 	ccvtypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/types"
-	mitosisapp "github.com/mitosis-org/core/app"
+	mitosisapp "github.com/mitosis-org/chain/app"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
