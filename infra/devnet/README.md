@@ -181,5 +181,5 @@ If not, a relayer might not work properly.
 
 ### Enjoy your devnet!
 
-Finally, you can see the list of running docker containers through `docker ps`:
+Finally, you can see the complete list of running docker containers through `docker ps`:
 ![devnet-docker-ps.png](../../imgs/devnet-docker-ps.png)
