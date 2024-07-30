@@ -205,7 +205,8 @@ run-geth:
 		ethereum/client-go \
 			--http \
 			--http.addr 0.0.0.0 \
-			--http.api eth,net,web3,mempool \
+			--http.vhosts "*" \
+			--http.api eth,net,web3,txpool \
 			--authrpc.addr 0.0.0.0 \
 			--authrpc.jwtsecret /infra/jwt.hex \
 			--authrpc.vhosts "*" \
