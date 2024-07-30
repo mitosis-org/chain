@@ -24,7 +24,7 @@ func DefaultAppConfig() AppConfig {
 	return AppConfig{
 		Config: *srvCfg,
 		Engine: &EngineConfig{
-			Mock:     true,
+			Mock:     false,
 			Endpoint: "",
 			JWTFile:  "",
 		},

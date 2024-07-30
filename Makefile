@@ -229,7 +229,7 @@ setup-mitosisd: build clean-mitosisd
 	jq --argfile ccv $(MITOSISD_INFRA_DIR)/ccv-state.json '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
 
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
-	sed -i.bak'' 's/mock = true/mock = false/' $(MITOSISD_HOME)/config/app.toml
+	#sed -i.bak'' 's/mock = false/mock = true/' $(MITOSISD_HOME)/config/app.toml # Comment out this line to mock execution engine instead of using real geth.
 	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
 	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(GETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
 

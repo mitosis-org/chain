@@ -47,7 +47,6 @@ else
 
   # Setup app.toml
   sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' "$app_toml"
-  sed -i.bak'' 's/mock = true/mock = false/' "$app_toml"
   sed -i.bak'' 's@endpoint = ""@endpoint = "'"$EXECUTION_ENDPOINT"'"@' "$app_toml"
   sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EXECUTION_JWT_FILE"'"@' "$app_toml"
 
