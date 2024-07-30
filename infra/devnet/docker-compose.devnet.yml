@@ -42,14 +42,14 @@ services:
       MITOSISD_GENESIS_FILE: /artifacts/genesis-final.json
     volumes:
       - *infra-volume
-      - &artifact-volume ./tmp/devnet/register-to-ethos/artifacts:/artifacts:ro
+      - &artifact-volume ./tmp/devnet/init/artifacts:/artifacts:ro
 
-  register-to-ethos:
+  init:
     <<: *base
-    hostname: register-to-ethos
+    hostname: init
     profiles:
-      - register-to-ethos
-    entrypoint: /infra/mitosisd/scripts/register-to-ethos.sh
+      - init
+    entrypoint: /infra/mitosisd/scripts/init.sh
     environment:
       <<: *base_environment
       MITOSIS_CHAIN_ID: mitosis-devnet-1
@@ -58,7 +58,7 @@ services:
       ETHOS_RPC: http://host.docker.internal:26657
     volumes:
       - *infra-volume
-      - ./tmp/devnet/register-to-ethos:/db
+      - ./tmp/devnet/init:/db
     networks:
       common:
         ipv4_address: 172.50.1.1

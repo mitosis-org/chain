@@ -260,9 +260,9 @@ devnet-build:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
 		--profile '*' build
 
-devnet-register-to-ethos:
+devnet-init:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
-		--profile register-to-ethos up -d
+		--profile init up -d
 
 devnet-up:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
