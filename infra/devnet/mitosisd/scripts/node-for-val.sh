@@ -39,8 +39,8 @@ else
   echo "[IMPORTANT] Initialize mitosisd home directory: $MITOSIS_HOME"
   $MITOSISD init taeguk --chain-id "$MITOSIS_CHAIN_ID" --default-denom "$MITOSIS_DENOM" --home "$MITOSIS_HOME"
 
-  cp "$VAL_KEY_FILE" "$MITOSIS_HOME"/config/priv_validator_key.json
   cp "$MITOSISD_GENESIS_FILE" "$MITOSIS_HOME"/config/genesis.json
+  cp "$VAL_KEY_FILE" "$MITOSIS_HOME"/config/priv_validator_key.json
 
   app_toml="$MITOSIS_HOME"/config/app.toml
   config_toml="$MITOSIS_HOME"/config/config.toml

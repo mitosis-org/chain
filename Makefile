@@ -267,7 +267,7 @@ devnet-register-to-ethos:
 
 devnet-up:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
-		--profile validator up -d
+		--profile validator --profile node up -d
 
 devnet-down:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
