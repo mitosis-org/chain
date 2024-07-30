@@ -5,9 +5,7 @@ import (
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
-var (
-	_ evmengtypes.AddressProvider = &SimpleAddressProvider{}
-)
+var _ evmengtypes.AddressProvider = &SimpleAddressProvider{}
 
 type SimpleAddressProvider struct {
 	pubKey crypto.PubKey

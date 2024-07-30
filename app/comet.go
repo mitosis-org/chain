@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+
 	"github.com/cosmos/cosmos-sdk/client"
 
 	cmttypes "github.com/cometbft/cometbft/types"

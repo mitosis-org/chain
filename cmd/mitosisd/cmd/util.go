@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	dbm "github.com/cosmos/cosmos-db"
 	"io"
 	"os"
 	"path/filepath"
+
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 func openDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) {

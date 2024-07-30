@@ -13,8 +13,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type postFinalizeCallback func(sdk.Context) error
-type multiStoreProvider func() storetypes.CacheMultiStore
+type (
+	postFinalizeCallback func(sdk.Context) error
+	multiStoreProvider   func() storetypes.CacheMultiStore
+)
 
 type abciWrapper struct {
 	abci.Application

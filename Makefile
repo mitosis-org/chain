@@ -131,7 +131,7 @@ clean:
 ###                                Linting                                  ###
 ###############################################################################
 golangci_lint_cmd=golangci-lint
-golangci_version=v1.52.2
+golangci_version=v1.59.1
 
 lint:
 	@echo "--> Running linter"
@@ -146,7 +146,7 @@ lint-fix:
 format:
 	@go install mvdan.cc/gofumpt@latest
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -path "./tests/mocks/*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs gofumpt -w -l
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./ethos" -not -path "./tests/mocks/*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" | xargs gofumpt -w -l
 	$(golangci_lint_cmd) run --fix
 .PHONY: format
 

@@ -1,8 +1,11 @@
 package integration
 
 import (
-	"cosmossdk.io/log"
 	"encoding/json"
+	"testing"
+
+	"cosmossdk.io/log"
+
 	cometbfttypes "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,12 +18,9 @@ import (
 	ccvtypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/types"
 	mitosisapp "github.com/mitosis-org/chain/app"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
-var (
-	ccvSuite *integration.CCVTestSuite
-)
+var ccvSuite *integration.CCVTestSuite
 
 func init() {
 	ccvSuite = integration.NewCCVTestSuite[*providerApp.App, *mitosisapp.MitosisApp](

@@ -2,9 +2,15 @@ package app
 
 import (
 	"context"
-	"cosmossdk.io/x/evidence/exported"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"time"
+
+	"cosmossdk.io/x/evidence/exported"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -16,10 +22,6 @@ import (
 	"github.com/mitosis-org/chain/app/params"
 	"github.com/omni-network/omni/lib/ethclient"
 	"github.com/spf13/cast"
-	"io"
-	"os"
-	"path/filepath"
-	"time"
 
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
@@ -564,7 +566,7 @@ func NewMitosisApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	// set ante handler
-	//app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
+	// app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
 
 	app.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
 	app.SetProcessProposal(makeProcessProposalHandler(app, txConfig))

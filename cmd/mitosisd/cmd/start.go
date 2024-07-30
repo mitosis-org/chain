@@ -3,17 +3,19 @@ package cmd
 import (
 	"bufio"
 	"context"
-	storetypes "cosmossdk.io/store/types"
 	"fmt"
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cosmos/cosmos-sdk/server"
-	mitosisapp "github.com/mitosis-org/chain/app"
 	"io"
 	"net"
 	"os"
 	"runtime/pprof"
 	"strings"
 	"time"
+
+	storetypes "cosmossdk.io/store/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/server"
+	mitosisapp "github.com/mitosis-org/chain/app"
 
 	cmtserver "github.com/cometbft/cometbft/abci/server"
 	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"

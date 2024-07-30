@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"os"
 	"path/filepath"
+
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cosmos/go-bip39"

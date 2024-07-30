@@ -2,6 +2,7 @@ package ante
 
 import (
 	"errors"
+
 	ethosconsumerkeeper "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,7 +38,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		//NewMsgFilterDecorator(options.ConsumerKeeper),
+		// NewMsgFilterDecorator(options.ConsumerKeeper),
 		NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),

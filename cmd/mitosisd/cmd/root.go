@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
 	pvm "github.com/cometbft/cometbft/privval"
@@ -10,7 +12,6 @@ import (
 	"github.com/mitosis-org/chain/app/params"
 	"github.com/omni-network/omni/lib/ethclient"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
-	"os"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -29,9 +30,7 @@ import (
 
 const EnvPrefix = "MITO"
 
-var (
-	runningCmd *cobra.Command
-)
+var runningCmd *cobra.Command
 
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	app.SetupConfig()
