@@ -130,7 +130,7 @@ make devnet-init
 make devnet-up
 
 # Check the status of the nodes.
-docker logs mitosis-devnet-node-1-mitosid-1
+docker logs mitosis-devnet-node-1-mitosisd-1
 docker logs mitosis-devnet-node-1-geth-1
 
 # Check geth rpc is working properly.
