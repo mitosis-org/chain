@@ -104,30 +104,15 @@ ifeq (debug,$(findstring debug,$(COSMOS_BUILD_OPTIONS)))
 endif
 
 ###############################################################################
-###                            Submodule Setup                              ###
-###############################################################################
-
-init-submodules:
-	@echo "Initializing and updating Git submodules..."
-	git submodule update --init --recursive
-
-###############################################################################
 ###                                  Build                                  ###
 ###############################################################################
 
 BUILD_TARGETS := build install
 
-BUILD_ARGS ?= -o $(BUILD_DIR)/
+build: BUILD_ARGS=-o $(BUILD_DIR)/
 
-build: init-submodules
-	@echo "Building with args: $(BUILD_ARGS)"
-	@$(MAKE) _build
-
-build-mitosisd: init-submodules
-	@BINARY_NAME=mitosisd $(MAKE) _build
-
-_build: go.sum $(BUILD_DIR)/
-	cd ${CURDIR}/cmd/$(BINARY_NAME) && go build -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
+build-mitosisd:
+	BINARY_NAME=mitosisd $(MAKE) build
 
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
@@ -135,7 +120,7 @@ $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 $(BUILD_DIR)/:
 	mkdir -p $(BUILD_DIR)/
 
-.PHONY: build init-submodules _build
+.PHONY: build
 
 clean:
 	rm -rf $(BUILD_DIR)/ artifacts/
