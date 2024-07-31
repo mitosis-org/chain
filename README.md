@@ -25,31 +25,41 @@ We categorize environments for setup into:
 
 You should run `geth` and `mitosisd` both.
 
+
+Pre-requisites
+
+Make sure you have fetched the GitHub submodules:
+
+```sh
+git submodule update --init --recursive
+```
+
 Setup and run `geth`:
+
 ```bash
 # It initializes geth. If there was already initialized, it remove all old data and re-initialize it.
-setup-geth
+make setup-geth
 
 # Note that it just tries to use existing data instead of setting up geth automatically.
 # You should run `setup-geth` if you haven't initialized geth yet or want to reset it.
-run-geth
+make run-geth
 ```
 
 Setup and run `mitosisd`:
 ```bash
 # It initializes mitosisd. If there was already initialized, it remove all old data and re-initialize it.
-setup-mitosisd
+make setup-mitosisd
 
 # Note that it just tries to use existing data instead of setting up mitosisd automatically.
 # You should run `setup-mitosisd` if you haven't initialized mitosisd yet or want to reset it.
-run-mitosisd
+make run-mitosisd
 ```
 
 Remove all data (reset) of `geth` and `mitosisd`:
 ```bash
 # Note that it won't be working as expected if you clean up only one of geth and mitosisd.
-clean-geth
-clean-mitosisd
+make clean-geth
+make clean-mitosisd
 ```
 
 ### Devnet
