@@ -179,10 +179,10 @@ endif
 
 CHAIN_ID = 'mitosis-localnet-1'
 MITOSISD_DENOM = thai
-MITOSISD_HOME = ./tmp/localnet/mitosisd
-MITOSISD_INFRA_DIR = ./infra/localnet/mitosisd
-GETH_INFRA_DIR = ./infra/localnet/geth
-GETH_DATA_DIR = ./tmp/localnet/geth
+MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
+MITOSISD_INFRA_DIR = $(CURDIR)/infra/localnet/mitosisd
+GETH_INFRA_DIR = $(CURDIR)/infra/localnet/geth
+GETH_DATA_DIR = $(CURDIR)/tmp/localnet/geth
 
 clean-geth:
 	rm -rf $(GETH_DATA_DIR)
