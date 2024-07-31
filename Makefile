@@ -206,7 +206,7 @@ run-geth:
 			--http \
 			--http.addr 0.0.0.0 \
 			--http.vhosts "*" \
-			--http.api eth,net,web3,txpool \
+			--http.api eth,net,web3,txpool,debug \
 			--authrpc.addr 0.0.0.0 \
 			--authrpc.jwtsecret /infra/jwt.hex \
 			--authrpc.vhosts "*" \
