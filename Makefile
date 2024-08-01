@@ -227,7 +227,7 @@ setup-mitosisd: build clean-mitosisd
 	jq --arg hash `cast block --rpc-url http://127.0.0.1:8545 | grep hash | awk '{print $$2}' | xxd -r -p | base64` \
 		'.app_state.evmengine.execution_block_hash = $$hash' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
 	jq '.consensus.params.block.max_bytes = "-1"' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
-	jq --argfile ccv $(MITOSISD_INFRA_DIR)/ccv-state.json '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
+	jq --argjson ccv '$(shell cat $(MITOSISD_INFRA_DIR)/ccv-state.json | jq -c)' '.app_state.ccvconsumer = $$ccv' $(MITOSISD_HOME)/config/genesis.json > $(MITOSISD_HOME)/config/genesis.json.tmp && mv $(MITOSISD_HOME)/config/genesis.json.tmp $(MITOSISD_HOME)/config/genesis.json
 
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' $(MITOSISD_HOME)/config/app.toml
 	#sed -i.bak'' 's/mock = false/mock = true/' $(MITOSISD_HOME)/config/app.toml # Comment out this line to mock execution engine instead of using real geth.
