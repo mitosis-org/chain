@@ -37,11 +37,11 @@ geth --config "$DATA_DIR/config.toml" \
     --http \
     --http.addr 0.0.0.0 \
     --http.vhosts "*" \
+    --http.corsdomain "*" \
     --http.api eth,net,web3,txpool,debug \
     --authrpc.addr 0.0.0.0 \
     --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
     --authrpc.vhosts "*" \
-    --rpccorsdomain=* \
     --state.scheme=path \
     --datadir "$DATA_DIR" \
     --syncmode full \
