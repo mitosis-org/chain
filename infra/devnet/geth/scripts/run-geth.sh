@@ -41,6 +41,7 @@ geth --config "$DATA_DIR/config.toml" \
     --authrpc.addr 0.0.0.0 \
     --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
     --authrpc.vhosts "*" \
+    --rpccorsdomain=* \
     --state.scheme=path \
     --datadir "$DATA_DIR" \
     --syncmode full \
