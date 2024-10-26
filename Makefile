@@ -236,6 +236,7 @@ setup-mitosisd: build clean-mitosisd
 	sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' $(MITOSISD_HOME)/config/app.toml
 	sed -i.bak'' 's@jwt-file = ""@jwt-file = "'$(GETH_INFRA_DIR)'/jwt.hex"@' $(MITOSISD_HOME)/config/app.toml
 
+	sed -i.bak'' 's/type = "flood"/type = "nop"/' $(MITOSISD_HOME)/config/config.toml
 	sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' $(MITOSISD_HOME)/config/config.toml
 	sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' $(MITOSISD_HOME)/config/config.toml
 

@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
+	pvm "github.com/cometbft/cometbft/privval"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -13,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/omni-network/omni/lib/ethclient"
+	"github.com/omni-network/omni/lib/k1util"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -163,20 +165,18 @@ func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clien
 }
 
 func newAddrProvider(rootCmd *cobra.Command) (app.ValidatorAddressProvider, error) {
-	// TODO(wip):
-	return app.ValidatorAddressProvider{}, nil
-	//serverCtx := server.GetServerContextFromCmd(rootCmd)
-	//
-	//cfg := serverCtx.Config
-	//
-	//privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-	//
-	//addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
-	//if err != nil {
-	//	return app.ValidatorAddressProvider{}, err
-	//}
-	//
-	//return app.ValidatorAddressProvider{Addr: addr}, nil
+	serverCtx := server.GetServerContextFromCmd(rootCmd)
+
+	cfg := serverCtx.Config
+
+	privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+
+	addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
+	if err != nil {
+		return app.ValidatorAddressProvider{}, err
+	}
+
+	return app.ValidatorAddressProvider{Addr: addr}, nil
 }
 
 func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {

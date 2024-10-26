@@ -51,8 +51,7 @@ else
   sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EXECUTION_JWT_FILE"'"@' "$app_toml"
 
   # Setup config.toml
-  # TODO(thai): octane wants nop but ethos don't want nop...
-  #sed -i.bak'' 's/type = "flood"/type = "nop"/' "$config_toml"
+  sed -i.bak'' 's/type = "flood"/type = "nop"/' "$config_toml"
   sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$config_toml"
   sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' "$config_toml"
 fi
