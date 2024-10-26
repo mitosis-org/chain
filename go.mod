@@ -21,10 +21,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.8
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.5.0
-	github.com/cosmos/ibc-go/modules/capability v1.0.0
-	github.com/cosmos/ibc-go/v8 v8.3.1
 	github.com/ethereum/go-ethereum v1.14.7
-	github.com/ethos-works/ethos/ethos-chain v0.0.0-00010101000000-000000000000
 	github.com/hashicorp/go-metrics v0.5.3
 	github.com/omni-network/omni v0.0.0-00010101000000-000000000000
 	github.com/spf13/cast v1.6.0
@@ -99,8 +96,6 @@ require (
 	github.com/emicklei/dot v1.6.1 // indirect
 	github.com/ethereum/c-kzg-4844 v1.0.0 // indirect
 	github.com/ethereum/go-verkle v0.1.1-0.20240306133620-7d920df305f0 // indirect
-	github.com/ethos-works/ethos-avs v0.0.0-20231121191832-9fb41ad4a7ba // indirect
-	github.com/ethos-works/ethos-eigensdk-go v0.0.4 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -251,8 +246,6 @@ require (
 // following versions might cause unexpected behavior
 replace (
 	cosmossdk.io/core => cosmossdk.io/core v0.11.0 // core v0.12 was tagged wrong (SDK v0.51.x)
-	github.com/ethos-works/ethos-avs => ./ethos/ethos-avs
-	github.com/ethos-works/ethos/ethos-chain => ./ethos/ethos-chain
 	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20240719134436-e724f84633a8
 	github.com/spf13/viper => github.com/spf13/viper v1.17.0 // v1.18+ breaks app overrides
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

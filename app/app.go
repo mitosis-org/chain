@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/omni-network/omni/lib/errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -13,12 +15,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
-	appante "github.com/mitosis-org/chain/app/ante"
 	"github.com/mitosis-org/chain/app/params"
 	"github.com/omni-network/omni/lib/ethclient"
 	"github.com/spf13/cast"
@@ -80,25 +76,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	ethostestutilintegration "github.com/ethos-works/ethos/ethos-chain/testutil/integration"
-	testutil "github.com/ethos-works/ethos/ethos-chain/testutil/integration"
-	ethosconsumermodule "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer"
-	ethosconsumerkeeper "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/keeper"
-	ethosconsumertypes "github.com/ethos-works/ethos/ethos-chain/x/ccv/consumer/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
 	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
@@ -110,18 +90,13 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:                      nil,
-		ethosconsumertypes.ConsumerRedistributeName:     nil,
-		ethosconsumertypes.ConsumerToSendToProviderName: nil,
-		ibctransfertypes.ModuleName:                     {authtypes.Minter, authtypes.Burner},
+		authtypes.FeeCollectorName: nil,
 	}
 )
 
 var (
-	_ runtime.AppI                         = (*MitosisApp)(nil)
-	_ servertypes.Application              = (*MitosisApp)(nil)
-	_ ibctesting.TestingApp                = (*MitosisApp)(nil)
-	_ ethostestutilintegration.ConsumerApp = (*MitosisApp)(nil)
+	_ runtime.AppI            = (*MitosisApp)(nil)
+	_ servertypes.Application = (*MitosisApp)(nil)
 )
 
 type MitosisApp struct {
@@ -140,34 +115,18 @@ type MitosisApp struct {
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	CapabilityKeeper      *capabilitykeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
-	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ConsensusParamsKeeper consensusparamskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 
-	// ibc keepers
-	IBCKeeper      *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TransferKeeper ibctransferkeeper.Keeper
-
-	// ethos keepers
-	ConsumerKeeper ethosconsumerkeeper.Keeper
-
 	// EVM keepers
 	EVMEngKeeper *evmengkeeper.Keeper
-
-	// make scoped keepers public for test purposes
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
-	ScopedConsumerKeeper capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	ModuleManager      *module.Manager
 	BasicModuleManager module.BasicManager
-
-	// simulation manager
-	simulationManager *module.SimulationManager
 
 	// module configurator
 	configurator module.Configurator
@@ -210,15 +169,13 @@ func NewMitosisApp(
 
 	// setup keys
 	keys := storetypes.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, capabilitytypes.StoreKey,
+		authtypes.StoreKey, banktypes.StoreKey,
 		slashingtypes.StoreKey, crisistypes.StoreKey, upgradetypes.StoreKey,
 		consensusparamtypes.StoreKey, evidencetypes.StoreKey,
-		ibcexported.StoreKey, ibctransfertypes.StoreKey,
-		ethosconsumertypes.StoreKey,
 		evmengtypes.StoreKey,
 	)
 	tkeys := storetypes.NewTransientStoreKeys()
-	memKeys := storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, evmengtypes.MemStoreKey)
+	memKeys := storetypes.NewMemoryStoreKeys(evmengtypes.MemStoreKey)
 
 	// register streaming services
 	if err := bApp.RegisterStreamingServices(appOpts, keys); err != nil {
@@ -253,19 +210,6 @@ func NewMitosisApp(
 	app.ConsensusParamsKeeper = consensusparamskeeper.NewKeeper(appCodec, runtime.NewKVStoreService(keys[consensusparamtypes.StoreKey]), authorityAddr, runtime.EventService{})
 	bApp.SetParamStore(app.ConsensusParamsKeeper.ParamsStore)
 
-	// add capability keeper and ScopeToModule for ibc module
-	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
-
-	// grant capabilities for modules
-	app.ScopedIBCKeeper = app.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
-	app.ScopedTransferKeeper = app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	app.ScopedConsumerKeeper = app.CapabilityKeeper.ScopeToModule(ethosconsumertypes.ModuleName)
-
-	// seal capability keeper after scoping modules
-	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
-	// their scoped modules in `NewMitosisApp` with `ScopeToModule`
-	app.CapabilityKeeper.Seal()
-
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec,
@@ -286,25 +230,24 @@ func NewMitosisApp(
 		logger,
 	)
 
+	app.StakingKeeper = stakingkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(keys[stakingtypes.StoreKey]),
+		app.AccountKeeper,
+		app.BankKeeper,
+		authorityAddr,
+		valCodec,
+		consCodec,
+	)
+
 	// consumer keeper satisfies the staking keeper interface
 	// of the slashing module
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
 		legacyAmino,
 		runtime.NewKVStoreService(keys[slashingtypes.StoreKey]),
-		&app.ConsumerKeeper,
+		app.StakingKeeper,
 		authorityAddr,
-	)
-
-	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
-	app.CrisisKeeper = crisiskeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[crisistypes.StoreKey]),
-		invCheckPeriod,
-		app.BankKeeper,
-		authtypes.FeeCollectorName,
-		authorityAddr,
-		accCodec,
 	)
 
 	// create the upgrade keeper
@@ -323,74 +266,6 @@ func NewMitosisApp(
 	)
 
 	////////////////////////////////////////////
-	// IBC / Ethos
-	////////////////////////////////////////////
-
-	// pre-initialize ConsumerKeeper to satisfy ibckeeper.NewKeeper
-	// which would panic on nil or zero keeper
-	// ConsumerKeeper implements StakingKeeper but all function calls result in no-ops so this is safe
-	// communication over IBC is not affected by these changes
-	app.ConsumerKeeper = ethosconsumerkeeper.NewNonZeroKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[ethosconsumertypes.StoreKey]),
-	)
-
-	app.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec,
-		keys[ibcexported.StoreKey],
-		nil,
-		app.ConsumerKeeper,
-		app.UpgradeKeeper,
-		app.ScopedIBCKeeper,
-		authorityAddr,
-	)
-
-	// initialize the actual consumer keeper
-	app.ConsumerKeeper = ethosconsumerkeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[ethosconsumertypes.StoreKey]),
-		app.ScopedConsumerKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper,
-		app.IBCKeeper.ConnectionKeeper,
-		app.IBCKeeper.ClientKeeper,
-		app.SlashingKeeper,
-		app.BankKeeper,
-		app.AccountKeeper,
-		&app.TransferKeeper,
-		app.IBCKeeper,
-		authtypes.FeeCollectorName,
-		authorityAddr,
-		valCodec,
-		consCodec,
-	)
-
-	// register slashing module Slashing hooks to the consumer keeper
-	app.ConsumerKeeper = *app.ConsumerKeeper.SetHooks(app.SlashingKeeper.Hooks())
-	consumerModule := ethosconsumermodule.NewAppModule(app.ConsumerKeeper, paramstypes.Subspace{})
-
-	// Create Transfer Keeper and pass IBCFeeKeeper as expected Channel and PortKeeper
-	// since fee middleware will wrap the IBCKeeper for underlying application.
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], nil,
-		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, app.ScopedTransferKeeper,
-		authorityAddr,
-	)
-	transferStack := ibctransfer.NewIBCModule(app.TransferKeeper)
-
-	////////////////////////////////////////////
-	// IBC router Configuration
-	////////////////////////////////////////////
-
-	ibcRouter := porttypes.NewRouter().
-		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(ethosconsumertypes.ModuleName, consumerModule)
-
-	app.IBCKeeper.SetRouter(ibcRouter)
-
-	////////////////////////////////////////////
 	// Evidence
 	////////////////////////////////////////////
 
@@ -398,7 +273,7 @@ func NewMitosisApp(
 	app.EvidenceKeeper = *evidencekeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(keys[evidencetypes.StoreKey]),
-		&app.ConsumerKeeper,
+		app.StakingKeeper,
 		app.SlashingKeeper,
 		app.AccountKeeper.AddressCodec(),
 		runtime.ProvideCometInfoService(),
@@ -412,9 +287,9 @@ func NewMitosisApp(
 		}
 
 		distributionHeight := e.GetHeight() - sdk.ValidatorUpdateDelay
-		_, err = app.ConsumerKeeper.SlashWithInfractionReason(
+		_, err = app.StakingKeeper.SlashWithInfractionReason(
 			ctx,
-			e.(*evidencetypes.Equivocation).GetConsensusAddress(app.ConsumerKeeper.ConsensusAddressCodec()),
+			e.(*evidencetypes.Equivocation).GetConsensusAddress(app.StakingKeeper.ConsensusAddressCodec()),
 			distributionHeight,
 			e.(*evidencetypes.Equivocation).GetValidatorPower(),
 			slashFractionDoubleSign,
@@ -451,28 +326,15 @@ func NewMitosisApp(
 	// Module Options
 	////////////////////////////////////////////
 
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
-
 	app.ModuleManager = module.NewManager(
-		genutil.NewAppModule(app.AccountKeeper, app.ConsumerKeeper, app, txConfig),
+		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app, txConfig),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil, nil),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, nil),
-		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
-		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, nil),
-		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.ConsumerKeeper, nil, app.interfaceRegistry),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, nil, app.interfaceRegistry),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, nil),
 		upgrade.NewAppModule(app.UpgradeKeeper, app.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
-
-		// IBC modules
-		ibc.NewAppModule(app.IBCKeeper),
-		ibctransfer.NewAppModule(app.TransferKeeper),
-		ibctm.NewAppModule(),
-
-		// Ethos modules
-		consumerModule,
 
 		// EVM modules
 		evmengmodule.NewAppModule(appCodec, app.EVMEngKeeper),
@@ -501,39 +363,28 @@ func NewMitosisApp(
 	)
 
 	app.ModuleManager.SetOrderBeginBlockers(
-		// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
-		capabilitytypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		ibcexported.ModuleName,
-		ethosconsumertypes.ModuleName,
+		stakingtypes.ModuleName,
 	)
 
 	app.ModuleManager.SetOrderEndBlockers(
 		crisistypes.ModuleName,
+		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		ethosconsumertypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
-	// NOTE: Capability module must occur first so that it can initialize any capabilities
-	// so that other modules that want to create or claim capabilities afterwards in InitChain
-	// can do so safely.
 	genesisModuleOrder := []string{
-		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
+		authtypes.ModuleName, banktypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName,
 		upgradetypes.ModuleName, consensusparamtypes.ModuleName,
-		ibcexported.ModuleName, ibctransfertypes.ModuleName,
-		ethosconsumertypes.ModuleName,
 		evmengtypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
-
-	// register all module invariants
-	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	if err := app.ModuleManager.RegisterServices(app.configurator); err != nil {
@@ -566,7 +417,7 @@ func NewMitosisApp(
 	app.SetEndBlocker(app.EndBlocker)
 
 	// set ante handler
-	// app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
+	//app.setAnteHandler(txConfig) // TODO(thai): ethos need this but octane should not use this.
 
 	app.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
 	app.SetProcessProposal(makeProcessProposalHandler(app, txConfig))
@@ -593,28 +444,6 @@ func NewMitosisApp(
 	}
 
 	return app
-}
-
-func (app *MitosisApp) setAnteHandler(txConfig client.TxConfig) {
-	anteHandler, err := appante.NewAnteHandler(
-		appante.HandlerOptions{
-			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AccountKeeper,
-				BankKeeper:      app.BankKeeper,
-				FeegrantKeeper:  nil, // TODO(wip):
-				SignModeHandler: txConfig.SignModeHandler(),
-				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-			},
-			IBCKeeper:      app.IBCKeeper,
-			ConsumerKeeper: app.ConsumerKeeper,
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	// Set the AnteHandler for the app
-	app.SetAnteHandler(anteHandler)
 }
 
 func (app *MitosisApp) Name() string { return app.BaseApp.Name() }
@@ -666,11 +495,6 @@ func (app *MitosisApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
-// GetTxConfig satisfies the interface of ibctesting.TestingApp
-func (app *MitosisApp) GetTxConfig() client.TxConfig {
-	return app.TxConfig()
-}
-
 // AutoCliOpts returns the autocli options for the app.
 func (app *MitosisApp) AutoCliOpts() autocli.AppOptions {
 	modules := make(map[string]appmodule.AppModule, 0)
@@ -714,9 +538,15 @@ func (app *MitosisApp) GetStoreKeys() []storetypes.StoreKey {
 	return keys
 }
 
+// ExportAppStateAndValidators exports the state of the application for a genesis
+// file.
+func (app *MitosisApp) ExportAppStateAndValidators(_ bool, _ []string, _ []string) (servertypes.ExportedApp, error) {
+	return servertypes.ExportedApp{}, errors.New("not implemented")
+}
+
 // SimulationManager implements the SimulationApp interface
 func (app *MitosisApp) SimulationManager() *module.SimulationManager {
-	return app.simulationManager
+	return nil
 }
 
 func (app *MitosisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
@@ -771,58 +601,8 @@ func (app *MitosisApp) GetBaseApp() *baseapp.BaseApp {
 	return app.BaseApp
 }
 
-// GetScopedIBCKeeper implements the TestingApp interface.
-func (app *MitosisApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
-	return app.ScopedIBCKeeper
-}
-
-// GetIBCKeeper implements the TestingApp interface.
-func (app *MitosisApp) GetIBCKeeper() *ibckeeper.Keeper {
-	return app.IBCKeeper
-}
-
 func (app *MitosisApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
-}
-
-// ConsumerApp interface implementations for integration tests
-
-// GetConsumerKeeper implements the ConsumerApp interface.
-func (app *MitosisApp) GetConsumerKeeper() ethosconsumerkeeper.Keeper {
-	return app.ConsumerKeeper
-}
-
-// GetTestBankKeeper implements the ConsumerApp interface.
-func (app *MitosisApp) GetTestBankKeeper() testutil.TestBankKeeper {
-	return app.BankKeeper
-}
-
-// GetTestAccountKeeper implements the ConsumerApp interface.
-func (app *MitosisApp) GetTestAccountKeeper() testutil.TestAccountKeeper {
-	return app.AccountKeeper
-}
-
-// GetTestSlashingKeeper implements the ConsumerApp interface.
-func (app *MitosisApp) GetTestSlashingKeeper() testutil.TestSlashingKeeper {
-	return app.SlashingKeeper
-}
-
-// GetTestEvidenceKeeper implements the ConsumerApp interface.
-func (app *MitosisApp) GetTestEvidenceKeeper() evidencekeeper.Keeper {
-	return app.EvidenceKeeper
-}
-
-func (app *MitosisApp) GetSubspace(moduleName string) paramstypes.Subspace {
-	// TODO(thai): this function should be removed later.
-	//   it is just for satisfying the interface. this function might not be called actually.
-	panic("this function should be not called.")
-}
-
-// TestingApp functions
-
-// GetStakingKeeper implements the TestingApp interface.
-func (app *MitosisApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
-	return app.ConsumerKeeper
 }
 
 type EmptyAppOptions struct{}
@@ -836,10 +616,6 @@ func BlockedAddrs() map[string]bool {
 	for acc := range maccPerms {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
-
-	// this is required for the consumer chain to be able to send tokens to
-	// the provider chain
-	delete(modAccAddrs, authtypes.NewModuleAddress(ethosconsumertypes.ConsumerToSendToProviderName).String())
 
 	return modAccAddrs
 }
