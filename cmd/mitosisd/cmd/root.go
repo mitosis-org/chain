@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"os"
-
 	"cosmossdk.io/client/v2/autocli"
+	clientv2keyring "cosmossdk.io/client/v2/autocli/keyring"
+	"cosmossdk.io/core/address"
+	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	pvm "github.com/cometbft/cometbft/privval"
-	dbm "github.com/cosmos/cosmos-db"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/mitosis-org/chain/app/params"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/omni-network/omni/lib/ethclient"
-	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
+	"os"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -24,7 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/server"
 
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/spf13/cobra"
 )
 
@@ -32,62 +33,79 @@ const EnvPrefix = "MITO"
 
 var runningCmd *cobra.Command
 
-func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
+func NewRootCmd() *cobra.Command {
 	app.SetupConfig()
 
-	tmpApp := newTempApp()
-	encodingConfig := params.EncodingConfig{
-		InterfaceRegistry: tmpApp.InterfaceRegistry(),
-		Codec:             tmpApp.AppCodec(),
-		TxConfig:          tmpApp.TxConfig(),
-		Amino:             tmpApp.LegacyAmino(),
-	}
+	var (
+		txConfigOpts tx.ConfigOptions
+		autoCliOpts  autocli.AppOptions
+		basicManager module.BasicManager
+		clientCtx    client.Context
+	)
 
-	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Codec).
-		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-		WithTxConfig(encodingConfig.TxConfig).
-		WithLegacyAmino(encodingConfig.Amino).
-		WithInput(os.Stdin).
-		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(app.DefaultNodeHome).
-		WithViper(EnvPrefix)
+	mockEngineClient, err := ethclient.NewEngineMock()
+	if err != nil {
+		panic(err)
+	}
+	if err := depinject.Inject(
+		depinject.Configs(
+			app.AppConfig(),
+			depinject.Supply(
+				log.NewNopLogger(),
+				mockEngineClient,
+				&app.ValidatorAddressProvider{Addr: common.Address{}},
+			),
+			depinject.Provide(
+				ProvideClientContext,
+				ProvideKeyring,
+			),
+		),
+		&txConfigOpts,
+		&autoCliOpts,
+		&basicManager,
+		&clientCtx,
+	); err != nil {
+		panic(err)
+	}
 
 	rootCmd := &cobra.Command{
 		Use:   version.AppName,
-		Short: "Mitosis - Consensus Layer",
+		Short: "Mitosis - Consensus Client",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
-			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
-			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
+			clientCtx = clientCtx.WithCmdContext(cmd.Context())
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
 
-			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
+			clientCtx, err = config.ReadFromClientConfig(clientCtx)
 			if err != nil {
 				return err
 			}
 
-			// This needs to go after ReadFromClientConfig, as that function
-			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
-			txConfigOpts := tx.ConfigOptions{
-				EnabledSignModes:           enabledSignModes,
-				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+			// sign mode textual is only available in online mode
+			if !clientCtx.Offline {
+				// This needs to go after ReadFromClientConfig, as that function
+				// sets the RPC client needed for SIGN_MODE_TEXTUAL.
+				enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+				txConfigOpts := tx.ConfigOptions{
+					EnabledSignModes:           enabledSignModes,
+					TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(clientCtx),
+				}
+				txConfigWithTextual, err := tx.NewTxConfigWithOptions(
+					codec.NewProtoCodec(clientCtx.InterfaceRegistry),
+					txConfigOpts,
+				)
+				if err != nil {
+					return err
+				}
+				clientCtx = clientCtx.WithTxConfig(txConfigWithTextual)
 			}
-			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
-				codec.NewProtoCodec(encodingConfig.InterfaceRegistry),
-				txConfigOpts,
-			)
-			if err != nil {
-				return err
-			}
-			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 
-			if err = client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
+			if err = client.SetCmdClientContextHandler(clientCtx, cmd); err != nil {
 				return err
 			}
 
@@ -104,52 +122,61 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicModuleManager)
-
-	autoCliOpts, err := enrichAutoCliOpts(tmpApp.AutoCliOpts(), initClientCtx)
-	if err != nil {
-		panic(err)
-	}
+	initRootCmd(rootCmd, clientCtx.TxConfig, basicManager)
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
 
-	return rootCmd, encodingConfig
+	return rootCmd
 }
 
-func newTempApp() *app.MitosisApp {
-	return app.NewMitosisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, nil, nil, true, app.EmptyAppOptions{})
+func ProvideClientContext(
+	appCodec codec.Codec,
+	interfaceRegistry codectypes.InterfaceRegistry,
+	txConfig client.TxConfig,
+	legacyAmino *codec.LegacyAmino,
+) client.Context {
+	clientCtx := client.Context{}.
+		WithCodec(appCodec).
+		WithInterfaceRegistry(interfaceRegistry).
+		WithTxConfig(txConfig).
+		WithLegacyAmino(legacyAmino).
+		WithInput(os.Stdin).
+		WithAccountRetriever(types.AccountRetriever{}).
+		WithHomeDir(app.DefaultNodeHome).
+		WithViper(EnvPrefix) // env variable prefix
+
+	// Read the config again to overwrite the default values with the values from the config file
+	clientCtx, _ = config.ReadFromClientConfig(clientCtx)
+
+	return clientCtx
 }
 
-func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context) (autocli.AppOptions, error) {
-	clientCtx, err := config.ReadFromClientConfig(clientCtx)
-	if err != nil {
-		return autocli.AppOptions{}, err
-	}
-
-	autoCliOpts.ClientCtx = clientCtx
-	autoCliOpts.Keyring, err = keyring.NewAutoCLIKeyring(clientCtx.Keyring)
-	if err != nil {
-		return autocli.AppOptions{}, err
-	}
-
-	return autoCliOpts, nil
-}
-
-func newAddrProvider(rootCmd *cobra.Command) (evmengtypes.AddressProvider, error) {
-	serverCtx := server.GetServerContextFromCmd(rootCmd)
-
-	cfg := serverCtx.Config
-
-	privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-
-	pubKey, err := privVal.GetPubKey()
+func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clientv2keyring.Keyring, error) {
+	kb, err := client.NewKeyringFromBackend(clientCtx, clientCtx.Keyring.Backend())
 	if err != nil {
 		return nil, err
 	}
 
-	return &SimpleAddressProvider{pubKey}, nil
+	return keyring.NewAutoCLIKeyring(kb)
+}
+
+func newAddrProvider(rootCmd *cobra.Command) (app.ValidatorAddressProvider, error) {
+	// TODO(wip):
+	return app.ValidatorAddressProvider{}, nil
+	//serverCtx := server.GetServerContextFromCmd(rootCmd)
+	//
+	//cfg := serverCtx.Config
+	//
+	//privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+	//
+	//addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
+	//if err != nil {
+	//	return app.ValidatorAddressProvider{}, err
+	//}
+	//
+	//return app.ValidatorAddressProvider{Addr: addr}, nil
 }
 
 func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {

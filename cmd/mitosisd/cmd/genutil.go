@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 	"os"
 	"path/filepath"
 
 	cfg "github.com/cometbft/cometbft/config"
-	"github.com/cometbft/cometbft/crypto/ed25519"
 	cmtos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cometbft/cometbft/p2p"
 	"github.com/cometbft/cometbft/privval"
@@ -49,20 +49,12 @@ func InitializeNodeValidatorFilesFromMnemonic(config *cfg.Config, mnemonic strin
 		if cmtos.FileExists(pvKeyFile) {
 			filePV = privval.LoadFilePV(pvKeyFile, pvStateFile)
 		} else {
-			// TODO(thai): we should use secp256k1 to integrate with octane.
-			//  but ethos doesn't support secp256k1 for now.
-			// 	so we just use ed25519 and customize octane instead.
-			// privKey := secp256k1.GenPrivKey()
-			privKey := ed25519.GenPrivKey()
+			privKey := secp256k1.GenPrivKey()
 			filePV = privval.NewFilePV(privKey, pvKeyFile, pvStateFile)
 			filePV.Save()
 		}
 	} else {
-		// TODO(thai): we should use secp256k1 to integrate with octane.
-		//  but ethos doesn't support secp256k1 for now.
-		// 	so we just use ed25519 and customize octane instead.
-		// privKey := secp256k1.GenPrivKeySecp256k1([]byte(mnemonic))
-		privKey := ed25519.GenPrivKey()
+		privKey := secp256k1.GenPrivKeySecp256k1([]byte(mnemonic))
 		filePV = privval.NewFilePV(privKey, pvKeyFile, pvStateFile)
 		filePV.Save()
 	}
