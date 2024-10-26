@@ -4,10 +4,6 @@ import (
 	"errors"
 	"io"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/mitosis-org/chain/app/params"
-
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
@@ -21,7 +17,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
@@ -29,7 +27,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, basicManager module.BasicManager) {
+func initRootCmd(rootCmd *cobra.Command, txConfig client.TxConfig, basicManager module.BasicManager) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
@@ -45,7 +43,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, b
 
 	rootCmd.AddCommand(
 		server.StatusCommand(),
-		genesisCommand(encodingConfig, app.DefaultNodeHome, basicManager),
+		genesisCommand(txConfig, app.DefaultNodeHome, basicManager),
 		queryCommand(),
 		txCommand(),
 		keys.Commands(),
@@ -81,8 +79,8 @@ func addServerCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreato
 	)
 }
 
-func genesisCommand(encodingConfig params.EncodingConfig, defaultNodeHome string, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(encodingConfig.TxConfig, basicManager, defaultNodeHome)
+func genesisCommand(txConfig client.TxConfig, defaultNodeHome string, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
+	cmd := genutilcli.Commands(txConfig, basicManager, defaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -150,15 +148,15 @@ func newApp(
 
 	engineCl, err := newEngineClient(runningCmd)
 	if err != nil {
-		return nil
+		panic(err)
 	}
 
 	addrProvider, err := newAddrProvider(runningCmd)
 	if err != nil {
-		return nil
+		panic(err)
 	}
 
-	return app.NewMitosisApp(
+	app_, err := app.NewMitosisApp(
 		logger,
 		db,
 		traceStore,
@@ -168,6 +166,11 @@ func newApp(
 		appOpts,
 		baseappOptions...,
 	)
+	if err != nil {
+		panic(err)
+	}
+
+	return app_
 }
 
 func appExport(
@@ -194,15 +197,15 @@ func appExport(
 
 	engineCl, err := newEngineClient(runningCmd)
 	if err != nil {
-		return servertypes.ExportedApp{}, nil
+		return servertypes.ExportedApp{}, err
 	}
 
 	addrProvider, err := newAddrProvider(runningCmd)
 	if err != nil {
-		return servertypes.ExportedApp{}, nil
+		return servertypes.ExportedApp{}, err
 	}
 
-	mitosisApp = app.NewMitosisApp(
+	mitosisApp, err = app.NewMitosisApp(
 		logger,
 		db,
 		traceStore,
@@ -211,6 +214,10 @@ func appExport(
 		loadLatest,
 		appOpts,
 	)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+
+	}
 
 	if height != -1 {
 		if err := mitosisApp.LoadHeight(height); err != nil {

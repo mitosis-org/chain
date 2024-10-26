@@ -16,7 +16,7 @@ const (
 	Bech32PrefixConsAddr = Bech32Prefix + "valcons"
 	Bech32PrefixConsPub  = Bech32Prefix + "valconspub"
 
-	Bip44CoinType uint32 = 118 // TODO(thai): consider to change it to 60.
+	Bip44CoinType uint32 = 118
 	Bip44Purpose  uint32 = 44
 )
 

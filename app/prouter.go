@@ -2,8 +2,6 @@ package app
 
 import (
 	"context"
-	"strings"
-
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/log"
 	etypes "github.com/omni-network/omni/octane/evmengine/types"
@@ -16,42 +14,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type MsgHandlerManager interface {
-	Handler(msg sdk.Msg) baseapp.MsgServiceHandler
-}
+// makeProcessProposalRouter creates a new process proposal router that only routes
+// expected messages to expected modules.
+func makeProcessProposalRouter(app *MitosisApp) *baseapp.MsgServiceRouter {
+	router := baseapp.NewMsgServiceRouter()
+	router.SetInterfaceRegistry(app.interfaceRegistry)
+	app.EVMEngKeeper.RegisterProposalService(router) // EVMEngine calls NewPayload on proposals to verify it.
 
-type MsgHandlerManagerForOctane struct {
-	normal    *baseapp.MsgServiceRouter
-	forOctane *baseapp.MsgServiceRouter
-}
-
-func NewMsgHandlerManagerForOctane(app *MitosisApp) MsgHandlerManagerForOctane {
-	forOctane := baseapp.NewMsgServiceRouter()
-	forOctane.SetInterfaceRegistry(app.interfaceRegistry)
-	app.EVMEngKeeper.RegisterProposalService(forOctane)
-
-	return MsgHandlerManagerForOctane{
-		normal:    app.MsgServiceRouter(),
-		forOctane: forOctane,
-	}
-}
-
-func (m MsgHandlerManagerForOctane) Handler(msg sdk.Msg) baseapp.MsgServiceHandler {
-	isOctaneMsg := sdk.MsgTypeURL(msg) == sdk.MsgTypeURL(&etypes.MsgExecutionPayload{})
-
-	if isOctaneMsg {
-		return m.forOctane.Handler(msg)
-	} else {
-		return m.normal.Handler(msg)
-	}
+	return router
 }
 
 // makeProcessProposalHandler creates a new process proposal handler.
 // It ensures all messages included in a cpayload proposal are valid.
 // It also updates some external state.
-func makeProcessProposalHandler(app *MitosisApp, txConfig client.TxConfig) sdk.ProcessProposalHandler {
-	handlerManager := NewMsgHandlerManagerForOctane(app)
-
+func makeProcessProposalHandler(router *baseapp.MsgServiceRouter, txConfig client.TxConfig) sdk.ProcessProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
 		// Ensure the proposal includes quorum vote extensions (unless first block).
 		if req.Height > 1 {
@@ -82,19 +58,15 @@ func makeProcessProposalHandler(app *MitosisApp, txConfig client.TxConfig) sdk.P
 			for _, msg := range tx.GetMsgs() {
 				typeURL := sdk.MsgTypeURL(msg)
 
-				// TODO(thai): should revise it again.
-				//  For now, we just allow ibc messages for integration with ethos.
-				if !strings.HasPrefix(typeURL, "/ibc.") {
-					// Ensure the message type is expected and not included too many times.
-					if i, ok := allowedMsgCounts[typeURL]; !ok {
-						return rejectProposal(ctx, errors.New("unexpected message type", "msg_type", typeURL))
-					} else if i <= 0 {
-						return rejectProposal(ctx, errors.New("message type included too many times", "msg_type", typeURL))
-					}
-					allowedMsgCounts[typeURL]--
+				// Ensure the message type is expected and not included too many times.
+				if i, ok := allowedMsgCounts[typeURL]; !ok {
+					return rejectProposal(ctx, errors.New("unexpected message type", "msg_type", typeURL))
+				} else if i <= 0 {
+					return rejectProposal(ctx, errors.New("message type included too many times", "msg_type", typeURL))
 				}
+				allowedMsgCounts[typeURL]--
 
-				handler := handlerManager.Handler(msg)
+				handler := router.Handler(msg)
 				if handler == nil {
 					return rejectProposal(ctx, errors.New("msg handler not found [BUG]", "msg_type", typeURL))
 				}
