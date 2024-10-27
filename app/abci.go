@@ -126,7 +126,7 @@ func (l abciWrapper) FinalizeBlock(ctx context.Context, req *abci.RequestFinaliz
 		if res.Code == 0 {
 			continue
 		}
-		log.Error(ctx, "FinalizeBlock contains unexpected failed transaction", nil,
+		log.Info(ctx, "FinalizeBlock contains the failed transaction", nil,
 			"info", res.Info, "code", res.Code, "log", res.Log,
 			"code_space", res.Codespace, "index", i, "height", req.Height)
 	}

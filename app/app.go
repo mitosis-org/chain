@@ -123,16 +123,31 @@ func NewMitosisApp(
 	app.EVMEngKeeper.SetBuildOptimistic(true)
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
-		// Use evm engine to create block proposals.
-		// Note that we do not check MaxTxBytes since all EngineEVM transaction MUST be included since we cannot
-		// postpone them to the next block.
-		bapp.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
+		bapp.SetPrepareProposal(
+			makePrepareProposalHandler(
+				app,
+				app.txConfig,
+				baseapp.NewDefaultProposalHandler(bapp.Mempool(), bapp).PrepareProposalHandler(),
+			),
+		)
 
 		// Route proposed messages to keepers for verification and external state updates.
-		bapp.SetProcessProposal(makeProcessProposalHandler(makeProcessProposalRouter(app), app.txConfig))
+		bapp.SetProcessProposal(
+			makeProcessProposalHandler(
+				makeProcessProposalRouter(app),
+				app.txConfig,
+				baseapp.NewDefaultProposalHandler(bapp.Mempool(), bapp).ProcessProposalHandler(),
+			),
+		)
 	})
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOpts...)
+
+	anteHandler, err := app.newAnteHandler()
+	if err != nil {
+		return nil, err
+	}
+	app.SetAnteHandler(anteHandler)
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, errors.Wrap(err, "failed to load latest version")
