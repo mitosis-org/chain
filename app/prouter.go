@@ -114,6 +114,7 @@ func processTxForEVM(
 	}
 
 	var nonEVMTxs [][]byte
+	isEVMTxExists := false
 
 	for _, rawTX := range req.Txs {
 		tx, err := txConfig.TxDecoder()(rawTX)
@@ -122,8 +123,13 @@ func processTxForEVM(
 		}
 
 		if isTxForEVM(tx) {
+			if isEVMTxExists {
+				return nil, errors.New("EVM payload transaction must be included only once [BUG]")
+			}
+			isEVMTxExists = true
+
 			if len(tx.GetMsgs()) != 1 {
-				return nil, errors.New("EVM payload transaction must contain exactly one message")
+				return nil, errors.New("EVM payload transaction must contain exactly one message [BUG]")
 			}
 
 			msg := tx.GetMsgs()[0]
