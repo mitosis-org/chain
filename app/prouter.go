@@ -35,22 +35,31 @@ func makePrepareProposalHandler(
 			}
 
 			if isTxForEVM(tx) {
+				// Leave logs and ignore EVM payload transactions.
 				log.Warn(ctx, "EVM payload transaction should be not included in a prepare proposal", nil)
 			} else {
 				nonEVMTxs = append(nonEVMTxs, rawTX)
 			}
 		}
 
-		req.Txs = nonEVMTxs
-		res, err := prevHandler(ctx, req)
+		reqForNonEVM := *req
+		reqForNonEVM.Txs = nonEVMTxs
+
+		// We should decrease MaxTxBytes by the size of the EVM payload transaction.
+		for _, evmTx := range resForEVM.Txs {
+			reqForNonEVM.MaxTxBytes -= int64(len(evmTx))
+		}
+		if reqForNonEVM.MaxTxBytes <= 0 {
+			// It means that we can't include any non-EVM transactions more.
+			return resForEVM, nil
+		}
+
+		resForNonEVM, err := prevHandler(ctx, &reqForNonEVM)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(resForEVM.Txs) > 0 {
-			res.Txs = append(resForEVM.Txs, res.Txs...)
-		}
-		return res, nil
+		return &abci.ResponsePrepareProposal{Txs: append(resForEVM.Txs, resForNonEVM.Txs...)}, nil
 	}
 }
 
