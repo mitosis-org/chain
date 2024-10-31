@@ -18,6 +18,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	authoritymodulev1 "github.com/noble-assets/authority/api/module/v1"
 	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -28,6 +29,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	authoritytypes "github.com/noble-assets/authority/types"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
@@ -55,22 +57,22 @@ var (
 		upgradetypes.ModuleName,
 		evidencetypes.ModuleName,
 		evmengtypes.ModuleName,
+		authoritytypes.ModuleName,
 	}
 
-	// NOTE: upgrade module must come first, as upgrades might break state schema.
 	preBlockers = []string{
-		upgradetypes.ModuleName,
+		upgradetypes.ModuleName, // NOTE: upgrade module must come first, as upgrades might break state schema.
 	}
 
 	beginBlockers = []string{
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		stakingtypes.ModuleName, // Note: staking module is required if HistoricalEntries param > 0
+		stakingtypes.ModuleName, // NOTE: staking module is required if HistoricalEntries param > 0
+		authoritytypes.ModuleName,
 	}
 
 	endBlockers = []string{}
 
-	// blocked account addresses.
 	blockAccAddrs = []string{
 		authtypes.FeeCollectorName,
 		stakingtypes.BondedPoolName,
@@ -107,6 +109,7 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					ModuleAccountPermissions: moduleAccPerms,
 					Bech32Prefix:             Bech32Prefix,
+					Authority:                authoritytypes.ModuleName,
 				}),
 			},
 			{
@@ -120,35 +123,50 @@ var (
 				Name: banktypes.ModuleName,
 				Config: appconfig.WrapAny(&bankmodulev1.Module{
 					BlockedModuleAccountsOverride: blockAccAddrs,
+					Authority:                     authoritytypes.ModuleName,
 				}),
 			},
 			{
-				Name:   consensustypes.ModuleName,
-				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
+				Name: consensustypes.ModuleName,
+				Config: appconfig.WrapAny(&consensusmodulev1.Module{
+					Authority: authoritytypes.ModuleName,
+				}),
 			},
 			{
-				Name:   slashingtypes.ModuleName,
-				Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
+				Name: slashingtypes.ModuleName,
+				Config: appconfig.WrapAny(&slashingmodulev1.Module{
+					Authority: authoritytypes.ModuleName,
+				}),
 			},
 			{
 				Name:   genutiltypes.ModuleName,
 				Config: appconfig.WrapAny(&genutilmodulev1.Module{}),
 			},
 			{
-				Name:   stakingtypes.ModuleName,
-				Config: appconfig.WrapAny(&stakingmodulev1.Module{}),
+				Name: stakingtypes.ModuleName,
+				Config: appconfig.WrapAny(&stakingmodulev1.Module{
+					Authority: authoritytypes.ModuleName,
+				}),
 			},
 			{
 				Name:   evidencetypes.ModuleName,
 				Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
 			},
 			{
-				Name:   upgradetypes.ModuleName,
-				Config: appconfig.WrapAny(&upgrademodulev1.Module{}),
+				Name: upgradetypes.ModuleName,
+				Config: appconfig.WrapAny(&upgrademodulev1.Module{
+					Authority: authoritytypes.ModuleName,
+				}),
 			},
 			{
-				Name:   evmengtypes.ModuleName,
-				Config: appconfig.WrapAny(&evmengmodule.Module{}),
+				Name: evmengtypes.ModuleName,
+				Config: appconfig.WrapAny(&evmengmodule.Module{
+					Authority: authoritytypes.ModuleName,
+				}),
+			},
+			{
+				Name:   authoritytypes.ModuleName,
+				Config: appconfig.WrapAny(&authoritymodulev1.Module{}),
 			},
 		},
 	})
