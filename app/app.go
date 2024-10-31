@@ -25,6 +25,7 @@ import (
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	authoritykeeper "github.com/noble-assets/authority/keeper"
 	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
 
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
@@ -37,6 +38,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"        // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
+	_ "github.com/noble-assets/authority"             // import for side-effects
 )
 
 var (
@@ -55,7 +57,7 @@ type MitosisApp struct {
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	// keepers
+	// basic keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
@@ -66,6 +68,9 @@ type MitosisApp struct {
 
 	// EVM keepers
 	EVMEngKeeper *evmengkeeper.Keeper
+
+	// PoA keepers
+	AuthorityKeeper *authoritykeeper.Keeper
 }
 
 func init() {
@@ -113,6 +118,7 @@ func NewMitosisApp(
 		&app.ConsensusParamsKeeper,
 		&app.UpgradeKeeper,
 		&app.EVMEngKeeper,
+		&app.AuthorityKeeper,
 	); err != nil {
 		return nil, errors.Wrap(err, "dep inject")
 	}
