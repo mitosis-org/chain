@@ -112,7 +112,7 @@ var (
 			{
 				Name: "tx",
 				Config: appconfig.WrapAny(&txconfigv1.Config{
-					SkipAnteHandler: true, // Disable ante handler (since we don't have proper txs).
+					SkipAnteHandler: true,
 					SkipPostHandler: true,
 				}),
 			},
