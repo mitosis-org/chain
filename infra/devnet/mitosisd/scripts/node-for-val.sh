@@ -27,7 +27,7 @@ echo "PEER_P2P: $PEER_P2P"
 echo "----------------------"
 
 MITOSIS_HOME="$DB_DIR/mitosisd"
-MITOSIS_DENOM='thai'
+MITOSIS_DENOM='ustake'
 
 EXECUTION_JWT_FILE="$INFRA_DIR/geth/config/common/jwt.hex"
 
@@ -46,7 +46,8 @@ else
   config_toml="$MITOSIS_HOME"/config/config.toml
 
   # Setup app.toml
-  sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025thai"/' "$app_toml"
+  sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.001ustake"/' "$app_toml"
+  sed -i.bak'' 's@pruning = "default"@pruning = "nothing"@' "$app_toml" # archiving mode
   sed -i.bak'' 's@endpoint = ""@endpoint = "'"$EXECUTION_ENDPOINT"'"@' "$app_toml"
   sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EXECUTION_JWT_FILE"'"@' "$app_toml"
 

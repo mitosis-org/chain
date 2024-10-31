@@ -192,6 +192,8 @@ setup-geth: clean-geth
 		-v $(GETH_DATA_DIR):/data \
 		ethereum/client-go init \
 			--datadir /data \
+			--db.engine pebble \
+			--state.scheme=hash \
 			/infra/genesis.json
 
 run-geth:
@@ -210,6 +212,10 @@ run-geth:
 			--authrpc.jwtsecret /infra/jwt.hex \
 			--authrpc.vhosts "*" \
 			--datadir /data \
+			--db.engine pebble \
+			--state.scheme=hash \
+			--syncmode full \
+			--gcmode archive \
 			--miner.recommit=500ms
 
 clean-mitosisd:

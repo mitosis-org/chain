@@ -30,7 +30,8 @@ jq --arg hash "$hash" '.app_state.evmengine.execution_block_hash = $hash' "$GENE
 jq '.app_state.authority.owner = "'"$OWNER"'"' "$GENESIS" > "$TEMP" && mv "$TEMP" "$GENESIS"
 
 # modify app.toml
-sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025ustake"/' "$MITOSISD_HOME"/config/app.toml
+sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.001ustake"/' "$MITOSISD_HOME"/config/app.toml
+sed -i.bak'' 's@pruning = "default"@pruning = "nothing"@' "$MITOSISD_HOME"/config/app.toml # archiving mode
 #sed -i.bak'' 's/mock = false/mock = true/' "$MITOSISD_HOME"/config/app.toml # Comment out this line to mock execution engine instead of using real geth.
 sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' "$MITOSISD_HOME"/config/app.toml
 sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$GETH_INFRA_DIR"'/jwt.hex"@' "$MITOSISD_HOME"/config/app.toml

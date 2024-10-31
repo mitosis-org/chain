@@ -22,7 +22,11 @@ if [ -d "$DATA_DIR" ]; then
   echo "====================================================================="
 else
   echo "[IMPORTANT] Initialize geth data directory: $DATA_DIR"
-  geth init --datadir "$DATA_DIR" "$COMMON_CONFIG_DIR/genesis.json"
+  geth init \
+    --datadir "$DATA_DIR" \
+    --db.engine pebble \
+    --state.scheme=hash \
+    "$COMMON_CONFIG_DIR/genesis.json"
 
   cp "$ISOLATED_CONFIG_DIR/nodekey" "$DATA_DIR/geth/nodekey"
   geth --datadir "$DATA_DIR" dumpconfig > "$DATA_DIR/config.toml"
@@ -31,8 +35,11 @@ else
   sed -i.bak'' 's|StaticNodes = \[\]|StaticNodes = \['"$STATIC_NODES"'\]|' "$DATA_DIR/config.toml"
 fi
 
-# --syncmode full: we must use full sync mode because there is problem for using snap sync with octane.
-# --miner.recommit=500ms: it is necessary to make block time faster.
+# --db.engine pebble: pebble has a better performance than leveldb.
+# --state.scheme=hash: we should use hash scheme when using archive mode. (Later, geth will support path scheme with `--gcmode archive`.)
+# --syncmode full: we must use full sync mode because there is problem when using snap sync with Octane.
+# --gcmode archive: we should use archive mode to support the full history of the data.
+# --miner.recommit=500ms: it should be enough smaller than the block time.
 geth --config "$DATA_DIR/config.toml" \
     --http \
     --http.addr 0.0.0.0 \
@@ -42,7 +49,9 @@ geth --config "$DATA_DIR/config.toml" \
     --authrpc.addr 0.0.0.0 \
     --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
     --authrpc.vhosts "*" \
-    --state.scheme=path \
     --datadir "$DATA_DIR" \
+    --db.engine pebble \
+    --state.scheme=hash \
     --syncmode full \
-    --miner.recommit=500ms \
+    --gcmode archive \
+    --miner.recommit=500ms

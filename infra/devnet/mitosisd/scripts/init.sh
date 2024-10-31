@@ -22,7 +22,7 @@ echo "----------------------"
 
 # mitosis variables
 MITOSIS_HOME="$DB_DIR/mitosisd"
-MITOSIS_DENOM='thai'
+MITOSIS_DENOM='ustake'
 MITOSIS_GEN_ACC_MNEMONIC='Ymxvb2QgYW1hemluZyBwYXNzIGxpbWl0IGFsbG93IGZsb29yIGZpbmFsIHByYWN0aWNlIGNoaWVmIHRyaWFsIG9ibGlnZSBob29kIGRyaXAgcGFsbSBwcm9ncmFtIGZsdXNoIG1pbGxpb24gZm9sZCBvcmFuZ2UgZGFyaW5nIHN3YXAgZmx5IHJlc2N1ZSBsaW1i'
 
 EXECUTION_GENESIS_BLOCK_HASH=$(xargs < "$INFRA_DIR/geth/config/common/genesis-block-hash.txt") # trim whitespace

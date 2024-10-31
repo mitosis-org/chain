@@ -125,7 +125,7 @@ func NewMitosisApp(
 
 	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
 	// TODO(thai): make it configurable
-	app.EVMEngKeeper.SetBuildDelay(time.Millisecond * 600) // 100ms longer than geth's --miner.recommit=500ms.
+	app.EVMEngKeeper.SetBuildDelay(time.Millisecond * 600) // it should be slightly longer than geth's --miner.recommit=500ms.
 	app.EVMEngKeeper.SetBuildOptimistic(true)
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
