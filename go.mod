@@ -142,6 +142,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.10 // indirect
@@ -237,7 +238,7 @@ require (
 // following versions might cause unexpected behavior
 replace (
 	//cosmossdk.io/core => cosmossdk.io/core v0.11.0 // core v0.12 was tagged wrong (SDK v0.51.x)
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20241026180623-66e453dba1e2
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20241101194817-979f87fd4fb5
 	//github.com/spf13/viper => github.com/spf13/viper v1.17.0 // v1.18+ breaks app overrides
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )

@@ -41,15 +41,15 @@ fi
 # --gcmode archive: we should use archive mode to support the full history of the data.
 # --miner.recommit=500ms: it should be enough smaller than the block time.
 geth --config "$DATA_DIR/config.toml" \
+    --datadir "$DATA_DIR" \
     --http \
     --http.addr 0.0.0.0 \
     --http.vhosts "*" \
     --http.corsdomain "*" \
-    --http.api eth,net,web3,txpool,debug \
+    --http.api eth,net,web3,txpool,rpc,debug \
     --authrpc.addr 0.0.0.0 \
-    --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
     --authrpc.vhosts "*" \
-    --datadir "$DATA_DIR" \
+    --authrpc.jwtsecret "$COMMON_CONFIG_DIR/jwt.hex" \
     --db.engine pebble \
     --state.scheme=hash \
     --syncmode full \
