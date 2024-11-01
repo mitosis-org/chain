@@ -166,9 +166,7 @@ func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clien
 
 func newAddrProvider(rootCmd *cobra.Command) (app.ValidatorAddressProvider, error) {
 	serverCtx := server.GetServerContextFromCmd(rootCmd)
-
 	cfg := serverCtx.Config
-
 	privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
 	addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
