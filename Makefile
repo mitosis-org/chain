@@ -180,15 +180,16 @@ endif
 CHAIN_ID = 'mitosis-localnet-1'
 MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
 MITOSISD_INFRA_DIR = $(CURDIR)/infra/localnet/mitosisd
-GETH_INFRA_DIR = $(CURDIR)/infra/localnet/geth
+EC_INFRA_DIR = $(CURDIR)/infra/localnet/execution-client
 GETH_DATA_DIR = $(CURDIR)/tmp/localnet/geth
+RETH_DATA_DIR = $(CURDIR)/tmp/localnet/reth
 
 clean-geth:
 	rm -rf $(GETH_DATA_DIR)
 
 setup-geth: clean-geth
 	docker run --rm \
-		-v $(GETH_INFRA_DIR):/infra \
+		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
 		ethereum/client-go init \
 			--datadir /data \
@@ -201,28 +202,61 @@ run-geth:
 		-p 30303:30303 \
 		-p 8545:8545 \
 		-p 8551:8551 \
-		-v $(GETH_INFRA_DIR):/infra \
+		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
 		ethereum/client-go \
+			--datadir /data \
 			--http \
 			--http.addr 0.0.0.0 \
 			--http.vhosts "*" \
-			--http.api eth,net,web3,txpool,debug \
+			--http.api eth,net,web3,txpool,rpc,debug \
 			--authrpc.addr 0.0.0.0 \
-			--authrpc.jwtsecret /infra/jwt.hex \
 			--authrpc.vhosts "*" \
-			--datadir /data \
+			--authrpc.jwtsecret /infra/jwt.hex \
 			--db.engine pebble \
 			--state.scheme=hash \
 			--syncmode full \
 			--gcmode archive \
 			--miner.recommit=500ms
 
+clean-reth:
+	rm -rf $(RETH_DATA_DIR)
+
+setup-reth: clean-reth
+	docker run --rm \
+		-v $(EC_INFRA_DIR):/infra \
+		-v $(RETH_DATA_DIR):/data \
+		ghcr.io/paradigmxyz/reth:v1.1.0 init \
+			--datadir /data \
+			--chain /infra/genesis.json
+
+run-reth:
+	docker run --rm \
+		-p 30303:30303 \
+		-p 30303:30303/udp \
+		-p 8545:8545 \
+		-p 8551:8551 \
+		-p 9001:9001 \
+		-v $(EC_INFRA_DIR):/infra \
+		-v $(RETH_DATA_DIR):/data \
+		ghcr.io/paradigmxyz/reth:v1.1.0 node \
+			--datadir /data \
+			--chain /infra/genesis.json \
+			--http \
+			--http.addr 0.0.0.0 \
+			--http.api eth,net,web3,txpool,rpc,debug,trace \
+			--authrpc.addr 0.0.0.0 \
+			--authrpc.jwtsecret /infra/jwt.hex \
+			--metrics 0.0.0.0:9001 \
+			--builder.interval 30ms \
+			--builder.deadline 1 \
+			--engine.legacy
+
 clean-mitosisd:
 	rm -rf $(MITOSISD_HOME)
 
 setup-mitosisd: build clean-mitosisd
-	CHAIN_ID=$(CHAIN_ID) MITOSISD_HOME=$(MITOSISD_HOME) GETH_INFRA_DIR=$(GETH_INFRA_DIR) \
+	CHAIN_ID=$(CHAIN_ID) MITOSISD_HOME=$(MITOSISD_HOME) EC_INFRA_DIR=$(EC_INFRA_DIR) \
 		$(MITOSISD_INFRA_DIR)/setup.sh
 
 run-mitosisd:

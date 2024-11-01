@@ -6,7 +6,7 @@ set -x
 echo "----- Input Envs -----"
 echo "CHAIN_ID: $CHAIN_ID"
 echo "MITOSISD_HOME: $MITOSISD_HOME"
-echo "GETH_INFRA_DIR: $GETH_INFRA_DIR"
+echo "EC_INFRA_DIR: $EC_INFRA_DIR"
 echo "----------------------"
 
 ./build/mitosisd init validator --chain-id "$CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
@@ -32,9 +32,9 @@ jq '.app_state.authority.owner = "'"$OWNER"'"' "$GENESIS" > "$TEMP" && mv "$TEMP
 # modify app.toml
 sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.001ustake"/' "$MITOSISD_HOME"/config/app.toml
 sed -i.bak'' 's@pruning = "default"@pruning = "nothing"@' "$MITOSISD_HOME"/config/app.toml # archiving mode
-#sed -i.bak'' 's/mock = false/mock = true/' "$MITOSISD_HOME"/config/app.toml # Comment out this line to mock execution engine instead of using real geth.
+#sed -i.bak'' 's/mock = false/mock = true/' "$MITOSISD_HOME"/config/app.toml # Comment out this line to mock execution engine instead of using real execution client.
 sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' "$MITOSISD_HOME"/config/app.toml
-sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$GETH_INFRA_DIR"'/jwt.hex"@' "$MITOSISD_HOME"/config/app.toml
+sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EC_INFRA_DIR"'/jwt.hex"@' "$MITOSISD_HOME"/config/app.toml
 
 # modify config.toml
 sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$MITOSISD_HOME"/config/config.toml
