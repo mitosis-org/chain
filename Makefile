@@ -191,7 +191,7 @@ setup-geth: clean-geth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go init \
+		ethereum/client-go:v1.14.11 init \
 			--datadir /data \
 			--db.engine pebble \
 			--state.scheme=hash \
@@ -204,7 +204,7 @@ run-geth:
 		-p 8551:8551 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go \
+		ethereum/client-go:v1.14.11 \
 			--datadir /data \
 			--http \
 			--http.addr 0.0.0.0 \

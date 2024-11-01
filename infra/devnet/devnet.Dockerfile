@@ -41,6 +41,6 @@ FROM alpine:3.16
 
 RUN apk add --no-cache curl make bash jq sed
 
-COPY --from=ethereum/client-go /usr/local/bin/geth /usr/local/bin/geth
+COPY --from=ethereum/client-go:v1.14.11 /usr/local/bin/geth /usr/local/bin/geth
 COPY --from=ethosd-builder /code/ethos-chain/build/ethosd /usr/bin/ethosd
 COPY --from=mitosisd-builder /code/build/mitosisd /usr/bin/mitosisd
