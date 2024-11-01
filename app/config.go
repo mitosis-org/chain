@@ -16,7 +16,7 @@ const (
 	Bech32PrefixConsAddr = Bech32Prefix + "valcons"
 	Bech32PrefixConsPub  = Bech32Prefix + "valconspub"
 
-	Bip44CoinType uint32 = 118
+	Bip44CoinType uint32 = 60 // NOTE: to generate a private key same as Ethereum
 	Bip44Purpose  uint32 = 44
 )
 
