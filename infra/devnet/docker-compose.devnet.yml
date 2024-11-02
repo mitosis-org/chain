@@ -8,21 +8,12 @@ networks:
       config:
         - subnet: 172.50.0.0/16
 
-services:
+x-service-templates:
   _base: &base
-    profiles:
-      - _
-    image: mitosis:devnet
-    build:
-      context: ./
-      dockerfile: ./infra/devnet/devnet.Dockerfile
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    environment: &base_environment
-      INFRA_DIR: /infra
-      DB_DIR: /db
     volumes:
-      - &infra-volume ./infra/devnet:/infra:ro
+      - &infra-volume ./infra/devnet:/infra/devnet:ro
     logging:
       driver: "json-file"
       options:
@@ -31,68 +22,104 @@ services:
 
   _geth: &geth
     <<: *base
-    entrypoint: /infra/geth/scripts/run-geth.sh
+    image: ethereum/client-go:v1.14.11
+    entrypoint: /infra/devnet/ec/geth.sh
+    environment: &geth-environment
+      DATA_DIR: /data
+      GENESIS_FILE: /infra/devnet/ec/genesis/genesis.json
+    volumes:
+      - *infra-volume
+
+  _reth: &reth
+    <<: *base
+    image: ghcr.io/paradigmxyz/reth:v1.1.0
+    entrypoint: /infra/devnet/ec/reth.sh
+    environment: &reth-environment
+      DATA_DIR: /data
+      GENESIS_FILE: /infra/devnet/ec/genesis/genesis.json
+    volumes:
+      - *infra-volume
 
   _mitosisd: &mitosisd
     <<: *base
+    image: mitosis:devnet
+    build:
+      context: ./
+      dockerfile: ./infra/devnet/mitosisd.Dockerfile
+    entrypoint: /infra/devnet/mitosisd/node.sh
     environment: &mitosisd-environment
-      <<: *base_environment
-      MITOSIS_CHAIN_ID: mitosis-devnet-1
       MITOSISD: /usr/bin/mitosisd
-      MITOSISD_GENESIS_FILE: /artifacts/genesis-final.json
+      MITOSISD_HOME: /root/.mitosisd
+      MITOSISD_CHAIN_ID: mitosis-devnet-1
+      GENESIS_FILE: /artifacts/genesis.json
     volumes:
       - *infra-volume
-      - &artifact-volume ./tmp/devnet/init/artifacts:/artifacts:ro
+      - &artifacts-volume ./tmp/devnet/init/artifacts:/artifacts:ro
 
+services:
   init:
     <<: *base
     hostname: init
     profiles:
       - init
-    entrypoint: /infra/mitosisd/scripts/init.sh
+    image: mitosis:devnet
+    build:
+      context: ./
+      dockerfile: ./infra/devnet/mitosisd.Dockerfile
+    entrypoint: /infra/devnet/mitosisd/init.sh
     environment:
-      <<: *base_environment
-      MITOSIS_CHAIN_ID: mitosis-devnet-1
-      MITOSISD: /usr/bin/mitosisd
-      ETHOSD: /usr/bin/ethosd
-      ETHOS_RPC: http://host.docker.internal:26657
+      <<: *mitosisd-environment
+      EC_GENESIS_BLOCK_HASH_FILE: /infra/devnet/ec/genesis/genesis-block-hash.txt
+      # sponsor worry verify hobby armed physical olympic find speak wink develop blush
+      OWNER: mito1cj8p2y9j8xkkg399n0c09xjlngp9zgsceqx8z4
+      GEN_VAL_MONIKER: "Mitosis Foundation"
+      # banana omit eye gesture disagree fork zone cup promote plunge neither rug
+      GEN_VAL_MNEMONIC: "YmFuYW5hIG9taXQgZXllIGdlc3R1cmUgZGlzYWdyZWUgZm9yayB6b25lIGN1cCBwcm9tb3RlIHBsdW5nZSBuZWl0aGVyIHJ1Zw=="
+      ARTIFACTS_DIR: /artifacts
     volumes:
       - *infra-volume
-      - ./tmp/devnet/init:/db
+      - ./tmp/devnet/init/mitosisd:/root/.mitosisd
+      - ./tmp/devnet/init/artifacts:/artifacts
     networks:
       common:
         ipv4_address: 172.50.1.1
 
-  node-1-geth:
-    <<: *geth
-    hostname: node-1-geth
+  node-reth:
+    <<: *reth
+    hostname: node-reth
     profiles:
       - node
     environment:
-      <<: *base_environment
-      ISOLATED_CONFIG_DIR: /infra/geth/config/node-1
+      <<: *reth-environment
+      MODE: full
+      JWT_FILE: /infra/devnet/ec/config/node/jwt.hex
+      NODE_KEY_FILE: /infra/devnet/ec/config/node/nodekey
+      PEERS_FILE: /infra/devnet/ec/config/node/peers
     ports:
       - "40303:30303"
       - "18545:8545"
       - "18551:8551"
     volumes:
       - *infra-volume
-      - ./tmp/devnet/node-1:/db
+      - ./tmp/devnet/node/reth:/data
     networks:
       common:
         ipv4_address: 172.50.1.1
 
-  node-1-mitosisd:
+  node-mitosisd:
     <<: *mitosisd
-    hostname: node-1-mitosisd
+    hostname: node-mitosisd
     profiles:
       - node
-    entrypoint: /infra/mitosisd/scripts/node.sh
     environment:
       <<: *mitosisd-environment
-      EXECUTION_ENDPOINT: http://node-1-geth:8551
-      PEER_RPC: val-1-mitosisd:26657
-      PEER_P2P: val-1-mitosisd:26656
+      MODE: full
+      PEER_RPC: genval-mitosisd:26657
+      PEER_P2P: genval-mitosisd:26656
+      EC_ENDPOINT: http://node-reth:8551
+      EC_JWT_FILE: /infra/devnet/ec/config/node/jwt.hex
+      VAL_MNEMONIC: ""
+      VAL_MONIKER: ""
     ports:
       - "36657:26657" # rpc
       - "19090:9090" # grpc
@@ -101,41 +128,48 @@ services:
       - "36656:26656" # p2p
     volumes:
       - *infra-volume
-      - *artifact-volume
-      - ./tmp/devnet/node-1:/db
+      - *artifacts-volume
+      - ./tmp/devnet/node/mitosisd:/root/.mitosisd
     networks:
       common:
         ipv4_address: 172.50.1.2
 
-  val-1-geth:
+  genval-geth:
     <<: *geth
-    hostname: val-1-geth
+    hostname: genval-geth
     profiles:
       - validator
     environment:
-      <<: *base_environment
-      ISOLATED_CONFIG_DIR: /infra/geth/config/val-1
+      <<: *geth-environment
+      MODE: archive
+      JWT_FILE: /infra/devnet/ec/config/genval/jwt.hex
+      NODE_KEY_FILE: /infra/devnet/ec/config/genval/nodekey
+      PEERS_FILE: /infra/devnet/ec/config/genval/peers
     ports:
       - "50303:30303"
       - "28545:8545"
       - "28551:8551"
     volumes:
       - *infra-volume
-      - ./tmp/devnet/val-1:/db
+      - ./tmp/devnet/genval/geth:/data
     networks:
       common:
         ipv4_address: 172.50.2.1
 
-  val-1-mitosisd:
+  genval-mitosisd:
     <<: *mitosisd
-    hostname: val-1-mitosisd
+    hostname: genval-mitosisd
     profiles:
       - validator
-    entrypoint: /infra/mitosisd/scripts/node-for-val.sh
     environment:
       <<: *mitosisd-environment
-      EXECUTION_ENDPOINT: http://val-1-geth:8551
-      VAL_KEY_FILE: /infra/mitosisd/keys/val-1/priv_validator_key.json
+      MODE: archive
+      PEER_RPC: ""
+      PEER_P2P: ""
+      EC_ENDPOINT: http://genval-geth:8551
+      EC_JWT_FILE: /infra/devnet/ec/config/genval/jwt.hex
+      # banana omit eye gesture disagree fork zone cup promote plunge neither rug
+      VAL_MNEMONIC: "YmFuYW5hIG9taXQgZXllIGdlc3R1cmUgZGlzYWdyZWUgZm9yayB6b25lIGN1cCBwcm9tb3RlIHBsdW5nZSBuZWl0aGVyIHJ1Zw=="
     ports:
       - "46657:26657" # rpc
       - "29090:9090" # grpc
@@ -144,43 +178,48 @@ services:
       - "46656:26656" # p2p
     volumes:
       - *infra-volume
-      - *artifact-volume
-      - ./tmp/devnet/val-1:/db
+      - *artifacts-volume
+      - ./tmp/devnet/genval/mitosisd:/root/.mitosisd
     networks:
       common:
         ipv4_address: 172.50.2.2
 
-  val-2-geth:
+  subval-geth:
     <<: *geth
-    hostname: val-2-geth
+    hostname: subval-geth
     profiles:
       - validator
     environment:
-      <<: *base_environment
-      ISOLATED_CONFIG_DIR: /infra/geth/config/val-2
+      <<: *geth-environment
+      MODE: full
+      JWT_FILE: /infra/devnet/ec/config/subval/jwt.hex
+      NODE_KEY_FILE: /infra/devnet/ec/config/subval/nodekey
+      PEERS_FILE: /infra/devnet/ec/config/subval/peers
     ports:
       - "60303:30303"
       - "38545:8545"
       - "38551:8551"
     volumes:
       - *infra-volume
-      - ./tmp/devnet/val-2:/db
+      - ./tmp/devnet/subval/geth:/data
     networks:
       common:
         ipv4_address: 172.50.3.1
 
-  val-2-mitosisd:
+  subval-mitosisd:
     <<: *mitosisd
-    hostname: val-2-mitosisd
+    hostname: subval-mitosisd
     profiles:
       - validator
-    entrypoint: /infra/mitosisd/scripts/node-for-val.sh
     environment:
       <<: *mitosisd-environment
-      EXECUTION_ENDPOINT: http://val-2-geth:8551
-      VAL_KEY_FILE: /infra/mitosisd/keys/val-2/priv_validator_key.json
-      PEER_RPC: val-1-mitosisd:26657
-      PEER_P2P: val-1-mitosisd:26656
+      MODE: full
+      PEER_RPC: genval-mitosisd:26657
+      PEER_P2P: genval-mitosisd:26656
+      EC_ENDPOINT: http://subval-geth:8551
+      EC_JWT_FILE: /infra/devnet/ec/config/subval/jwt.hex
+      # rude mountain surge galaxy leisure torch mother differ buffalo match animal layer
+      VAL_MNEMONIC: "cnVkZSBtb3VudGFpbiBzdXJnZSBnYWxheHkgbGVpc3VyZSB0b3JjaCBtb3RoZXIgZGlmZmVyIGJ1ZmZhbG8gbWF0Y2ggYW5pbWFsIGxheWVy"
     ports:
       - "56657:26657" # rpc
       - "39090:9090" # grpc
@@ -189,8 +228,30 @@ services:
       - "56656:26656" # p2p
     volumes:
       - *infra-volume
-      - *artifact-volume
-      - ./tmp/devnet/val-2:/db
+      - *artifacts-volume
+      - ./tmp/devnet/subval/mitosisd:/root/.mitosisd
     networks:
       common:
         ipv4_address: 172.50.3.2
+
+  subval-mitosisd-create-validator:
+    <<: *mitosisd
+    hostname: subval-mitosisd-create-validator
+    profiles:
+      - create-validator
+    entrypoint: /infra/devnet/mitosisd/create-validator.sh
+    environment:
+      <<: *mitosisd-environment
+      MITOSISD_NODE_RPC: tcp://subval-mitosisd:26657
+      VALIDATOR_JSON_FILE: /infra/devnet/mitosisd/config/subval/validator.json
+      NEED_FUNDING: yes
+      # sponsor worry verify hobby armed physical olympic find speak wink develop blush
+      FUNDER_MNEMONIC: "c3BvbnNvciB3b3JyeSB2ZXJpZnkgaG9iYnkgYXJtZWQgcGh5c2ljYWwgb2x5bXBpYyBmaW5kIHNwZWFrIHdpbmsgZGV2ZWxvcCBibHVzaA=="
+      FUNDING_AMOUNT: 1500000ustake
+    volumes:
+      - *infra-volume
+      - *artifacts-volume
+      - ./tmp/devnet/subval/mitosisd:/root/.mitosisd
+    networks:
+      common:
+        ipv4_address: 172.50.3.3

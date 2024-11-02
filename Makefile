@@ -177,10 +177,10 @@ endif
 ###                                Localnet                                 ###
 ###############################################################################
 
-CHAIN_ID = 'mitosis-localnet-1'
 MITOSISD_HOME = $(CURDIR)/tmp/localnet/mitosisd
+MITOSISD_CHAIN_ID = 'mitosis-localnet-1'
 MITOSISD_INFRA_DIR = $(CURDIR)/infra/localnet/mitosisd
-EC_INFRA_DIR = $(CURDIR)/infra/localnet/execution-client
+EC_INFRA_DIR = $(CURDIR)/infra/localnet/ec
 GETH_DATA_DIR = $(CURDIR)/tmp/localnet/geth
 RETH_DATA_DIR = $(CURDIR)/tmp/localnet/reth
 
@@ -256,7 +256,7 @@ clean-mitosisd:
 	rm -rf $(MITOSISD_HOME)
 
 setup-mitosisd: build clean-mitosisd
-	CHAIN_ID=$(CHAIN_ID) MITOSISD_HOME=$(MITOSISD_HOME) EC_INFRA_DIR=$(EC_INFRA_DIR) \
+	MITOSISD=./build/mitosisd MITOSISD_HOME=$(MITOSISD_HOME) MITOSISD_CHAIN_ID=$(MITOSISD_CHAIN_ID) EC_JWT_FILE=$(EC_INFRA_DIR)/jwt.hex \
 		$(MITOSISD_INFRA_DIR)/setup.sh
 
 run-mitosisd:
@@ -275,8 +275,9 @@ run-mitosisd:
 ###                                  Devnet                                 ###
 ###############################################################################
 
-# Note that it doesn't remove any docker resources.
 devnet-clean:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile '*' down
 	rm -rf ./tmp/devnet
 
 devnet-build:
@@ -293,4 +294,8 @@ devnet-up:
 
 devnet-down:
 	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
-		--profile '*' down
+		--profile validator --profile node down
+
+devnet-create-validator:
+	docker compose --project-directory ./ -f ./infra/devnet/docker-compose.devnet.yml -p mitosis-devnet \
+		--profile create-validator up -d
