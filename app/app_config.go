@@ -71,7 +71,9 @@ var (
 		authoritytypes.ModuleName,
 	}
 
-	endBlockers = []string{}
+	endBlockers = []string{
+		stakingtypes.ModuleName,
+	}
 
 	blockAccAddrs = []string{
 		authtypes.FeeCollectorName,
