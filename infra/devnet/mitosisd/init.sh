@@ -43,7 +43,14 @@ jq '.app_state.staking.params.unbonding_time = "1s"' "$GENESIS_FILE" > "$TEMP" &
 jq '.app_state.authority.owner = "'"$OWNER"'"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
 
 # Setup gentx on the genesis
-$MITOSISD genesis gentx genval 1000000ustake --chain-id "$MITOSISD_CHAIN_ID" --keyring-backend test --home "$MITOSISD_HOME"
+$MITOSISD genesis gentx genval 1000000ustake --chain-id "$MITOSISD_CHAIN_ID" --keyring-backend test --home "$MITOSISD_HOME" \
+  --moniker="$GEN_VAL_MONIKER" \
+  --commission-max-change-rate=0 \
+  --commission-max-rate=0 \
+  --commission-rate=0 \
+  --details="" \
+  --security-contact="" \
+  --website="https://x.com/baddest_dev"
 $MITOSISD genesis collect-gentxs --home "$MITOSISD_HOME"
 
 # artifacts
