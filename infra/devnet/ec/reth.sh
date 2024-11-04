@@ -23,7 +23,7 @@ else
   exit 1
 fi
 
-if find "$DATA_DIR" -mindepth 1 -maxdepth 1 | read; then
+if find "$DATA_DIR" -mindepth 1 -maxdepth 1 | read _; then
   echo "====================================================================="
   echo "[IMPORTANT] Data directory already exists. Skip initialization."
   echo "====================================================================="

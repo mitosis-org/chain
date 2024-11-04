@@ -18,7 +18,7 @@ echo "EC_JWT_FILE: $EC_JWT_FILE"
 echo "VAL_MNEMONIC (sha256): $(echo -n "$VAL_MNEMONIC" | sha256sum)"
 echo "----------------------"
 
-if find "$MITOSISD_HOME" -mindepth 1 -maxdepth 1 | read; then
+if find "$MITOSISD_HOME" -mindepth 1 -maxdepth 1 | read _; then
   echo "====================================================================="
   echo "[IMPORTANT] Home directory already exists. Skip initialization."
   echo "====================================================================="
