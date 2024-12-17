@@ -422,8 +422,6 @@ github.com/cosmos/cosmos-db v1.0.2 h1:hwMjozuY1OlJs/uh6vddqnk9j7VamLv+0DBlbEXbAK
 github.com/cosmos/cosmos-db v1.0.2/go.mod h1:Z8IXcFJ9PqKK6BIsVOB3QXtkKoqUOp1vRvPT39kOXEA=
 github.com/cosmos/cosmos-proto v1.0.0-beta.5 h1:eNcayDLpip+zVLRLYafhzLvQlSmyab+RC5W7ZfmxJLA=
 github.com/cosmos/cosmos-proto v1.0.0-beta.5/go.mod h1:hQGLpiIUloJBMdQMMWb/4wRApmI9hjHH05nefC0Ojec=
-github.com/cosmos/cosmos-sdk v0.50.10 h1:zXfeu/z653tWZARr/jESzAEiCUYjgJwwG4ytnYWMoDM=
-github.com/cosmos/cosmos-sdk v0.50.10/go.mod h1:6Eesrx3ZE7vxBZWpK++30H+Uc7Q4ahQWCL7JKU/LEdU=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
 github.com/cosmos/gogogateway v1.2.0 h1:Ae/OivNhp8DqBi/sh2A8a1D0y638GpL3tkmLQAiKxTE=
@@ -1021,6 +1019,8 @@ github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyua
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/mitchellh/pointerstructure v1.2.0 h1:O+i9nHnXS3l/9Wu7r4NrEdwA2VFTicjUEN1uBnDo34A=
 github.com/mitchellh/pointerstructure v1.2.0/go.mod h1:BRAsLI5zgXmw97Lf6s25bs8ohIXc3tViBH44KcwB2g4=
+github.com/mitosis-org/cosmos-sdk v0.50.11-0.20241217013302-f5c634b5fffd h1:I26ExJsrWyDaTtVxp+kos8w1qNt/n70Q4ElK/L/UoXg=
+github.com/mitosis-org/cosmos-sdk v0.50.11-0.20241217013302-f5c634b5fffd/go.mod h1:6Eesrx3ZE7vxBZWpK++30H+Uc7Q4ahQWCL7JKU/LEdU=
 github.com/mitosis-org/omni v0.0.0-20241101194817-979f87fd4fb5 h1:XbpJQKCv/ooOiqsb7dljER0AC1UYwRl3t5MFGfTklbU=
 github.com/mitosis-org/omni v0.0.0-20241101194817-979f87fd4fb5/go.mod h1:My8R5EtsLLVamOqoNT3Gc07D8e5N1Vr+dccI1xfXqs8=
 github.com/mmcloughlin/addchain v0.4.0 h1:SobOdjm2xLj1KkXN5/n0xTIWyZA2+s99UCY1iPfkHRY=
