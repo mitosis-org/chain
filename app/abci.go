@@ -70,6 +70,9 @@ func (l abciWrapper) PrepareProposal(ctx context.Context, proposal *abci.Request
 	log.Debug(ctx, "😈 ABCI call: PrepareProposal",
 		log.Hex7("proposer", proposal.ProposerAddress),
 	)
+
+	//log.Info(ctx, "proposal.Txs", proposal.Txs)
+	log.Info(ctx, "proposal.Txs.len", len(proposal.Txs))
 	resp, err := l.Application.PrepareProposal(ctx, proposal)
 	if err != nil {
 		log.Error(ctx, "PrepareProposal failed", err)
@@ -93,8 +96,13 @@ func (l abciWrapper) ProcessProposal(ctx context.Context, proposal *abci.Request
 
 func (l abciWrapper) FinalizeBlock(ctx context.Context, req *abci.RequestFinalizeBlock) (*abci.ResponseFinalizeBlock, error) {
 	ctx = log.WithCtx(ctx, "height", req.Height)
+
 	resp, err := l.Application.FinalizeBlock(ctx, req)
 	if err != nil {
+		//log.Info(ctx, "req", req)
+		log.Info(ctx, "req.ProposerAddress", req.ProposerAddress)
+		log.Info(ctx, "req.Txs.len", len(req.Txs))
+		log.Info(ctx, "resp", resp)
 		log.Error(ctx, "Finalize req failed", err)
 		return resp, err
 	}

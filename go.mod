@@ -236,8 +236,9 @@ require (
 
 // following versions might cause unexpected behavior
 replace (
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.11-0.20241217013302-f5c634b5fffd
 	//cosmossdk.io/core => cosmossdk.io/core v0.11.0 // core v0.12 was tagged wrong (SDK v0.51.x)
 	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20241101194817-979f87fd4fb5
-	//github.com/spf13/viper => github.com/spf13/viper v1.17.0 // v1.18+ breaks app overrides
+
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
