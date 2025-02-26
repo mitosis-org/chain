@@ -18,6 +18,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	evmgovmodulev1 "github.com/mitosis-org/chain/api/mitosis/evmgov/module/v1"
 	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -28,6 +29,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	evmgovtypes "github.com/mitosis-org/chain/x/evmgov/types"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
@@ -55,6 +57,7 @@ var (
 		upgradetypes.ModuleName,
 		evidencetypes.ModuleName,
 		evmengtypes.ModuleName,
+		evmgovtypes.ModuleName,
 	}
 
 	preBlockers = []string{
@@ -81,6 +84,7 @@ var (
 		{Account: authtypes.FeeCollectorName},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
+		{Account: evmgovtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 	}
 
 	// appConfig application configuration (used by depinject).
@@ -107,7 +111,7 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					ModuleAccountPermissions: moduleAccPerms,
 					Bech32Prefix:             Bech32Prefix,
-					Authority:                "TODO:evmgov",
+					Authority:                evmgovtypes.ModuleName,
 				}),
 			},
 			{
@@ -121,19 +125,19 @@ var (
 				Name: banktypes.ModuleName,
 				Config: appconfig.WrapAny(&bankmodulev1.Module{
 					BlockedModuleAccountsOverride: blockAccAddrs,
-					Authority:                     "TODO:evmgov",
+					Authority:                     evmgovtypes.ModuleName,
 				}),
 			},
 			{
 				Name: consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{
-					Authority: "TODO:evmgov",
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 			{
 				Name: slashingtypes.ModuleName,
 				Config: appconfig.WrapAny(&slashingmodulev1.Module{
-					Authority: "TODO:evmgov",
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 			{
@@ -143,7 +147,7 @@ var (
 			{
 				Name: stakingtypes.ModuleName,
 				Config: appconfig.WrapAny(&stakingmodulev1.Module{
-					Authority: "TODO:evmgov",
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 			{
@@ -153,13 +157,20 @@ var (
 			{
 				Name: upgradetypes.ModuleName,
 				Config: appconfig.WrapAny(&upgrademodulev1.Module{
-					Authority: "TODO:evmgov",
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 			{
 				Name: evmengtypes.ModuleName,
 				Config: appconfig.WrapAny(&evmengmodule.Module{
-					Authority: "TODO:evmgov",
+					Authority: evmgovtypes.ModuleName,
+				}),
+			},
+			{
+				Name: evmgovtypes.ModuleName,
+				Config: appconfig.WrapAny(&evmgovmodulev1.Module{
+					Authority:                   evmgovtypes.ModuleName,
+					EvmGovernanceEntrypointAddr: EVMGovernanceEntrypointAddr,
 				}),
 			},
 		},
