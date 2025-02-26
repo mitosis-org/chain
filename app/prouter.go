@@ -1,67 +1,28 @@
 package app
 
 import (
+	"bytes"
+	"context"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"time"
+
+	"github.com/omni-network/omni/lib/errors"
+	etypes "github.com/omni-network/omni/octane/evmengine/types"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/omni-network/omni/lib/errors"
-	"github.com/omni-network/omni/lib/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func makePrepareProposalHandler(
-	app *MitosisApp,
-	txConfig client.TxConfig,
-	prevHandler sdk.PrepareProposalHandler,
-) sdk.PrepareProposalHandler {
-	return func(ctx sdk.Context, req *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
-		// Use evm engine to create block proposals.
-		// Note that we do not check MaxTxBytes since all EngineEVM transaction MUST be included since we cannot
-		// postpone them to the next block.
-		reqForEVM := *req
-		reqForEVM.Txs = nil
-		resForEVM, err := app.EVMEngKeeper.PrepareProposal(ctx, &reqForEVM)
-		if err != nil {
-			return nil, err
-		}
-
-		var nonEVMTxs [][]byte
-		for _, rawTX := range req.Txs {
-			tx, err := txConfig.TxDecoder()(rawTX)
-			if err != nil {
-				return nil, errors.Wrap(err, "decode transaction")
-			}
-
-			if isTxForEVM(tx) {
-				// Leave logs and ignore EVM payload transactions.
-				log.Warn(ctx, "EVM payload transaction should be not included in a prepare proposal", nil)
-			} else {
-				nonEVMTxs = append(nonEVMTxs, rawTX)
-			}
-		}
-
-		reqForNonEVM := *req
-		reqForNonEVM.Txs = nonEVMTxs
-
-		// We should decrease MaxTxBytes by the size of the EVM payload transaction.
-		for _, evmTx := range resForEVM.Txs {
-			reqForNonEVM.MaxTxBytes -= int64(len(evmTx))
-		}
-		if reqForNonEVM.MaxTxBytes <= 0 {
-			// It means that we can't include any non-EVM transactions more.
-			return resForEVM, nil
-		}
-
-		resForNonEVM, err := prevHandler(ctx, &reqForNonEVM)
-		if err != nil {
-			return nil, err
-		}
-
-		return &abci.ResponsePrepareProposal{Txs: append(resForEVM.Txs, resForNonEVM.Txs...)}, nil
-	}
-}
+// processTimeout is the maximum time to process a proposal.
+// Timeout results in rejecting the proposal, which could negatively affect liveness.
+// But it avoids blocking forever, which also negatively affects liveness.
+// This mitigates against malicious proposals that take forever to process (e.g. due to retryForever).
+const processTimeout = time.Second * 10
 
 // makeProcessProposalRouter creates a new process proposal router that only routes
 // expected messages to expected modules.
@@ -73,33 +34,26 @@ func makeProcessProposalRouter(app *MitosisApp) *baseapp.MsgServiceRouter {
 	return router
 }
 
-func makeProcessProposalHandler(
-	router *baseapp.MsgServiceRouter,
-	txConfig client.TxConfig,
-	prevHandler sdk.ProcessProposalHandler,
-) sdk.ProcessProposalHandler {
+// makeProcessProposalHandler creates a new process proposal handler.
+// It ensures all messages included in a cpayload proposal are valid.
+// It also updates some external state.
+func makeProcessProposalHandler(router *baseapp.MsgServiceRouter, txConfig client.TxConfig) sdk.ProcessProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
-		nonEVMTxs, err := processTxForEVM(ctx, req, router, txConfig)
-		if err != nil {
-			return nil, err
+		timeoutCtx, timeoutCancel := context.WithTimeout(ctx.Context(), processTimeout)
+		defer timeoutCancel()
+		ctx = ctx.WithContext(timeoutCtx)
+
+		if req.Height == 1 {
+			if len(req.Txs) > 0 { // First proposal must be empty.
+				return rejectProposal(ctx, errors.New("first proposal not empty"))
+			}
+
+			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
+		} else if len(req.Txs) > 1 {
+			return rejectProposal(ctx, errors.New("unexpected transactions in proposal"))
 		}
 
-		reqForNonEVMTxs := *req
-		reqForNonEVMTxs.Txs = nonEVMTxs
-
-		return prevHandler(ctx, &reqForNonEVMTxs)
-	}
-}
-
-func processTxForEVM(
-	ctx sdk.Context,
-	req *abci.RequestProcessProposal,
-	router *baseapp.MsgServiceRouter,
-	txConfig client.TxConfig,
-) ([][]byte, error) {
-	// TODO(thai): Is this code necessary? I just wanted to use same code as Omni.
-	// Ensure the proposal includes quorum vote extensions (unless first block).
-	if req.Height > 1 {
+		// Ensure the proposal includes quorum votes.
 		var totalPower, votedPower int64
 		for _, vote := range req.ProposedLastCommit.Votes {
 			totalPower += vote.Validator.Power
@@ -109,44 +63,86 @@ func processTxForEVM(
 			votedPower += vote.Validator.Power
 		}
 		if totalPower*2/3 >= votedPower {
-			return nil, errors.New("proposed doesn't include quorum votes extensions")
-		}
-	}
-
-	var nonEVMTxs [][]byte
-	isEVMTxExists := false
-
-	for _, rawTX := range req.Txs {
-		tx, err := txConfig.TxDecoder()(rawTX)
-		if err != nil {
-			return nil, errors.Wrap(err, "decode transaction")
+			return rejectProposal(ctx, errors.New("proposed doesn't include quorum votes extensions"))
 		}
 
-		if isTxForEVM(tx) {
-			if isEVMTxExists {
-				return nil, errors.New("EVM payload transaction must be included only once [BUG]")
-			}
-			isEVMTxExists = true
+		// Ensure only expected messages types are included the expected number of times.
+		allowedMsgCounts := map[string]int{
+			sdk.MsgTypeURL(&etypes.MsgExecutionPayload{}): 1, // Only a single EVM execution payload is allowed.
+		}
 
-			if len(tx.GetMsgs()) != 1 {
-				return nil, errors.New("EVM payload transaction must contain exactly one message [BUG]")
-			}
-
-			msg := tx.GetMsgs()[0]
-
-			handler := router.Handler(msg)
-			if handler == nil {
-				return nil, errors.New("EVM msg handler not found [BUG]")
-			}
-
-			_, err := handler(ctx, msg)
+		for _, rawTX := range req.Txs {
+			tx, err := txConfig.TxDecoder()(rawTX)
 			if err != nil {
-				return nil, errors.Wrap(err, "execute message")
+				return rejectProposal(ctx, errors.Wrap(err, "decode transaction"))
 			}
-		} else {
-			nonEVMTxs = append(nonEVMTxs, rawTX)
+
+			if err = validateTx(tx); err != nil {
+				return rejectProposal(ctx, errors.Wrap(err, "validate tx"))
+			}
+
+			for _, msg := range tx.GetMsgs() {
+				typeURL := sdk.MsgTypeURL(msg)
+
+				// Ensure the message type is expected and not included too many times.
+				if i, ok := allowedMsgCounts[typeURL]; !ok {
+					return rejectProposal(ctx, errors.New("unexpected message type", "msg_type", typeURL))
+				} else if i <= 0 {
+					return rejectProposal(ctx, errors.New("message type included too many times", "msg_type", typeURL))
+				}
+				allowedMsgCounts[typeURL]--
+
+				handler := router.Handler(msg)
+				if handler == nil {
+					return rejectProposal(ctx, errors.New("msg handler not found [BUG]", "msg_type", typeURL))
+				}
+
+				_, err := handler(ctx, msg)
+				if err != nil {
+					return rejectProposal(ctx, errors.Wrap(err, "execute message"))
+				}
+			}
 		}
+
+		return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
+	}
+}
+
+func rejectProposal(ctx sdk.Context, err error) (*abci.ResponseProcessProposal, error) {
+	ctx.Logger().Error("Rejecting process proposal", "err", err)
+	return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, nil
+}
+
+// validateTx checks whether the transaction contains any disallowed data.
+func validateTx(tx sdk.Tx) error {
+	standardTx, ok := tx.(signing.Tx)
+	if !ok {
+		return errors.New("invalid standard tx message")
 	}
 
-	return nonEVMTxs, nil
+	signatures, err := standardTx.GetSignaturesV2()
+	if err != nil {
+		return errors.Wrap(err, "get signatures from tx")
+	}
+	if len(signatures) != 0 {
+		return errors.New("disallowed signatures in tx")
+	}
+
+	if memo := standardTx.GetMemo(); len(memo) != 0 {
+		return errors.New("disallowed memo in tx")
+	}
+
+	if fee := standardTx.GetFee(); fee != nil {
+		return errors.New("disallowed fee in tx")
+	}
+
+	if !bytes.Equal(standardTx.FeePayer(), authtypes.NewModuleAddress(etypes.ModuleName).Bytes()) {
+		return errors.New("invalid payer in tx")
+	}
+
+	if feeGranter := standardTx.FeeGranter(); feeGranter != nil {
+		return errors.New("disallowed fee granter in tx")
+	}
+
+	return nil
 }

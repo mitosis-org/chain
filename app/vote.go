@@ -12,6 +12,6 @@ var _ evmengtypes.VoteExtensionProvider = &NoVoteExtensionProvider{}
 
 type NoVoteExtensionProvider struct{}
 
-func (n NoVoteExtensionProvider) PrepareVotes(ctx context.Context, commit abci.ExtendedCommitInfo) ([]sdk.Msg, error) {
+func (n NoVoteExtensionProvider) PrepareVotes(ctx context.Context, commit abci.ExtendedCommitInfo, commitHeight uint64) ([]sdk.Msg, error) {
 	return nil, nil
 }

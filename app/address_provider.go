@@ -22,6 +22,6 @@ func (s ValidatorAddressProvider) LocalFeeRecipient() common.Address {
 	return s.Addr
 }
 
-func (s ValidatorAddressProvider) VerifyFeeRecipient(address common.Address) error {
+func (s ValidatorAddressProvider) VerifyFeeRecipient(_ common.Address) error {
 	return nil
 }

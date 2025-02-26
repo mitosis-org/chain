@@ -201,3 +201,14 @@ func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {
 
 	return engineClient, nil
 }
+
+func getAppConfig(rootCmd *cobra.Command) (AppConfig, error) {
+	serverCtx := server.GetServerContextFromCmd(rootCmd)
+
+	conf := DefaultAppConfig()
+	if err := serverCtx.Viper.Unmarshal(&conf); err != nil {
+		return AppConfig{}, err
+	}
+
+	return conf, nil
+}

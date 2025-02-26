@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"io"
+	"time"
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
@@ -67,7 +68,7 @@ func addServerCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreato
 		server.BootstrapStateCmd(appCreator),
 	)
 
-	startCmd := StartCmd(appCreator, defaultNodeHome)
+	startCmd := server.StartCmd(appCreator, defaultNodeHome)
 	addStartFlags(startCmd)
 
 	rootCmd.AddCommand(
@@ -156,12 +157,24 @@ func newApp(
 		panic(err)
 	}
 
-	app_, err := app.NewMitosisApp(
+	appConfig, err := getAppConfig(runningCmd)
+	if err != nil {
+		panic(err)
+	}
+
+	engineBuildDelay, err := time.ParseDuration(appConfig.Engine.BuildDelay)
+	if err != nil {
+		panic(err)
+	}
+
+	mitosisApp, err := app.NewMitosisApp(
 		logger,
 		db,
 		traceStore,
 		engineCl,
 		addrProvider,
+		engineBuildDelay,
+		appConfig.Engine.BuildOptimistic,
 		true,
 		appOpts,
 		baseappOptions...,
@@ -170,7 +183,7 @@ func newApp(
 		panic(err)
 	}
 
-	return app_
+	return app.NewABCIWrappedApplication(mitosisApp)
 }
 
 func appExport(
@@ -205,12 +218,24 @@ func appExport(
 		return servertypes.ExportedApp{}, err
 	}
 
+	appConfig, err := getAppConfig(runningCmd)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
+	engineBuildDelay, err := time.ParseDuration(appConfig.Engine.BuildDelay)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
 	mitosisApp, err = app.NewMitosisApp(
 		logger,
 		db,
 		traceStore,
 		engineCl,
 		addrProvider,
+		engineBuildDelay,
+		appConfig.Engine.BuildOptimistic,
 		loadLatest,
 		appOpts,
 	)

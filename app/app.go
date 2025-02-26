@@ -5,6 +5,7 @@ import (
 	"cosmossdk.io/log"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -25,7 +26,6 @@ import (
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	authoritykeeper "github.com/noble-assets/authority/keeper"
 	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
 
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
@@ -38,7 +38,6 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"        // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
-	_ "github.com/noble-assets/authority"             // import for side-effects
 )
 
 var (
@@ -68,9 +67,6 @@ type MitosisApp struct {
 
 	// EVM keepers
 	EVMEngKeeper *evmengkeeper.Keeper
-
-	// PoA keepers
-	AuthorityKeeper *authoritykeeper.Keeper
 }
 
 func init() {
@@ -88,6 +84,8 @@ func NewMitosisApp(
 	traceStore io.Writer,
 	engineCl ethclient.EngineClient,
 	addrProvider ValidatorAddressProvider,
+	engineBuildDelay time.Duration,
+	engineBuildOptimistic bool,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOpts ...func(*baseapp.BaseApp),
@@ -118,42 +116,22 @@ func NewMitosisApp(
 		&app.ConsensusParamsKeeper,
 		&app.UpgradeKeeper,
 		&app.EVMEngKeeper,
-		&app.AuthorityKeeper,
 	); err != nil {
 		return nil, errors.Wrap(err, "dep inject")
 	}
 
+	app.EVMEngKeeper.SetBuildDelay(engineBuildDelay)
+	app.EVMEngKeeper.SetBuildOptimistic(engineBuildOptimistic)
 	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
-	// TODO(thai): make it configurable
-	app.EVMEngKeeper.SetBuildDelay(time.Millisecond * 600) // it should be slightly longer than geth's --miner.recommit=500ms.
-	app.EVMEngKeeper.SetBuildOptimistic(true)
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
-		bapp.SetPrepareProposal(
-			makePrepareProposalHandler(
-				app,
-				app.txConfig,
-				baseapp.NewDefaultProposalHandler(bapp.Mempool(), bapp).PrepareProposalHandler(),
-			),
-		)
+		bapp.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
 
 		// Route proposed messages to keepers for verification and external state updates.
-		bapp.SetProcessProposal(
-			makeProcessProposalHandler(
-				makeProcessProposalRouter(app),
-				app.txConfig,
-				baseapp.NewDefaultProposalHandler(bapp.Mempool(), bapp).ProcessProposalHandler(),
-			),
-		)
+		bapp.SetProcessProposal(makeProcessProposalHandler(makeProcessProposalRouter(app), app.txConfig))
 	})
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOpts...)
-
-	anteHandler, err := app.newAnteHandler()
-	if err != nil {
-		return nil, err
-	}
-	app.SetAnteHandler(anteHandler)
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, errors.Wrap(err, "failed to load latest version")
@@ -166,7 +144,12 @@ func NewMitosisApp(
 func (app *MitosisApp) RegisterTendermintService(clientCtx client.Context) {
 	app.App.RegisterTendermintService(clientCtx)
 
-	app.EVMEngKeeper.SetCometAPI(NewCometAPI(clientCtx.Client))
+	rpcClient, ok := clientCtx.Client.(rpcclient.Client)
+	if !ok {
+		panic("invalid rpc client")
+	}
+
+	app.EVMEngKeeper.SetCometAPI(NewCometAPI(rpcClient, app.ChainID()))
 }
 
 func (app *MitosisApp) LegacyAmino() *codec.LegacyAmino {
