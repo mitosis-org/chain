@@ -11,9 +11,11 @@ type AppConfig struct {
 }
 
 type EngineConfig struct {
-	Mock     bool   `mapstructure:"mock"`
-	Endpoint string `mapstructure:"endpoint"`
-	JWTFile  string `mapstructure:"jwt-file"`
+	Mock            bool   `mapstructure:"mock"`
+	Endpoint        string `mapstructure:"endpoint"`
+	JWTFile         string `mapstructure:"jwt-file"`
+	BuildDelay      string `mapstructure:"build-delay"`
+	BuildOptimistic bool   `mapstructure:"build-optimistic"`
 }
 
 func DefaultAppConfig() AppConfig {
@@ -24,9 +26,11 @@ func DefaultAppConfig() AppConfig {
 	return AppConfig{
 		Config: *srvCfg,
 		Engine: &EngineConfig{
-			Mock:     false,
-			Endpoint: "",
-			JWTFile:  "",
+			Mock:            false,
+			Endpoint:        "http://127.0.0.1:8551",
+			JWTFile:         "",
+			BuildDelay:      "600ms", // it should be slightly longer than geth's --miner.recommit=500ms.
+			BuildOptimistic: true,
 		},
 	}
 }
@@ -42,7 +46,7 @@ func initAppConfig() (string, AppConfig) {
 [engine]
 
 # If it is true, the execution client will be mocked and endpoint and jwt-file will be ignored.
-# Otherwise, it will be connect to a real execution client.
+# Otherwise, it will connect to a real execution client.
 mock = {{ .Engine.Mock }}
 
 # Execution client Engine API http endpoint.
@@ -50,6 +54,14 @@ endpoint = "{{ .Engine.Endpoint }}"
 
 # Execution client JWT file used for authentication.
 jwt-file = "{{ .Engine.JWTFile }}"
+
+# Build delay is the time to wait before building a block.
+# Slightly longer value is recommended than --miner.recommit in case of geth.
+# e.g., 600ms if --miner.recommit=500ms.
+build-delay = "{{ .Engine.BuildDelay }}"
+
+# If it is true, build a block optimistically.
+build-optimistic = {{ .Engine.BuildOptimistic }}
 `
 
 	return defaultAppTemplate, appConfig

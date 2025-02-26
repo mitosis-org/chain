@@ -18,7 +18,6 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	authoritymodulev1 "github.com/noble-assets/authority/api/module/v1"
 	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -29,7 +28,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	authoritytypes "github.com/noble-assets/authority/types"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
@@ -57,7 +55,6 @@ var (
 		upgradetypes.ModuleName,
 		evidencetypes.ModuleName,
 		evmengtypes.ModuleName,
-		authoritytypes.ModuleName,
 	}
 
 	preBlockers = []string{
@@ -68,7 +65,6 @@ var (
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
 		stakingtypes.ModuleName, // NOTE: staking module is required if HistoricalEntries param > 0
-		authoritytypes.ModuleName,
 	}
 
 	endBlockers = []string{
@@ -111,13 +107,13 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					ModuleAccountPermissions: moduleAccPerms,
 					Bech32Prefix:             Bech32Prefix,
-					Authority:                authoritytypes.ModuleName,
+					Authority:                "TODO:evmgov",
 				}),
 			},
 			{
 				Name: "tx",
 				Config: appconfig.WrapAny(&txconfigv1.Config{
-					SkipAnteHandler: true,
+					SkipAnteHandler: true, // Disable ante handler since there is only EVM payload tx.
 					SkipPostHandler: true,
 				}),
 			},
@@ -125,19 +121,19 @@ var (
 				Name: banktypes.ModuleName,
 				Config: appconfig.WrapAny(&bankmodulev1.Module{
 					BlockedModuleAccountsOverride: blockAccAddrs,
-					Authority:                     authoritytypes.ModuleName,
+					Authority:                     "TODO:evmgov",
 				}),
 			},
 			{
 				Name: consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{
-					Authority: authoritytypes.ModuleName,
+					Authority: "TODO:evmgov",
 				}),
 			},
 			{
 				Name: slashingtypes.ModuleName,
 				Config: appconfig.WrapAny(&slashingmodulev1.Module{
-					Authority: authoritytypes.ModuleName,
+					Authority: "TODO:evmgov",
 				}),
 			},
 			{
@@ -147,7 +143,7 @@ var (
 			{
 				Name: stakingtypes.ModuleName,
 				Config: appconfig.WrapAny(&stakingmodulev1.Module{
-					Authority: authoritytypes.ModuleName,
+					Authority: "TODO:evmgov",
 				}),
 			},
 			{
@@ -157,18 +153,14 @@ var (
 			{
 				Name: upgradetypes.ModuleName,
 				Config: appconfig.WrapAny(&upgrademodulev1.Module{
-					Authority: authoritytypes.ModuleName,
+					Authority: "TODO:evmgov",
 				}),
 			},
 			{
 				Name: evmengtypes.ModuleName,
 				Config: appconfig.WrapAny(&evmengmodule.Module{
-					Authority: authoritytypes.ModuleName,
+					Authority: "TODO:evmgov",
 				}),
-			},
-			{
-				Name:   authoritytypes.ModuleName,
-				Config: appconfig.WrapAny(&authoritymodulev1.Module{}),
 			},
 		},
 	})
