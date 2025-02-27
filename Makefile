@@ -114,6 +114,9 @@ build: BUILD_ARGS=-o $(BUILD_DIR)/
 build-mitosisd:
 	BINARY_NAME=mitosisd $(MAKE) build
 
+build-midevtool:
+	BINARY_NAME=midevtool $(MAKE) build
+
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
@@ -172,6 +175,12 @@ else
 	@echo "--> Running tests"
 	@go test -mod=readonly $(ARGS) $(TEST_PACKAGES)
 endif
+
+###############################################################################
+###                           Tests & Simulation                            ###
+###############################################################################
+bufgen: ## Generates protobufs using buf generate.
+	@./scripts/protocgen.sh
 
 ###############################################################################
 ###                                Localnet                                 ###
