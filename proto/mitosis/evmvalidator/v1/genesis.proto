@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package mitosis.evmvalidator.v1;
+
+import "gogoproto/gogo.proto";
+import "mitosis/evmvalidator/v1/params.proto";
+import "mitosis/evmvalidator/v1/validator.proto";
+
+option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
+
+// GenesisState defines the evmvalidator module's genesis state
+message GenesisState {
+  // params defines all the parameters of the module
+  Params params = 1 [ (gogoproto.nullable) = false ];
+
+  // validators is the list of validators at genesis
+  repeated Validator validators = 2 [ (gogoproto.nullable) = false ];
+
+  // withdrawals is the list of pending withdrawals at genesis
+  repeated Withdrawal withdrawals = 3 [ (gogoproto.nullable) = false ];
+
+  // last_validator_powers is the list of the last powers of each validator
+  repeated LastValidatorPower last_validator_powers = 4
+      [ (gogoproto.nullable) = false ];
+}

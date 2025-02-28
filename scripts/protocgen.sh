@@ -9,7 +9,7 @@ find ./ -name "*.proto" -exec clang-format -i {} \;
 
 set -e
 
-home=$PWD
+root=$PWD
 
 echo "Generating proto code"
 proto_dirs=$(find ./ -name 'buf.yaml' -print0 | xargs -0 -n1 dirname | sort | uniq)
@@ -20,9 +20,10 @@ for dir in $proto_dirs; do
   # check if buf.gen.pulsar.yaml exists in the proto directory
   if [ -f "buf.gen.pulsar.yaml" ]; then
     buf generate --template buf.gen.pulsar.yaml
+
     # move generated files to the right places
     if [ -d "../cosmos" -a "$dir" != "./proto" ]; then
-      cp -r ../cosmos $home/api
+      cp -r ../cosmos $root/api
       rm -rf ../cosmos
     fi
   fi
@@ -35,17 +36,17 @@ for dir in $proto_dirs; do
         # we don't want gogo proto to run for proto files which are natively built for google.golang.org/protobuf
         if grep -q "option go_package" "$file" && grep -H -o -c 'option go_package.*cosmossdk.io/api' "$file" | grep -q ':0$'; then
           buf generate --template buf.gen.gogo.yaml $file
+
+          # move generated files to the right places
+          if [ -d "github.com/mitosis-org/chain" ]; then
+            cp -r github.com/mitosis-org/chain/* $root/
+            rm -rf github.com
+          fi
         fi
     done
   fi
 
-  cd $home
+  cd $root
 done
-
-# move generated files to the right places
-if [ -d "github.com/mitosis-org/chain" ]; then
-  cp -r github.com/mitosis-org/chain/* ./
-  rm -rf github.com
-fi
 
 #go mod tidy

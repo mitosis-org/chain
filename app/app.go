@@ -25,8 +25,8 @@ import (
 	"time"
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	evmgovkeeper "github.com/mitosis-org/chain/x/evmgov/keeper"
+	evmvalkeeper "github.com/mitosis-org/chain/x/evmvalidator/keeper"
 	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
 
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
@@ -38,8 +38,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"        // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
 	_ "github.com/mitosis-org/chain/x/evmgov"         // import for side-effects
+	_ "github.com/mitosis-org/chain/x/evmvalidator"   // import for side-effects
 )
 
 var (
@@ -58,19 +58,19 @@ type MitosisApp struct {
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	// basic keepers
+	// Cosmos SDK keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ConsensusParamsKeeper consensusparamskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 
-	// EVM Engine keepers
+	// Octane keepers
 	EVMEngKeeper *evmengkeeper.Keeper
 
 	// Mitosis keepers
+	EVMValKeeper *evmvalkeeper.Keeper
 	EVMGovKeeper *evmgovkeeper.Keeper
 }
 
@@ -115,12 +115,12 @@ func NewMitosisApp(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.StakingKeeper,
 		&app.SlashingKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.UpgradeKeeper,
 		&app.EVMEngKeeper,
+		&app.EVMValKeeper,
 		&app.EVMGovKeeper,
 	); err != nil {
 		return nil, errors.Wrap(err, "dep inject")
@@ -129,6 +129,9 @@ func NewMitosisApp(
 	app.EVMEngKeeper.SetBuildDelay(engineBuildDelay)
 	app.EVMEngKeeper.SetBuildOptimistic(engineBuildOptimistic)
 	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
+
+	app.EVMValKeeper.SetSlashingKeeper(app.SlashingKeeper)
+	app.EVMValKeeper.SetEvmEngineKeeper(app.EVMEngKeeper)
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
 		bapp.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)

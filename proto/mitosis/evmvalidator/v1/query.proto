@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package mitosis.evmvalidator.v1;
+
+import "google/api/annotations.proto";
+import "mitosis/evmvalidator/v1/params.proto";
+import "mitosis/evmvalidator/v1/validator.proto";
+
+option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
+
+// Query defines the gRPC query service for x/evmvalidator module
+service Query {
+  // Params returns the parameters of the x/evmvalidator module
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/mitosis/evmvalidator/v1/params";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method
+message QueryParamsResponse { Params params = 1; }
+
+// Additional query endpoints to be implemented as needed

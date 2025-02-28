@@ -1,0 +1,18 @@
+syntax = "proto3";
+package mitosis.evmvalidator.module.v1;
+
+import "cosmos/app/v1alpha1/module.proto";
+
+// Module is the config object for the module.
+message Module {
+  option (cosmos.app.v1alpha1.module) = {
+    go_import : "github.com/mitosis-org/chain/x/evmvalidator"
+  };
+
+  // authority defines the custom module authority.
+  string authority = 1;
+
+  // evm_validator_entrypoint_addr defines the address of the
+  // ConsensusValidatorEntrypoint contract
+  string evm_validator_entrypoint_addr = 2;
+}

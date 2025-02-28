@@ -5,7 +5,6 @@ import (
 	"fmt"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis file.
@@ -30,7 +29,7 @@ func (app *MitosisApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllow
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators, err := staking.WriteValidators(ctx, app.StakingKeeper)
+	validators, err := app.EVMValKeeper.WriteValidators(ctx)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
