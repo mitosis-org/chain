@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	abci "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"cosmossdk.io/core/address"
@@ -38,6 +39,8 @@ type StakingKeeper interface {
 
 	// IsValidatorJailed returns if the validator is jailed.
 	IsValidatorJailed(ctx context.Context, addr sdk.ConsAddress) (bool, error)
+
+	ApplyAndReturnValidatorSetUpdates(context.Context) (updates []abci.ValidatorUpdate, err error)
 }
 
 // ValidatorI expected validator interface (implemented by Validator)

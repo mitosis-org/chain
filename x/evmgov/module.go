@@ -121,7 +121,11 @@ type ModuleOutputs struct {
 }
 
 func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
-	k, err := keeper.NewKeeper(in.Cdc, in.MsgServiceRouter, common.HexToAddress(in.Config.EvmGovernanceEntrypointAddr))
+	k, err := keeper.NewKeeper(
+		in.Cdc,
+		in.MsgServiceRouter,
+		common.HexToAddress(in.Config.EvmGovernanceEntrypointAddr),
+	)
 	if err != nil {
 		return ModuleOutputs{}, err
 	}
