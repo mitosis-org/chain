@@ -28,8 +28,12 @@ require (
 )
 
 require (
+	github.com/cosmos/cosmos-proto v1.0.0-beta.5
+	github.com/cosmos/gogoproto v1.7.0
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
+	google.golang.org/protobuf v1.36.4
 )
 
 require (
@@ -69,9 +73,7 @@ require (
 	github.com/consensys/bavard v0.1.13 // indirect
 	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/gogoproto v1.7.0 // indirect
 	github.com/cosmos/iavl v1.2.2 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.14.0 // indirect
@@ -124,7 +126,6 @@ require (
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -226,7 +227,6 @@ require (
 	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
@@ -238,6 +238,7 @@ require (
 
 // following versions might cause unexpected behavior
 replace (
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228121050-c0af52bf422b
 	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250226120544-ff2169fe40ee
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952

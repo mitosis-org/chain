@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package mitosis.evmvalidator.v1;
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
+
+// Params defines the parameters for the x/evmvalidator module
+message Params {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = true;
+
+  // max_validators is the maximum number of validators
+  uint32 max_validators = 1;
+
+  // max_leverage_ratio is the maximum ratio of (collateral +
+  // extra_voting_power) / collateral
+  string max_leverage_ratio = 2 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // min_voting_power is the minimum voting power required to be a validator
+  // if voting power < min_voting_power, the validator will be jailed
+  string min_voting_power = 3 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // withdrawal_limit is the maximum number of withdrawals that can be processed
+  // in a single block (to avoid performance issues)
+  uint32 withdrawal_limit = 4;
+}

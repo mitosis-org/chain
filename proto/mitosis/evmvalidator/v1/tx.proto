@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package mitosis.evmvalidator.v1;
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/msg/v1/msg.proto";
+
+option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
+
+// Msg defines the x/evmvalidator Msg service
+service Msg { option (cosmos.msg.v1.service) = true; }

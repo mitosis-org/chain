@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package mitosis.evmvalidator.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
+
+// Validator defines a validator in the x/evmvalidator module
+message Validator {
+  option (gogoproto.equal) = true;
+
+  // pubkey is the consensus public key of the validator (compressed secp256k1).
+  bytes pubkey = 1;
+
+  // collateral is the amount of MITO used as a collateral
+  string collateral = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // extra_voting_power is additional voting power assigned to the validator
+  string extra_voting_power = 3 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // voting_power is the actual voting power used in consensus (calculated)
+  string voting_power = 4 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // jailed indicates if the validator is jailed
+  bool jailed = 5;
+}
+
+// Withdrawal defines a withdrawal request in the queue
+message Withdrawal {
+  // pubkey is the compressed secp256k1 public key of the validator
+  bytes pubkey = 1 [ (cosmos_proto.scalar) = "cosmos.crypto.PubKey" ];
+
+  // amount is the amount of ETH to withdraw
+  string amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // receiver is the address that will receive the withdrawn collateral
+  string receiver = 3;
+
+  // receives_at is the time when the collateral will be sent to the receiver
+  uint64 receives_at = 4;
+}
+
+// LastValidatorPower defines the last validator power used for validator set
+// updates
+message LastValidatorPower {
+  // pubkey is the compressed secp256k1 public key of the validator
+  bytes pubkey = 1 [ (cosmos_proto.scalar) = "cosmos.crypto.PubKey" ];
+
+  // power is the last voting power
+  int64 power = 2;
+}
