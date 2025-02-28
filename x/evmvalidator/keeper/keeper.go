@@ -146,9 +146,8 @@ func (k Keeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator)
 	return validators
 }
 
-// GetBondedValidatorsByPower gets validators sorted by power
-func (k Keeper) GetBondedValidatorsByPower(ctx sdk.Context) []types.Validator {
-	maxValidators := k.GetParams(ctx).MaxValidators
+// GetNotJailedValidatorsByPower gets not jailed validators sorted by power
+func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uint32) []types.Validator {
 	validators := make([]types.Validator, 0, maxValidators)
 
 	iterator := k.ValidatorsPowerStoreIterator(ctx)
@@ -186,27 +185,16 @@ func (k Keeper) GetValidatorsByPowerIndexIterator(ctx sdk.Context) storetypes.It
 }
 
 // SetValidatorByPowerIndex sets a validator in the power index
-func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, validator types.Validator) {
-	// If jailed, delete from the power ranking
-	if validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-		return
-	}
-
-	// Set in the power ranking
+func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
 	store := ctx.KVStore(k.storeKey)
-	powerRankKey := types.GetValidatorPowerRankKey(validator)
-	store.Set(powerRankKey, validator.Pubkey)
+	powerRankKey := types.GetValidatorPowerRankKey(power, pubkey)
+	store.Set(powerRankKey, pubkey)
 }
 
 // DeleteValidatorByPowerIndex deletes a validator from the power index
 func (k Keeper) DeleteValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
 	store := ctx.KVStore(k.storeKey)
-	validator := types.Validator{
-		VotingPower: sdkmath.NewInt(power),
-		Pubkey:      pubkey,
-	}
-	powerRankKey := types.GetValidatorPowerRankKey(validator)
+	powerRankKey := types.GetValidatorPowerRankKey(power, pubkey)
 	store.Delete(powerRankKey)
 }
 
@@ -314,24 +302,7 @@ func (k Keeper) GetAllWithdrawals(ctx sdk.Context) []types.Withdrawal {
 // It calls the StakingKeeper's Slash method to maintain compatibility with x/slashing module
 func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
 	// Find the validator by consensus address
-	var validator types.Validator
-	var found bool
-
-	k.IterateValidators(ctx, func(_ int64, val types.Validator) bool {
-		valConsAddr, err := val.ConsAddr()
-		if err != nil {
-			ctx.Logger().Error("failed to get consensus address", "err", err)
-			return false
-		}
-
-		if valConsAddr.Equals(consAddr) {
-			validator = val
-			found = true
-			return true
-		}
-		return false
-	})
-
+	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
 		return sdkmath.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddr.String())
 	}
@@ -368,7 +339,9 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	// Update the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	if !validator.Jailed {
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	}
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, validator.Pubkey, validator.VotingPower.Int64())
@@ -390,6 +363,8 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 // GetValidatorByConsAddr returns a validator by consensus address
 func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (types.Validator, bool) {
+	// TODO(thai): we can optimize if we store the consAddr in the Validator and use consAddr as key.
+	// consAddr can be derived from the pubkey, but pubkey cannot be derived from consAddr.
 	var validator types.Validator
 	var found bool
 
@@ -428,9 +403,8 @@ func (k Keeper) Jail(ctx sdk.Context, consAddr sdk.ConsAddress) error {
 	// Update the validator in state
 	k.SetValidator(ctx, validator)
 
-	// Update the validator in power index
+	// Delete the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator)
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, validator.Pubkey, 0) // Zero power when jailed
@@ -469,9 +443,8 @@ func (k Keeper) Unjail(ctx sdk.Context, consAddr sdk.ConsAddress) error {
 	// Update the validator in state
 	k.SetValidator(ctx, validator)
 
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, 0, validator.Pubkey) // Delete with power 0 (jailed)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	// Set the validator back in power index
+	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, validator.Pubkey, validator.VotingPower.Int64())

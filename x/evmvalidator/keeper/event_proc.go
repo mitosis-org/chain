@@ -13,6 +13,7 @@ import (
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/k1util"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
+	"time"
 )
 
 var (
@@ -163,7 +164,9 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 	k.SetValidator(ctx, validator)
 
 	// Set the validator in power index
-	k.SetValidatorByPowerIndex(ctx, validator)
+	if !validator.Jailed {
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
+	}
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
@@ -212,7 +215,7 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 
 	// Update the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
@@ -301,7 +304,9 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 	// Update the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	if !validator.Jailed {
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
+	}
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
@@ -313,7 +318,7 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
 			sdk.NewAttribute(types.AttributeKeyReceiver, event.Receiver.String()),
-			sdk.NewAttribute(types.AttributeKeyReceivesAt, event.ReceivesAt.String()),
+			sdk.NewAttribute(types.AttributeKeyReceivesAt, time.Unix(event.ReceivesAt.Int64(), 0).String()),
 		),
 	)
 
@@ -374,7 +379,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 
 	// Update the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, 0, pubkey) // Delete with power 0 (jailed)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
@@ -433,7 +438,9 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 
 	// Update the validator in power index
 	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator)
+	if !validator.Jailed {
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
+	}
 
 	// Record last validator power
 	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())

@@ -1,8 +1,9 @@
 package types
 
 import (
-	"bytes"
-	"fmt"
+	cmtprotocrypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -21,6 +22,24 @@ func NewValidator(pubkey []byte, collateral, extraVotingPower math.Int) Validato
 	}
 }
 
+func (v Validator) ConsPubKey() (cryptotypes.PubKey, error) {
+	return k1util.PubKeyBytesToCosmos(v.Pubkey)
+}
+
+func (v Validator) CmtConsPublicKey() (cmtprotocrypto.PublicKey, error) {
+	pk, err := v.ConsPubKey()
+	if err != nil {
+		return cmtprotocrypto.PublicKey{}, err
+	}
+
+	tmPk, err := cryptocodec.ToCmtProtoPublicKey(pk)
+	if err != nil {
+		return cmtprotocrypto.PublicKey{}, err
+	}
+
+	return tmPk, nil
+}
+
 // ConsAddr returns the validator's consensus address
 func (v Validator) ConsAddr() (sdk.ConsAddress, error) {
 	pubkey, err := v.ConsPubKey()
@@ -30,9 +49,13 @@ func (v Validator) ConsAddr() (sdk.ConsAddress, error) {
 	return sdk.GetConsAddress(pubkey), nil
 }
 
-// GetVotingPower returns the validator's voting power
-func (v Validator) GetVotingPower() math.Int {
-	return v.VotingPower
+// ConsensusVotingPower returns the consensus voting power.
+func (v Validator) ConsensusVotingPower() int64 {
+	if v.Jailed {
+		return 0
+	}
+
+	return v.VotingPower.Int64()
 }
 
 // ComputeVotingPower calculates voting power based on collateral and extra voting power
@@ -57,54 +80,16 @@ func (v Validator) ComputeVotingPower(maxLeverageRatio math.LegacyDec) math.Int 
 	return totalPower
 }
 
-// NewLastValidatorPower creates a new LastValidatorPower instance
-func NewLastValidatorPower(pubkey []byte, power int64) LastValidatorPower {
-	return LastValidatorPower{
-		Pubkey: pubkey,
-		Power:  power,
-	}
-}
-
-// NewWithdrawal creates a new Withdrawal instance
-func NewWithdrawal(pubkey []byte, amount math.Int, receiver string, receivesAt uint64) Withdrawal {
-	return Withdrawal{
-		Pubkey:     pubkey,
-		Amount:     amount,
-		Receiver:   receiver,
-		ReceivesAt: receivesAt,
-	}
-}
-
-// ValidatorsEqual checks if two validators are equal based on their public keys
-func ValidatorsEqual(v1, v2 Validator) bool {
-	return bytes.Equal(v1.Pubkey, v2.Pubkey)
-}
-
-// FindValidator finds a validator in a slice by pubkey
-func FindValidator(validators []Validator, pubkey []byte) (Validator, bool) {
-	for _, v := range validators {
-		if bytes.Equal(v.Pubkey, pubkey) {
-			return v, true
-		}
-	}
-	return Validator{}, false
-}
-
 // ABCIValidatorUpdate creates an ABCI validator update object from a validator
 func (v Validator) ABCIValidatorUpdate() (abciVal abci.ValidatorUpdate, err error) {
-	tmPubKey, err := k1util.PubKeyBytesToCosmos(v.Pubkey)
+	tmPubKey, err := v.CmtConsPublicKey()
 	if err != nil {
-		return abci.ValidatorUpdate{}, fmt.Errorf("unable to convert validator pubkey: %w", err)
-	}
-
-	power := v.VotingPower.Int64()
-	if v.Jailed {
-		power = 0
+		return abci.ValidatorUpdate{}, err
 	}
 
 	abciVal = abci.ValidatorUpdate{
-		PubKey: sdk.ToPubKeyPrototype(tmPubKey),
-		Power:  power,
+		PubKey: tmPubKey,
+		Power:  v.ConsensusVotingPower(),
 	}
 
 	return abciVal, nil

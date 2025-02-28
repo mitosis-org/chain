@@ -37,16 +37,14 @@ func GetValidatorKey(pubkey []byte) []byte {
 	return append(ValidatorKeyPrefix, pubkey...)
 }
 
-// GetValidatorPowerRankKey creates the key for the validator power rank store for a validator
-// VALUE: pubkey
-func GetValidatorPowerRankKey(validator Validator) []byte {
+// GetValidatorPowerRankKey creates the key for the validator power rank store from power and pubkey
+func GetValidatorPowerRankKey(power int64, pubkey []byte) []byte {
 	// NOTE: power is the voting power, not the tokens amount
 	powerBytes := make([]byte, 8)
 	// power is converted to descending order for the key (higher power first)
 	// because we want to iterate from highest to lowest power in EndBlocker
-	power := validator.VotingPower.Int64()
 	binary.BigEndian.PutUint64(powerBytes, uint64(^power))
-	return append(ValidatorPowerRankStoreKeyPrefix, append(powerBytes, validator.GetPubkey()...)...)
+	return append(ValidatorPowerRankStoreKeyPrefix, append(powerBytes, pubkey...)...)
 }
 
 // GetLastValidatorPowerKey creates key for a validator from pubkey

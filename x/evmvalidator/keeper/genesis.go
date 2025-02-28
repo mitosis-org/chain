@@ -23,7 +23,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) error {
 		k.SetValidator(ctx, validator)
 
 		// Set validator in power index
-		k.SetValidatorByPowerIndex(ctx, validator)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
 
 		// Set last validator power
 		power := validator.VotingPower.Int64()
