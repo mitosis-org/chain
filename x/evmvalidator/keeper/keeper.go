@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"cosmossdk.io/core/address"
-	sdkmath "cosmossdk.io/math"
 	"fmt"
 	"math"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
-	"github.com/omni-network/omni/lib/errors"
 )
 
 // Keeper of the evmvalidator store
@@ -118,8 +116,8 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, pubkey []byte) {
 	store.Delete(types.GetValidatorKey(pubkey))
 }
 
-// IterateValidators iterates through all validators
-func (k Keeper) IterateValidators(ctx sdk.Context, cb func(index int64, validator types.Validator) (stop bool)) {
+// IterateValidatorsExec is an internal implementation of IterateValidators that works with the SDK Context
+func (k Keeper) IterateValidatorsExec(ctx sdk.Context, fn func(index int64, validator types.Validator) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := storetypes.KVStorePrefixIterator(store, types.ValidatorKeyPrefix)
 	defer iterator.Close()
@@ -129,7 +127,7 @@ func (k Keeper) IterateValidators(ctx sdk.Context, cb func(index int64, validato
 		var validator types.Validator
 		k.cdc.MustUnmarshal(iterator.Value(), &validator)
 
-		stop := cb(i, validator)
+		stop := fn(i, validator)
 		if stop {
 			break
 		}
@@ -139,7 +137,7 @@ func (k Keeper) IterateValidators(ctx sdk.Context, cb func(index int64, validato
 
 // GetAllValidators gets all validators
 func (k Keeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator) {
-	k.IterateValidators(ctx, func(_ int64, validator types.Validator) bool {
+	k.IterateValidatorsExec(ctx, func(_ int64, validator types.Validator) bool {
 		validators = append(validators, validator)
 		return false
 	})
@@ -241,6 +239,27 @@ func (k Keeper) IterateLastValidatorPowers(ctx sdk.Context, cb func(pubkey []byt
 	}
 }
 
+// IterateLastValidators iterates through the active validator set and perform the provided function
+func (k Keeper) IterateLastValidators(ctx sdk.Context, cb func(index int64, validator types.Validator) (stop bool)) error {
+	var returnErr error
+
+	i := int64(0)
+	k.IterateLastValidatorPowers(ctx, func(pubkey []byte, power int64) bool {
+		validator, found := k.GetValidator(ctx, pubkey)
+		if !found {
+			// This should never happen
+			returnErr = fmt.Errorf("validator not found: %s", pubkey)
+			return true
+		}
+
+		stop := cb(i, validator)
+		i++
+		return stop
+	})
+
+	return returnErr
+}
+
 // GetLastValidatorPowers gets all last validator powers
 func (k Keeper) GetLastValidatorPowers(ctx sdk.Context) []types.LastValidatorPower {
 	var powers []types.LastValidatorPower
@@ -298,69 +317,6 @@ func (k Keeper) GetAllWithdrawals(ctx sdk.Context) []types.Withdrawal {
 	return withdrawals
 }
 
-// Slash slashes a validator's collateral by a fraction
-// It calls the StakingKeeper's Slash method to maintain compatibility with x/slashing module
-func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
-	// Find the validator by consensus address
-	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
-	if !found {
-		return sdkmath.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddr.String())
-	}
-
-	// Calculate the amount to slash
-	// Note that we're slashing collateral, not voting power
-	slashAmount := sdkmath.LegacyNewDecFromInt(validator.Collateral).Mul(slashFraction).TruncateInt()
-	if slashAmount.GT(validator.Collateral) {
-		slashAmount = validator.Collateral
-	}
-
-	// Update validator's collateral
-	validator.Collateral = validator.Collateral.Sub(slashAmount)
-
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Check if validator should be jailed due to insufficient voting power
-	if !validator.Jailed && validator.VotingPower.LT(params.MinVotingPower) {
-		validator.Jailed = true
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeJailValidator,
-				sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
-				sdk.NewAttribute(types.AttributeKeyReason, "insufficient voting power after slash"),
-			),
-		)
-	}
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-	}
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, validator.Pubkey, validator.VotingPower.Int64())
-
-	// Emit events
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSlashValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
-			sdk.NewAttribute(types.AttributeKeyAmount, slashAmount.String()),
-			sdk.NewAttribute(types.AttributeKeySlashFraction, slashFraction.String()),
-			sdk.NewAttribute(types.AttributeKeyInfractionHeight, fmt.Sprintf("%d", infractionHeight)),
-			sdk.NewAttribute(types.AttributeKeyInfractionPower, fmt.Sprintf("%d", power)),
-		),
-	)
-
-	return slashAmount, nil
-}
-
 // GetValidatorByConsAddr returns a validator by consensus address
 func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (types.Validator, bool) {
 	// TODO(thai): we can optimize if we store the consAddr in the Validator and use consAddr as key.
@@ -368,7 +324,7 @@ func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress
 	var validator types.Validator
 	var found bool
 
-	k.IterateValidators(ctx, func(_ int64, val types.Validator) bool {
+	k.IterateValidatorsExec(ctx, func(_ int64, val types.Validator) bool {
 		valConsAddr, err := val.ConsAddr()
 		if err != nil {
 			ctx.Logger().Error("failed to get consensus address", "err", err)
@@ -384,78 +340,4 @@ func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress
 	})
 
 	return validator, found
-}
-
-// Jail jails a validator
-func (k Keeper) Jail(ctx sdk.Context, consAddr sdk.ConsAddress) error {
-	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
-	if !found {
-		return types.ErrValidatorNotFound
-	}
-
-	if validator.Jailed {
-		return nil // already jailed
-	}
-
-	validator.Jailed = true
-	oldVotingPower := validator.VotingPower
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Delete the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, validator.Pubkey, 0) // Zero power when jailed
-
-	// Emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeJailValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
-			sdk.NewAttribute(types.AttributeKeyReason, "jailed by slashing module"),
-		),
-	)
-
-	return nil
-}
-
-// Unjail unjails a validator
-func (k Keeper) Unjail(ctx sdk.Context, consAddr sdk.ConsAddress) error {
-	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
-	if !found {
-		return types.ErrValidatorNotFound
-	}
-
-	if !validator.Jailed {
-		return nil // already unjailed
-	}
-
-	// Check if voting power meets minimum requirement
-	params := k.GetParams(ctx)
-	if validator.VotingPower.LT(params.MinVotingPower) {
-		return errors.Wrap(types.ErrInvalidVotingPower, "voting power below minimum requirement")
-	}
-
-	validator.Jailed = false
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Set the validator back in power index
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, validator.Pubkey, validator.VotingPower.Int64())
-
-	// Emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUnjailValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
-		),
-	)
-
-	return nil
 }

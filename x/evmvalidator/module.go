@@ -34,7 +34,7 @@ const (
 var (
 	_ module.AppModuleBasic  = (*AppModule)(nil)
 	_ appmodule.AppModule    = (*AppModule)(nil)
-	_ module.HasGenesis      = (*AppModule)(nil)
+	_ module.HasABCIGenesis  = (*AppModule)(nil)
 	_ module.HasServices     = (*AppModule)(nil)
 	_ module.HasABCIEndBlock = (*AppModule)(nil)
 )
@@ -75,7 +75,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(*codec.LegacyAmino) {}
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
 func (AppModuleBasic) RegisterInterfaces(reg codectypes.InterfaceRegistry) {
-	// TODO(thai):
+	// TODO(thai): RegisterInterfaces for evmvalidator module
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
@@ -108,14 +108,15 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 }
 
 // InitGenesis performs the evmvalidator module's genesis initialization
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, raw json.RawMessage) {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, raw json.RawMessage) []abci.ValidatorUpdate {
 	var data types.GenesisState
 	cdc.MustUnmarshalJSON(raw, &data)
 
-	err := am.keeper.InitGenesis(ctx, &data)
+	vals, err := am.keeper.InitGenesis(ctx, &data)
 	if err != nil {
 		panic(errors.Wrap(err, "init genesis"))
 	}
+	return vals
 }
 
 // ExportGenesis returns the evmvalidator module's exported genesis state as raw JSON bytes.
@@ -146,7 +147,7 @@ func (am AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConf
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries.
 func (AppModule) RegisterServices(cfg module.Configurator) {
-	// TODO(thai):
+	// TODO(thai): RegisterServices for evmvalidator module
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.

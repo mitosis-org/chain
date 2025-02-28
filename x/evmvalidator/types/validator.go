@@ -11,17 +11,6 @@ import (
 	"github.com/omni-network/omni/lib/k1util"
 )
 
-// NewValidator creates a new validator
-func NewValidator(pubkey []byte, collateral, extraVotingPower math.Int) Validator {
-	return Validator{
-		Pubkey:           pubkey,
-		Collateral:       collateral,
-		ExtraVotingPower: extraVotingPower,
-		VotingPower:      math.ZeroInt(), // will be computed on finalizing
-		Jailed:           false,
-	}
-}
-
 func (v Validator) ConsPubKey() (cryptotypes.PubKey, error) {
 	return k1util.PubKeyBytesToCosmos(v.Pubkey)
 }

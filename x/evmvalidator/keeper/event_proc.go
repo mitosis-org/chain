@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	sdkmath "cosmossdk.io/math"
-	"encoding/hex"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -13,7 +12,6 @@ import (
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/k1util"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
-	"time"
 )
 
 var (
@@ -132,56 +130,11 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 		return errors.Wrap(err, "invalid validator pubkey")
 	}
 
-	// Check if validator already exists
-	if k.HasValidator(ctx, pubkey) {
-		ctx.Logger().Info("Validator already registered", "pubkey", hex.EncodeToString(pubkey))
-		return nil
-	}
-
 	// Convert the amount to math.Int
 	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmount)
 
-	// Create a new validator
-	validator := types.NewValidator(pubkey, collateral, sdkmath.ZeroInt())
-
-	// Compute voting power
-	params := k.GetParams(ctx)
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Check if voting power meets minimum requirement
-	if validator.VotingPower.LT(params.MinVotingPower) {
-		validator.Jailed = true
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeJailValidator,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-				sdk.NewAttribute(types.AttributeKeyReason, "insufficient voting power"),
-			),
-		)
-	}
-
-	// Set the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Set the validator in power index
-	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-	}
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
-
-	// Emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeRegisterValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-			sdk.NewAttribute(types.AttributeKeyCollateral, collateral.String()),
-			sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-		),
-	)
-
-	return nil
+	// Register the validator
+	return k.registerValidator(ctx, pubkey, collateral, sdkmath.ZeroInt(), false)
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
@@ -203,43 +156,8 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	amount := sdkmath.NewIntFromBigInt(event.Amount)
 
 	// Update validator's collateral
-	validator.Collateral = validator.Collateral.Add(amount)
-
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
-
-	// Emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeDepositCollateral,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
-			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
-			sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-		),
-	)
-
-	// If voting power changed, emit update event
-	if !validator.VotingPower.Equal(oldVotingPower) {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-			),
-		)
+	if err := k.depositCollateral(ctx, &validator, amount); err != nil {
+		return errors.Wrap(err, "failed to deposit collateral")
 	}
 
 	return nil
@@ -263,11 +181,6 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 	// Convert the amount to math.Int
 	amount := sdkmath.NewIntFromBigInt(event.Amount)
 
-	// Ensure validator has enough collateral
-	if validator.Collateral.LT(amount) {
-		return types.ErrInsufficientCollateral
-	}
-
 	// Create a withdrawal
 	withdrawal := types.NewWithdrawal(
 		pubkey,
@@ -276,61 +189,9 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 		event.ReceivesAt.Uint64(),
 	)
 
-	// Add to withdrawal queue
-	k.AddWithdrawalToQueue(ctx, withdrawal)
-
-	// Update validator's collateral (immediately reduce to prevent multiple withdrawals)
-	validator.Collateral = validator.Collateral.Sub(amount)
-
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Check if validator should be jailed due to insufficient voting power
-	if !validator.Jailed && validator.VotingPower.LT(params.MinVotingPower) {
-		validator.Jailed = true
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeJailValidator,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-				sdk.NewAttribute(types.AttributeKeyReason, "insufficient voting power"),
-			),
-		)
-	}
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), pubkey)
-	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-	}
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
-
-	// Emit events
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeWithdrawCollateral,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
-			sdk.NewAttribute(types.AttributeKeyReceiver, event.Receiver.String()),
-			sdk.NewAttribute(types.AttributeKeyReceivesAt, time.Unix(event.ReceivesAt.Int64(), 0).String()),
-		),
-	)
-
-	// If voting power changed, emit update event
-	if !validator.VotingPower.Equal(oldVotingPower) {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-			),
-		)
+	// Request withdrawal
+	if err := k.withdrawCollateral(ctx, &validator, withdrawal); err != nil {
+		return errors.Wrap(err, "failed to withdraw collateral")
 	}
 
 	return nil
@@ -353,13 +214,9 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 
 	// Check if validator is jailed
 	if !validator.Jailed {
+		// NOTE: There is no verification logic in EVM. So, just ignore instead of returning an error
+		// because there could be many error logs otherwise.
 		return nil // No-op if not jailed
-	}
-
-	// Check if voting power meets minimum requirement
-	params := k.GetParams(ctx)
-	if validator.VotingPower.LT(params.MinVotingPower) {
-		return errors.Wrap(types.ErrInvalidVotingPower, "voting power below minimum requirement")
 	}
 
 	// Get consensus address
@@ -368,29 +225,10 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 		return errors.Wrap(err, "failed to get consensus address")
 	}
 
-	// Unjail validator through slashing keeper
+	// unjail validator through slashing keeper
 	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
 		return errors.Wrap(err, "failed to unjail validator")
 	}
-
-	// Unjail the validator in our state
-	validator.Jailed = false
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, 0, pubkey) // Delete with power 0 (jailed)
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
-
-	// Emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUnjailValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-		),
-	)
 
 	return nil
 }
@@ -413,47 +251,10 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 	// Convert the extra voting power to math.Int
 	extraVotingPower := sdkmath.NewIntFromBigInt(event.ExtraVotingPower)
 
-	// Update validator's extra voting power
-	oldVotingPower := validator.VotingPower
-	validator.ExtraVotingPower = extraVotingPower
-
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Check if validator should be jailed/unjailed based on voting power
-	if !validator.Jailed && validator.VotingPower.LT(params.MinVotingPower) {
-		validator.Jailed = true
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeJailValidator,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-				sdk.NewAttribute(types.AttributeKeyReason, "insufficient voting power"),
-			),
-		)
+	// Update extra voting power
+	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
+		return errors.Wrap(err, "failed to update extra voting power")
 	}
-
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), pubkey)
-	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), pubkey)
-	}
-
-	// Record last validator power
-	k.SetLastValidatorPower(ctx, pubkey, validator.VotingPower.Int64())
-
-	// Emit events
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUpdateVotingPower,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
-			sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-		),
-	)
 
 	return nil
 }

@@ -1,46 +1,27 @@
 package keeper
 
 import (
-	"encoding/hex"
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 )
 
 // InitGenesis initializes the evmvalidator module's state from a provided genesis state
-func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) error {
+func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.ValidatorUpdate, error) {
 	// Set module parameters
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
-		return err
+		return []abci.ValidatorUpdate{}, err
 	}
 
 	// Set validators
 	for _, validator := range data.Validators {
-		// Ensure voting power is computed
-		validator.VotingPower = validator.ComputeVotingPower(data.Params.MaxLeverageRatio)
-
-		// Set validator
-		k.SetValidator(ctx, validator)
-
-		// Set validator in power index
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-
-		// Set last validator power
-		power := validator.VotingPower.Int64()
-		if validator.Jailed {
-			power = 0
+		// voting power will be recalculated
+		if err = k.registerValidator(ctx, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
+			return nil, err
 		}
-		k.SetLastValidatorPower(ctx, validator.Pubkey, power)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRegisterValidator,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
-				sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
-				sdk.NewAttribute(types.AttributeKeyExtraVotingPower, validator.ExtraVotingPower.String()),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
-			),
-		)
 	}
 
 	// Set withdrawals
@@ -53,7 +34,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) error {
 		k.SetLastValidatorPower(ctx, lastPower.Pubkey, lastPower.Power)
 	}
 
-	return nil
+	return k.ApplyAndReturnValidatorSetUpdates(ctx)
 }
 
 // ExportGenesis returns the evmvalidator module's exported genesis state
@@ -64,4 +45,34 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		k.GetAllWithdrawals(ctx),
 		k.GetLastValidatorPowers(ctx),
 	)
+}
+
+// WriteValidators returns a slice of bonded genesis validators.
+func (k Keeper) WriteValidators(ctx sdk.Context) (vals []cmttypes.GenesisValidator, returnErr error) {
+	err := k.IterateLastValidators(ctx, func(_ int64, validator types.Validator) (stop bool) {
+		pk, err := validator.ConsPubKey()
+		if err != nil {
+			returnErr = err
+			return true
+		}
+		cmtPk, err := cryptocodec.ToCmtPubKeyInterface(pk)
+		if err != nil {
+			returnErr = err
+			return true
+		}
+
+		vals = append(vals, cmttypes.GenesisValidator{
+			Address: sdk.ConsAddress(cmtPk.Address()).Bytes(),
+			PubKey:  cmtPk,
+			Power:   validator.ConsensusVotingPower(),
+			Name:    cmtPk.Address().String(),
+		})
+
+		return false
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return vals, returnErr
 }

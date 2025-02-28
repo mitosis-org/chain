@@ -9,7 +9,6 @@ import (
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
-	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	"cosmossdk.io/core/appconfig"
@@ -19,6 +18,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	evmgovmodulev1 "github.com/mitosis-org/chain/api/mitosis/evmgov/module/v1"
+	evmvalmodulev1 "github.com/mitosis-org/chain/api/mitosis/evmvalidator/module/v1"
+	evmvaltypes "github.com/mitosis-org/chain/x/evmvalidator/types"
 	evmengmodule "github.com/omni-network/omni/octane/evmengine/module"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -27,8 +28,6 @@ import (
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	evmgovtypes "github.com/mitosis-org/chain/x/evmgov/types"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
@@ -51,7 +50,7 @@ var (
 	genesisModuleOrder = []string{
 		authtypes.ModuleName,
 		banktypes.ModuleName,
-		stakingtypes.ModuleName,
+		evmvaltypes.ModuleName,
 		slashingtypes.ModuleName,
 		genutiltypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -67,23 +66,18 @@ var (
 	beginBlockers = []string{
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		stakingtypes.ModuleName, // NOTE: staking module is required if HistoricalEntries param > 0
 	}
 
 	endBlockers = []string{
-		stakingtypes.ModuleName,
+		evmvaltypes.ModuleName,
 	}
 
 	blockAccAddrs = []string{
 		authtypes.FeeCollectorName,
-		stakingtypes.BondedPoolName,
-		stakingtypes.NotBondedPoolName,
 	}
 
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
-		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
-		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, authtypes.Staking}},
 		{Account: evmgovtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 	}
 
@@ -145,9 +139,10 @@ var (
 				Config: appconfig.WrapAny(&genutilmodulev1.Module{}),
 			},
 			{
-				Name: stakingtypes.ModuleName,
-				Config: appconfig.WrapAny(&stakingmodulev1.Module{
-					Authority: evmgovtypes.ModuleName,
+				Name: evmvaltypes.ModuleName,
+				Config: appconfig.WrapAny(&evmvalmodulev1.Module{
+					Authority:                  evmgovtypes.ModuleName,
+					EvmValidatorEntrypointAddr: EVMValidatorEntrypointAddr,
 				}),
 			},
 			{

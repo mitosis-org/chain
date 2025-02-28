@@ -25,8 +25,8 @@ import (
 	"time"
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	evmgovkeeper "github.com/mitosis-org/chain/x/evmgov/keeper"
+	evmvalkeeper "github.com/mitosis-org/chain/x/evmvalidator/keeper"
 	evmengkeeper "github.com/omni-network/omni/octane/evmengine/keeper"
 
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
@@ -38,8 +38,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"        // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
 	_ "github.com/mitosis-org/chain/x/evmgov"         // import for side-effects
+	_ "github.com/mitosis-org/chain/x/evmvalidator"   // import for side-effects
 )
 
 var (
@@ -61,7 +61,7 @@ type MitosisApp struct {
 	// basic keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
+	EVMValKeeper          *evmvalkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ConsensusParamsKeeper consensusparamskeeper.Keeper
@@ -115,7 +115,7 @@ func NewMitosisApp(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.StakingKeeper,
+		&app.EVMValKeeper,
 		&app.SlashingKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
