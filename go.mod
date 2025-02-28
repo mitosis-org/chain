@@ -10,7 +10,7 @@ require (
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.4.1
 	cosmossdk.io/math v1.4.0
-	cosmossdk.io/store v1.1.1 // indirect
+	cosmossdk.io/store v1.1.1
 	cosmossdk.io/tools/confix v0.1.2
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/upgrade v0.1.4
@@ -24,15 +24,17 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6 // indirect
 	golang.org/x/sync v0.11.0 // indirect
-	google.golang.org/grpc v1.70.0 // indirect
+	google.golang.org/grpc v1.70.0
 )
 
 require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/gogoproto v1.7.0
+	github.com/golang/protobuf v1.5.4
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f
 	google.golang.org/protobuf v1.36.4
 )
 
@@ -111,7 +113,6 @@ require (
 	github.com/golang/glog v1.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
@@ -225,7 +226,6 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -238,7 +238,9 @@ require (
 
 // following versions might cause unexpected behavior
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228121050-c0af52bf422b
+	// TODO(thai): should revise the commit revision.
+	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250228221247-67e7d87b61de
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228221247-67e7d87b61de
 	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250226120544-ff2169fe40ee
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952

@@ -50,7 +50,7 @@ var (
 	genesisModuleOrder = []string{
 		authtypes.ModuleName,
 		banktypes.ModuleName,
-		evmvaltypes.ModuleName,
+		evmvaltypes.ModuleName, // should be before slashing & genutil & evidence
 		slashingtypes.ModuleName,
 		genutiltypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -139,13 +139,6 @@ var (
 				Config: appconfig.WrapAny(&genutilmodulev1.Module{}),
 			},
 			{
-				Name: evmvaltypes.ModuleName,
-				Config: appconfig.WrapAny(&evmvalmodulev1.Module{
-					Authority:                  evmgovtypes.ModuleName,
-					EvmValidatorEntrypointAddr: EVMValidatorEntrypointAddr,
-				}),
-			},
-			{
 				Name:   evidencetypes.ModuleName,
 				Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
 			},
@@ -159,6 +152,13 @@ var (
 				Name: evmengtypes.ModuleName,
 				Config: appconfig.WrapAny(&evmengmodule.Module{
 					Authority: evmgovtypes.ModuleName,
+				}),
+			},
+			{
+				Name: evmvaltypes.ModuleName,
+				Config: appconfig.WrapAny(&evmvalmodulev1.Module{
+					Authority:                  evmgovtypes.ModuleName,
+					EvmValidatorEntrypointAddr: EVMValidatorEntrypointAddr,
 				}),
 			},
 			{

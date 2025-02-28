@@ -178,14 +178,11 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 		return types.ErrValidatorNotFound
 	}
 
-	// Convert the amount to math.Int
-	amount := sdkmath.NewIntFromBigInt(event.Amount)
-
 	// Create a withdrawal
 	withdrawal := types.NewWithdrawal(
 		pubkey,
-		amount,
-		event.Receiver.String(),
+		event.Amount.Uint64(),
+		event.Receiver.Bytes(),
 		event.ReceivesAt.Uint64(),
 	)
 

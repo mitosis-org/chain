@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	modulev1 "github.com/mitosis-org/chain/api/mitosis/evmvalidator/module/v1"
+	"github.com/mitosis-org/chain/x/evmvalidator/client/cli"
 	"github.com/mitosis-org/chain/x/evmvalidator/keeper"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 
@@ -54,12 +55,12 @@ func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
 
 // GetTxCmd returns the evmvalidator module's root tx command.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.GetTxCmd()
 }
 
 // GetQueryCmd returns the evmvalidator module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return nil
+	return cli.GetQueryCmd()
 }
 
 // Name returns the evmvalidator module's name.
@@ -79,7 +80,11 @@ func (AppModuleBasic) RegisterInterfaces(reg codectypes.InterfaceRegistry) {
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(client.Context, *runtime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
 
 // ----------------------------------------------------------------------------
 // AppModule
@@ -146,8 +151,8 @@ func (am AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConf
 }
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries.
-func (AppModule) RegisterServices(cfg module.Configurator) {
-	// TODO(thai): RegisterServices for evmvalidator module
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
@@ -174,7 +179,6 @@ type ModuleInputs struct {
 	Config                *modulev1.Module
 	Cdc                   codec.Codec
 	StoreKey              *storetypes.KVStoreKey
-	SlashingKeeper        types.SlashingKeeper
 	ValidatorAddressCodec address.Codec
 	ConsensusAddressCodec address.Codec
 }
@@ -182,9 +186,10 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	Keeper       *keeper.Keeper
-	Module       appmodule.AppModule
-	EVMEventProc evmengtypes.InjectedEventProc
+	Module            appmodule.AppModule
+	Keeper            *keeper.Keeper
+	KeeperForEvidence *keeper.KeeperWrapperForEvidence
+	EVMEventProc      evmengtypes.InjectedEventProc
 }
 
 func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
@@ -195,7 +200,6 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	k := keeper.NewKeeperWithAddressCodecs(
 		in.Cdc,
 		in.StoreKey,
-		in.SlashingKeeper,
 		entrypointAddr,
 		in.ValidatorAddressCodec,
 		in.ConsensusAddressCodec,
@@ -208,8 +212,9 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	)
 
 	return ModuleOutputs{
-		Keeper:       k,
-		Module:       m,
-		EVMEventProc: evmengtypes.InjectEventProc(k),
+		Module:            m,
+		Keeper:            k,
+		KeeperForEvidence: &keeper.KeeperWrapperForEvidence{K: k},
+		EVMEventProc:      evmengtypes.InjectEventProc(k),
 	}, nil
 }

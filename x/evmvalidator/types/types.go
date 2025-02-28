@@ -1,7 +1,5 @@
 package types
 
-import sdkmath "cosmossdk.io/math"
-
 // NewLastValidatorPower creates a new LastValidatorPower instance
 func NewLastValidatorPower(pubkey []byte, power int64) LastValidatorPower {
 	return LastValidatorPower{
@@ -11,7 +9,7 @@ func NewLastValidatorPower(pubkey []byte, power int64) LastValidatorPower {
 }
 
 // NewWithdrawal creates a new Withdrawal instance
-func NewWithdrawal(pubkey []byte, amount sdkmath.Int, receiver string, receivesAt uint64) Withdrawal {
+func NewWithdrawal(pubkey []byte, amount uint64, receiver []byte, receivesAt uint64) Withdrawal {
 	return Withdrawal{
 		Pubkey:     pubkey,
 		Amount:     amount,

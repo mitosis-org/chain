@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/omni-network/omni/lib/errors"
 	"time"
@@ -45,6 +46,23 @@ func (k Keeper) registerValidator(
 
 	// Set the validator in power index
 	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+
+	// Call slashing hooks
+	consPubKey, err := validator.ConsPubKey()
+	if err != nil {
+		return errors.Wrap(err, "failed to get consensus public key")
+	}
+	consAddr, err := validator.ConsAddr()
+	if err != nil {
+		return errors.Wrap(err, "failed to get consensus address")
+	}
+
+	if err = k.slashingKeeper.AfterValidatorCreated(ctx, consPubKey); err != nil {
+		return errors.Wrap(err, "failed to call AfterValidatorCreated hook")
+	}
+	if err = k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
+		return errors.Wrap(err, "failed to call AfterValidatorBonded hook")
+	}
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
@@ -110,8 +128,10 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 }
 
 func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal types.Withdrawal) error {
+	amount := sdkmath.NewIntFromUint64(withdrawal.Amount)
+
 	// Ensure validator has enough collateral
-	if validator.Collateral.LT(withdrawal.Amount) {
+	if validator.Collateral.LT(amount) {
 		return errors.Wrap(types.ErrInsufficientCollateral, "validator has insufficient collateral")
 	}
 
@@ -119,7 +139,7 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	k.AddWithdrawalToQueue(ctx, withdrawal)
 
 	// Update validator's collateral (immediately reduce to prevent multiple withdrawals)
-	validator.Collateral = validator.Collateral.Sub(withdrawal.Amount)
+	validator.Collateral = validator.Collateral.Sub(amount)
 
 	// Recompute voting power
 	params := k.GetParams(ctx)
@@ -133,16 +153,13 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
 	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
 
-	// TODO(thai): Should call slashing keeper's AddPubKey() here.
-	// https://github.com/mitosis-org/cosmos-sdk/blob/c0af52bf422b17f317dd77e8864e562467445811/x/slashing/keeper/hooks.go#L57-L74
-
 	// Emit events
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeWithdrawCollateral,
 			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
-			sdk.NewAttribute(types.AttributeKeyAmount, withdrawal.Amount.String()),
-			sdk.NewAttribute(types.AttributeKeyReceiver, withdrawal.Receiver),
+			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(types.AttributeKeyReceiver, common.Bytes2Hex(withdrawal.Receiver)),
 			sdk.NewAttribute(types.AttributeKeyReceivesAt, time.Unix(int64(withdrawal.ReceivesAt), 0).String()),
 		),
 	)

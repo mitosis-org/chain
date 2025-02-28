@@ -19,7 +19,8 @@ import (
 type Keeper struct {
 	cdc                            codec.BinaryCodec
 	storeKey                       storetypes.StoreKey
-	slashingKeeper                 types.SlashingKeeper
+	slashingKeeper                 types.SlashingKeeper // initialized later
+	evmEngKeeper                   types.EvmEngineKeeper
 	evmValidatorEntrypointAddr     common.Address
 	evmValidatorEntrypointContract *bindings.ConsensusValidatorEntrypoint
 
@@ -32,7 +33,6 @@ type Keeper struct {
 func NewKeeperWithAddressCodecs(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	slashingKeeper types.SlashingKeeper,
 	evmValidatorEntrypointAddr common.Address,
 	validatorAddressCodec address.Codec,
 	consensusAddressCodec address.Codec,
@@ -46,7 +46,6 @@ func NewKeeperWithAddressCodecs(
 	return &Keeper{
 		cdc:                            cdc,
 		storeKey:                       storeKey,
-		slashingKeeper:                 slashingKeeper,
 		evmValidatorEntrypointAddr:     evmValidatorEntrypointAddr,
 		evmValidatorEntrypointContract: consensusValidatorEntrypointContract,
 		validatorAddressCodec:          validatorAddressCodec,
@@ -57,6 +56,16 @@ func NewKeeperWithAddressCodecs(
 // Logger returns a module-specific logger
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// SetSlashingKeeper sets the slashing keeper
+func (k *Keeper) SetSlashingKeeper(slashingKeeper types.SlashingKeeper) {
+	k.slashingKeeper = slashingKeeper
+}
+
+// SetEvmEngineKeeper sets the evm engine keeper
+func (k *Keeper) SetEvmEngineKeeper(evmEngKeeper types.EvmEngineKeeper) {
+	k.evmEngKeeper = evmEngKeeper
 }
 
 // GetParams gets the parameters for the x/evmvalidator module

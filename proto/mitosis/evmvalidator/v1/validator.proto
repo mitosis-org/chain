@@ -46,15 +46,11 @@ message Withdrawal {
   // pubkey is the compressed secp256k1 public key of the validator
   bytes pubkey = 1 [ (cosmos_proto.scalar) = "cosmos.crypto.PubKey" ];
 
-  // amount is the amount of ETH to withdraw
-  string amount = 2 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  // amount is the amount of collateral to withdraw
+  uint64 amount = 2;
 
   // receiver is the address that will receive the withdrawn collateral
-  string receiver = 3;
+  bytes receiver = 3;
 
   // receives_at is the time when the collateral will be sent to the receiver
   uint64 receives_at = 4;

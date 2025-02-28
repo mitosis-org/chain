@@ -4,12 +4,19 @@ import (
 	"context"
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/math"
+	evidencetypes "cosmossdk.io/x/evidence/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 )
 
-var _ types.StakingKeeper = (*Keeper)(nil)
+var (
+	_ slashingtypes.StakingKeeper = (*Keeper)(nil)
+	_ genutiltypes.StakingKeeper  = (*Keeper)(nil)
+	_ evidencetypes.StakingKeeper = (*KeeperWrapperForEvidence)(nil)
+)
 
 // ValidatorAddressCodec returns the address codec for validators
 func (k Keeper) ValidatorAddressCodec() address.Codec {
@@ -23,7 +30,7 @@ func (k Keeper) ConsensusAddressCodec() address.Codec {
 
 // IterateValidators implements the StakingKeeper interface
 // It iterates through validators and executes the provided function for each validator
-func (k Keeper) IterateValidators(ctx context.Context, fn func(index int64, validator types.ValidatorI) (stop bool)) error {
+func (k Keeper) IterateValidators(ctx context.Context, fn func(index int64, validator slashingtypes.ValidatorI) (stop bool)) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var index int64
 	k.IterateValidatorsExec(sdkCtx, func(_ int64, validator types.Validator) (stop bool) {
@@ -33,7 +40,7 @@ func (k Keeper) IterateValidators(ctx context.Context, fn func(index int64, vali
 }
 
 // Validator returns a validator by validator address
-func (k Keeper) Validator(ctx context.Context, valAddr sdk.ValAddress) (types.ValidatorI, error) {
+func (k Keeper) Validator(ctx context.Context, valAddr sdk.ValAddress) (slashingtypes.ValidatorI, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	var foundValidator types.Validator
@@ -63,7 +70,7 @@ func (k Keeper) Validator(ctx context.Context, valAddr sdk.ValAddress) (types.Va
 	return foundValidator, nil
 }
 
-func (k *Keeper) ValidatorByConsAddr(ctx context.Context, consAddress sdk.ConsAddress) (types.ValidatorI, error) {
+func (k *Keeper) ValidatorByConsAddr(ctx context.Context, consAddress sdk.ConsAddress) (slashingtypes.ValidatorI, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	validator, found := k.GetValidatorByConsAddr(sdkCtx, consAddress)
 	if !found {
@@ -129,4 +136,16 @@ func (k Keeper) IsValidatorJailed(ctx context.Context, addr sdk.ConsAddress) (bo
 		return false, types.ErrValidatorNotFound
 	}
 	return validator.Jailed, nil
+}
+
+type KeeperWrapperForEvidence struct {
+	K *Keeper
+}
+
+func (k KeeperWrapperForEvidence) ConsensusAddressCodec() address.Codec {
+	return k.K.ConsensusAddressCodec()
+}
+
+func (k KeeperWrapperForEvidence) ValidatorByConsAddr(ctx context.Context, consAddress sdk.ConsAddress) (evidencetypes.ValidatorI, error) {
+	return k.K.ValidatorByConsAddr(ctx, consAddress)
 }

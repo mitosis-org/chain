@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/mitosis-org/chain/app"
+	evmvalcli "github.com/mitosis-org/chain/x/evmvalidator/client/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +35,7 @@ func initRootCmd(rootCmd *cobra.Command, txConfig client.TxConfig, basicManager 
 
 	rootCmd.AddCommand(
 		InitCmd(basicManager, app.DefaultNodeHome),
+		evmvalcli.GetGenesisValidatorCmd(app.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),

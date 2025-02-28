@@ -61,10 +61,10 @@ func (gs GenesisState) Validate() error {
 		if len(withdrawal.Pubkey) == 0 {
 			return fmt.Errorf("withdrawal %d has no pubkey", i)
 		}
-		if withdrawal.Amount.IsNil() || withdrawal.Amount.IsNegative() || withdrawal.Amount.IsZero() {
-			return fmt.Errorf("withdrawal %d has invalid amount: %s", i, withdrawal.Amount)
+		if withdrawal.Amount <= 0 {
+			return fmt.Errorf("withdrawal %d has invalid amount: %d", i, withdrawal.Amount)
 		}
-		if withdrawal.Receiver == "" {
+		if withdrawal.Receiver == nil {
 			return fmt.Errorf("withdrawal %d has no receiver", i)
 		}
 		if withdrawal.ReceivesAt == 0 {

@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"time"
 )
@@ -20,16 +21,18 @@ func (k Keeper) ProcessMaturedWithdrawals(ctx sdk.Context) error {
 			return true // stop iteration
 		}
 
-		// Process the withdrawal
-		// TODO(thai): using evmengine to process withdrawal
+		// Insert the withdrawal into the EVM engine
+		if err := k.evmEngKeeper.InsertWithdrawal(ctx, common.BytesToAddress(withdrawal.Receiver), withdrawal.Amount); err != nil {
+			return false
+		}
 
 		// Emit an event and remove from queue
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeWithdrawalMatured,
 				sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", withdrawal.Pubkey)),
-				sdk.NewAttribute(types.AttributeKeyAmount, withdrawal.Amount.String()),
-				sdk.NewAttribute(types.AttributeKeyReceiver, withdrawal.Receiver),
+				sdk.NewAttribute(types.AttributeKeyAmount, fmt.Sprintf("%d", withdrawal.Amount)),
+				sdk.NewAttribute(types.AttributeKeyReceiver, common.Bytes2Hex(withdrawal.Receiver)),
 				sdk.NewAttribute(types.AttributeKeyReceivesAt, time.Unix(int64(withdrawal.ReceivesAt), 0).String()),
 			),
 		)

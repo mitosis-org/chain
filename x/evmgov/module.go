@@ -115,8 +115,8 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	Keeper       *keeper.Keeper
 	Module       appmodule.AppModule
+	Keeper       *keeper.Keeper
 	EVMEventProc evmengtypes.InjectedEventProc
 }
 
@@ -136,8 +136,8 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	)
 
 	return ModuleOutputs{
-		Keeper:       k,
 		Module:       m,
+		Keeper:       k,
 		EVMEventProc: evmengtypes.InjectEventProc(k),
 	}, nil
 }

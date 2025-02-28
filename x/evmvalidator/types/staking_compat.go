@@ -1,6 +1,14 @@
 package types
 
-var _ ValidatorI = (*Validator)(nil)
+import (
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+)
+
+var (
+	_ slashingtypes.ValidatorI = (*Validator)(nil)
+	_ evidencetypes.ValidatorI = (*Validator)(nil)
+)
 
 // GetConsAddr implements ValidatorI
 func (v Validator) GetConsAddr() ([]byte, error) {

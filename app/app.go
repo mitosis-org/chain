@@ -58,19 +58,19 @@ type MitosisApp struct {
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	// basic keepers
+	// Cosmos SDK keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	EVMValKeeper          *evmvalkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ConsensusParamsKeeper consensusparamskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 
-	// EVM Engine keepers
+	// Octane keepers
 	EVMEngKeeper *evmengkeeper.Keeper
 
 	// Mitosis keepers
+	EVMValKeeper *evmvalkeeper.Keeper
 	EVMGovKeeper *evmgovkeeper.Keeper
 }
 
@@ -115,12 +115,12 @@ func NewMitosisApp(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.EVMValKeeper,
 		&app.SlashingKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.UpgradeKeeper,
 		&app.EVMEngKeeper,
+		&app.EVMValKeeper,
 		&app.EVMGovKeeper,
 	); err != nil {
 		return nil, errors.Wrap(err, "dep inject")
@@ -129,6 +129,9 @@ func NewMitosisApp(
 	app.EVMEngKeeper.SetBuildDelay(engineBuildDelay)
 	app.EVMEngKeeper.SetBuildOptimistic(engineBuildOptimistic)
 	app.EVMEngKeeper.SetVoteProvider(NoVoteExtensionProvider{})
+
+	app.EVMValKeeper.SetSlashingKeeper(app.SlashingKeeper)
+	app.EVMValKeeper.SetEvmEngineKeeper(app.EVMEngKeeper)
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
 		bapp.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)
