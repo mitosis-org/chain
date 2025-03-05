@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -36,12 +37,12 @@ var (
 
 // GetValidatorKey creates key for a validator from pubkey
 func GetValidatorKey(pubkey []byte) []byte {
-	return append(ValidatorKeyPrefix, pubkey...)
+	return append(ValidatorKeyPrefix, address.MustLengthPrefix(pubkey)...)
 }
 
 // GetValidatorByConsAddrKey creates key for a validator from consensus address
 func GetValidatorByConsAddrKey(consAddr sdk.ConsAddress) []byte {
-	return append(ValidatorByConsAddrKeyPrefix, consAddr.Bytes()...)
+	return append(ValidatorByConsAddrKeyPrefix, address.MustLengthPrefix(consAddr.Bytes())...)
 }
 
 // GetValidatorByPowerIndexKey creates the key for a validator from power and pubkey
@@ -51,12 +52,12 @@ func GetValidatorByPowerIndexKey(power int64, pubkey []byte) []byte {
 	// power is converted to descending order for the key (higher power first)
 	// because we want to iterate from highest to lowest power in EndBlocker
 	binary.BigEndian.PutUint64(powerBytes, uint64(^power))
-	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, pubkey...)...)
+	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, address.MustLengthPrefix(pubkey)...)...)
 }
 
 // GetLastValidatorPowerKey creates key for a validator from pubkey
 func GetLastValidatorPowerKey(pubkey []byte) []byte {
-	return append(LastValidatorPowerKeyPrefix, pubkey...)
+	return append(LastValidatorPowerKeyPrefix, address.MustLengthPrefix(pubkey)...)
 }
 
 // GetWithdrawalQueueKey creates key for withdrawals at a timestamp
