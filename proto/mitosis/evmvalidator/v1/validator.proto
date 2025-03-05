@@ -44,7 +44,7 @@ message Validator {
 // Withdrawal defines a withdrawal request in the queue
 message Withdrawal {
   // pubkey is the compressed secp256k1 public key of the validator
-  bytes pubkey = 1 [ (cosmos_proto.scalar) = "cosmos.crypto.PubKey" ];
+  bytes pubkey = 1;
 
   // amount is the amount of collateral to withdraw
   uint64 amount = 2;
@@ -60,7 +60,7 @@ message Withdrawal {
 // updates
 message LastValidatorPower {
   // pubkey is the compressed secp256k1 public key of the validator
-  bytes pubkey = 1 [ (cosmos_proto.scalar) = "cosmos.crypto.PubKey" ];
+  bytes pubkey = 1;
 
   // power is the last voting power
   int64 power = 2;
