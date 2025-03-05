@@ -213,7 +213,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 	if !validator.Jailed {
 		// NOTE: There is no verification logic in EVM. So, just ignore instead of returning an error
 		// because there could be many error logs otherwise.
-		return nil // No-op if not jailed
+		return nil
 	}
 
 	// Get consensus address

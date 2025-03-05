@@ -152,7 +152,7 @@ func (k Keeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator)
 func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uint32) []types.Validator {
 	validators := make([]types.Validator, 0, maxValidators)
 
-	iterator := k.ValidatorsPowerStoreIterator(ctx)
+	iterator := k.GetValidatorsByPowerIndexIterator(ctx)
 	defer iterator.Close()
 
 	for count := uint32(0); iterator.Valid() && count < maxValidators; iterator.Next() {
@@ -163,7 +163,9 @@ func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uin
 			panic(fmt.Sprintf("validator with pubkey %s not found", hex.EncodeToString(pubkey)))
 		}
 
+		// defensive logic. not possible to have a jailed validator in the power index
 		if validator.Jailed {
+			k.Logger(ctx).Error(fmt.Sprintf("[BUG] validator %s is jailed", hex.EncodeToString(pubkey)))
 			continue
 		}
 
@@ -194,30 +196,24 @@ func (k Keeper) SetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress
 	store.Set(types.GetValidatorByConsAddrKey(consAddr), pubkey)
 }
 
-// ValidatorsPowerStoreIterator returns an iterator for the validators power store
-func (k Keeper) ValidatorsPowerStoreIterator(ctx sdk.Context) storetypes.Iterator {
-	store := ctx.KVStore(k.storeKey)
-	return storetypes.KVStorePrefixIterator(store, types.ValidatorPowerRankStoreKeyPrefix)
-}
-
-// GetValidatorsByPowerIndexIterator returns an iterator for the validators power store with a starting rank
+// GetValidatorsByPowerIndexIterator returns an iterator for the power index (starting from the most powerful)
 func (k Keeper) GetValidatorsByPowerIndexIterator(ctx sdk.Context) storetypes.Iterator {
 	store := ctx.KVStore(k.storeKey)
-	return storetypes.KVStorePrefixIterator(store, types.ValidatorPowerRankStoreKeyPrefix)
+	return storetypes.KVStorePrefixIterator(store, types.ValidatorByPowerIndexKeyPrefix)
 }
 
 // SetValidatorByPowerIndex sets a validator in the power index
 func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
 	store := ctx.KVStore(k.storeKey)
-	powerRankKey := types.GetValidatorPowerRankKey(power, pubkey)
-	store.Set(powerRankKey, pubkey)
+	storeKey := types.GetValidatorByPowerIndexKey(power, pubkey)
+	store.Set(storeKey, pubkey)
 }
 
 // DeleteValidatorByPowerIndex deletes a validator from the power index
 func (k Keeper) DeleteValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
 	store := ctx.KVStore(k.storeKey)
-	powerRankKey := types.GetValidatorPowerRankKey(power, pubkey)
-	store.Delete(powerRankKey)
+	storeKey := types.GetValidatorByPowerIndexKey(power, pubkey)
+	store.Delete(storeKey)
 }
 
 // GetLastValidatorPower gets the last validator power for a validator

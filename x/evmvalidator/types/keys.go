@@ -18,14 +18,14 @@ var (
 	// ParamsKey is the key for module parameters
 	ParamsKey = []byte{0x01}
 
-	// ValidatorKeyPrefix is the prefix for validator store
+	// ValidatorKeyPrefix is the prefix for a validator
 	ValidatorKeyPrefix = []byte{0x02}
 
-	// ValidatorByConsAddrKeyPrefix is the prefix for the consensus address to validator pubkey mapping
+	// ValidatorByConsAddrKeyPrefix is the prefix for a validator index, by consensus address
 	ValidatorByConsAddrKeyPrefix = []byte{0x03}
 
-	// ValidatorPowerRankStoreKeyPrefix is the prefix for validator power rank store
-	ValidatorPowerRankStoreKeyPrefix = []byte{0x04}
+	// ValidatorByPowerIndexKeyPrefix is the prefix for a validator index, sorted by power
+	ValidatorByPowerIndexKeyPrefix = []byte{0x04}
 
 	// LastValidatorPowerKeyPrefix is the prefix for last validator powers
 	LastValidatorPowerKeyPrefix = []byte{0x05}
@@ -34,7 +34,7 @@ var (
 	WithdrawalQueueKeyPrefix = []byte{0x06}
 )
 
-// GetValidatorKey creates key for a validator from consensus public key
+// GetValidatorKey creates key for a validator from pubkey
 func GetValidatorKey(pubkey []byte) []byte {
 	return append(ValidatorKeyPrefix, pubkey...)
 }
@@ -44,14 +44,14 @@ func GetValidatorByConsAddrKey(consAddr sdk.ConsAddress) []byte {
 	return append(ValidatorByConsAddrKeyPrefix, consAddr.Bytes()...)
 }
 
-// GetValidatorPowerRankKey creates the key for the validator power rank store from power and pubkey
-func GetValidatorPowerRankKey(power int64, pubkey []byte) []byte {
+// GetValidatorByPowerIndexKey creates the key for a validator from power and pubkey
+func GetValidatorByPowerIndexKey(power int64, pubkey []byte) []byte {
 	// NOTE: power is the voting power, not the tokens amount
 	powerBytes := make([]byte, 8)
 	// power is converted to descending order for the key (higher power first)
 	// because we want to iterate from highest to lowest power in EndBlocker
 	binary.BigEndian.PutUint64(powerBytes, uint64(^power))
-	return append(ValidatorPowerRankStoreKeyPrefix, append(powerBytes, pubkey...)...)
+	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, pubkey...)...)
 }
 
 // GetLastValidatorPowerKey creates key for a validator from pubkey
