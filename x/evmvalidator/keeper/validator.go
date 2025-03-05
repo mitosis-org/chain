@@ -277,7 +277,7 @@ func (k Keeper) jail(ctx sdk.Context, validator *types.Validator, reason string)
 		sdk.NewEvent(
 			types.EventTypeJailValidator,
 			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
-			sdk.NewAttribute(types.AttributeKeyReason, "reason"),
+			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
 	)
 
