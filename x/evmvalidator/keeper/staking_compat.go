@@ -39,37 +39,6 @@ func (k Keeper) IterateValidators(ctx context.Context, fn func(index int64, vali
 	return nil
 }
 
-// Validator returns a validator by validator address
-func (k Keeper) Validator(ctx context.Context, valAddr sdk.ValAddress) (slashingtypes.ValidatorI, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
-	var foundValidator types.Validator
-	var found bool
-
-	k.IterateValidatorsExec(sdkCtx, func(_ int64, validator types.Validator) bool {
-		consAddr, err := validator.ConsAddr()
-		if err != nil {
-			return false
-		}
-
-		// Derive validator address from consensus address
-		// This is a bit of a workaround since we're storing by pubkey not by address
-		valAddrFromConsAddr := sdk.ValAddress(consAddr)
-		if valAddrFromConsAddr.Equals(valAddr) {
-			foundValidator = validator
-			found = true
-			return true
-		}
-		return false
-	})
-
-	if !found {
-		return nil, types.ErrValidatorNotFound
-	}
-
-	return foundValidator, nil
-}
-
 func (k *Keeper) ValidatorByConsAddr(ctx context.Context, consAddress sdk.ConsAddress) (slashingtypes.ValidatorI, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	validator, found := k.GetValidatorByConsAddr(sdkCtx, consAddress)

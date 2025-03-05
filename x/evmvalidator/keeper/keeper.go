@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/core/address"
+	"encoding/hex"
 	"fmt"
 	"math"
 
@@ -112,17 +113,11 @@ func (k Keeper) HasValidator(ctx sdk.Context, pubkey []byte) bool {
 	return store.Has(types.GetValidatorKey(pubkey))
 }
 
-// SetValidator sets a validator
+// SetValidator sets a validator and updates the consensus address mapping
 func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&validator)
 	store.Set(types.GetValidatorKey(validator.Pubkey), bz)
-}
-
-// RemoveValidator removes a validator
-func (k Keeper) RemoveValidator(ctx sdk.Context, pubkey []byte) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetValidatorKey(pubkey))
 }
 
 // IterateValidatorsExec is an internal implementation of IterateValidators that works with the SDK Context
@@ -165,7 +160,7 @@ func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uin
 		pubkey := iterator.Value()
 		validator, found := k.GetValidator(ctx, pubkey)
 		if !found {
-			panic(fmt.Sprintf("validator with pubkey %s not found", sdk.ValAddress(pubkey)))
+			panic(fmt.Sprintf("validator with pubkey %s not found", hex.EncodeToString(pubkey)))
 		}
 
 		if validator.Jailed {
@@ -177,6 +172,26 @@ func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uin
 	}
 
 	return validators
+}
+
+// GetValidatorByConsAddr returns a validator pubkey by consensus address
+func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (types.Validator, bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	// Get the validator's pubkey using the consensus address mapping
+	pubkey := store.Get(types.GetValidatorByConsAddrKey(consAddr))
+	if pubkey == nil {
+		return types.Validator{}, false
+	}
+
+	// Get the validator using the pubkey
+	return k.GetValidator(ctx, pubkey)
+}
+
+// SetValidatorByConsAddr sets a validator pubkey by consensus address
+func (k Keeper) SetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress, pubkey []byte) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByConsAddrKey(consAddr), pubkey)
 }
 
 // ValidatorsPowerStoreIterator returns an iterator for the validators power store
@@ -324,29 +339,4 @@ func (k Keeper) GetAllWithdrawals(ctx sdk.Context) []types.Withdrawal {
 	})
 
 	return withdrawals
-}
-
-// GetValidatorByConsAddr returns a validator by consensus address
-func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (types.Validator, bool) {
-	// TODO(thai): we can optimize if we store the consAddr in the Validator and use consAddr as key.
-	// consAddr can be derived from the pubkey, but pubkey cannot be derived from consAddr.
-	var validator types.Validator
-	var found bool
-
-	k.IterateValidatorsExec(ctx, func(_ int64, val types.Validator) bool {
-		valConsAddr, err := val.ConsAddr()
-		if err != nil {
-			ctx.Logger().Error("failed to get consensus address", "err", err)
-			return false
-		}
-
-		if valConsAddr.Equals(consAddr) {
-			validator = val
-			found = true
-			return true
-		}
-		return false
-	})
-
-	return validator, found
 }

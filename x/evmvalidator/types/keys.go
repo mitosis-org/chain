@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/omni-network/omni/lib/k1util"
 )
 
 const (
@@ -22,19 +21,27 @@ var (
 	// ValidatorKeyPrefix is the prefix for validator store
 	ValidatorKeyPrefix = []byte{0x02}
 
+	// ValidatorByConsAddrKeyPrefix is the prefix for the consensus address to validator pubkey mapping
+	ValidatorByConsAddrKeyPrefix = []byte{0x03}
+
 	// ValidatorPowerRankStoreKeyPrefix is the prefix for validator power rank store
-	ValidatorPowerRankStoreKeyPrefix = []byte{0x03}
+	ValidatorPowerRankStoreKeyPrefix = []byte{0x04}
 
 	// LastValidatorPowerKeyPrefix is the prefix for last validator powers
-	LastValidatorPowerKeyPrefix = []byte{0x04}
+	LastValidatorPowerKeyPrefix = []byte{0x05}
 
 	// WithdrawalQueueKeyPrefix is the prefix for the withdrawal queue
-	WithdrawalQueueKeyPrefix = []byte{0x05}
+	WithdrawalQueueKeyPrefix = []byte{0x06}
 )
 
 // GetValidatorKey creates key for a validator from consensus public key
 func GetValidatorKey(pubkey []byte) []byte {
 	return append(ValidatorKeyPrefix, pubkey...)
+}
+
+// GetValidatorByConsAddrKey creates key for a validator from consensus address
+func GetValidatorByConsAddrKey(consAddr sdk.ConsAddress) []byte {
+	return append(ValidatorByConsAddrKeyPrefix, consAddr.Bytes()...)
 }
 
 // GetValidatorPowerRankKey creates the key for the validator power rank store from power and pubkey
@@ -57,21 +64,4 @@ func GetWithdrawalQueueKey(receivesAt uint64) []byte {
 	receivesAtBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(receivesAtBytes, receivesAt)
 	return append(WithdrawalQueueKeyPrefix, receivesAtBytes...)
-}
-
-// GetWithdrawalQueueKeyByTime returns the key for all withdrawals made for a given time
-func GetWithdrawalQueueKeyByTime(receivesAt uint64) []byte {
-	receivesAtBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(receivesAtBytes, receivesAt)
-	return append(WithdrawalQueueKeyPrefix, receivesAtBytes...)
-}
-
-// GetAddressFromConsensusPublicKey derives an SDK consensus address from a consensus public key
-func GetAddressFromConsensusPublicKey(pubkey []byte) (sdk.ConsAddress, error) {
-	// Convert pubkey to cosmos format
-	cosmosKey, err := k1util.PubKeyBytesToCosmos(pubkey)
-	if err != nil {
-		return nil, err
-	}
-	return sdk.ConsAddress(cosmosKey.Address()), nil
 }

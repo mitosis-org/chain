@@ -41,13 +41,7 @@ func (k Keeper) registerValidator(
 	params := k.GetParams(ctx)
 	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
 
-	// Set the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Set the validator in power index
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-
-	// Call slashing hooks
+	// Get consensus public key and address
 	consPubKey, err := validator.ConsPubKey()
 	if err != nil {
 		return errors.Wrap(err, "failed to get consensus public key")
@@ -56,6 +50,17 @@ func (k Keeper) registerValidator(
 	if err != nil {
 		return errors.Wrap(err, "failed to get consensus address")
 	}
+
+	// Set the validator in state
+	k.SetValidator(ctx, validator)
+
+	// Set the validator in consensus address index
+	k.SetValidatorByConsAddr(ctx, consAddr, validator.Pubkey)
+
+	// Set the validator in power index
+	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+
+	// Call slashing hooks
 
 	if err = k.slashingKeeper.AfterValidatorCreated(ctx, consPubKey); err != nil {
 		return errors.Wrap(err, "failed to call AfterValidatorCreated hook")
