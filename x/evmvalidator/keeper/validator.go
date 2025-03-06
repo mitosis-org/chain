@@ -58,7 +58,9 @@ func (k Keeper) registerValidator(
 	k.SetValidatorByConsAddr(ctx, consAddr, validator.Pubkey)
 
 	// Set the validator in power index
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	if !validator.Jailed {
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	}
 
 	// Call slashing hooks
 	if err = k.slashingKeeper.AfterValidatorCreated(ctx, consPubKey); err != nil {
@@ -102,8 +104,10 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 	k.SetValidator(ctx, *validator)
 
 	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	if !validator.Jailed {
+		k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	}
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
@@ -154,8 +158,10 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	k.SetValidator(ctx, *validator)
 
 	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	if !validator.Jailed {
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	}
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
@@ -203,6 +209,7 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	// Note that we're slashing collateral, not voting power
 	slashAmount := sdkmath.LegacyNewDecFromInt(validator.Collateral).Mul(slashFraction).TruncateInt()
 	if slashAmount.GT(validator.Collateral) {
+		k.Logger(ctx).Error("Slash amount exceeds validator's collateral", "slashAmount", slashAmount.String(), "collateral", validator.Collateral.String())
 		slashAmount = validator.Collateral
 	}
 
@@ -218,8 +225,8 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	k.SetValidator(ctx, validator)
 
 	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
 	if !validator.Jailed {
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
 		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
 	}
 
@@ -329,8 +336,10 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 	k.SetValidator(ctx, *validator)
 
 	// Update the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	if !validator.Jailed {
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	}
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
