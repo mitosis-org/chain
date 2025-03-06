@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/log"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -8,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
+	"github.com/mitosis-org/chain/x/evmgov/types"
 	"github.com/omni-network/omni/lib/errors"
 )
 
@@ -30,6 +32,10 @@ func NewKeeper(cdc codec.Codec, router baseapp.MessageRouter, evmGovernanceEntry
 		evmGovernanceEntrypointAddr,
 		evmGovernanceEntrypointContract,
 	}, nil
+}
+
+func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 func (k *Keeper) ParseMessages(rawMsgs []string) ([]sdk.Msg, error) {

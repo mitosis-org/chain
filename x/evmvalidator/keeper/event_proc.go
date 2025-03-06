@@ -61,7 +61,7 @@ func (k *Keeper) Deliver(ctx context.Context, _ common.Hash, elog evmengtypes.EV
 	if err := catch(func() error {
 		return k.parseAndProcessEvent(cacheCtx, elog)
 	}); err != nil {
-		sdkCtx.Logger().Error("Delivering event failed",
+		k.Logger(sdkCtx).Error("Delivering event failed",
 			"name", eventName(elog),
 			"height", cacheCtx.BlockHeight(),
 			"err", err,

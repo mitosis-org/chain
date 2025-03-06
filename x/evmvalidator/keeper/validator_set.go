@@ -56,7 +56,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		k.SetLastValidatorPower(sdkCtx, validator.Pubkey, currentPower)
 
 		// Log the update
-		sdkCtx.Logger().Info("Consensus power changed in validator set",
+		k.Logger(sdkCtx).Info("Consensus power changed in validator set",
 			"validator", fmt.Sprintf("%X", validator.Pubkey),
 			"previous_power", lastPower,
 			"new_power", currentPower,
@@ -78,13 +78,13 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			// Create a zero power update
 			pk, err := k1util.PubKeyBytesToCosmos(pubkey)
 			if err != nil {
-				sdkCtx.Logger().Error("Failed to convert pubkey", "err", err)
+				k.Logger(sdkCtx).Error("Failed to convert pubkey", "err", err)
 				return false
 			}
 
 			cmtPk, err := cryptocodec.ToCmtProtoPublicKey(pk)
 			if err != nil {
-				sdkCtx.Logger().Error("Failed to convert to CometBFT pubkey", "err", err)
+				k.Logger(sdkCtx).Error("Failed to convert to CometBFT pubkey", "err", err)
 				return false
 			}
 
@@ -94,7 +94,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			}
 			validatorUpdates = append(validatorUpdates, validatorUpdate)
 
-			sdkCtx.Logger().Info("Validator excluded from active set",
+			k.Logger(sdkCtx).Info("Validator excluded from active set",
 				"validator", fmt.Sprintf("%X", pubkey),
 				"previous_power", power,
 			)
