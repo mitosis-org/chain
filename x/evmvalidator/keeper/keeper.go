@@ -2,8 +2,8 @@ package keeper
 
 import (
 	"cosmossdk.io/core/address"
-	"encoding/hex"
 	"fmt"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"math"
 
 	"cosmossdk.io/log"
@@ -94,10 +94,10 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	return nil
 }
 
-// GetValidator gets a validator by pubkey
-func (k Keeper) GetValidator(ctx sdk.Context, pubkey []byte) (validator types.Validator, found bool) {
+// GetValidator gets a validator by address
+func (k Keeper) GetValidator(ctx sdk.Context, valAddr mitotypes.EthAddress) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetValidatorKey(pubkey)
+	key := types.GetValidatorKey(valAddr)
 	bz := store.Get(key)
 	if bz == nil {
 		return types.Validator{}, false
@@ -108,16 +108,16 @@ func (k Keeper) GetValidator(ctx sdk.Context, pubkey []byte) (validator types.Va
 }
 
 // HasValidator checks if a validator exists
-func (k Keeper) HasValidator(ctx sdk.Context, pubkey []byte) bool {
+func (k Keeper) HasValidator(ctx sdk.Context, valAddr mitotypes.EthAddress) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.GetValidatorKey(pubkey))
+	return store.Has(types.GetValidatorKey(valAddr))
 }
 
 // SetValidator sets a validator and updates the consensus address mapping
 func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&validator)
-	store.Set(types.GetValidatorKey(validator.Pubkey), bz)
+	store.Set(types.GetValidatorKey(validator.Addr), bz)
 }
 
 // IterateValidatorsExec is an internal implementation of IterateValidators that works with the SDK Context
@@ -156,16 +156,16 @@ func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uin
 	defer iterator.Close()
 
 	for count := uint32(0); iterator.Valid() && count < maxValidators; iterator.Next() {
-		// extract the validator pubkey
-		pubkey := iterator.Value()
-		validator, found := k.GetValidator(ctx, pubkey)
+		// extract the validator address
+		valAddr := mitotypes.BytesToEthAddress(iterator.Value())
+		validator, found := k.GetValidator(ctx, valAddr)
 		if !found {
-			panic(fmt.Sprintf("validator with pubkey %s not found", hex.EncodeToString(pubkey)))
+			panic(fmt.Sprintf("validator not found: %s", valAddr.String()))
 		}
 
 		// defensive logic. not possible to have a jailed validator in the power index
 		if validator.Jailed {
-			k.Logger(ctx).Error(fmt.Sprintf("[BUG] validator %s is jailed", hex.EncodeToString(pubkey)))
+			k.Logger(ctx).Error(fmt.Sprintf("[BUG] validator %s is jailed", valAddr.String()))
 			continue
 		}
 
@@ -176,24 +176,24 @@ func (k Keeper) GetNotJailedValidatorsByPower(ctx sdk.Context, maxValidators uin
 	return validators
 }
 
-// GetValidatorByConsAddr returns a validator pubkey by consensus address
+// GetValidatorByConsAddr returns a validator by consensus address
 func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (types.Validator, bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	// Get the validator's pubkey using the consensus address mapping
-	pubkey := store.Get(types.GetValidatorByConsAddrKey(consAddr))
-	if pubkey == nil {
+	// Get the validator's address using the consensus address mapping
+	valAddr := store.Get(types.GetValidatorByConsAddrKey(consAddr))
+	if valAddr == nil {
 		return types.Validator{}, false
 	}
 
-	// Get the validator using the pubkey
-	return k.GetValidator(ctx, pubkey)
+	// Get the validator using the EVM address
+	return k.GetValidator(ctx, mitotypes.BytesToEthAddress(valAddr))
 }
 
-// SetValidatorByConsAddr sets a validator pubkey by consensus address
-func (k Keeper) SetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress, pubkey []byte) {
+// SetValidatorByConsAddr sets a validator EVM address by consensus address
+func (k Keeper) SetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr mitotypes.EthAddress) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValidatorByConsAddrKey(consAddr), pubkey)
+	store.Set(types.GetValidatorByConsAddrKey(consAddr), valAddr.Bytes())
 }
 
 // GetValidatorsByPowerIndexIterator returns an iterator for the power index (starting from the most powerful)
@@ -203,23 +203,23 @@ func (k Keeper) GetValidatorsByPowerIndexIterator(ctx sdk.Context) storetypes.It
 }
 
 // SetValidatorByPowerIndex sets a validator in the power index
-func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
+func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, power int64, valAddr mitotypes.EthAddress) {
 	store := ctx.KVStore(k.storeKey)
-	storeKey := types.GetValidatorByPowerIndexKey(power, pubkey)
-	store.Set(storeKey, pubkey)
+	storeKey := types.GetValidatorByPowerIndexKey(power, valAddr)
+	store.Set(storeKey, valAddr.Bytes())
 }
 
 // DeleteValidatorByPowerIndex deletes a validator from the power index
-func (k Keeper) DeleteValidatorByPowerIndex(ctx sdk.Context, power int64, pubkey []byte) {
+func (k Keeper) DeleteValidatorByPowerIndex(ctx sdk.Context, power int64, valAddr mitotypes.EthAddress) {
 	store := ctx.KVStore(k.storeKey)
-	storeKey := types.GetValidatorByPowerIndexKey(power, pubkey)
+	storeKey := types.GetValidatorByPowerIndexKey(power, valAddr)
 	store.Delete(storeKey)
 }
 
 // GetLastValidatorPower gets the last validator power for a validator
-func (k Keeper) GetLastValidatorPower(ctx sdk.Context, pubkey []byte) (power int64, found bool) {
+func (k Keeper) GetLastValidatorPower(ctx sdk.Context, valAddr mitotypes.EthAddress) (power int64, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetLastValidatorPowerKey(pubkey))
+	bz := store.Get(types.GetLastValidatorPowerKey(valAddr))
 	if bz == nil {
 		return 0, false
 	}
@@ -230,21 +230,21 @@ func (k Keeper) GetLastValidatorPower(ctx sdk.Context, pubkey []byte) (power int
 }
 
 // SetLastValidatorPower sets the last validator power for a validator
-func (k Keeper) SetLastValidatorPower(ctx sdk.Context, pubkey []byte, power int64) {
+func (k Keeper) SetLastValidatorPower(ctx sdk.Context, valAddr mitotypes.EthAddress, power int64) {
 	store := ctx.KVStore(k.storeKey)
-	lastPower := types.NewLastValidatorPower(pubkey, power)
+	lastPower := types.LastValidatorPower{ValAddr: valAddr, Power: power}
 	bz := k.cdc.MustMarshal(&lastPower)
-	store.Set(types.GetLastValidatorPowerKey(pubkey), bz)
+	store.Set(types.GetLastValidatorPowerKey(valAddr), bz)
 }
 
 // DeleteLastValidatorPower deletes the last validator power for a validator
-func (k Keeper) DeleteLastValidatorPower(ctx sdk.Context, pubkey []byte) {
+func (k Keeper) DeleteLastValidatorPower(ctx sdk.Context, valAddr mitotypes.EthAddress) {
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetLastValidatorPowerKey(pubkey))
+	store.Delete(types.GetLastValidatorPowerKey(valAddr))
 }
 
 // IterateLastValidatorPowers iterates through all last validator powers
-func (k Keeper) IterateLastValidatorPowers(ctx sdk.Context, cb func(pubkey []byte, power int64) (stop bool)) {
+func (k Keeper) IterateLastValidatorPowers(ctx sdk.Context, cb func(valAddr mitotypes.EthAddress, power int64) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := storetypes.KVStorePrefixIterator(store, types.LastValidatorPowerKeyPrefix)
 	defer iterator.Close()
@@ -253,7 +253,7 @@ func (k Keeper) IterateLastValidatorPowers(ctx sdk.Context, cb func(pubkey []byt
 		var lastPower types.LastValidatorPower
 		k.cdc.MustUnmarshal(iterator.Value(), &lastPower)
 
-		if cb(lastPower.Pubkey, lastPower.Power) {
+		if cb(lastPower.ValAddr, lastPower.Power) {
 			break
 		}
 	}
@@ -264,11 +264,11 @@ func (k Keeper) IterateLastValidators(ctx sdk.Context, cb func(index int64, vali
 	var returnErr error
 
 	i := int64(0)
-	k.IterateLastValidatorPowers(ctx, func(pubkey []byte, power int64) bool {
-		validator, found := k.GetValidator(ctx, pubkey)
+	k.IterateLastValidatorPowers(ctx, func(valAddr mitotypes.EthAddress, power int64) bool {
+		validator, found := k.GetValidator(ctx, valAddr)
 		if !found {
 			// This should never happen
-			returnErr = fmt.Errorf("validator not found: %s", pubkey)
+			returnErr = fmt.Errorf("validator not found: %s", valAddr.String())
 			return true
 		}
 
@@ -284,8 +284,8 @@ func (k Keeper) IterateLastValidators(ctx sdk.Context, cb func(index int64, vali
 func (k Keeper) GetLastValidatorPowers(ctx sdk.Context) []types.LastValidatorPower {
 	var powers []types.LastValidatorPower
 
-	k.IterateLastValidatorPowers(ctx, func(pubkey []byte, power int64) bool {
-		powers = append(powers, types.NewLastValidatorPower(pubkey, power))
+	k.IterateLastValidatorPowers(ctx, func(valAddr mitotypes.EthAddress, power int64) bool {
+		powers = append(powers, types.LastValidatorPower{ValAddr: valAddr, Power: power})
 		return false
 	})
 
@@ -296,7 +296,7 @@ func (k Keeper) GetLastValidatorPowers(ctx sdk.Context) []types.LastValidatorPow
 func (k Keeper) AddWithdrawalToQueue(ctx sdk.Context, withdrawal types.Withdrawal) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&withdrawal)
-	key := types.GetWithdrawalQueueKey(withdrawal.ReceivesAt)
+	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
 	store.Set(key, bz)
 }
 
@@ -321,7 +321,7 @@ func (k Keeper) IterateWithdrawalsQueue(ctx sdk.Context, endTime uint64, cb func
 // DeleteWithdrawalFromQueue deletes a withdrawal from the queue
 func (k Keeper) DeleteWithdrawalFromQueue(ctx sdk.Context, withdrawal types.Withdrawal) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetWithdrawalQueueKey(withdrawal.ReceivesAt)
+	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
 	store.Delete(key)
 }
 

@@ -14,15 +14,17 @@ const (
 	EventTypeWithdrawalMatured      = "withdrawal_matured"
 
 	// Attributes
+	AttributeKeyValAddr             = "val_addr"
 	AttributeKeyPubkey              = "pubkey"
 	AttributeKeyCollateral          = "collateral"
 	AttributeKeyExtraVotingPower    = "extra_voting_power"
 	AttributeKeyOldExtraVotingPower = "old_extra_voting_power"
 	AttributeKeyVotingPower         = "voting_power"
 	AttributeKeyOldVotingPower      = "old_voting_power"
+	AttributeKeyJailed              = "jailed"
 	AttributeKeyAmount              = "amount"
 	AttributeKeyReceiver            = "receiver"
-	AttributeKeyReceivesAt          = "receives_at"
+	AttributeKeyMaturesAt           = "matures_at"
 	AttributeKeySlashFraction       = "slash_fraction"
 	AttributeKeyInfractionHeight    = "infraction_height"
 	AttributeKeyInfractionPower     = "infraction_power"

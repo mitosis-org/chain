@@ -5,31 +5,39 @@ import (
 	"encoding/hex"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/omni-network/omni/lib/errors"
+	"strconv"
 	"time"
 )
 
 func (k Keeper) registerValidator(
 	ctx sdk.Context,
+	valAddr mitotypes.EthAddress,
 	pubkey []byte,
 	collateral sdkmath.Int,
 	extraVotingPower sdkmath.Int,
 	jailed bool,
 ) error {
 	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
+	if err := types.ValidatePubkey(pubkey); err != nil {
 		return errors.Wrap(err, "invalid validator pubkey")
 	}
 
+	err := types.ValidatePubkeyWithEthAddress(pubkey, valAddr)
+	if err != nil {
+		return errors.Wrap(err, "failed to validate pubkey with address")
+	}
+
 	// Check if validator already exists
-	if k.HasValidator(ctx, pubkey) {
-		return errors.Wrap(types.ErrValidatorAlreadyExists, fmt.Sprintf("%X", pubkey))
+	if k.HasValidator(ctx, valAddr) {
+		return errors.Wrap(types.ErrValidatorAlreadyExists, valAddr.String())
 	}
 
 	// Create a new validator
 	validator := types.Validator{
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
 		ExtraVotingPower: extraVotingPower,
@@ -55,11 +63,11 @@ func (k Keeper) registerValidator(
 	k.SetValidator(ctx, validator)
 
 	// Set the validator in consensus address index
-	k.SetValidatorByConsAddr(ctx, consAddr, validator.Pubkey)
+	k.SetValidatorByConsAddr(ctx, consAddr, validator.Addr)
 
 	// Set the validator in power index
 	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
 	// Call slashing hooks
@@ -74,10 +82,12 @@ func (k Keeper) registerValidator(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRegisterValidator,
+			sdk.NewAttribute(types.AttributeKeyValAddr, valAddr.String()),
 			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
 			sdk.NewAttribute(types.AttributeKeyCollateral, collateral.String()),
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
 			sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
+			sdk.NewAttribute(types.AttributeKeyJailed, strconv.FormatBool(jailed)),
 		),
 	)
 
@@ -105,15 +115,15 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 
 	// Update the validator in power index
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeDepositCollateral,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
 			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
 			sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
@@ -125,7 +135,7 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 				sdk.NewAttribute(types.AttributeKeyOldVotingPower, oldVotingPower.String()),
 				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
 			),
@@ -159,18 +169,18 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 
 	// Update the validator in power index
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Addr)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeWithdrawCollateral,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
-			sdk.NewAttribute(types.AttributeKeyReceiver, common.Bytes2Hex(withdrawal.Receiver)),
-			sdk.NewAttribute(types.AttributeKeyReceivesAt, time.Unix(int64(withdrawal.ReceivesAt), 0).String()),
+			sdk.NewAttribute(types.AttributeKeyReceiver, withdrawal.Receiver.String()),
+			sdk.NewAttribute(types.AttributeKeyMaturesAt, time.Unix(int64(withdrawal.MaturesAt), 0).String()),
 		),
 	)
 
@@ -179,7 +189,7 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 				sdk.NewAttribute(types.AttributeKeyOldVotingPower, oldVotingPower.String()),
 				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
 			),
@@ -226,15 +236,15 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	// Update the validator in power index
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Addr)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSlashValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, slashAmount.String()),
 			sdk.NewAttribute(types.AttributeKeySlashFraction, slashFraction.String()),
 			sdk.NewAttribute(types.AttributeKeyInfractionHeight, fmt.Sprintf("%d", infractionHeight)),
@@ -247,7 +257,7 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 				sdk.NewAttribute(types.AttributeKeyOldVotingPower, oldVotingPower.String()),
 				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
 			),
@@ -277,13 +287,13 @@ func (k Keeper) jail(ctx sdk.Context, validator *types.Validator, reason string)
 	k.SetValidator(ctx, *validator)
 
 	// Delete the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
+	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Addr)
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeJailValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
 	)
@@ -309,13 +319,13 @@ func (k Keeper) unjail(ctx sdk.Context, validator *types.Validator) error {
 	k.SetValidator(ctx, *validator)
 
 	// Set the validator back in power index
-	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+	k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUnjailValidator,
-			sdk.NewAttribute(types.AttributeKeyPubkey, fmt.Sprintf("%X", validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 		),
 	)
 
@@ -337,15 +347,15 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 
 	// Update the validator in power index
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Pubkey)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Pubkey)
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower.Int64(), validator.Addr)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateExtraVotingPower,
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyOldExtraVotingPower, oldExtraVotingPower.String()),
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
 		),
@@ -356,8 +366,7 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
-				sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
+				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 				sdk.NewAttribute(types.AttributeKeyOldVotingPower, oldVotingPower.String()),
 				sdk.NewAttribute(types.AttributeKeyVotingPower, validator.VotingPower.String()),
 			),

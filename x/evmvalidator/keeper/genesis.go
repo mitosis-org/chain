@@ -19,7 +19,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 	// Set validators
 	for _, validator := range data.Validators {
 		// voting power will be recalculated
-		if err = k.registerValidator(ctx, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
+		if err = k.registerValidator(ctx, validator.Addr, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
 			return nil, err
 		}
 	}
@@ -31,7 +31,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 
 	// Set last validator powers if provided
 	for _, lastPower := range data.LastValidatorPowers {
-		k.SetLastValidatorPower(ctx, lastPower.Pubkey, lastPower.Power)
+		k.SetLastValidatorPower(ctx, lastPower.ValAddr, lastPower.Power)
 	}
 
 	return k.ApplyAndReturnValidatorSetUpdates(ctx)

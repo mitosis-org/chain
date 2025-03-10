@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/omni-network/omni/lib/errors"
 )
 
 // NewGenesisState creates a new GenesisState object
@@ -38,8 +39,8 @@ func (gs GenesisState) Validate() error {
 
 	// Validate validators
 	for i, validator := range gs.Validators {
-		if len(validator.Pubkey) == 0 {
-			return fmt.Errorf("validator %d has no pubkey", i)
+		if err := ValidatePubkey(validator.Pubkey); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("validator %d has invalid pubkey", i))
 		}
 		if validator.Collateral.IsNil() || validator.Collateral.IsNegative() {
 			return fmt.Errorf("validator %d has invalid collateral: %s", i, validator.Collateral)
@@ -58,25 +59,16 @@ func (gs GenesisState) Validate() error {
 
 	// Validate withdrawals
 	for i, withdrawal := range gs.Withdrawals {
-		if len(withdrawal.Pubkey) == 0 {
-			return fmt.Errorf("withdrawal %d has no pubkey", i)
-		}
 		if withdrawal.Amount <= 0 {
 			return fmt.Errorf("withdrawal %d has invalid amount: %d", i, withdrawal.Amount)
 		}
-		if withdrawal.Receiver == nil {
-			return fmt.Errorf("withdrawal %d has no receiver", i)
-		}
-		if withdrawal.ReceivesAt == 0 {
-			return fmt.Errorf("withdrawal %d has no receives_at timestamp", i)
+		if withdrawal.MaturesAt == 0 {
+			return fmt.Errorf("withdrawal %d has no matures_at timestamp", i)
 		}
 	}
 
 	// Validate last validator powers
 	for i, lastPower := range gs.LastValidatorPowers {
-		if len(lastPower.Pubkey) == 0 {
-			return fmt.Errorf("last validator power %d has no pubkey", i)
-		}
 		if lastPower.Power < 0 {
 			return fmt.Errorf("last validator power %d has negative power: %d", i, lastPower.Power)
 		}
