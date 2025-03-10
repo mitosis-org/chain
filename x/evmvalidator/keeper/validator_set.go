@@ -6,6 +6,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/k1util"
 )
@@ -25,12 +26,12 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 	var validatorUpdates []abci.ValidatorUpdate
 
 	// Create a map to track validators that have been updated
-	processedVals := make(map[string]bool)
+	processedVals := make(map[mitotypes.EthAddress]bool)
 
 	// Process current validators first
 	for _, validator := range validators {
 		// Get the last power from the store
-		lastPower, found := k.GetLastValidatorPower(sdkCtx, validator.Pubkey)
+		lastPower, found := k.GetLastValidatorPower(sdkCtx, validator.Addr)
 		if !found {
 			lastPower = 0
 		}
@@ -50,33 +51,42 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		validatorUpdates = append(validatorUpdates, abciUpdate)
 
 		// Record that this validator was processed
-		processedVals[string(validator.Pubkey)] = true
+		processedVals[validator.Addr] = true
 
 		// Update the last validator power
-		k.SetLastValidatorPower(sdkCtx, validator.Pubkey, currentPower)
+		k.SetLastValidatorPower(sdkCtx, validator.Addr, currentPower)
 
 		// Log the update
-		k.Logger(sdkCtx).Info("Consensus power changed in validator set",
-			"validator", fmt.Sprintf("%X", validator.Pubkey),
-			"previous_power", lastPower,
-			"new_power", currentPower,
-		)
+		if found {
+			k.Logger(sdkCtx).Info("[Active Validator Set] Power changed",
+				"val_addr", validator.Addr.String(),
+				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+				"previous_power", lastPower,
+				"new_power", currentPower,
+			)
+		} else {
+			k.Logger(sdkCtx).Info("[Active Validator Set] Added",
+				"val_addr", validator.Addr.String(),
+				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+				"new_power", currentPower,
+			)
+		}
 	}
 
 	// Process validators that were removed (not in the current set)
 	// We need to iterate through all last powers and check if they've been processed
-	k.IterateLastValidatorPowers(sdkCtx, func(pubkey []byte, power int64) bool {
-		if processedVals[string(pubkey)] {
+	k.IterateLastValidatorPowers(sdkCtx, func(valAddr mitotypes.EthAddress, power int64) bool {
+		if processedVals[valAddr] {
 			// Already processed this validator
 			return false
 		}
 
 		// This validator is no longer in the active set or has been jailed
 		// Create a validator update with power 0 to remove it
-		validator, found := k.GetValidator(sdkCtx, pubkey)
+		validator, found := k.GetValidator(sdkCtx, valAddr)
 		if !found || validator.Jailed {
 			// Create a zero power update
-			pk, err := k1util.PubKeyBytesToCosmos(pubkey)
+			pk, err := k1util.PubKeyBytesToCosmos(validator.Pubkey)
 			if err != nil {
 				k.Logger(sdkCtx).Error("Failed to convert pubkey", "err", err)
 				return false
@@ -94,13 +104,14 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			}
 			validatorUpdates = append(validatorUpdates, validatorUpdate)
 
-			k.Logger(sdkCtx).Info("Validator excluded from active set",
-				"validator", fmt.Sprintf("%X", pubkey),
+			k.Logger(sdkCtx).Info("[Active Validator Set] Removed",
+				"val_addr", valAddr.String(),
+				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"previous_power", power,
 			)
 
 			// Remove from last validator powers since it's no longer a validator
-			k.DeleteLastValidatorPower(sdkCtx, pubkey)
+			k.DeleteLastValidatorPower(sdkCtx, valAddr)
 		}
 
 		return false // continue iteration

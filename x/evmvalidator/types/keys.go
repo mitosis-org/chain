@@ -2,9 +2,9 @@ package types
 
 import (
 	"encoding/binary"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
+	mitotypes "github.com/mitosis-org/chain/types"
 )
 
 const (
@@ -35,34 +35,34 @@ var (
 	WithdrawalQueueKeyPrefix = []byte{0x06}
 )
 
-// GetValidatorKey creates key for a validator from pubkey
-func GetValidatorKey(pubkey []byte) []byte {
-	return append(ValidatorKeyPrefix, address.MustLengthPrefix(pubkey)...)
+// GetValidatorKey creates key for a validator from validator address
+func GetValidatorKey(valAddr mitotypes.EthAddress) []byte {
+	return append(ValidatorKeyPrefix, address.MustLengthPrefix(valAddr.Bytes())...)
 }
 
 // GetValidatorByConsAddrKey creates key for a validator from consensus address
 func GetValidatorByConsAddrKey(consAddr sdk.ConsAddress) []byte {
-	return append(ValidatorByConsAddrKeyPrefix, address.MustLengthPrefix(consAddr.Bytes())...)
+	return append(ValidatorByConsAddrKeyPrefix, address.MustLengthPrefix(consAddr)...)
 }
 
-// GetValidatorByPowerIndexKey creates the key for a validator from power and pubkey
-func GetValidatorByPowerIndexKey(power int64, pubkey []byte) []byte {
+// GetValidatorByPowerIndexKey creates the key for a validator from power and address
+func GetValidatorByPowerIndexKey(power int64, valAddr mitotypes.EthAddress) []byte {
 	// NOTE: power is the voting power, not the tokens amount
 	powerBytes := make([]byte, 8)
 	// power is converted to descending order for the key (higher power first)
 	// because we want to iterate from highest to lowest power in EndBlocker
 	binary.BigEndian.PutUint64(powerBytes, uint64(^power))
-	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, address.MustLengthPrefix(pubkey)...)...)
+	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, address.MustLengthPrefix(valAddr.Bytes())...)...)
 }
 
-// GetLastValidatorPowerKey creates key for a validator from pubkey
-func GetLastValidatorPowerKey(pubkey []byte) []byte {
-	return append(LastValidatorPowerKeyPrefix, address.MustLengthPrefix(pubkey)...)
+// GetLastValidatorPowerKey creates key for a validator from address
+func GetLastValidatorPowerKey(valAddr mitotypes.EthAddress) []byte {
+	return append(LastValidatorPowerKeyPrefix, address.MustLengthPrefix(valAddr.Bytes())...)
 }
 
 // GetWithdrawalQueueKey creates key for withdrawals at a timestamp
-func GetWithdrawalQueueKey(receivesAt uint64) []byte {
-	receivesAtBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(receivesAtBytes, receivesAt)
-	return append(WithdrawalQueueKeyPrefix, receivesAtBytes...)
+func GetWithdrawalQueueKey(maturesAt uint64) []byte {
+	maturesAtBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(maturesAtBytes, maturesAt)
+	return append(WithdrawalQueueKeyPrefix, maturesAtBytes...)
 }

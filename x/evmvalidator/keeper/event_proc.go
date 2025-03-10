@@ -8,9 +8,9 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/omni-network/omni/lib/errors"
-	"github.com/omni-network/omni/lib/k1util"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
 )
 
@@ -123,37 +123,27 @@ func (k *Keeper) parseAndProcessEvent(ctx sdk.Context, elog evmengtypes.EVMEvent
 
 // processRegisterValidator processes MsgRegisterValidator event
 func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
-	pubkey := event.Valkey
-
-	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
+	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Convert the amount to math.Int
-	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmount)
+	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	return k.registerValidator(ctx, pubkey, collateral, sdkmath.ZeroInt(), false)
+	return k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false)
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
 func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
-	pubkey := event.Valkey
-
-	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
+	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
-	validator, found := k.GetValidator(ctx, pubkey)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return types.ErrValidatorNotFound
 	}
 
 	// Convert the amount to math.Int
-	amount := sdkmath.NewIntFromBigInt(event.Amount)
+	amount := sdkmath.NewIntFromBigInt(event.AmountGwei)
 
 	// Update validator's collateral
 	if err := k.depositCollateral(ctx, &validator, amount); err != nil {
@@ -165,26 +155,21 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 
 // processWithdrawCollateral processes MsgWithdrawCollateral event
 func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) error {
-	pubkey := event.Valkey
-
-	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
+	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
-	validator, found := k.GetValidator(ctx, pubkey)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return types.ErrValidatorNotFound
 	}
 
 	// Create a withdrawal
-	withdrawal := types.NewWithdrawal(
-		pubkey,
-		event.Amount.Uint64(),
-		event.Receiver.Bytes(),
-		event.ReceivesAt.Uint64(),
-	)
+	withdrawal := types.Withdrawal{
+		ValAddr:   valAddr,
+		Amount:    event.AmountGwei.Uint64(),
+		Receiver:  mitotypes.EthAddress(event.Receiver),
+		MaturesAt: event.MaturesAt.Uint64(),
+	}
 
 	// Request withdrawal
 	if err := k.withdrawCollateral(ctx, &validator, withdrawal); err != nil {
@@ -196,15 +181,10 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 // processUnjail processes MsgUnjail event
 func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUnjail) error {
-	pubkey := event.Valkey
-
-	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
+	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
-	validator, found := k.GetValidator(ctx, pubkey)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return types.ErrValidatorNotFound
 	}
@@ -232,21 +212,16 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 
 // processUpdateExtraVotingPower processes MsgUpdateExtraVotingPower event
 func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) error {
-	pubkey := event.Valkey
-
-	// Validate the public key
-	if err := validatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
+	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
-	validator, found := k.GetValidator(ctx, pubkey)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return types.ErrValidatorNotFound
 	}
 
 	// Convert the extra voting power to math.Int
-	extraVotingPower := sdkmath.NewIntFromBigInt(event.ExtraVotingPower)
+	extraVotingPower := sdkmath.NewIntFromBigInt(event.ExtraVotingPowerGwei)
 
 	// Update extra voting power
 	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
@@ -302,20 +277,4 @@ func eventName(elog evmengtypes.EVMEvent) string {
 	}
 
 	return event.Name
-}
-
-// validatePubkey validates the public key format
-func validatePubkey(pubkey []byte) error {
-	if len(pubkey) != 33 { // Compressed secp256k1 pubkey is 33 bytes
-		return types.ErrInvalidPubKey
-	}
-
-	// Additional validation if needed
-	// Try to convert to cosmos pubkey
-	_, err := k1util.PubKeyBytesToCosmos(pubkey)
-	if err != nil {
-		return errors.Wrap(err, "invalid pubkey format")
-	}
-
-	return nil
 }
