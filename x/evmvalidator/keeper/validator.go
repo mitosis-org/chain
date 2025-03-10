@@ -20,11 +20,7 @@ func (k Keeper) registerValidator(
 	extraVotingPower sdkmath.Int,
 	jailed bool,
 ) error {
-	// Validate the public key
-	if err := types.ValidatePubkey(pubkey); err != nil {
-		return errors.Wrap(err, "invalid validator pubkey")
-	}
-
+	// Validate pubkey with address
 	err := types.ValidatePubkeyWithEthAddress(pubkey, valAddr)
 	if err != nil {
 		return errors.Wrap(err, "failed to validate pubkey with address")
