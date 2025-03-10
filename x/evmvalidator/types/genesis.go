@@ -49,12 +49,7 @@ func (gs GenesisState) Validate() error {
 			return fmt.Errorf("validator %d has invalid extra voting power: %s", i, validator.ExtraVotingPower)
 		}
 
-		// For genesis validators, voting power should be computed
-		validator.VotingPower = validator.ComputeVotingPower(gs.Params.MaxLeverageRatio)
-
-		if validator.VotingPower.IsNil() || validator.VotingPower.IsNegative() {
-			return fmt.Errorf("validator %d has invalid voting power: %s", i, validator.VotingPower)
-		}
+		// NOTE: voting power will be recomputed in InitGenesis
 	}
 
 	// Validate withdrawals
