@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/omni-network/omni/lib/errors"
 	"strconv"
 
 	"cosmossdk.io/math"
@@ -43,12 +44,12 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 
 			pubkey, err := hex.DecodeString(pubkeyHex)
 			if err != nil {
-				return fmt.Errorf("failed to decode pubkey: %w", err)
+				return errors.Wrap(err, "failed to decode pubkey string")
 			}
 
-			// Validate pubkey length (should be 33 bytes for compressed secp256k1)
-			if len(pubkey) != 33 {
-				return fmt.Errorf("invalid pubkey length: %d (expected 33 bytes for compressed secp256k1)", len(pubkey))
+			valAddr, err := types.PubkeyToEthAddress(pubkey)
+			if err != nil {
+				return errors.Wrap(err, "failed to convert pubkey to eth address")
 			}
 
 			// Parse collateral
@@ -66,11 +67,12 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 			// Parse jailed status
 			jailed, err := strconv.ParseBool(args[3])
 			if err != nil {
-				return fmt.Errorf("invalid jailed status (must be true or false): %w", err)
+				return errors.Wrap(err, "failed to parse jailed status")
 			}
 
 			// Create validator
 			validator := types.Validator{
+				Addr:             valAddr,
 				Pubkey:           pubkey,
 				Collateral:       collateral,
 				ExtraVotingPower: extraVotingPower,

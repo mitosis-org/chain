@@ -9,17 +9,12 @@ import (
 
 // ValidatePubkeyWithEthAddress validates the public key format with the given address
 func ValidatePubkeyWithEthAddress(pubkey []byte, addr mitotypes.EthAddress) error {
-	pbPubkey, err := k1util.PBPubKeyFromBytes(pubkey)
+	expectedAddr, err := PubkeyToEthAddress(pubkey)
 	if err != nil {
-		return err
+		return nil
 	}
 
-	expectedAddr, err := k1util.PubKeyPBToAddress(pbPubkey)
-	if err != nil {
-		return err
-	}
-
-	if addr != mitotypes.EthAddress(expectedAddr) {
+	if addr != expectedAddr {
 		return errors.New("mismatched address",
 			"pubkey", fmt.Sprintf("%X", pubkey),
 			"expected", addr.String(), "actual", expectedAddr.String(),
@@ -27,4 +22,19 @@ func ValidatePubkeyWithEthAddress(pubkey []byte, addr mitotypes.EthAddress) erro
 	}
 
 	return nil
+}
+
+// PubkeyToEthAddress converts the given public key (33-byte compressed) to Ethereum address
+func PubkeyToEthAddress(pubkey []byte) (mitotypes.EthAddress, error) {
+	pbPubkey, err := k1util.PBPubKeyFromBytes(pubkey)
+	if err != nil {
+		return mitotypes.EthAddress{}, err
+	}
+
+	addr, err := k1util.PubKeyPBToAddress(pbPubkey)
+	if err != nil {
+		return mitotypes.EthAddress{}, err
+	}
+
+	return mitotypes.EthAddress(addr), nil
 }
