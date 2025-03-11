@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	sdkmath "cosmossdk.io/math"
+	stderrors "errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -84,41 +85,73 @@ func (k *Keeper) parseAndProcessEvent(ctx sdk.Context, elog evmengtypes.EVMEvent
 	case EventMsgRegisterValidator.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgRegisterValidator(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse register validator event")
+			return errors.Wrap(err, "parse MsgRegisterValidator")
 		}
-		return k.processRegisterValidator(ctx, event)
+		if err := k.processRegisterValidator(ctx, event); err != nil {
+			if errFB := k.fallbackRegisterValidator(ctx, event); errFB != nil {
+				return stderrors.Join(
+					errors.Wrap(err, "process MsgRegisterValidator"),
+					errors.Wrap(errFB, "fallback MsgRegisterValidator"),
+				)
+			}
+
+			k.Logger(ctx).Error("Processing failed but fallback succeeded",
+				"name", eventName(elog),
+				"height", ctx.BlockHeight(),
+				"err", err)
+		}
 
 	case EventMsgDepositCollateral.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgDepositCollateral(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse deposit collateral event")
+			return errors.Wrap(err, "parse MsgDepositCollateral")
 		}
-		return k.processDepositCollateral(ctx, event)
+		if err := k.processDepositCollateral(ctx, event); err != nil {
+			if errFB := k.fallbackDepositCollateral(ctx, event); errFB != nil {
+				return stderrors.Join(
+					errors.Wrap(err, "process MsgDepositCollateral"),
+					errors.Wrap(errFB, "fallback MsgDepositCollateral"),
+				)
+			}
+
+			k.Logger(ctx).Error("Processing failed but fallback succeeded",
+				"name", eventName(elog),
+				"height", ctx.BlockHeight(),
+				"err", err)
+		}
 
 	case EventMsgWithdrawCollateral.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgWithdrawCollateral(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse withdraw collateral event")
+			return errors.Wrap(err, "parse MsgWithdrawCollateral")
 		}
-		return k.processWithdrawCollateral(ctx, event)
+		if err := k.processWithdrawCollateral(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgWithdrawCollateral")
+		}
 
 	case EventMsgUnjail.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgUnjail(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse unjail event")
+			return errors.Wrap(err, "parse MsgUnjail")
 		}
-		return k.processUnjail(ctx, event)
+		if err := k.processUnjail(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUnjail")
+		}
 
 	case EventMsgUpdateExtraVotingPower.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgUpdateExtraVotingPower(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse update extra voting power event")
+			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower")
 		}
-		return k.processUpdateExtraVotingPower(ctx, event)
+		if err := k.processUpdateExtraVotingPower(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUpdateExtraVotingPower")
+		}
 
 	default:
 		return errors.New("unknown event")
 	}
+
+	return nil
 }
 
 // processRegisterValidator processes MsgRegisterValidator event
@@ -130,6 +163,11 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 
 	// Register the validator
 	return k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false)
+}
+
+// fallbackRegisterValidator handles the case when the MsgRegisterValidator event fails to process
+func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralReturnAddr, event.InitialCollateralAmountGwei.Uint64())
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
@@ -146,11 +184,14 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	amount := sdkmath.NewIntFromBigInt(event.AmountGwei)
 
 	// Update validator's collateral
-	if err := k.depositCollateral(ctx, &validator, amount); err != nil {
-		return errors.Wrap(err, "failed to deposit collateral")
-	}
+	k.depositCollateral(ctx, &validator, amount)
 
 	return nil
+}
+
+// fallbackDepositCollateral handles the case when the MsgDepositCollateral event fails to process
+func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralReturnAddr, event.AmountGwei.Uint64())
 }
 
 // processWithdrawCollateral processes MsgWithdrawCollateral event

@@ -97,7 +97,7 @@ func (k Keeper) registerValidator(
 	return nil
 }
 
-func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) error {
+func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) {
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
 
@@ -137,8 +137,6 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 			),
 		)
 	}
-
-	return nil
 }
 
 func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal types.Withdrawal) error {
