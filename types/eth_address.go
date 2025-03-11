@@ -34,6 +34,37 @@ func (a EthAddress) MarshalTo(data []byte) (int, error) {
 	return common.AddressLength, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface
+func (a EthAddress) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"%s"`, a.String())), nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface
+func (a *EthAddress) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid address format, expected quoted string")
+	}
+
+	// Remove quotes
+	hexStr := string(data[1 : len(data)-1])
+
+	// Validate 0x prefix
+	if len(hexStr) < 2 || hexStr[:2] != "0x" {
+		return fmt.Errorf("invalid address format, expected 0x prefix")
+	}
+
+	// Validate length (excluding the 0x prefix)
+	if len(hexStr) != (common.AddressLength*2 + 2) {
+		return fmt.Errorf("invalid address length: got %d chars (with 0x prefix), want %d",
+			len(hexStr), common.AddressLength*2+2)
+	}
+
+	// Convert hex string to address
+	*a = EthAddress(common.HexToAddress(hexStr))
+
+	return nil
+}
+
 // Size returns the size of the EthAddress in bytes
 func (a EthAddress) Size() int {
 	return common.AddressLength
