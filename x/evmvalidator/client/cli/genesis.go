@@ -1,19 +1,21 @@
 package cli
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/omni-network/omni/lib/errors"
 	"strconv"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
+	"github.com/omni-network/omni/lib/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -79,6 +81,18 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 				VotingPower:      math.ZeroInt(), // Will be computed during InitGenesis
 				Jailed:           jailed,
 			}
+
+			println("------------ Validator Info ------------")
+			consAddr, _ := validator.ConsAddr()
+			println("evm address :", valAddr.String())
+			println("acc address :", sdk.AccAddress(valAddr.Bytes()).String())
+			println("val address :", sdk.ValAddress(valAddr.Bytes()).String())
+			println("cons address:", consAddr.String())
+			println()
+
+			println("pubkey (hex)   :", fmt.Sprintf("%X", pubkey))
+			println("pubkey (base64):", base64.StdEncoding.EncodeToString(pubkey))
+			println("----------------------------------------")
 
 			// Get the server context
 			serverCtx := server.GetServerContextFromCmd(cmd)
