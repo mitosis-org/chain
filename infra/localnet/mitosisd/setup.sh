@@ -36,6 +36,8 @@ sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' "$MITOSISD_HO
 sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EC_JWT_FILE"'"@' "$MITOSISD_HOME"/config/app.toml
 
 # Setup config.toml
+sed -i.bak'' 's/type = "flood"/type = "nop"/' "$MITOSISD_HOME"/config/config.toml # we don't use mempool in consensus layer
+sed -i.bak'' 's/broadcast = true/broadcast = false/' "$MITOSISD_HOME"/config/config.toml # we don't use mempool in consensus layer
 sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$MITOSISD_HOME"/config/config.toml
 sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' "$MITOSISD_HOME"/config/config.toml
 
