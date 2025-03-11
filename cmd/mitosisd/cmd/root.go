@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/ethclient"
 	"github.com/omni-network/omni/lib/k1util"
 	"os"
@@ -164,17 +165,26 @@ func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clien
 	return keyring.NewAutoCLIKeyring(kb)
 }
 
-func newAddrProvider(rootCmd *cobra.Command) (app.ValidatorAddressProvider, error) {
-	serverCtx := server.GetServerContextFromCmd(rootCmd)
-	cfg := serverCtx.Config
-	privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+func newAddrProvider(rootCmd *cobra.Command, feeRecipient string) (app.ValidatorAddressProvider, error) {
+	if feeRecipient != "" {
+		if !common.IsHexAddress(feeRecipient) {
+			return app.ValidatorAddressProvider{}, errors.New("invalid fee recipient address")
+		}
 
-	addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
-	if err != nil {
-		return app.ValidatorAddressProvider{}, err
+		addr := common.HexToAddress(feeRecipient)
+		return app.ValidatorAddressProvider{Addr: addr}, nil
+	} else {
+		serverCtx := server.GetServerContextFromCmd(rootCmd)
+		cfg := serverCtx.Config
+		privVal := pvm.LoadFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+
+		addr, err := k1util.PubKeyToAddress(privVal.Key.PrivKey.PubKey())
+		if err != nil {
+			return app.ValidatorAddressProvider{}, err
+		}
+
+		return app.ValidatorAddressProvider{Addr: addr}, nil
 	}
-
-	return app.ValidatorAddressProvider{Addr: addr}, nil
 }
 
 func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {

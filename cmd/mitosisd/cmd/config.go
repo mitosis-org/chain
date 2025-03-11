@@ -16,6 +16,7 @@ type EngineConfig struct {
 	JWTFile         string `mapstructure:"jwt-file"`
 	BuildDelay      string `mapstructure:"build-delay"`
 	BuildOptimistic bool   `mapstructure:"build-optimistic"`
+	FeeRecipient    string `mapstructure:"fee-recipient"`
 }
 
 func DefaultAppConfig() AppConfig {
@@ -31,6 +32,7 @@ func DefaultAppConfig() AppConfig {
 			JWTFile:         "",
 			BuildDelay:      "600ms", // it should be slightly longer than geth's --miner.recommit=500ms.
 			BuildOptimistic: true,
+			FeeRecipient:    "", // empty means using priv_validator_key.json's address.
 		},
 	}
 }
@@ -40,7 +42,7 @@ func initAppConfig() (string, AppConfig) {
 
 	defaultAppTemplate := serverconfig.DefaultConfigTemplate + `
 ###############################################################################
-###                          Engine                                         ###
+###                          EVM Engine                                     ###
 ###############################################################################
 
 [engine]
@@ -62,6 +64,11 @@ build-delay = "{{ .Engine.BuildDelay }}"
 
 # If it is true, build a block optimistically.
 build-optimistic = {{ .Engine.BuildOptimistic }}
+
+# Fee recipient address for EVM gas fee tips.
+# If it is empty, priv_validator_key.json's address will be used.
+# e.g., 0x0000000000000000000000000000000000000000
+fee-recipient = "{{ .Engine.FeeRecipient }}"
 `
 
 	return defaultAppTemplate, appConfig

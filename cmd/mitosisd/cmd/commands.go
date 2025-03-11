@@ -149,17 +149,17 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
+	appConfig, err := getAppConfig(runningCmd)
+	if err != nil {
+		panic(err)
+	}
+
 	engineCl, err := newEngineClient(runningCmd)
 	if err != nil {
 		panic(err)
 	}
 
-	addrProvider, err := newAddrProvider(runningCmd)
-	if err != nil {
-		panic(err)
-	}
-
-	appConfig, err := getAppConfig(runningCmd)
+	addrProvider, err := newAddrProvider(runningCmd, appConfig.Engine.FeeRecipient)
 	if err != nil {
 		panic(err)
 	}
@@ -210,17 +210,17 @@ func appExport(
 		loadLatest = true
 	}
 
+	appConfig, err := getAppConfig(runningCmd)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
 	engineCl, err := newEngineClient(runningCmd)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
 
-	addrProvider, err := newAddrProvider(runningCmd)
-	if err != nil {
-		return servertypes.ExportedApp{}, err
-	}
-
-	appConfig, err := getAppConfig(runningCmd)
+	addrProvider, err := newAddrProvider(runningCmd, appConfig.Engine.FeeRecipient)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
