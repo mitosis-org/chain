@@ -43,31 +43,7 @@ sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' "$M
 
 # Get validator pubkey in compressed format for evmvalidator
 VALIDATOR_PRIVKEY_FILE="$MITOSISD_HOME/config/priv_validator_key.json"
-PUBKEY_UNCOMPRESSED=$(jq -r ".pub_key.value" "$VALIDATOR_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000)
-# Convert from uncompressed 65-byte to compressed 33-byte pubkey format
-# For secp256k1, uncompressed starts with '04', compressed starts with '02' or '03'
-# We'll use a temporary Python script for conversion
-python3 -c "
-import binascii
-import sys
-
-# Read uncompressed pubkey
-uncompressed_hex = '$PUBKEY_UNCOMPRESSED'
-if uncompressed_hex.startswith('04'):
-    uncompressed_bytes = binascii.unhexlify(uncompressed_hex)
-    # Get X and Y coordinates
-    x, y = uncompressed_bytes[1:33], uncompressed_bytes[33:65]
-    # Choose prefix based on Y being even or odd
-    prefix = '02' if (y[-1] % 2 == 0) else '03'
-    # Create compressed pubkey
-    compressed_hex = prefix + binascii.hexlify(x).decode('ascii')
-    print(compressed_hex)
-else:
-    # Already compressed or invalid
-    print(uncompressed_hex)
-" > compressed_pubkey.txt
-COMPRESSED_PUBKEY=$(cat compressed_pubkey.txt)
-rm compressed_pubkey.txt
+COMPRESSED_PUBKEY=$(jq -r ".pub_key.value" "$VALIDATOR_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000 | tr '[:lower:]' '[:upper:]')
 
 # Add validator to evmvalidator genesis state
 # Parameters: pubkey, collateral (gwei), extra_voting_power, jailed
