@@ -65,11 +65,11 @@ func (k *Keeper) parseAndProcessEvent(ctx sdk.Context, elog evmengtypes.EVMEvent
 	case EventMsgExecute.ID:
 		event, err := k.evmGovernanceEntrypointContract.ParseMsgExecute(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse msg execute")
+			return errors.Wrap(err, "parse MsgExecute")
 		}
 
 		if err := k.processMsgExecute(ctx, event); err != nil {
-			return errors.Wrap(err, "process msg execute")
+			return errors.Wrap(err, "process MsgExecute")
 		}
 	default:
 		return errors.New("unknown event")
