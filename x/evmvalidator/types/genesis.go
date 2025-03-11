@@ -1,7 +1,6 @@
 package types
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/omni-network/omni/lib/errors"
 )
@@ -70,15 +69,4 @@ func (gs GenesisState) Validate() error {
 	}
 
 	return nil
-}
-
-// GetGenesisStateFromAppState returns the genesis state from the given app state
-func GetGenesisStateFromAppState(appState map[string]json.RawMessage) GenesisState {
-	var genesisState GenesisState
-
-	if appState[ModuleName] != nil {
-		_ = json.Unmarshal(appState[ModuleName], &genesisState)
-	}
-
-	return genesisState
 }
