@@ -203,12 +203,15 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 }
 
 // slash slashes a validator's collateral by a fraction
-// It calls the StakingKeeper's Slash method to maintain compatibility with x/slashing module
 func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
 	// Find the validator by consensus address
 	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
 		return sdkmath.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddr.String())
+	}
+
+	if slashFraction.IsNegative() {
+		return sdkmath.ZeroInt(), fmt.Errorf("attempted to slash with a negative slash factor: %v", slashFraction)
 	}
 
 	// Calculate the amount to slash
