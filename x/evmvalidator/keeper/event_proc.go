@@ -161,7 +161,6 @@ func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error
 			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
 		if err := k.processUnjail(ctx, event); err != nil {
-			// NOTE: It is not critical so ignore the error.
 			return errors.Wrap(err, "process MsgUnjail"), true
 		}
 
@@ -175,7 +174,6 @@ func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error
 			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
 		if err := k.processUpdateExtraVotingPower(ctx, event); err != nil {
-			// NOTE: It is not critical so ignore the error.
 			return errors.Wrap(err, "process MsgUpdateExtraVotingPower"), true
 		}
 
