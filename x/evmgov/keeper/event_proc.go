@@ -71,7 +71,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error
 	// - Messages has invalid format. (could be not verified at the EVM contract level)
 	// - Failed to execute messages. (could be not verified at the EVM contract level)
 	// Fortunately, this logic is not critical. If it fails, we can identify the cause
-	// and then proceed with the governance process at the EVM contract level.
+	// and then proceed with the governance process again at the EVM contract level.
 	case EventMsgExecute.ID:
 		event, err := k.evmGovernanceEntrypointContract.ParseMsgExecute(ethlog)
 		if err != nil {
