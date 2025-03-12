@@ -38,9 +38,9 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
-	err, ignored := k.processEvent(cacheCtx, blockHash, elog)
+	err, ignore := k.processEvent(cacheCtx, blockHash, elog)
 	if err != nil {
-		if ignored {
+		if ignore {
 			// If the processing fails but needs to be ignored, the error will be logged and
 			// the state cache will be discarded.
 			k.Logger(sdkCtx).Error("Processing event failed but ignored",

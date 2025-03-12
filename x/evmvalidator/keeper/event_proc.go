@@ -58,9 +58,9 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
-	err, ignored := k.processEvent(cacheCtx, blockHash, elog)
+	err, ignore := k.processEvent(cacheCtx, blockHash, elog)
 	if err != nil {
-		if ignored {
+		if ignore {
 			// If the processing fails but needs to be ignored, the error will be logged and
 			// the state cache will be discarded.
 			k.Logger(sdkCtx).Error("Processing event failed but ignored",
@@ -105,7 +105,11 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		if err != nil {
 			return errors.Wrap(err, "parse MsgRegisterValidator"), false
 		}
-		if err := k.processRegisterValidator(ctx, event); err != nil {
+		if err, ignore := k.processRegisterValidator(ctx, event); err != nil {
+			if !ignore {
+				return errors.Wrap(err, "process MsgRegisterValidator"), false
+			}
+
 			if errFB := k.fallbackRegisterValidator(ctx, event); errFB != nil {
 				return stderrors.Join(
 					errors.Wrap(err, "process MsgRegisterValidator"),
@@ -131,7 +135,11 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		if err != nil {
 			return errors.Wrap(err, "parse MsgDepositCollateral"), false
 		}
-		if err := k.processDepositCollateral(ctx, event); err != nil {
+		if err, ignore := k.processDepositCollateral(ctx, event); err != nil {
+			if !ignore {
+				return errors.Wrap(err, "process MsgDepositCollateral"), false
+			}
+
 			if errFB := k.fallbackDepositCollateral(ctx, event); errFB != nil {
 				return stderrors.Join(
 					errors.Wrap(err, "process MsgDepositCollateral"),
@@ -157,8 +165,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		if err != nil {
 			return errors.Wrap(err, "parse MsgWithdrawCollateral"), false
 		}
-		if err := k.processWithdrawCollateral(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgWithdrawCollateral"), true
+		if err, ignore := k.processWithdrawCollateral(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgWithdrawCollateral"), ignore
 		}
 
 	// Potential failure cases are:
@@ -171,8 +179,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
-		if err := k.processUnjail(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgUnjail"), true
+		if err, ignore := k.processUnjail(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUnjail"), ignore
 		}
 
 	// Potential failure cases are:
@@ -184,8 +192,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
-		if err := k.processUpdateExtraVotingPower(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgUpdateExtraVotingPower"), true
+		if err, ignore := k.processUpdateExtraVotingPower(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUpdateExtraVotingPower"), ignore
 		}
 
 	default:
@@ -196,14 +204,21 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 }
 
 // processRegisterValidator processes MsgRegisterValidator event
-func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Convert the amount to math.Int
 	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	return k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false)
+	if err := k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false); err != nil {
+		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
+			errors.Is(err, types.ErrInvalidPubKey)
+		return errors.Wrap(err, "failed to register validator"), ignore
+	}
+
+	return nil, false
 }
 
 // fallbackRegisterValidator handles the case when the MsgRegisterValidator event fails to process
@@ -212,13 +227,14 @@ func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.Cons
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
-func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Convert the amount to math.Int
@@ -227,7 +243,7 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	// Update validator's collateral
 	k.depositCollateral(ctx, &validator, amount)
 
-	return nil
+	return nil, false
 }
 
 // fallbackDepositCollateral handles the case when the MsgDepositCollateral event fails to process
@@ -236,13 +252,14 @@ func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.Cons
 }
 
 // processWithdrawCollateral processes MsgWithdrawCollateral event
-func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Create a withdrawal
@@ -255,49 +272,52 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 	// Request withdrawal
 	if err := k.withdrawCollateral(ctx, &validator, withdrawal); err != nil {
-		return errors.Wrap(err, "failed to withdraw collateral")
+		ignore := errors.Is(err, types.ErrInsufficientCollateral)
+		return errors.Wrap(err, "failed to withdraw collateral"), ignore
 	}
 
-	return nil
+	return nil, false
 }
 
 // processUnjail processes MsgUnjail event
-func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUnjail) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUnjail) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Check if validator is jailed
 	if !validator.Jailed {
-		return errors.New("validator is not jailed", "validator", valAddr)
+		return errors.New("validator is not jailed", "validator", valAddr), true
 	}
 
 	// Get consensus address
 	consAddr, err := validator.ConsAddr()
 	if err != nil {
-		return errors.Wrap(err, "failed to get consensus address")
+		return errors.Wrap(err, "failed to get consensus address"), false
 	}
 
 	// unjail validator through slashing keeper
 	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
-		return errors.Wrap(err, "failed to unjail validator")
+		return errors.Wrap(err, "failed to unjail validator"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // processUpdateExtraVotingPower processes MsgUpdateExtraVotingPower event
-func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Convert the extra voting power to math.Int
@@ -305,10 +325,10 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 
 	// Update extra voting power
 	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
-		return errors.Wrap(err, "failed to update extra voting power")
+		return errors.Wrap(err, "failed to update extra voting power"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // mustGetABI returns the metadata's ABI as an abi.ABI type.
