@@ -58,7 +58,7 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
-	err, ignored := k.processEvent(cacheCtx, elog)
+	err, ignored := k.processEvent(cacheCtx, blockHash, elog)
 	if err != nil {
 		if ignored {
 			// If the processing fails but needs to be ignored, the error will be logged and
@@ -67,11 +67,17 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 				"name", eventName(elog),
 				"height", cacheCtx.BlockHeight(),
 				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
 				"err", err,
 			)
 			return nil
 		} else {
-			return errors.Wrap(err, "failed to process event")
+			return errors.Wrap(err, "failed to process event",
+				"name", eventName(elog),
+				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
+			)
 		}
 	}
 
@@ -81,7 +87,7 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 
 // processEvent parses the provided event and processes it.
 // If the second return value is true, the error will be ignored.
-func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error, bool) {
+func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
 	ethlog, err := elog.ToEthLog()
 	if err != nil {
 		return err, false
@@ -110,6 +116,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error
 			k.Logger(ctx).Error("Processing failed but fallback succeeded",
 				"name", eventName(elog),
 				"height", ctx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
 				"err", err)
 		}
 
@@ -134,6 +142,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) (error
 			k.Logger(ctx).Error("Processing failed but fallback succeeded",
 				"name", eventName(elog),
 				"height", ctx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
 				"err", err)
 		}
 
