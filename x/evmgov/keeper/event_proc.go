@@ -34,7 +34,7 @@ func (k *Keeper) FilterParams() ([]common.Address, [][]common.Hash) {
 }
 
 // Deliver delivers related EVM log events.
-func (k *Keeper) Deliver(ctx context.Context, _ common.Hash, elog evmengtypes.EVMEvent) error {
+func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
@@ -46,6 +46,7 @@ func (k *Keeper) Deliver(ctx context.Context, _ common.Hash, elog evmengtypes.EV
 			k.Logger(sdkCtx).Error("Processing event failed but ignored",
 				"name", eventName(elog),
 				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
 				"err", err,
 			)
 			return nil
