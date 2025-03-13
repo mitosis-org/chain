@@ -42,7 +42,13 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			continue
 		}
 
-		// Call hook if the validator was not found in the last validator set
+		// if we get to a zero-power validator (which we don't bond),
+		// there are no more possible bonded validators
+		if currentPower <= 0 {
+			break
+		}
+
+		// Call hook if the validator becomes bonded
 		if !found {
 			consAddr, err := validator.ConsAddr()
 			if err != nil {
