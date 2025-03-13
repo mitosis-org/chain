@@ -34,48 +34,65 @@ func (k *Keeper) FilterParams() ([]common.Address, [][]common.Hash) {
 }
 
 // Deliver delivers related EVM log events.
-func (k *Keeper) Deliver(ctx context.Context, _ common.Hash, elog evmengtypes.EVMEvent) error {
+func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
-	// If the processing fails, the error will be logged and the state cache will be discarded.
-	if err := catch(func() error { //nolint:contextcheck // False positive wrt ctx
-		return k.parseAndProcessEvent(cacheCtx, elog)
-	}); err != nil {
-		k.Logger(sdkCtx).Error("Delivering event failed",
-			"name", eventName(elog),
-			"height", cacheCtx.BlockHeight(),
-			"err", err,
-		)
-		return nil
+	err, ignore := k.processEvent(cacheCtx, blockHash, elog)
+	if err != nil {
+		if ignore {
+			// If the processing fails but needs to be ignored, the error will be logged and
+			// the state cache will be discarded.
+			k.Logger(sdkCtx).Error("Processing event failed but ignored",
+				"name", eventName(elog),
+				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
+				"err", err,
+			)
+			return nil
+		} else {
+			return errors.Wrap(err, "failed to process event",
+				"name", eventName(elog),
+				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
+			)
+		}
 	}
 
 	writeCache()
 	return nil
 }
 
-// parseAndProcessEvent parses the provided event and processes it.
-func (k *Keeper) parseAndProcessEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) error {
+// processEvent parses the provided event and processes it.
+// If the second return value is true, the error will be ignored.
+func (k *Keeper) processEvent(ctx sdk.Context, _ common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
 	ethlog, err := elog.ToEthLog()
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	switch ethlog.Topics[0] {
+	// Potential failure cases are:
+	// - Messages has invalid format. (could be not verified at the EVM contract level)
+	// - Failed to execute messages. (could be not verified at the EVM contract level)
+	// Fortunately, this logic is not critical. If it fails, we can identify the cause
+	// and then proceed with the governance process again at the EVM contract level.
 	case EventMsgExecute.ID:
 		event, err := k.evmGovernanceEntrypointContract.ParseMsgExecute(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgExecute")
+			return errors.Wrap(err, "parse MsgExecute"), false
 		}
 
 		if err := k.processMsgExecute(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgExecute")
+			return errors.Wrap(err, "process MsgExecute"), true
 		}
 	default:
-		return errors.New("unknown event")
+		return errors.New("unknown event"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // processMsgExecute processes the MsgExecute event.
@@ -108,17 +125,6 @@ func mustGetEvent(abi *abi.ABI, name string) abi.Event {
 	}
 
 	return event
-}
-
-// catch executes the function, returning an error if it panics.
-func catch(fn func() error) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("recovered", "panic", r)
-		}
-	}()
-
-	return fn()
 }
 
 // eventName returns the name of the EVM event log or "unknown".

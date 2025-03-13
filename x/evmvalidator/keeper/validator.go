@@ -144,7 +144,10 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 
 	// Ensure validator has enough collateral
 	if validator.Collateral.LT(amount) {
-		return errors.Wrap(types.ErrInsufficientCollateral, "validator has insufficient collateral")
+		return errors.Wrap(types.ErrInsufficientCollateral,
+			"validator does not have enough collateral to withdraw",
+			"collateral", validator.Collateral.String(), "amount", amount.String(),
+		)
 	}
 
 	// Add to withdrawal queue

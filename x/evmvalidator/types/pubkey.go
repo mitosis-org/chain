@@ -15,7 +15,7 @@ func ValidatePubkeyWithEthAddress(pubkey []byte, addr mitotypes.EthAddress) erro
 	}
 
 	if addr != expectedAddr {
-		return errors.New("mismatched address",
+		return errors.Wrap(ErrInvalidPubKey, "mismatched address",
 			"pubkey", fmt.Sprintf("%X", pubkey),
 			"expected", addr.String(), "actual", expectedAddr.String(),
 		)

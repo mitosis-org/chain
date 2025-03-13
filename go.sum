@@ -928,8 +928,8 @@ github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228221247-67e7d87b61de h1:Rr0c
 github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228221247-67e7d87b61de/go.mod h1:hrWEFMU1eoXqLJeE6VVESpJDQH67FS1nnMrQIjO2daw=
 github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250228221247-67e7d87b61de h1:yCU4siQ2SsmP/3EqAxFpuQEmt8ZnMGX7E/rHDUBC97I=
 github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250228221247-67e7d87b61de/go.mod h1:xa/Yd8nYr19cawsEby/hvyqKY1JwgTADkpeLoiQCp/M=
-github.com/mitosis-org/omni v0.0.0-20250226120544-ff2169fe40ee h1:uEgW/c7bYlcFei/7GGca4a+322XFD94obWMIISVvhZY=
-github.com/mitosis-org/omni v0.0.0-20250226120544-ff2169fe40ee/go.mod h1:iMCiPunQYnQeA10/+IeoIk93v37cMjYvt1Ph6ZpBmQo=
+github.com/mitosis-org/omni v0.0.0-20250312110332-579d9b838b91 h1:UQBke3BBBnJ8KQUP9q3diiuE32hE6T95ELigL9wuYsc=
+github.com/mitosis-org/omni v0.0.0-20250312110332-579d9b838b91/go.mod h1:iMCiPunQYnQeA10/+IeoIk93v37cMjYvt1Ph6ZpBmQo=
 github.com/mmcloughlin/addchain v0.4.0 h1:SobOdjm2xLj1KkXN5/n0xTIWyZA2+s99UCY1iPfkHRY=
 github.com/mmcloughlin/addchain v0.4.0/go.mod h1:A86O+tHqZLMNO4w6ZZ4FlVQEadcoqkyU72HC5wJ4RlU=
 github.com/mmcloughlin/profile v0.1.1/go.mod h1:IhHD7q1ooxgwTgjxQYkACGA77oFTDdFVejUS1/tS/qU=

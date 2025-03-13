@@ -54,115 +54,171 @@ func (k *Keeper) FilterParams() ([]common.Address, [][]common.Hash) {
 }
 
 // Deliver delivers related EVM log events
-func (k *Keeper) Deliver(ctx context.Context, _ common.Hash, elog evmengtypes.EVMEvent) error {
+func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	cacheCtx, writeCache := sdkCtx.CacheContext()
 
-	// If the processing fails, the error will be logged and the state cache will be discarded
-	if err := catch(func() error {
-		return k.parseAndProcessEvent(cacheCtx, elog)
-	}); err != nil {
-		k.Logger(sdkCtx).Error("Delivering event failed",
-			"name", eventName(elog),
-			"height", cacheCtx.BlockHeight(),
-			"err", err,
-		)
-		return nil
+	err, ignore := k.processEvent(cacheCtx, blockHash, elog)
+	if err != nil {
+		if ignore {
+			// If the processing fails but needs to be ignored, the error will be logged and
+			// the state cache will be discarded.
+			k.Logger(sdkCtx).Error("Processing event failed but ignored",
+				"name", eventName(elog),
+				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
+				"err", err,
+			)
+			return nil
+		} else {
+			return errors.Wrap(err, "failed to process event",
+				"name", eventName(elog),
+				"height", cacheCtx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
+			)
+		}
 	}
 
 	writeCache()
 	return nil
 }
 
-// parseAndProcessEvent parses the provided event and processes it
-func (k *Keeper) parseAndProcessEvent(ctx sdk.Context, elog evmengtypes.EVMEvent) error {
+// processEvent parses the provided event and processes it.
+// If the second return value is true, the error will be ignored.
+func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
 	ethlog, err := elog.ToEthLog()
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	switch ethlog.Topics[0] {
+	// Potential failure cases are:
+	// - The validator already exist (might be verified at the EVM contract level)
+	// - valAddr and pubKey are not consistent (might be verified at the EVM contract level)
+	// We must refund the collateral to the user through fallback logic if the primary logic fails.
+	// The fallback logic must not fail due to its critical nature and should not fail because it's trivial.
+	// Therefore, we raise an error if the fallback fails.
 	case EventMsgRegisterValidator.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgRegisterValidator(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgRegisterValidator")
+			return errors.Wrap(err, "parse MsgRegisterValidator"), false
 		}
-		if err := k.processRegisterValidator(ctx, event); err != nil {
+		if err, ignore := k.processRegisterValidator(ctx, event); err != nil {
+			if !ignore {
+				return errors.Wrap(err, "process MsgRegisterValidator"), false
+			}
+
 			if errFB := k.fallbackRegisterValidator(ctx, event); errFB != nil {
 				return stderrors.Join(
 					errors.Wrap(err, "process MsgRegisterValidator"),
 					errors.Wrap(errFB, "fallback MsgRegisterValidator"),
-				)
+				), false
 			}
 
 			k.Logger(ctx).Error("Processing failed but fallback succeeded",
 				"name", eventName(elog),
 				"height", ctx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
 				"err", err)
 		}
 
+	// Potential failure cases are:
+	// - The validator does not exist (might be verified at the EVM contract level)
+	// We must refund the collateral to the user through fallback logic if the primary logic fails.
+	// The fallback logic must not fail due to its critical nature and should not fail because it's trivial.
+	// Therefore, we raise an error if the fallback fails.
 	case EventMsgDepositCollateral.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgDepositCollateral(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgDepositCollateral")
+			return errors.Wrap(err, "parse MsgDepositCollateral"), false
 		}
-		if err := k.processDepositCollateral(ctx, event); err != nil {
+		if err, ignore := k.processDepositCollateral(ctx, event); err != nil {
+			if !ignore {
+				return errors.Wrap(err, "process MsgDepositCollateral"), false
+			}
+
 			if errFB := k.fallbackDepositCollateral(ctx, event); errFB != nil {
 				return stderrors.Join(
 					errors.Wrap(err, "process MsgDepositCollateral"),
 					errors.Wrap(errFB, "fallback MsgDepositCollateral"),
-				)
+				), false
 			}
 
 			k.Logger(ctx).Error("Processing failed but fallback succeeded",
 				"name", eventName(elog),
 				"height", ctx.BlockHeight(),
+				"evmBlockHash", blockHash.Hex(),
+				"evmLog", elog.String(),
 				"err", err)
 		}
 
+	// Potential failure cases are:
+	// - The validator does not exist (might be verified at the EVM contract level)
+	// - The withdrawal amount is greater than the validator's collateral (could be not verified at the EVM contract level)
+	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
+	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgWithdrawCollateral.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgWithdrawCollateral(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgWithdrawCollateral")
+			return errors.Wrap(err, "parse MsgWithdrawCollateral"), false
 		}
-		if err := k.processWithdrawCollateral(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgWithdrawCollateral")
+		if err, ignore := k.processWithdrawCollateral(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgWithdrawCollateral"), ignore
 		}
 
+	// Potential failure cases are:
+	// - The validator does not exist (might be verified at the EVM contract level)
+	// - The validator is not jailed (could be not verified at the EVM contract level)
+	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
+	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgUnjail.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgUnjail(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgUnjail")
+			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
-		if err := k.processUnjail(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgUnjail")
+		if err, ignore := k.processUnjail(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUnjail"), ignore
 		}
 
+	// Potential failure cases are:
+	// - The validator does not exist (might be verified at the EVM contract level)
+	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
+	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgUpdateExtraVotingPower.ID:
 		event, err := k.evmValidatorEntrypointContract.ParseMsgUpdateExtraVotingPower(ethlog)
 		if err != nil {
-			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower")
+			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
-		if err := k.processUpdateExtraVotingPower(ctx, event); err != nil {
-			return errors.Wrap(err, "process MsgUpdateExtraVotingPower")
+		if err, ignore := k.processUpdateExtraVotingPower(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgUpdateExtraVotingPower"), ignore
 		}
 
 	default:
-		return errors.New("unknown event")
+		return errors.New("unknown event"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // processRegisterValidator processes MsgRegisterValidator event
-func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Convert the amount to math.Int
 	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	return k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false)
+	if err := k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false); err != nil {
+		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
+			errors.Is(err, types.ErrInvalidPubKey)
+		return errors.Wrap(err, "failed to register validator"), ignore
+	}
+
+	return nil, false
 }
 
 // fallbackRegisterValidator handles the case when the MsgRegisterValidator event fails to process
@@ -171,13 +227,14 @@ func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.Cons
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
-func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Convert the amount to math.Int
@@ -186,7 +243,7 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	// Update validator's collateral
 	k.depositCollateral(ctx, &validator, amount)
 
-	return nil
+	return nil, false
 }
 
 // fallbackDepositCollateral handles the case when the MsgDepositCollateral event fails to process
@@ -195,13 +252,14 @@ func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.Cons
 }
 
 // processWithdrawCollateral processes MsgWithdrawCollateral event
-func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Create a withdrawal
@@ -214,51 +272,52 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 	// Request withdrawal
 	if err := k.withdrawCollateral(ctx, &validator, withdrawal); err != nil {
-		return errors.Wrap(err, "failed to withdraw collateral")
+		ignore := errors.Is(err, types.ErrInsufficientCollateral)
+		return errors.Wrap(err, "failed to withdraw collateral"), ignore
 	}
 
-	return nil
+	return nil, false
 }
 
 // processUnjail processes MsgUnjail event
-func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUnjail) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUnjail) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Check if validator is jailed
 	if !validator.Jailed {
-		// NOTE: There is no verification logic in EVM. So, just ignore instead of returning an error
-		// because there could be many error logs otherwise.
-		return nil
+		return errors.New("validator is not jailed", "validator", valAddr), true
 	}
 
 	// Get consensus address
 	consAddr, err := validator.ConsAddr()
 	if err != nil {
-		return errors.Wrap(err, "failed to get consensus address")
+		return errors.Wrap(err, "failed to get consensus address"), false
 	}
 
 	// unjail validator through slashing keeper
 	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
-		return errors.Wrap(err, "failed to unjail validator")
+		return errors.Wrap(err, "failed to unjail validator"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // processUpdateExtraVotingPower processes MsgUpdateExtraVotingPower event
-func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) error {
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
-		return types.ErrValidatorNotFound
+		return types.ErrValidatorNotFound, true
 	}
 
 	// Convert the extra voting power to math.Int
@@ -266,10 +325,10 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 
 	// Update extra voting power
 	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
-		return errors.Wrap(err, "failed to update extra voting power")
+		return errors.Wrap(err, "failed to update extra voting power"), false
 	}
 
-	return nil
+	return nil, false
 }
 
 // mustGetABI returns the metadata's ABI as an abi.ABI type.
@@ -292,17 +351,6 @@ func mustGetEvent(abi *abi.ABI, name string) abi.Event {
 	}
 
 	return event
-}
-
-// catch executes the function, returning an error if it panics.
-func catch(fn func() error) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("recovered", "panic", r)
-		}
-	}()
-
-	return fn()
 }
 
 // eventName returns the name of the EVM event log or "unknown".
