@@ -66,12 +66,9 @@ func (k Keeper) registerValidator(
 		k.SetValidatorByPowerIndex(ctx, validator.VotingPower.Int64(), validator.Addr)
 	}
 
-	// Call slashing hooks
+	// Call slashing hook
 	if err = k.slashingKeeper.AfterValidatorCreated(ctx, consPubKey); err != nil {
 		return errors.Wrap(err, "failed to call AfterValidatorCreated hook")
-	}
-	if err = k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
-		return errors.Wrap(err, "failed to call AfterValidatorBonded hook")
 	}
 
 	// Emit event

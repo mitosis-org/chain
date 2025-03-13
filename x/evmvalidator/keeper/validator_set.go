@@ -42,6 +42,17 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			continue
 		}
 
+		// Call hook if the validator was not found in the last validator set
+		if !found {
+			consAddr, err := validator.ConsAddr()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to get consensus address")
+			}
+			if err = k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
+				return nil, errors.Wrap(err, "failed to call AfterValidatorBonded hook")
+			}
+		}
+
 		// Create validator update for CometBFT
 		abciUpdate, err := validator.ABCIValidatorUpdate()
 		if err != nil {
