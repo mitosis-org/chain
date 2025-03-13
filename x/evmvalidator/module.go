@@ -10,16 +10,16 @@ import (
 	"encoding/json"
 	abci "github.com/cometbft/cometbft/abci/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/omni-network/omni/lib/errors"
-
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
 	modulev1 "github.com/mitosis-org/chain/api/mitosis/evmvalidator/module/v1"
 	"github.com/mitosis-org/chain/x/evmvalidator/client/cli"
 	"github.com/mitosis-org/chain/x/evmvalidator/keeper"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
+	"github.com/omni-network/omni/lib/errors"
+	"github.com/spf13/cobra"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -170,6 +170,7 @@ func init() {
 	appconfig.RegisterModule(
 		&modulev1.Module{},
 		appconfig.Provide(ProvideModule),
+		appmodule.Invoke(InvokeProhibitStakingHooks),
 	)
 }
 
@@ -217,4 +218,23 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 		KeeperForEvidence: &keeper.KeeperWrapperForEvidence{K: k},
 		EVMEventProc:      evmengtypes.InjectEventProc(k),
 	}, nil
+}
+
+// InvokeProhibitStakingHooks is an invoker that prohibits the use of staking hooks.
+// x/evmvalidator is compatible with x/staking partially, but it does not support staking hooks.
+// So, other modules should not use staking hooks with x/evmvalidator.
+func InvokeProhibitStakingHooks(
+	stakingHooks map[string]stakingtypes.StakingHooksWrapper,
+) error {
+	if len(stakingHooks) == 0 {
+		return nil
+	}
+
+	modules := make([]string, 0, len(stakingHooks))
+	for k := range stakingHooks {
+		modules = append(modules, k)
+	}
+	modulesStr := strings.Join(modules, ",")
+
+	return errors.New("staking hooks are not supported", "modules", modulesStr)
 }

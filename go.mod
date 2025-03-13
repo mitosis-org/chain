@@ -239,9 +239,9 @@ require (
 // following versions might cause unexpected behavior
 replace (
 	// TODO(thai): should revise the commit revision.
-	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250228221247-67e7d87b61de
-	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250228221247-67e7d87b61de
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250312110332-579d9b838b91
+	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250313215602-6340dd8592be
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250313215602-6340dd8592be
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250313215026-993697b8b51f
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
