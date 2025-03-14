@@ -33,6 +33,9 @@ var (
 
 	// WithdrawalQueueKeyPrefix is the prefix for the withdrawal queue
 	WithdrawalQueueKeyPrefix = []byte{0x06}
+
+	// WithdrawalByValidatorKeyPrefix is the prefix for an index to withdrawals by validator and maturesAt
+	WithdrawalByValidatorKeyPrefix = []byte{0x07}
 )
 
 // GetValidatorKey creates key for a validator from validator address
@@ -61,8 +64,20 @@ func GetLastValidatorPowerKey(valAddr mitotypes.EthAddress) []byte {
 }
 
 // GetWithdrawalQueueKey creates key for withdrawals at a timestamp
-func GetWithdrawalQueueKey(maturesAt uint64) []byte {
+func GetWithdrawalQueueKey(maturesAt int64) []byte {
 	maturesAtBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(maturesAtBytes, maturesAt)
+	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt))
 	return append(WithdrawalQueueKeyPrefix, maturesAtBytes...)
+}
+
+// GetWithdrawalByValidatorKey creates a key for indexing withdrawals by validator and maturesAt
+func GetWithdrawalByValidatorKey(valAddr mitotypes.EthAddress, maturesAt int64) []byte {
+	maturesAtBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt))
+	return append(append(WithdrawalByValidatorKeyPrefix, address.MustLengthPrefix(valAddr.Bytes())...), maturesAtBytes...)
+}
+
+// GetWithdrawalByValidatorIterationKey creates a key for iterating withdrawals by validator and maturesAt
+func GetWithdrawalByValidatorIterationKey(valAddr mitotypes.EthAddress) []byte {
+	return append(WithdrawalByValidatorKeyPrefix, address.MustLengthPrefix(valAddr.Bytes())...)
 }

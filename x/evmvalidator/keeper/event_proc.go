@@ -264,10 +264,11 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 	// Create a withdrawal
 	withdrawal := types.Withdrawal{
-		ValAddr:   valAddr,
-		Amount:    event.AmountGwei.Uint64(),
-		Receiver:  mitotypes.EthAddress(event.Receiver),
-		MaturesAt: event.MaturesAt.Uint64(),
+		ValAddr:        valAddr,
+		Amount:         event.AmountGwei.Uint64(),
+		Receiver:       mitotypes.EthAddress(event.Receiver),
+		MaturesAt:      event.MaturesAt.Int64(),
+		CreationHeight: ctx.BlockHeight(),
 	}
 
 	// Request withdrawal
