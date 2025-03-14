@@ -65,7 +65,10 @@ message Withdrawal {
   ];
 
   // matures_at is the time when the withdrawal request matures
-  uint64 matures_at = 4;
+  int64 matures_at = 4;
+
+  // creation_height is the height at which the withdrawal request was created
+  int64 creation_height = 5;
 }
 
 // LastValidatorPower defines the last validator power used for validator set

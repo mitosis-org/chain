@@ -10,14 +10,19 @@ import (
 // ProcessMaturedWithdrawals processes withdrawals that have matured
 func (k Keeper) ProcessMaturedWithdrawals(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
-	currentTime := uint64(ctx.BlockTime().Unix())
+	currentTime := ctx.BlockTime().Unix()
 	withdrawalLimit := params.WithdrawalLimit
 	processedCount := uint32(0)
 
-	k.IterateWithdrawalsQueue(ctx, currentTime, func(withdrawal types.Withdrawal) bool {
+	k.IterateWithdrawalsQueue(ctx, func(withdrawal types.Withdrawal) bool {
 		// Check if we've processed enough withdrawals for this block
 		if processedCount >= withdrawalLimit {
-			return true // stop iteration
+			return true
+		}
+
+		// Check if the withdrawal has not matured yet
+		if currentTime < withdrawal.MaturesAt {
+			return true // afterward, all withdrawals are not matured
 		}
 
 		// Insert the withdrawal into the EVM engine
@@ -39,7 +44,7 @@ func (k Keeper) ProcessMaturedWithdrawals(ctx sdk.Context) error {
 		k.DeleteWithdrawalFromQueue(ctx, withdrawal)
 		processedCount++
 
-		return false // continue iteration
+		return false
 	})
 
 	return nil

@@ -2,17 +2,15 @@ package keeper
 
 import (
 	"cosmossdk.io/core/address"
-	"fmt"
-	mitotypes "github.com/mitosis-org/chain/types"
-	"math"
-
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 )
 
@@ -298,14 +296,18 @@ func (k Keeper) AddWithdrawalToQueue(ctx sdk.Context, withdrawal types.Withdrawa
 	bz := k.cdc.MustMarshal(&withdrawal)
 	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
 	store.Set(key, bz)
+
+	// Also set in the validator index
+	indexKey := types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt)
+	store.Set(indexKey, bz)
 }
 
 // IterateWithdrawalsQueue iterates through the withdrawals queue
-func (k Keeper) IterateWithdrawalsQueue(ctx sdk.Context, endTime uint64, cb func(withdrawal types.Withdrawal) (stop bool)) {
+func (k Keeper) IterateWithdrawalsQueue(ctx sdk.Context, cb func(withdrawal types.Withdrawal) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	prefix := prefix.NewStore(store, types.WithdrawalQueueKeyPrefix)
 
-	iterator := prefix.Iterator(nil, sdk.Uint64ToBigEndian(endTime+1))
+	iterator := prefix.Iterator(nil, nil)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -323,16 +325,41 @@ func (k Keeper) DeleteWithdrawalFromQueue(ctx sdk.Context, withdrawal types.With
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
 	store.Delete(key)
+
+	// Also remove from the validator index
+	indexKey := types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt)
+	store.Delete(indexKey)
 }
 
 // GetAllWithdrawals gets all withdrawals
 func (k Keeper) GetAllWithdrawals(ctx sdk.Context) []types.Withdrawal {
 	var withdrawals []types.Withdrawal
 
-	k.IterateWithdrawalsQueue(ctx, math.MaxUint64, func(withdrawal types.Withdrawal) bool {
+	k.IterateWithdrawalsQueue(ctx, func(withdrawal types.Withdrawal) bool {
 		withdrawals = append(withdrawals, withdrawal)
 		return false
 	})
 
 	return withdrawals
+}
+
+func (k Keeper) IterateWithdrawalsForValidator(
+	ctx sdk.Context,
+	valAddr mitotypes.EthAddress,
+	cb func(withdrawal types.Withdrawal) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	prefix := prefix.NewStore(store, types.GetWithdrawalByValidatorIterationKey(valAddr))
+
+	iterator := prefix.Iterator(nil, nil)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var withdrawal types.Withdrawal
+		k.cdc.MustUnmarshal(iterator.Value(), &withdrawal)
+
+		if cb(withdrawal) {
+			break
+		}
+	}
 }

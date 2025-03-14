@@ -202,6 +202,8 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 
 // slash slashes a validator's collateral by a fraction
 func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
+	currentTime := ctx.BlockTime().Unix()
+
 	// Find the validator by consensus address
 	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
@@ -213,15 +215,54 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	}
 
 	// Calculate the amount to slash
-	// Note that we're slashing collateral, not voting power
-	slashAmount := sdkmath.LegacyNewDecFromInt(validator.Collateral).Mul(slashFraction).TruncateInt()
-	if slashAmount.GT(validator.Collateral) {
-		k.Logger(ctx).Error("Slash amount exceeds validator's collateral", "slashAmount", slashAmount.String(), "collateral", validator.Collateral.String())
-		slashAmount = validator.Collateral
+	targetSlashAmount := sdkmath.LegacyNewDecFromInt(sdkmath.NewInt(power)).Mul(slashFraction).TruncateInt().Uint64()
+
+	remainingSlashAmount := targetSlashAmount
+
+	// Slash the not matured withdrawals from the oldest to the newest
+	// NOTE: The implementation differs from x/staking. In the case of x/staking, slashing is applied
+	// proportionally to each unbonding entry, and only to entries that contributed at the infraction height.
+	// However, in x/evmvalidator, since the amounts delegated by users are not subject to slashing,
+	// we thought it would be acceptable to use a simpler policy.
+	// Therefore, we decided to apply slashing sequentially from the oldest withdrawal up to the collateral.
+	k.IterateWithdrawalsForValidator(ctx, validator.Addr, func(w types.Withdrawal) bool {
+		if remainingSlashAmount == 0 {
+			return true
+		}
+
+		// If withdrawal is matured, it is not subject to slashing
+		if w.MaturesAt <= currentTime {
+			return false
+		}
+
+		// slash the withdrawal
+		if w.Amount <= remainingSlashAmount {
+			remainingSlashAmount -= w.Amount
+			k.DeleteWithdrawalFromQueue(ctx, w)
+		} else {
+			w.Amount = w.Amount - remainingSlashAmount
+			remainingSlashAmount = 0
+			k.AddWithdrawalToQueue(ctx, w) // overwrite the withdrawal
+		}
+
+		return false
+	})
+
+	// Slash the collateral
+	if validator.Collateral.GTE(sdkmath.NewIntFromUint64(remainingSlashAmount)) {
+		validator.Collateral = validator.Collateral.Sub(sdkmath.NewIntFromUint64(remainingSlashAmount))
+		remainingSlashAmount = 0
+	} else {
+		k.Logger(ctx).Error("Slash amount exceeds validator's collateral",
+			"validator", validator.Addr.String(),
+			"slashAmount", remainingSlashAmount,
+			"collateral", validator.Collateral.String(),
+		)
+		remainingSlashAmount -= validator.Collateral.Uint64()
+		validator.Collateral = sdkmath.ZeroInt()
 	}
 
-	// Update validator's collateral
-	validator.Collateral = validator.Collateral.Sub(slashAmount)
+	actualSlashAmount := targetSlashAmount - remainingSlashAmount
 
 	// Recompute voting power
 	params := k.GetParams(ctx)
@@ -242,7 +283,7 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		sdk.NewEvent(
 			types.EventTypeSlashValidator,
 			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
-			sdk.NewAttribute(types.AttributeKeyAmount, slashAmount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, fmt.Sprintf("%d", actualSlashAmount)),
 			sdk.NewAttribute(types.AttributeKeySlashFraction, slashFraction.String()),
 			sdk.NewAttribute(types.AttributeKeyInfractionHeight, fmt.Sprintf("%d", infractionHeight)),
 			sdk.NewAttribute(types.AttributeKeyInfractionPower, fmt.Sprintf("%d", power)),
@@ -268,7 +309,7 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		}
 	}
 
-	return slashAmount, nil
+	return sdkmath.NewIntFromUint64(actualSlashAmount), nil
 }
 
 // jail jails a validator

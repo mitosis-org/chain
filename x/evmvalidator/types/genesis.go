@@ -59,6 +59,9 @@ func (gs GenesisState) Validate() error {
 		if withdrawal.MaturesAt == 0 {
 			return fmt.Errorf("withdrawal %d has no matures_at timestamp", i)
 		}
+		if withdrawal.CreationHeight == 0 {
+			return fmt.Errorf("withdrawal %d has no creation_height", i)
+		}
 	}
 
 	// Validate last validator powers
