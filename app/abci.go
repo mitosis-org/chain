@@ -3,13 +3,10 @@ package app
 import (
 	"context"
 	sdklog "cosmossdk.io/log"
-	"encoding/hex"
 	"fmt"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"log/slog"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -62,7 +59,7 @@ func (a ABCIWrappedApplication) InitChain(chain *abci.RequestInitChain) (*abci.R
 }
 
 func (a ABCIWrappedApplication) PrepareProposal(proposal *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
-	logger := a.logger.With("height", proposal.Height, "proposer", proposal.ProposerAddress)
+	logger := a.logger.With("height", proposal.Height, "proposer", hex7(proposal.ProposerAddress))
 	logger.Info("😈 ABCI call: PrepareProposal")
 
 	resp, err := a.Application.PrepareProposal(proposal)
@@ -74,7 +71,7 @@ func (a ABCIWrappedApplication) PrepareProposal(proposal *abci.RequestPreparePro
 }
 
 func (a ABCIWrappedApplication) ProcessProposal(proposal *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
-	logger := a.logger.With("height", proposal.Height, hex7("proposer", proposal.ProposerAddress))
+	logger := a.logger.With("height", proposal.Height, "proposer", hex7(proposal.ProposerAddress))
 	logger.Info("😈 ABCI call: ProcessProposal")
 
 	resp, err := a.Application.ProcessProposal(proposal)
@@ -86,7 +83,7 @@ func (a ABCIWrappedApplication) ProcessProposal(proposal *abci.RequestProcessPro
 }
 
 func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.ResponseFinalizeBlock, error) {
-	logger := a.logger.With("height", req.Height, hex7("proposer", req.ProposerAddress))
+	logger := a.logger.With("height", req.Height, "proposer", hex7(req.ProposerAddress))
 	logger.Info("😈 ABCI call: FinalizeBlock")
 
 	resp, err := a.Application.FinalizeBlock(req)
@@ -113,7 +110,7 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 		"val_updates", len(resp.ValidatorUpdates),
 	}
 	for i, update := range resp.ValidatorUpdates {
-		attrs = append(attrs, hex7(fmt.Sprintf("pubkey_%d", i), update.PubKey.GetSecp256K1()))
+		attrs = append(attrs, fmt.Sprintf("pubkey_%d", i), hex7(update.PubKey.GetSecp256K1()))
 		attrs = append(attrs, fmt.Sprintf("power_%d", i), update.Power)
 	}
 	logger.Info("😈 ABCI response: FinalizeBlock", attrs...)
@@ -131,7 +128,7 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 }
 
 func (a ABCIWrappedApplication) ExtendVote(ctx context.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
-	logger := a.logger.With("height", vote.Height, hex7("proposer", vote.ProposerAddress))
+	logger := a.logger.With("height", vote.Height, "proposer", hex7(vote.ProposerAddress))
 	logger.Info("😈 ABCI call: ExtendVote")
 
 	resp, err := a.Application.ExtendVote(ctx, vote)
@@ -143,7 +140,7 @@ func (a ABCIWrappedApplication) ExtendVote(ctx context.Context, vote *abci.Reque
 }
 
 func (a ABCIWrappedApplication) VerifyVoteExtension(extension *abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
-	logger := a.logger.With("height", extension.Height, hex7("validator", extension.ValidatorAddress))
+	logger := a.logger.With("height", extension.Height, "validator", hex7(extension.ValidatorAddress))
 	logger.Info("😈 ABCI call: VerifyVoteExtension")
 
 	resp, err := a.Application.VerifyVoteExtension(extension)
@@ -179,13 +176,13 @@ func (a ABCIWrappedApplication) ApplySnapshotChunk(chunk *abci.RequestApplySnaps
 	return a.Application.ApplySnapshotChunk(chunk)
 }
 
-func hex7(key string, value []byte) slog.Attr {
-	h := hex.EncodeToString(value)
+func hex7(value []byte) string {
+	h := fmt.Sprintf("%X", value)
 
 	const maxLen = 7
 	if len(h) > maxLen {
 		h = h[:maxLen]
 	}
 
-	return slog.String(key, h)
+	return h
 }

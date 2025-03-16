@@ -76,11 +76,17 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		}
 		validatorUpdates = append(validatorUpdates, abciUpdate)
 
+		consAddr, err := validator.ConsAddr()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get consensus address")
+		}
+
 		// Log the update
 		if found {
 			k.Logger(sdkCtx).Info("[Active Validator Set] Power changed",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
 				"previous_power", lastPower,
 				"new_power", currentPower,
 			)
@@ -88,10 +94,13 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			k.Logger(sdkCtx).Info("[Active Validator Set] Bonded",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
 				"new_power", currentPower,
 			)
 		}
 	}
+
+	var err error
 
 	// Process validators that were removed (not in the current set)
 	// We need to iterate through all last powers and check if they've been processed
@@ -106,10 +115,10 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		validator, found := k.GetValidator(sdkCtx, valAddr)
 		if !found || validator.Jailed {
 			// Create a zero power update
-			pk, err := k1util.PubKeyBytesToCosmos(validator.Pubkey)
-			if err != nil {
-				k.Logger(sdkCtx).Error("Failed to convert pubkey", "err", err)
-				return false
+			pk, err2 := k1util.PubKeyBytesToCosmos(validator.Pubkey)
+			if err2 != nil {
+				err = errors.Wrap(err2, "failed to convert pubkey")
+				return true
 			}
 
 			// Remove from last validator powers since it's no longer active validator
@@ -122,10 +131,10 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			}
 
 			// Append to validator updates
-			cmtPk, err := cryptocodec.ToCmtProtoPublicKey(pk)
-			if err != nil {
-				k.Logger(sdkCtx).Error("Failed to convert to CometBFT pubkey", "err", err)
-				return false
+			cmtPk, err2 := cryptocodec.ToCmtProtoPublicKey(pk)
+			if err2 != nil {
+				err = errors.Wrap(err2, "failed to convert to CometBFT pubkey")
+				return true
 			}
 			validatorUpdate := abci.ValidatorUpdate{
 				PubKey: cmtPk,
@@ -134,15 +143,25 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			validatorUpdates = append(validatorUpdates, validatorUpdate)
 
 			// Log the removal
+			consAddr, err2 := validator.ConsAddr()
+			if err2 != nil {
+				err = errors.Wrap(err2, "failed to get consensus address")
+				return true
+			}
 			k.Logger(sdkCtx).Info("[Active Validator Set] Unbonded",
 				"val_addr", valAddr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
 				"previous_power", power,
 			)
 		}
 
 		return false // continue iteration
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return validatorUpdates, nil
 }
