@@ -2,8 +2,6 @@
   "config": {
     "chainId": 124899,
     "homesteadBlock": 0,
-    "daoForkBlock": 0,
-    "daoForkSupport": true,
     "eip150Block": 0,
     "eip155Block": 0,
     "eip158Block": 0,
@@ -11,24 +9,30 @@
     "constantinopleBlock": 0,
     "petersburgBlock": 0,
     "istanbulBlock": 0,
-    "muirGlacierBlock": 0,
     "berlinBlock": 0,
     "londonBlock": 0,
-    "arrowGlacierBlock": 0,
-    "grayGlacierBlock": 0,
-    "mergeNetsplitBlock": 0,
     "shanghaiTime": 0,
     "cancunTime": 0,
+    "pragueTime": 0,
     "terminalTotalDifficulty": 0,
-    "terminalTotalDifficultyPassed": true,
-    "ethash": {}
+    "blobSchedule": {
+      "cancun": {
+        "target": 3,
+        "max": 6,
+        "baseFeeUpdateFraction": 3338477
+      },
+      "prague": {
+        "target": 6,
+        "max": 9,
+        "baseFeeUpdateFraction": 5007716
+      }
+    }
   },
-  "coinbase": "0x0000000000000000000000000000000000000000",
-  "difficulty": "0x0",
-  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000658bdf435d810c91414ec09147daa6db624063790000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "gasLimit": "0x1c9c380",
-  "nonce": "0x0000000000000000",
-  "timestamp": "0x0",
+  "nonce": "0",
+  "timestamp": "0",
+  "extraData": "0x",
+  "gasLimit": "30000000",
+  "difficulty": "0",
   "alloc": {
     "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF": {
       "balance": "10000000000000000000000000"

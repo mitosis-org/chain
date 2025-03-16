@@ -200,7 +200,7 @@ setup-geth: clean-geth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go:v1.14.11 init \
+		ethereum/client-go:v1.15.5 init \
 			--datadir /data \
 			--db.engine pebble \
 			--state.scheme=hash \
@@ -213,7 +213,7 @@ run-geth:
 		-p 8551:8551 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go:v1.14.11 \
+		ethereum/client-go:v1.15.5 \
 			--datadir /data \
 			--http \
 			--http.addr 0.0.0.0 \
@@ -235,7 +235,7 @@ setup-reth: clean-reth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.1.0 init \
+		ghcr.io/paradigmxyz/reth:v1.3.1 init \
 			--datadir /data \
 			--chain /infra/genesis.json
 
@@ -248,7 +248,7 @@ run-reth:
 		-p 9001:9001 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.1.0 node \
+		ghcr.io/paradigmxyz/reth:v1.3.1 node \
 			--datadir /data \
 			--chain /infra/genesis.json \
 			--http \
@@ -258,8 +258,7 @@ run-reth:
 			--authrpc.jwtsecret /infra/jwt.hex \
 			--metrics 0.0.0.0:9001 \
 			--builder.interval 30ms \
-			--builder.deadline 1 \
-			--engine.legacy
+			--builder.deadline 1
 
 clean-mitosisd:
 	rm -rf $(MITOSISD_HOME)

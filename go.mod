@@ -18,7 +18,7 @@ require (
 	github.com/cosmos/cosmos-db v1.1.1
 	github.com/cosmos/cosmos-sdk v0.50.12
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/ethereum/go-ethereum v1.14.13
+	github.com/ethereum/go-ethereum v1.15.5
 	github.com/hashicorp/go-metrics v0.5.3 // indirect
 	github.com/omni-network/omni v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.9.1
@@ -58,7 +58,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
-	github.com/bits-and-blooms/bitset v1.13.0 // indirect
+	github.com/bits-and-blooms/bitset v1.17.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/lipgloss v0.10.0 // indirect
@@ -72,15 +72,15 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/cometbft/cometbft-db v0.14.1 // indirect
-	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.1 // indirect
+	github.com/consensys/bavard v0.1.22 // indirect
+	github.com/consensys/gnark-crypto v0.14.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v1.2.2 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.14.0 // indirect
-	github.com/crate-crypto/go-ipa v0.0.0-20240223125850-b1e8a79f509c // indirect
-	github.com/crate-crypto/go-kzg-4844 v1.0.0 // indirect
+	github.com/crate-crypto/go-ipa v0.0.0-20240724233137-53bbb0ceb27a // indirect
+	github.com/crate-crypto/go-kzg-4844 v1.1.0 // indirect
 	github.com/creachadair/atomicfile v0.3.1 // indirect
 	github.com/creachadair/tomledit v0.0.24 // indirect
 	github.com/danieljoos/wincred v1.2.1 // indirect
@@ -94,7 +94,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/emicklei/dot v1.6.2 // indirect
 	github.com/ethereum/c-kzg-4844 v1.0.0 // indirect
-	github.com/ethereum/go-verkle v0.1.1-0.20240829091221-dffa7562dbe9 // indirect
+	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -195,7 +195,7 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/supranational/blst v0.3.13 // indirect
+	github.com/supranational/blst v0.3.14 // indirect
 	github.com/syndtr/goleveldb v1.0.1 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/tidwall/btree v1.7.0 // indirect
@@ -223,7 +223,7 @@ require (
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
-	golang.org/x/time v0.5.0 // indirect
+	golang.org/x/time v0.9.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
@@ -241,7 +241,7 @@ replace (
 	// TODO(thai): should revise the commit revision.
 	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250316161737-c491fa0eb9b0
 	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250316161737-c491fa0eb9b0
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250313215026-993697b8b51f
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250316201334-5361ae42c1ff
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
