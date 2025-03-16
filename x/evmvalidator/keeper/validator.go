@@ -39,6 +39,7 @@ func (k Keeper) registerValidator(
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      sdkmath.ZeroInt(), // will be computed later
 		Jailed:           jailed,
+		Bonded:           false,
 	}
 
 	// Compute voting power

@@ -11,8 +11,6 @@ option go_package = "github.com/mitosis-org/chain/x/evmvalidator/types";
 
 // Validator defines a validator in the x/evmvalidator module
 message Validator {
-  option (gogoproto.equal) = true;
-
   // addr is the Ethereum address of the validator
   bytes addr = 1 [
     (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
@@ -45,6 +43,10 @@ message Validator {
 
   // jailed indicates if the validator is jailed
   bool jailed = 6;
+
+  // bonded indicates if the validator is bonded (meaning it is in the active
+  // validator set)
+  bool bonded = 7;
 }
 
 // Withdrawal defines a withdrawal request

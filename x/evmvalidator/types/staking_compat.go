@@ -23,3 +23,8 @@ func (v Validator) GetConsAddr() ([]byte, error) {
 func (v Validator) IsJailed() bool {
 	return v.Jailed
 }
+
+// IsUnbonded implements ValidatorI
+func (v Validator) IsUnbonded() bool {
+	return !v.Bonded
+}

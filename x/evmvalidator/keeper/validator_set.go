@@ -48,8 +48,11 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			break
 		}
 
-		// Call hook if the validator becomes bonded
+		// Update the last validator power
+		k.SetLastValidatorPower(sdkCtx, validator.Addr, currentPower)
+
 		if !found {
+			// Call hook if the validator becomes bonded
 			consAddr, err := validator.ConsAddr()
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to get consensus address")
@@ -57,21 +60,21 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			if err = k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
 				return nil, errors.Wrap(err, "failed to call AfterValidatorBonded hook")
 			}
-		}
 
-		// Create validator update for CometBFT
-		abciUpdate, err := validator.ABCIValidatorUpdate()
-		if err != nil {
-			return nil, errors.Wrap(err, "create validator update")
+			// Set the validator as bonded
+			validator.Bonded = true
+			k.SetValidator(sdkCtx, validator)
 		}
-
-		validatorUpdates = append(validatorUpdates, abciUpdate)
 
 		// Record that this validator was processed
 		processedVals[validator.Addr] = true
 
-		// Update the last validator power
-		k.SetLastValidatorPower(sdkCtx, validator.Addr, currentPower)
+		// Append to validator updates
+		abciUpdate, err := validator.ABCIValidatorUpdate()
+		if err != nil {
+			return nil, errors.Wrap(err, "create validator update")
+		}
+		validatorUpdates = append(validatorUpdates, abciUpdate)
 
 		// Log the update
 		if found {
@@ -82,7 +85,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 				"new_power", currentPower,
 			)
 		} else {
-			k.Logger(sdkCtx).Info("[Active Validator Set] Added",
+			k.Logger(sdkCtx).Info("[Active Validator Set] Bonded",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"new_power", currentPower,
@@ -109,26 +112,33 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 				return false
 			}
 
+			// Remove from last validator powers since it's no longer active validator
+			k.DeleteLastValidatorPower(sdkCtx, valAddr)
+
+			// Set the validator as not bonded
+			if validator.Bonded {
+				validator.Bonded = false
+				k.SetValidator(sdkCtx, validator)
+			}
+
+			// Append to validator updates
 			cmtPk, err := cryptocodec.ToCmtProtoPublicKey(pk)
 			if err != nil {
 				k.Logger(sdkCtx).Error("Failed to convert to CometBFT pubkey", "err", err)
 				return false
 			}
-
 			validatorUpdate := abci.ValidatorUpdate{
 				PubKey: cmtPk,
 				Power:  0,
 			}
 			validatorUpdates = append(validatorUpdates, validatorUpdate)
 
-			k.Logger(sdkCtx).Info("[Active Validator Set] Removed",
+			// Log the removal
+			k.Logger(sdkCtx).Info("[Active Validator Set] Unbonded",
 				"val_addr", valAddr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"previous_power", power,
 			)
-
-			// Remove from last validator powers since it's no longer a validator
-			k.DeleteLastValidatorPower(sdkCtx, valAddr)
 		}
 
 		return false // continue iteration

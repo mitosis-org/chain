@@ -80,6 +80,7 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 				ExtraVotingPower: extraVotingPower,
 				VotingPower:      math.ZeroInt(), // Will be computed during InitGenesis
 				Jailed:           jailed,
+				Bonded:           false,
 			}
 
 			println("------------ Validator Info ------------")
