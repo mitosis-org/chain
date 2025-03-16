@@ -264,6 +264,7 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 
 	// Create a withdrawal
 	withdrawal := types.Withdrawal{
+		ID:             0, // ID will be set later
 		ValAddr:        valAddr,
 		Amount:         event.AmountGwei.Uint64(),
 		Receiver:       mitotypes.EthAddress(event.Receiver),
@@ -272,7 +273,7 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 	}
 
 	// Request withdrawal
-	if err := k.withdrawCollateral(ctx, &validator, withdrawal); err != nil {
+	if err := k.withdrawCollateral(ctx, &validator, &withdrawal); err != nil {
 		ignore := errors.Is(err, types.ErrInsufficientCollateral)
 		return errors.Wrap(err, "failed to withdraw collateral"), ignore
 	}

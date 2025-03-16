@@ -5,6 +5,7 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"encoding/binary"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -290,22 +291,58 @@ func (k Keeper) GetLastValidatorPowers(ctx sdk.Context) []types.LastValidatorPow
 	return powers
 }
 
-// AddWithdrawalToQueue adds a withdrawal to the queue
-func (k Keeper) AddWithdrawalToQueue(ctx sdk.Context, withdrawal types.Withdrawal) {
+func (k Keeper) GetWithdrawalLastID(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&withdrawal)
-	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
-	store.Set(key, bz)
+	bz := store.Get(types.GetWithdrawalLastIDKey())
 
-	// Also set in the validator index
-	indexKey := types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt)
-	store.Set(indexKey, bz)
+	if bz == nil {
+		return 1 // Start from 1
+	}
+
+	return binary.BigEndian.Uint64(bz)
 }
 
-// IterateWithdrawalsQueue iterates through the withdrawals queue
-func (k Keeper) IterateWithdrawalsQueue(ctx sdk.Context, cb func(withdrawal types.Withdrawal) (stop bool)) {
+func (k Keeper) SetWithdrawalLastID(ctx sdk.Context, lastID uint64) {
 	store := ctx.KVStore(k.storeKey)
-	prefix := prefix.NewStore(store, types.WithdrawalQueueKeyPrefix)
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, lastID)
+	store.Set(types.GetWithdrawalLastIDKey(), bz)
+}
+
+// SetWithdrawal set the withdrawal
+func (k Keeper) SetWithdrawal(ctx sdk.Context, withdrawal types.Withdrawal) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&withdrawal)
+
+	key := types.GetWithdrawalByMaturesAtKey(withdrawal.MaturesAt, withdrawal.ID)
+	store.Set(key, bz)
+
+	key = types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt, withdrawal.ID)
+	store.Set(key, bz)
+}
+
+// AddNewWithdrawalWithNextID adds a new withdrawal with the next ID
+func (k Keeper) AddNewWithdrawalWithNextID(ctx sdk.Context, withdrawal *types.Withdrawal) {
+	withdrawal.ID = k.GetWithdrawalLastID(ctx) + 1
+	k.SetWithdrawalLastID(ctx, withdrawal.ID)
+	k.SetWithdrawal(ctx, *withdrawal)
+}
+
+// DeleteWithdrawal deletes the withdrawal
+func (k Keeper) DeleteWithdrawal(ctx sdk.Context, withdrawal types.Withdrawal) {
+	store := ctx.KVStore(k.storeKey)
+
+	key := types.GetWithdrawalByMaturesAtKey(withdrawal.MaturesAt, withdrawal.ID)
+	store.Delete(key)
+
+	key = types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt, withdrawal.ID)
+	store.Delete(key)
+}
+
+// IterateWithdrawalsByMaturesAt iterates through all withdrawals by maturesAt (sorted by maturesAt)
+func (k Keeper) IterateWithdrawalsByMaturesAt(ctx sdk.Context, cb func(withdrawal types.Withdrawal) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	prefix := prefix.NewStore(store, types.WithdrawalByMaturesAtKeyPrefix)
 
 	iterator := prefix.Iterator(nil, nil)
 	defer iterator.Close()
@@ -320,22 +357,11 @@ func (k Keeper) IterateWithdrawalsQueue(ctx sdk.Context, cb func(withdrawal type
 	}
 }
 
-// DeleteWithdrawalFromQueue deletes a withdrawal from the queue
-func (k Keeper) DeleteWithdrawalFromQueue(ctx sdk.Context, withdrawal types.Withdrawal) {
-	store := ctx.KVStore(k.storeKey)
-	key := types.GetWithdrawalQueueKey(withdrawal.MaturesAt)
-	store.Delete(key)
-
-	// Also remove from the validator index
-	indexKey := types.GetWithdrawalByValidatorKey(withdrawal.ValAddr, withdrawal.MaturesAt)
-	store.Delete(indexKey)
-}
-
 // GetAllWithdrawals gets all withdrawals
 func (k Keeper) GetAllWithdrawals(ctx sdk.Context) []types.Withdrawal {
 	var withdrawals []types.Withdrawal
 
-	k.IterateWithdrawalsQueue(ctx, func(withdrawal types.Withdrawal) bool {
+	k.IterateWithdrawalsByMaturesAt(ctx, func(withdrawal types.Withdrawal) bool {
 		withdrawals = append(withdrawals, withdrawal)
 		return false
 	})

@@ -47,28 +47,30 @@ message Validator {
   bool jailed = 6;
 }
 
-// Withdrawal defines a withdrawal request in the queue
+// Withdrawal defines a withdrawal request
 message Withdrawal {
+  uint64 id = 1 [ (gogoproto.customname) = "ID" ];
+
   // val_addr is the Ethereum address of the validator
-  bytes val_addr = 1 [
+  bytes val_addr = 2 [
     (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
     (gogoproto.nullable) = false
   ];
 
   // amount is the amount of collateral to withdraw
-  uint64 amount = 2;
+  uint64 amount = 3;
 
   // receiver is the address that will receive the withdrawn collateral
-  bytes receiver = 3 [
+  bytes receiver = 4 [
     (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
     (gogoproto.nullable) = false
   ];
 
   // matures_at is the time when the withdrawal request matures
-  int64 matures_at = 4;
+  int64 matures_at = 5;
 
   // creation_height is the height at which the withdrawal request was created
-  int64 creation_height = 5;
+  int64 creation_height = 6;
 }
 
 // LastValidatorPower defines the last validator power used for validator set

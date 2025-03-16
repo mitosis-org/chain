@@ -26,7 +26,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 
 	// Set withdrawals
 	for _, withdrawal := range data.Withdrawals {
-		k.AddWithdrawalToQueue(ctx, withdrawal)
+		k.AddNewWithdrawalWithNextID(ctx, &withdrawal)
 	}
 
 	// Set last validator powers if provided

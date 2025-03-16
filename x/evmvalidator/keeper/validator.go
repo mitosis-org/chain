@@ -136,7 +136,7 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 	}
 }
 
-func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal types.Withdrawal) error {
+func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
 	amount := sdkmath.NewIntFromUint64(withdrawal.Amount)
 
 	// Ensure validator has enough collateral
@@ -147,8 +147,8 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		)
 	}
 
-	// Add to withdrawal queue
-	k.AddWithdrawalToQueue(ctx, withdrawal)
+	// Add a new withdrawal
+	k.AddNewWithdrawalWithNextID(ctx, withdrawal)
 
 	// Update validator's collateral (immediately reduce to prevent multiple withdrawals)
 	validator.Collateral = validator.Collateral.Sub(amount)
@@ -171,10 +171,11 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeWithdrawCollateral,
-			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
+			sdk.NewAttribute(types.AttributeKeyWithdrawalID, fmt.Sprintf("%d", withdrawal.ID)),
+			sdk.NewAttribute(types.AttributeKeyValAddr, withdrawal.ValAddr.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
 			sdk.NewAttribute(types.AttributeKeyReceiver, withdrawal.Receiver.String()),
-			sdk.NewAttribute(types.AttributeKeyMaturesAt, time.Unix(int64(withdrawal.MaturesAt), 0).String()),
+			sdk.NewAttribute(types.AttributeKeyMaturesAt, time.Unix(withdrawal.MaturesAt, 0).String()),
 		),
 	)
 
@@ -238,11 +239,11 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		// slash the withdrawal
 		if w.Amount <= remainingSlashAmount {
 			remainingSlashAmount -= w.Amount
-			k.DeleteWithdrawalFromQueue(ctx, w)
+			k.DeleteWithdrawal(ctx, w)
 		} else {
 			w.Amount = w.Amount - remainingSlashAmount
 			remainingSlashAmount = 0
-			k.AddWithdrawalToQueue(ctx, w) // overwrite the withdrawal
+			k.SetWithdrawal(ctx, w) // overwrite the withdrawal
 		}
 
 		return false

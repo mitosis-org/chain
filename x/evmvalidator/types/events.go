@@ -22,6 +22,7 @@ const (
 	AttributeKeyVotingPower         = "voting_power"
 	AttributeKeyOldVotingPower      = "old_voting_power"
 	AttributeKeyJailed              = "jailed"
+	AttributeKeyWithdrawalID        = "withdrawal_id"
 	AttributeKeyAmount              = "amount"
 	AttributeKeyReceiver            = "receiver"
 	AttributeKeyMaturesAt           = "matures_at"
