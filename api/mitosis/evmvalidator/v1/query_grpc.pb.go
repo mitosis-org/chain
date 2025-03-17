@@ -19,7 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Params_FullMethodName = "/mitosis.evmvalidator.v1.Query/Params"
+	Query_Params_FullMethodName                 = "/mitosis.evmvalidator.v1.Query/Params"
+	Query_Validator_FullMethodName              = "/mitosis.evmvalidator.v1.Query/Validator"
+	Query_ValidatorByConsAddr_FullMethodName    = "/mitosis.evmvalidator.v1.Query/ValidatorByConsAddr"
+	Query_Validators_FullMethodName             = "/mitosis.evmvalidator.v1.Query/Validators"
+	Query_Withdrawal_FullMethodName             = "/mitosis.evmvalidator.v1.Query/Withdrawal"
+	Query_Withdrawals_FullMethodName            = "/mitosis.evmvalidator.v1.Query/Withdrawals"
+	Query_WithdrawalsByValidator_FullMethodName = "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator"
 )
 
 // QueryClient is the client API for Query service.
@@ -28,6 +34,18 @@ const (
 type QueryClient interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Validator returns validator details by address
+	Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error)
+	// ValidatorByConsAddr returns validator details by consensus address
+	ValidatorByConsAddr(ctx context.Context, in *QueryValidatorByConsAddrRequest, opts ...grpc.CallOption) (*QueryValidatorByConsAddrResponse, error)
+	// Validators returns all validators
+	Validators(ctx context.Context, in *QueryValidatorsRequest, opts ...grpc.CallOption) (*QueryValidatorsResponse, error)
+	// Withdrawal returns withdrawal details by ID
+	Withdrawal(ctx context.Context, in *QueryWithdrawalRequest, opts ...grpc.CallOption) (*QueryWithdrawalResponse, error)
+	// Withdrawals returns all withdrawals
+	Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error)
+	// WithdrawalsByValidator returns withdrawals for a specific validator
+	WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error)
 }
 
 type queryClient struct {
@@ -47,12 +65,78 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error) {
+	out := new(QueryValidatorResponse)
+	err := c.cc.Invoke(ctx, Query_Validator_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ValidatorByConsAddr(ctx context.Context, in *QueryValidatorByConsAddrRequest, opts ...grpc.CallOption) (*QueryValidatorByConsAddrResponse, error) {
+	out := new(QueryValidatorByConsAddrResponse)
+	err := c.cc.Invoke(ctx, Query_ValidatorByConsAddr_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Validators(ctx context.Context, in *QueryValidatorsRequest, opts ...grpc.CallOption) (*QueryValidatorsResponse, error) {
+	out := new(QueryValidatorsResponse)
+	err := c.cc.Invoke(ctx, Query_Validators_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Withdrawal(ctx context.Context, in *QueryWithdrawalRequest, opts ...grpc.CallOption) (*QueryWithdrawalResponse, error) {
+	out := new(QueryWithdrawalResponse)
+	err := c.cc.Invoke(ctx, Query_Withdrawal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error) {
+	out := new(QueryWithdrawalsResponse)
+	err := c.cc.Invoke(ctx, Query_Withdrawals_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error) {
+	out := new(QueryWithdrawalsByValidatorResponse)
+	err := c.cc.Invoke(ctx, Query_WithdrawalsByValidator_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Validator returns validator details by address
+	Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error)
+	// ValidatorByConsAddr returns validator details by consensus address
+	ValidatorByConsAddr(context.Context, *QueryValidatorByConsAddrRequest) (*QueryValidatorByConsAddrResponse, error)
+	// Validators returns all validators
+	Validators(context.Context, *QueryValidatorsRequest) (*QueryValidatorsResponse, error)
+	// Withdrawal returns withdrawal details by ID
+	Withdrawal(context.Context, *QueryWithdrawalRequest) (*QueryWithdrawalResponse, error)
+	// Withdrawals returns all withdrawals
+	Withdrawals(context.Context, *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error)
+	// WithdrawalsByValidator returns withdrawals for a specific validator
+	WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -62,6 +146,24 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (UnimplementedQueryServer) Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Validator not implemented")
+}
+func (UnimplementedQueryServer) ValidatorByConsAddr(context.Context, *QueryValidatorByConsAddrRequest) (*QueryValidatorByConsAddrResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidatorByConsAddr not implemented")
+}
+func (UnimplementedQueryServer) Validators(context.Context, *QueryValidatorsRequest) (*QueryValidatorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Validators not implemented")
+}
+func (UnimplementedQueryServer) Withdrawal(context.Context, *QueryWithdrawalRequest) (*QueryWithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Withdrawal not implemented")
+}
+func (UnimplementedQueryServer) Withdrawals(context.Context, *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Withdrawals not implemented")
+}
+func (UnimplementedQueryServer) WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawalsByValidator not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -94,6 +196,114 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Validator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Validator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Validator_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Validator(ctx, req.(*QueryValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ValidatorByConsAddr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorByConsAddrRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ValidatorByConsAddr(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_ValidatorByConsAddr_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ValidatorByConsAddr(ctx, req.(*QueryValidatorByConsAddrRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Validators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Validators(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Validators_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Validators(ctx, req.(*QueryValidatorsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Withdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Withdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Withdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Withdrawal(ctx, req.(*QueryWithdrawalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Withdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Withdrawals(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Withdrawals_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Withdrawals(ctx, req.(*QueryWithdrawalsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_WithdrawalsByValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalsByValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).WithdrawalsByValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_WithdrawalsByValidator_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).WithdrawalsByValidator(ctx, req.(*QueryWithdrawalsByValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +314,30 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "Validator",
+			Handler:    _Query_Validator_Handler,
+		},
+		{
+			MethodName: "ValidatorByConsAddr",
+			Handler:    _Query_ValidatorByConsAddr_Handler,
+		},
+		{
+			MethodName: "Validators",
+			Handler:    _Query_Validators_Handler,
+		},
+		{
+			MethodName: "Withdrawal",
+			Handler:    _Query_Withdrawal_Handler,
+		},
+		{
+			MethodName: "Withdrawals",
+			Handler:    _Query_Withdrawals_Handler,
+		},
+		{
+			MethodName: "WithdrawalsByValidator",
+			Handler:    _Query_WithdrawalsByValidator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

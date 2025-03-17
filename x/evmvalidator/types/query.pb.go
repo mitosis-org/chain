@@ -6,6 +6,10 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	_ "github.com/cosmos/cosmos-proto"
+	query "github.com/cosmos/cosmos-sdk/types/query"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -67,7 +71,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is the response type for the Query/Params RPC method
 type QueryParamsResponse struct {
-	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
 func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
@@ -103,9 +107,595 @@ func (m *QueryParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryParamsResponse proto.InternalMessageInfo
 
-func (m *QueryParamsResponse) GetParams() *Params {
+func (m *QueryParamsResponse) GetParams() Params {
 	if m != nil {
 		return m.Params
+	}
+	return Params{}
+}
+
+// QueryValidatorRequest is the request type for the Query/Validator RPC method
+type QueryValidatorRequest struct {
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+}
+
+func (m *QueryValidatorRequest) Reset()         { *m = QueryValidatorRequest{} }
+func (m *QueryValidatorRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorRequest) ProtoMessage()    {}
+func (*QueryValidatorRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{2}
+}
+func (m *QueryValidatorRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorRequest.Merge(m, src)
+}
+func (m *QueryValidatorRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorRequest proto.InternalMessageInfo
+
+func (m *QueryValidatorRequest) GetValAddr() []byte {
+	if m != nil {
+		return m.ValAddr
+	}
+	return nil
+}
+
+// QueryValidatorResponse is the response type for the Query/Validator RPC
+// method
+type QueryValidatorResponse struct {
+	Validator Validator `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator"`
+}
+
+func (m *QueryValidatorResponse) Reset()         { *m = QueryValidatorResponse{} }
+func (m *QueryValidatorResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorResponse) ProtoMessage()    {}
+func (*QueryValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{3}
+}
+func (m *QueryValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorResponse.Merge(m, src)
+}
+func (m *QueryValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorResponse proto.InternalMessageInfo
+
+func (m *QueryValidatorResponse) GetValidator() Validator {
+	if m != nil {
+		return m.Validator
+	}
+	return Validator{}
+}
+
+// QueryValidatorByConsAddrRequest is the request type for the
+// Query/ValidatorByConsAddr RPC method
+type QueryValidatorByConsAddrRequest struct {
+	ConsAddr string `protobuf:"bytes,1,opt,name=cons_addr,json=consAddr,proto3" json:"cons_addr,omitempty"`
+}
+
+func (m *QueryValidatorByConsAddrRequest) Reset()         { *m = QueryValidatorByConsAddrRequest{} }
+func (m *QueryValidatorByConsAddrRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorByConsAddrRequest) ProtoMessage()    {}
+func (*QueryValidatorByConsAddrRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{4}
+}
+func (m *QueryValidatorByConsAddrRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorByConsAddrRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorByConsAddrRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorByConsAddrRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorByConsAddrRequest.Merge(m, src)
+}
+func (m *QueryValidatorByConsAddrRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorByConsAddrRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorByConsAddrRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorByConsAddrRequest proto.InternalMessageInfo
+
+func (m *QueryValidatorByConsAddrRequest) GetConsAddr() string {
+	if m != nil {
+		return m.ConsAddr
+	}
+	return ""
+}
+
+// QueryValidatorByConsAddrResponse is the response type for the
+// Query/ValidatorByConsAddr RPC method
+type QueryValidatorByConsAddrResponse struct {
+	Validator Validator `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator"`
+}
+
+func (m *QueryValidatorByConsAddrResponse) Reset()         { *m = QueryValidatorByConsAddrResponse{} }
+func (m *QueryValidatorByConsAddrResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorByConsAddrResponse) ProtoMessage()    {}
+func (*QueryValidatorByConsAddrResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{5}
+}
+func (m *QueryValidatorByConsAddrResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorByConsAddrResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorByConsAddrResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorByConsAddrResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorByConsAddrResponse.Merge(m, src)
+}
+func (m *QueryValidatorByConsAddrResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorByConsAddrResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorByConsAddrResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorByConsAddrResponse proto.InternalMessageInfo
+
+func (m *QueryValidatorByConsAddrResponse) GetValidator() Validator {
+	if m != nil {
+		return m.Validator
+	}
+	return Validator{}
+}
+
+// QueryValidatorsRequest is the request type for the Query/Validators RPC
+// method
+type QueryValidatorsRequest struct {
+	// pagination defines an optional pagination for the request
+	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryValidatorsRequest) Reset()         { *m = QueryValidatorsRequest{} }
+func (m *QueryValidatorsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorsRequest) ProtoMessage()    {}
+func (*QueryValidatorsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{6}
+}
+func (m *QueryValidatorsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorsRequest.Merge(m, src)
+}
+func (m *QueryValidatorsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorsRequest proto.InternalMessageInfo
+
+func (m *QueryValidatorsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryValidatorsResponse is the response type for the Query/Validators RPC
+// method
+type QueryValidatorsResponse struct {
+	Validators []Validator         `protobuf:"bytes,1,rep,name=validators,proto3" json:"validators"`
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryValidatorsResponse) Reset()         { *m = QueryValidatorsResponse{} }
+func (m *QueryValidatorsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorsResponse) ProtoMessage()    {}
+func (*QueryValidatorsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{7}
+}
+func (m *QueryValidatorsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorsResponse.Merge(m, src)
+}
+func (m *QueryValidatorsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorsResponse proto.InternalMessageInfo
+
+func (m *QueryValidatorsResponse) GetValidators() []Validator {
+	if m != nil {
+		return m.Validators
+	}
+	return nil
+}
+
+func (m *QueryValidatorsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryWithdrawalRequest is the request type for the Query/Withdrawal RPC
+// method
+type QueryWithdrawalRequest struct {
+	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (m *QueryWithdrawalRequest) Reset()         { *m = QueryWithdrawalRequest{} }
+func (m *QueryWithdrawalRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalRequest) ProtoMessage()    {}
+func (*QueryWithdrawalRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{8}
+}
+func (m *QueryWithdrawalRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalRequest.Merge(m, src)
+}
+func (m *QueryWithdrawalRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalRequest proto.InternalMessageInfo
+
+func (m *QueryWithdrawalRequest) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+// QueryWithdrawalResponse is the response type for the Query/Withdrawal RPC
+// method
+type QueryWithdrawalResponse struct {
+	Withdrawal Withdrawal `protobuf:"bytes,1,opt,name=withdrawal,proto3" json:"withdrawal"`
+}
+
+func (m *QueryWithdrawalResponse) Reset()         { *m = QueryWithdrawalResponse{} }
+func (m *QueryWithdrawalResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalResponse) ProtoMessage()    {}
+func (*QueryWithdrawalResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{9}
+}
+func (m *QueryWithdrawalResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalResponse.Merge(m, src)
+}
+func (m *QueryWithdrawalResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalResponse proto.InternalMessageInfo
+
+func (m *QueryWithdrawalResponse) GetWithdrawal() Withdrawal {
+	if m != nil {
+		return m.Withdrawal
+	}
+	return Withdrawal{}
+}
+
+// QueryWithdrawalsRequest is the request type for the Query/Withdrawals RPC
+// method
+type QueryWithdrawalsRequest struct {
+	// pagination defines an optional pagination for the request
+	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryWithdrawalsRequest) Reset()         { *m = QueryWithdrawalsRequest{} }
+func (m *QueryWithdrawalsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalsRequest) ProtoMessage()    {}
+func (*QueryWithdrawalsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{10}
+}
+func (m *QueryWithdrawalsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalsRequest.Merge(m, src)
+}
+func (m *QueryWithdrawalsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalsRequest proto.InternalMessageInfo
+
+func (m *QueryWithdrawalsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryWithdrawalsResponse is the response type for the Query/Withdrawals RPC
+// method
+type QueryWithdrawalsResponse struct {
+	Withdrawals []Withdrawal        `protobuf:"bytes,1,rep,name=withdrawals,proto3" json:"withdrawals"`
+	Pagination  *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryWithdrawalsResponse) Reset()         { *m = QueryWithdrawalsResponse{} }
+func (m *QueryWithdrawalsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalsResponse) ProtoMessage()    {}
+func (*QueryWithdrawalsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{11}
+}
+func (m *QueryWithdrawalsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalsResponse.Merge(m, src)
+}
+func (m *QueryWithdrawalsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalsResponse proto.InternalMessageInfo
+
+func (m *QueryWithdrawalsResponse) GetWithdrawals() []Withdrawal {
+	if m != nil {
+		return m.Withdrawals
+	}
+	return nil
+}
+
+func (m *QueryWithdrawalsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryWithdrawalsByValidatorRequest is the request type for the
+// Query/WithdrawalsByValidator RPC method
+type QueryWithdrawalsByValidatorRequest struct {
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+	// pagination defines an optional pagination for the request
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) Reset()         { *m = QueryWithdrawalsByValidatorRequest{} }
+func (m *QueryWithdrawalsByValidatorRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalsByValidatorRequest) ProtoMessage()    {}
+func (*QueryWithdrawalsByValidatorRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{12}
+}
+func (m *QueryWithdrawalsByValidatorRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalsByValidatorRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalsByValidatorRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalsByValidatorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalsByValidatorRequest.Merge(m, src)
+}
+func (m *QueryWithdrawalsByValidatorRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalsByValidatorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalsByValidatorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalsByValidatorRequest proto.InternalMessageInfo
+
+func (m *QueryWithdrawalsByValidatorRequest) GetValAddr() []byte {
+	if m != nil {
+		return m.ValAddr
+	}
+	return nil
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryWithdrawalsByValidatorResponse is the response type for the
+// Query/WithdrawalsByValidator RPC method
+type QueryWithdrawalsByValidatorResponse struct {
+	Withdrawals []Withdrawal        `protobuf:"bytes,1,rep,name=withdrawals,proto3" json:"withdrawals"`
+	Pagination  *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) Reset()         { *m = QueryWithdrawalsByValidatorResponse{} }
+func (m *QueryWithdrawalsByValidatorResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawalsByValidatorResponse) ProtoMessage()    {}
+func (*QueryWithdrawalsByValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{13}
+}
+func (m *QueryWithdrawalsByValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryWithdrawalsByValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryWithdrawalsByValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryWithdrawalsByValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawalsByValidatorResponse.Merge(m, src)
+}
+func (m *QueryWithdrawalsByValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryWithdrawalsByValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawalsByValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryWithdrawalsByValidatorResponse proto.InternalMessageInfo
+
+func (m *QueryWithdrawalsByValidatorResponse) GetWithdrawals() []Withdrawal {
+	if m != nil {
+		return m.Withdrawals
+	}
+	return nil
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
 	}
 	return nil
 }
@@ -113,6 +703,18 @@ func (m *QueryParamsResponse) GetParams() *Params {
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "mitosis.evmvalidator.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "mitosis.evmvalidator.v1.QueryParamsResponse")
+	proto.RegisterType((*QueryValidatorRequest)(nil), "mitosis.evmvalidator.v1.QueryValidatorRequest")
+	proto.RegisterType((*QueryValidatorResponse)(nil), "mitosis.evmvalidator.v1.QueryValidatorResponse")
+	proto.RegisterType((*QueryValidatorByConsAddrRequest)(nil), "mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest")
+	proto.RegisterType((*QueryValidatorByConsAddrResponse)(nil), "mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse")
+	proto.RegisterType((*QueryValidatorsRequest)(nil), "mitosis.evmvalidator.v1.QueryValidatorsRequest")
+	proto.RegisterType((*QueryValidatorsResponse)(nil), "mitosis.evmvalidator.v1.QueryValidatorsResponse")
+	proto.RegisterType((*QueryWithdrawalRequest)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalRequest")
+	proto.RegisterType((*QueryWithdrawalResponse)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalResponse")
+	proto.RegisterType((*QueryWithdrawalsRequest)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsRequest")
+	proto.RegisterType((*QueryWithdrawalsResponse)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsResponse")
+	proto.RegisterType((*QueryWithdrawalsByValidatorRequest)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest")
+	proto.RegisterType((*QueryWithdrawalsByValidatorResponse)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse")
 }
 
 func init() {
@@ -120,25 +722,60 @@ func init() {
 }
 
 var fileDescriptor_14eb3edd860cda8c = []byte{
-	// 275 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xce, 0xcd, 0x2c, 0xc9,
-	0x2f, 0xce, 0x2c, 0xd6, 0x4f, 0x2d, 0xcb, 0x2d, 0x4b, 0xcc, 0xc9, 0x4c, 0x49, 0x2c, 0xc9, 0x2f,
-	0xd2, 0x2f, 0x33, 0xd4, 0x2f, 0x2c, 0x4d, 0x2d, 0xaa, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17,
-	0x12, 0x87, 0x2a, 0xd2, 0x43, 0x56, 0xa4, 0x57, 0x66, 0x28, 0x25, 0x93, 0x9e, 0x9f, 0x9f, 0x9e,
-	0x93, 0xaa, 0x9f, 0x58, 0x90, 0xa9, 0x9f, 0x98, 0x97, 0x97, 0x5f, 0x92, 0x58, 0x92, 0x99, 0x9f,
-	0x57, 0x0c, 0xd1, 0x26, 0xa5, 0x82, 0xcb, 0xec, 0x82, 0xc4, 0xa2, 0xc4, 0x5c, 0x98, 0x2a, 0x75,
-	0x5c, 0xaa, 0x10, 0x36, 0x81, 0x15, 0x2a, 0x89, 0x70, 0x09, 0x05, 0x82, 0x1c, 0x15, 0x00, 0xd6,
-	0x1d, 0x94, 0x5a, 0x58, 0x9a, 0x5a, 0x5c, 0xa2, 0xe4, 0xc7, 0x25, 0x8c, 0x22, 0x5a, 0x5c, 0x90,
-	0x9f, 0x57, 0x9c, 0x2a, 0x64, 0xce, 0xc5, 0x06, 0xb1, 0x45, 0x82, 0x51, 0x81, 0x51, 0x83, 0xdb,
-	0x48, 0x5e, 0x0f, 0x87, 0x1f, 0xf4, 0xa0, 0x1a, 0xa1, 0xca, 0x8d, 0xa6, 0x31, 0x72, 0xb1, 0x82,
-	0x0d, 0x14, 0xea, 0x61, 0xe4, 0x62, 0x83, 0x48, 0x0a, 0x69, 0xe3, 0xd4, 0x8d, 0xe9, 0x22, 0x29,
-	0x1d, 0xe2, 0x14, 0x43, 0x1c, 0xaa, 0xa4, 0xde, 0x74, 0xf9, 0xc9, 0x64, 0x26, 0x45, 0x21, 0x79,
-	0x7d, 0xfc, 0xa1, 0xe5, 0xe4, 0x7d, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e,
-	0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c, 0x51,
-	0x86, 0xe9, 0x99, 0x25, 0x19, 0xa5, 0x49, 0x7a, 0xc9, 0xf9, 0xb9, 0x30, 0x43, 0x74, 0xf3, 0x8b,
-	0xd2, 0xf5, 0x93, 0x33, 0x12, 0x33, 0xf3, 0xf4, 0x2b, 0x50, 0x0d, 0x2c, 0xa9, 0x2c, 0x48, 0x2d,
-	0x4e, 0x62, 0x03, 0x07, 0xa9, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xc2, 0x04, 0xb1, 0x11, 0xff,
-	0x01, 0x00, 0x00,
+	// 844 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x96, 0xcf, 0x6b, 0x1b, 0x47,
+	0x14, 0xc7, 0x35, 0x6a, 0xeb, 0x5a, 0xcf, 0xa5, 0xd0, 0xb1, 0xeb, 0x1f, 0xa2, 0x95, 0xec, 0x95,
+	0x6b, 0xbb, 0xfe, 0xb1, 0x63, 0xb9, 0x50, 0xfa, 0xc3, 0x18, 0xaa, 0x96, 0xf6, 0x60, 0x5a, 0x5c,
+	0x15, 0x5a, 0xda, 0x8b, 0x3a, 0xd2, 0x2e, 0xeb, 0x05, 0x69, 0x47, 0xde, 0x59, 0xc9, 0x11, 0xc6,
+	0x97, 0x5c, 0x72, 0xc9, 0x21, 0x90, 0x6b, 0x0e, 0x21, 0xe4, 0x90, 0x63, 0x02, 0xc9, 0x3d, 0x47,
+	0x1f, 0x9d, 0xe4, 0x90, 0x9c, 0x42, 0xb0, 0x03, 0xf9, 0x37, 0x82, 0x66, 0x67, 0x7f, 0x48, 0xeb,
+	0xb5, 0x56, 0xc6, 0x81, 0x5c, 0x8c, 0x34, 0x7e, 0xef, 0x7d, 0x3f, 0xdf, 0x37, 0x33, 0x6f, 0x04,
+	0x85, 0x86, 0xe9, 0x30, 0x6e, 0x72, 0xa2, 0xb7, 0x1b, 0x6d, 0x5a, 0x37, 0x35, 0xea, 0x30, 0x9b,
+	0xb4, 0x8b, 0x64, 0xaf, 0xa5, 0xdb, 0x1d, 0xb5, 0x69, 0x33, 0x87, 0xe1, 0x29, 0x19, 0xa4, 0x86,
+	0x83, 0xd4, 0x76, 0x31, 0xfb, 0x85, 0xc1, 0x98, 0x51, 0xd7, 0x09, 0x6d, 0x9a, 0x84, 0x5a, 0x16,
+	0x73, 0xa8, 0x63, 0x32, 0x8b, 0xbb, 0x69, 0xd9, 0xe5, 0x1a, 0xe3, 0x0d, 0xc6, 0x49, 0x95, 0x72,
+	0xdd, 0xad, 0x47, 0xda, 0xc5, 0xaa, 0xee, 0xd0, 0x22, 0x69, 0x52, 0xc3, 0xb4, 0x44, 0xb0, 0x8c,
+	0x9d, 0x71, 0x63, 0x2b, 0xe2, 0x1b, 0x71, 0xbf, 0xc8, 0x7f, 0x4d, 0x18, 0xcc, 0x60, 0xee, 0x7a,
+	0xf7, 0x93, 0x5c, 0xfd, 0x8c, 0x36, 0x4c, 0x8b, 0x11, 0xf1, 0x57, 0x2e, 0xcd, 0xc7, 0x79, 0x69,
+	0x52, 0x9b, 0x36, 0xbc, 0x72, 0x8b, 0x71, 0x51, 0x81, 0x33, 0x11, 0xa8, 0x4c, 0x00, 0xfe, 0xb3,
+	0x0b, 0xbd, 0x23, 0xb2, 0xcb, 0xfa, 0x5e, 0x4b, 0xe7, 0x8e, 0xf2, 0x2f, 0x8c, 0xf7, 0xac, 0xf2,
+	0x26, 0xb3, 0xb8, 0x8e, 0x4b, 0x30, 0xe2, 0xaa, 0x4c, 0xa3, 0x59, 0xb4, 0x34, 0xb6, 0x91, 0x57,
+	0x63, 0x7a, 0xa6, 0xba, 0x89, 0xa5, 0xcc, 0xd1, 0xcb, 0x7c, 0xea, 0xde, 0x9b, 0xfb, 0xcb, 0xa8,
+	0x2c, 0x33, 0x95, 0x0d, 0xf8, 0x5c, 0x94, 0xfe, 0xdb, 0x0b, 0x97, 0x9a, 0x78, 0x06, 0x46, 0xdb,
+	0xb4, 0x5e, 0xa1, 0x9a, 0x66, 0x8b, 0xf2, 0x9f, 0x94, 0x3f, 0x6e, 0xd3, 0xfa, 0x4f, 0x9a, 0x66,
+	0x2b, 0x3a, 0x4c, 0xf6, 0xe7, 0x48, 0xa2, 0x6d, 0xc8, 0xf8, 0xba, 0x12, 0x4a, 0x89, 0x85, 0xf2,
+	0xd3, 0xc3, 0x5c, 0x41, 0xbe, 0x42, 0x21, 0xdf, 0x2b, 0x53, 0xea, 0xfc, 0xcc, 0x2c, 0xde, 0x45,
+	0xf0, 0x20, 0xb7, 0x20, 0x53, 0x63, 0x16, 0x0f, 0x28, 0x33, 0xa5, 0xb9, 0xa7, 0x0f, 0xd7, 0xbe,
+	0x94, 0x7b, 0xd9, 0x0d, 0xd7, 0x2d, 0xde, 0x12, 0x39, 0x3a, 0xe7, 0x7f, 0x39, 0xb6, 0x69, 0x19,
+	0xe5, 0xd1, 0x9a, 0x2c, 0xa3, 0x30, 0x98, 0x8d, 0x97, 0x78, 0x17, 0x9e, 0xfe, 0xef, 0x6f, 0x9d,
+	0xb7, 0xc7, 0xf8, 0x57, 0x80, 0xe0, 0x80, 0x4a, 0x9d, 0x05, 0x55, 0x1a, 0xe9, 0x9e, 0x66, 0xd5,
+	0xbd, 0x1d, 0xf2, 0x34, 0xab, 0x3b, 0xd4, 0xd0, 0x65, 0x6e, 0x39, 0x94, 0xa9, 0x3c, 0x40, 0x30,
+	0x15, 0x91, 0x90, 0x56, 0x7e, 0x07, 0xf0, 0x51, 0xba, 0x87, 0xe6, 0x83, 0xe1, 0xbd, 0x84, 0x0a,
+	0xe0, 0xdf, 0x7a, 0x90, 0xd3, 0x02, 0x79, 0x71, 0x20, 0xb2, 0xcb, 0xd2, 0xc3, 0xbc, 0x24, 0xbb,
+	0xf2, 0x8f, 0xe9, 0xec, 0x6a, 0x36, 0xdd, 0xa7, 0x75, 0xaf, 0x2b, 0x9f, 0x42, 0xda, 0xd4, 0x44,
+	0x37, 0x3e, 0x2c, 0xa7, 0x4d, 0x4d, 0x31, 0xa5, 0xb9, 0x70, 0xa4, 0x34, 0xf7, 0x07, 0xc0, 0xbe,
+	0xbf, 0x2a, 0x1b, 0x58, 0x88, 0x35, 0x17, 0x14, 0xe8, 0x71, 0x17, 0x54, 0x50, 0x68, 0x44, 0xea,
+	0xd2, 0xf7, 0xea, 0x11, 0x82, 0xe9, 0xa8, 0x86, 0xf4, 0xb3, 0x03, 0x63, 0x01, 0x8d, 0xb7, 0x5b,
+	0xc3, 0x1a, 0x0a, 0x97, 0xb8, 0xbc, 0xfd, 0xba, 0x86, 0x40, 0xe9, 0xe7, 0x2e, 0x0d, 0x33, 0x42,
+	0xfa, 0x3a, 0x98, 0xbe, 0x70, 0x07, 0x1f, 0x23, 0x28, 0x9c, 0x4b, 0xf2, 0xde, 0x37, 0x73, 0xe3,
+	0x49, 0x06, 0x3e, 0x12, 0x16, 0xf0, 0x75, 0x04, 0x23, 0xee, 0xa4, 0xc6, 0x2b, 0xb1, 0x68, 0xd1,
+	0xe7, 0x21, 0xbb, 0x9a, 0x2c, 0xd8, 0xd5, 0x56, 0x16, 0xaf, 0x3e, 0x7b, 0x7d, 0x33, 0x3d, 0x87,
+	0xf3, 0xe4, 0xfc, 0xa7, 0x0b, 0xdf, 0x45, 0x90, 0xf1, 0x3b, 0x89, 0xd5, 0xf3, 0x45, 0xfa, 0x37,
+	0x3f, 0x4b, 0x12, 0xc7, 0x4b, 0xae, 0x6f, 0x05, 0xd7, 0x3a, 0x56, 0xc9, 0xc0, 0xc7, 0x92, 0x93,
+	0x03, 0xef, 0x60, 0x1d, 0xe2, 0x63, 0x04, 0xe3, 0x67, 0xcc, 0x6f, 0xfc, 0x5d, 0x42, 0x80, 0xc8,
+	0xab, 0x92, 0xfd, 0xfe, 0x02, 0x99, 0xd2, 0xc4, 0x2f, 0xc2, 0xc4, 0x16, 0xde, 0x4c, 0x60, 0xa2,
+	0x52, 0xed, 0x54, 0xfc, 0xd7, 0x8b, 0x1c, 0xf8, 0x1f, 0x0f, 0xf1, 0x2d, 0x04, 0x10, 0x8c, 0x6f,
+	0x9c, 0xb4, 0x95, 0xfe, 0x81, 0x58, 0x4f, 0x9e, 0x20, 0xb9, 0x57, 0x04, 0xf7, 0x57, 0xb8, 0x90,
+	0x80, 0x1b, 0xdf, 0x41, 0x00, 0xc1, 0x0d, 0x19, 0x84, 0x17, 0x19, 0xea, 0x83, 0xf0, 0xa2, 0xb3,
+	0x5d, 0x29, 0x0a, 0xbc, 0x15, 0xfc, 0x75, 0x2c, 0x5e, 0xe8, 0x6a, 0x92, 0x03, 0x53, 0x3b, 0xc4,
+	0xb7, 0x11, 0x8c, 0x85, 0x86, 0x02, 0x4e, 0x2c, 0xea, 0x77, 0xb1, 0x38, 0x44, 0x86, 0xe4, 0x5c,
+	0x15, 0x9c, 0x0b, 0x78, 0x3e, 0x09, 0x27, 0x7e, 0x8e, 0x60, 0xf2, 0xec, 0xb9, 0x85, 0x7f, 0x4c,
+	0xac, 0x1d, 0x9d, 0xbb, 0xd9, 0xcd, 0x8b, 0x25, 0x4b, 0x0f, 0x25, 0xe1, 0x61, 0x13, 0xff, 0x30,
+	0xdc, 0x3d, 0x0c, 0x3b, 0x2b, 0x6d, 0x1f, 0x9d, 0xe4, 0xd0, 0xf1, 0x49, 0x0e, 0xbd, 0x3a, 0xc9,
+	0xa1, 0x1b, 0xa7, 0xb9, 0xd4, 0xf1, 0x69, 0x2e, 0xf5, 0xe2, 0x34, 0x97, 0xfa, 0xaf, 0x68, 0x98,
+	0xce, 0x6e, 0xab, 0xaa, 0xd6, 0x58, 0xc3, 0xab, 0xbf, 0xc6, 0x6c, 0x83, 0xd4, 0x76, 0xa9, 0x69,
+	0x91, 0x2b, 0xbd, 0x5a, 0x4e, 0xa7, 0xa9, 0xf3, 0xea, 0x88, 0xf8, 0x69, 0xfc, 0xcd, 0xdb, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x26, 0x5d, 0x3c, 0xf9, 0x37, 0x0c, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -155,6 +792,18 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Validator returns validator details by address
+	Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error)
+	// ValidatorByConsAddr returns validator details by consensus address
+	ValidatorByConsAddr(ctx context.Context, in *QueryValidatorByConsAddrRequest, opts ...grpc.CallOption) (*QueryValidatorByConsAddrResponse, error)
+	// Validators returns all validators
+	Validators(ctx context.Context, in *QueryValidatorsRequest, opts ...grpc.CallOption) (*QueryValidatorsResponse, error)
+	// Withdrawal returns withdrawal details by ID
+	Withdrawal(ctx context.Context, in *QueryWithdrawalRequest, opts ...grpc.CallOption) (*QueryWithdrawalResponse, error)
+	// Withdrawals returns all withdrawals
+	Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error)
+	// WithdrawalsByValidator returns withdrawals for a specific validator
+	WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error)
 }
 
 type queryClient struct {
@@ -174,10 +823,76 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error) {
+	out := new(QueryValidatorResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/Validator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ValidatorByConsAddr(ctx context.Context, in *QueryValidatorByConsAddrRequest, opts ...grpc.CallOption) (*QueryValidatorByConsAddrResponse, error) {
+	out := new(QueryValidatorByConsAddrResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/ValidatorByConsAddr", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Validators(ctx context.Context, in *QueryValidatorsRequest, opts ...grpc.CallOption) (*QueryValidatorsResponse, error) {
+	out := new(QueryValidatorsResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/Validators", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Withdrawal(ctx context.Context, in *QueryWithdrawalRequest, opts ...grpc.CallOption) (*QueryWithdrawalResponse, error) {
+	out := new(QueryWithdrawalResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/Withdrawal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error) {
+	out := new(QueryWithdrawalsResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/Withdrawals", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error) {
+	out := new(QueryWithdrawalsByValidatorResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Validator returns validator details by address
+	Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error)
+	// ValidatorByConsAddr returns validator details by consensus address
+	ValidatorByConsAddr(context.Context, *QueryValidatorByConsAddrRequest) (*QueryValidatorByConsAddrResponse, error)
+	// Validators returns all validators
+	Validators(context.Context, *QueryValidatorsRequest) (*QueryValidatorsResponse, error)
+	// Withdrawal returns withdrawal details by ID
+	Withdrawal(context.Context, *QueryWithdrawalRequest) (*QueryWithdrawalResponse, error)
+	// Withdrawals returns all withdrawals
+	Withdrawals(context.Context, *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error)
+	// WithdrawalsByValidator returns withdrawals for a specific validator
+	WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -186,6 +901,24 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (*UnimplementedQueryServer) Validator(ctx context.Context, req *QueryValidatorRequest) (*QueryValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Validator not implemented")
+}
+func (*UnimplementedQueryServer) ValidatorByConsAddr(ctx context.Context, req *QueryValidatorByConsAddrRequest) (*QueryValidatorByConsAddrResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidatorByConsAddr not implemented")
+}
+func (*UnimplementedQueryServer) Validators(ctx context.Context, req *QueryValidatorsRequest) (*QueryValidatorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Validators not implemented")
+}
+func (*UnimplementedQueryServer) Withdrawal(ctx context.Context, req *QueryWithdrawalRequest) (*QueryWithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Withdrawal not implemented")
+}
+func (*UnimplementedQueryServer) Withdrawals(ctx context.Context, req *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Withdrawals not implemented")
+}
+func (*UnimplementedQueryServer) WithdrawalsByValidator(ctx context.Context, req *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawalsByValidator not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -210,6 +943,114 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Validator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Validator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/Validator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Validator(ctx, req.(*QueryValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ValidatorByConsAddr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorByConsAddrRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ValidatorByConsAddr(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/ValidatorByConsAddr",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ValidatorByConsAddr(ctx, req.(*QueryValidatorByConsAddrRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Validators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Validators(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/Validators",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Validators(ctx, req.(*QueryValidatorsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Withdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Withdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/Withdrawal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Withdrawal(ctx, req.(*QueryWithdrawalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Withdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Withdrawals(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/Withdrawals",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Withdrawals(ctx, req.(*QueryWithdrawalsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_WithdrawalsByValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawalsByValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).WithdrawalsByValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).WithdrawalsByValidator(ctx, req.(*QueryWithdrawalsByValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mitosis.evmvalidator.v1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -217,6 +1058,30 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "Validator",
+			Handler:    _Query_Validator_Handler,
+		},
+		{
+			MethodName: "ValidatorByConsAddr",
+			Handler:    _Query_ValidatorByConsAddr_Handler,
+		},
+		{
+			MethodName: "Validators",
+			Handler:    _Query_Validators_Handler,
+		},
+		{
+			MethodName: "Withdrawal",
+			Handler:    _Query_Withdrawal_Handler,
+		},
+		{
+			MethodName: "Withdrawals",
+			Handler:    _Query_Withdrawals_Handler,
+		},
+		{
+			MethodName: "WithdrawalsByValidator",
+			Handler:    _Query_WithdrawalsByValidator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -266,9 +1131,168 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Params != nil {
+	{
+		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ValAddr) > 0 {
+		i -= len(m.ValAddr)
+		copy(dAtA[i:], m.ValAddr)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Validator.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorByConsAddrRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorByConsAddrRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorByConsAddrRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ConsAddr) > 0 {
+		i -= len(m.ConsAddr)
+		copy(dAtA[i:], m.ConsAddr)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ConsAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorByConsAddrResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorByConsAddrResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorByConsAddrResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Validator.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
 		{
-			size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -277,6 +1301,291 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Validators) > 0 {
+		for iNdEx := len(m.Validators) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Validators[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Withdrawal.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Withdrawals) > 0 {
+		for iNdEx := len(m.Withdrawals) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Withdrawals[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValAddr) > 0 {
+		i -= len(m.ValAddr)
+		copy(dAtA[i:], m.ValAddr)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Withdrawals) > 0 {
+		for iNdEx := len(m.Withdrawals) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Withdrawals[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -307,8 +1616,177 @@ func (m *QueryParamsResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Params != nil {
-		l = m.Params.Size()
+	l = m.Params.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryValidatorRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValAddr)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryValidatorResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Validator.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryValidatorByConsAddrRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ConsAddr)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryValidatorByConsAddrResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Validator.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryValidatorsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryValidatorsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Validators) > 0 {
+		for _, e := range m.Validators {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryWithdrawalRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Id != 0 {
+		n += 1 + sovQuery(uint64(m.Id))
+	}
+	return n
+}
+
+func (m *QueryWithdrawalResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Withdrawal.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryWithdrawalsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryWithdrawalsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Withdrawals) > 0 {
+		for _, e := range m.Withdrawals {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryWithdrawalsByValidatorRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValAddr)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryWithdrawalsByValidatorResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Withdrawals) > 0 {
+		for _, e := range m.Withdrawals {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
@@ -428,10 +1906,1143 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Params == nil {
-				m.Params = &Params{}
-			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValAddr = append(m.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValAddr == nil {
+				m.ValAddr = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Validator", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Validator.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorByConsAddrRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorByConsAddrRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorByConsAddrRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConsAddr", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ConsAddr = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorByConsAddrResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorByConsAddrResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorByConsAddrResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Validator", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Validator.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Validators", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Validators = append(m.Validators, Validator{})
+			if err := m.Validators[len(m.Validators)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Withdrawal", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Withdrawal.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Withdrawals", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Withdrawals = append(m.Withdrawals, Withdrawal{})
+			if err := m.Withdrawals[len(m.Withdrawals)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalsByValidatorRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalsByValidatorRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalsByValidatorRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValAddr = append(m.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValAddr == nil {
+				m.ValAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryWithdrawalsByValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryWithdrawalsByValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryWithdrawalsByValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Withdrawals", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Withdrawals = append(m.Withdrawals, Withdrawal{})
+			if err := m.Withdrawals[len(m.Withdrawals)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

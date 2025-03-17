@@ -3,6 +3,10 @@ syntax = "proto3";
 package mitosis.evmvalidator.v1;
 
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 import "mitosis/evmvalidator/v1/params.proto";
 import "mitosis/evmvalidator/v1/validator.proto";
 
@@ -14,12 +18,129 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/mitosis/evmvalidator/v1/params";
   }
+
+  // Validator returns validator details by address
+  rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/validators/{val_addr}";
+  }
+
+  // ValidatorByConsAddr returns validator details by consensus address
+  rpc ValidatorByConsAddr(QueryValidatorByConsAddrRequest)
+      returns (QueryValidatorByConsAddrResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/validators_by_cons_addr/{cons_addr}";
+  }
+
+  // Validators returns all validators
+  rpc Validators(QueryValidatorsRequest) returns (QueryValidatorsResponse) {
+    option (google.api.http).get = "/mitosis/evmvalidator/v1/validators";
+  }
+
+  // Withdrawal returns withdrawal details by ID
+  rpc Withdrawal(QueryWithdrawalRequest) returns (QueryWithdrawalResponse) {
+    option (google.api.http).get = "/mitosis/evmvalidator/v1/withdrawals/{id}";
+  }
+
+  // Withdrawals returns all withdrawals
+  rpc Withdrawals(QueryWithdrawalsRequest) returns (QueryWithdrawalsResponse) {
+    option (google.api.http).get = "/mitosis/evmvalidator/v1/withdrawals";
+  }
+
+  // WithdrawalsByValidator returns withdrawals for a specific validator
+  rpc WithdrawalsByValidator(QueryWithdrawalsByValidatorRequest)
+      returns (QueryWithdrawalsByValidatorResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/validators/{val_addr}/withdrawals";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method
 message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method
-message QueryParamsResponse { Params params = 1; }
+message QueryParamsResponse {
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
 
-// Additional query endpoints to be implemented as needed
+// QueryValidatorRequest is the request type for the Query/Validator RPC method
+message QueryValidatorRequest { bytes val_addr = 1; }
+
+// QueryValidatorResponse is the response type for the Query/Validator RPC
+// method
+message QueryValidatorResponse {
+  Validator validator = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// QueryValidatorByConsAddrRequest is the request type for the
+// Query/ValidatorByConsAddr RPC method
+message QueryValidatorByConsAddrRequest {
+  string cons_addr = 1
+      [ (cosmos_proto.scalar) = "cosmos.ConsensusAddressString" ];
+}
+
+// QueryValidatorByConsAddrResponse is the response type for the
+// Query/ValidatorByConsAddr RPC method
+message QueryValidatorByConsAddrResponse {
+  Validator validator = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// QueryValidatorsRequest is the request type for the Query/Validators RPC
+// method
+message QueryValidatorsRequest {
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryValidatorsResponse is the response type for the Query/Validators RPC
+// method
+message QueryValidatorsResponse {
+  repeated Validator validators = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryWithdrawalRequest is the request type for the Query/Withdrawal RPC
+// method
+message QueryWithdrawalRequest { uint64 id = 1; }
+
+// QueryWithdrawalResponse is the response type for the Query/Withdrawal RPC
+// method
+message QueryWithdrawalResponse {
+  Withdrawal withdrawal = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// QueryWithdrawalsRequest is the request type for the Query/Withdrawals RPC
+// method
+message QueryWithdrawalsRequest {
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryWithdrawalsResponse is the response type for the Query/Withdrawals RPC
+// method
+message QueryWithdrawalsResponse {
+  repeated Withdrawal withdrawals = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryWithdrawalsByValidatorRequest is the request type for the
+// Query/WithdrawalsByValidator RPC method
+message QueryWithdrawalsByValidatorRequest {
+  bytes val_addr = 1;
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryWithdrawalsByValidatorResponse is the response type for the
+// Query/WithdrawalsByValidator RPC method
+message QueryWithdrawalsByValidatorResponse {
+  repeated Withdrawal withdrawals = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

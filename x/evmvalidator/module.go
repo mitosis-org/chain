@@ -2,7 +2,6 @@ package evmvalidator
 
 import (
 	"context"
-	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
@@ -12,7 +11,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	modulev1 "github.com/mitosis-org/chain/api/mitosis/evmvalidator/module/v1"
 	"github.com/mitosis-org/chain/x/evmvalidator/client/cli"
 	"github.com/mitosis-org/chain/x/evmvalidator/keeper"
@@ -23,6 +22,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	evmengtypes "github.com/omni-network/omni/octane/evmengine/types"
@@ -80,7 +80,7 @@ func (AppModuleBasic) RegisterInterfaces(reg codectypes.InterfaceRegistry) {
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *grpcruntime.ServeMux) {
 	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
 		panic(err)
 	}
@@ -180,8 +180,8 @@ type ModuleInputs struct {
 	Config                *modulev1.Module
 	Cdc                   codec.Codec
 	StoreKey              *storetypes.KVStoreKey
-	ValidatorAddressCodec address.Codec
-	ConsensusAddressCodec address.Codec
+	ValidatorAddressCodec runtime.ValidatorAddressCodec
+	ConsensusAddressCodec runtime.ConsensusAddressCodec
 }
 
 type ModuleOutputs struct {
@@ -198,7 +198,7 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	entrypointAddr := common.HexToAddress(in.Config.EvmValidatorEntrypointAddr)
 
 	// Create keeper
-	k := keeper.NewKeeperWithAddressCodecs(
+	k := keeper.NewKeeper(
 		in.Cdc,
 		in.StoreKey,
 		entrypointAddr,

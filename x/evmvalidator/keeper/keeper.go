@@ -29,8 +29,8 @@ type Keeper struct {
 	consensusAddressCodec address.Codec
 }
 
-// NewKeeperWithAddressCodecs creates a new keeper
-func NewKeeperWithAddressCodecs(
+// NewKeeper creates a new keeper
+func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	evmValidatorEntrypointAddr common.Address,
