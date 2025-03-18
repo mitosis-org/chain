@@ -10,10 +10,10 @@ import (
 const DefaultMaxValidators uint32 = 100
 
 // DefaultMaxLeverageRatio is the default maximum leverage ratio.
-var DefaultMaxLeverageRatio = math.LegacyNewDec(2) // 2.0x leverage
+var DefaultMaxLeverageRatio = math.LegacyNewDec(100) // 100x leverage
 
 // DefaultMinVotingPower is the default minimum voting power required.
-var DefaultMinVotingPower = math.NewInt(1000000) // 1M minimum voting power
+var DefaultMinVotingPower = int64(1)
 
 // DefaultWithdrawalLimit is the default withdrawal limit per block.
 const DefaultWithdrawalLimit uint32 = 10
@@ -36,8 +36,8 @@ func (p Params) Validate() error {
 	if p.MaxLeverageRatio.IsNil() || p.MaxLeverageRatio.LT(math.LegacyNewDec(1)) {
 		return fmt.Errorf("max leverage ratio must be at least 1: %s", p.MaxLeverageRatio)
 	}
-	if p.MinVotingPower.IsNil() || p.MinVotingPower.IsNegative() {
-		return fmt.Errorf("min voting power must be non-negative: %s", p.MinVotingPower)
+	if p.MinVotingPower < 1 {
+		return fmt.Errorf("min voting power must be non-zero and non-negative: %d", p.MinVotingPower)
 	}
 	if p.WithdrawalLimit == 0 {
 		return fmt.Errorf("withdrawal limit must be positive: %d", p.WithdrawalLimit)

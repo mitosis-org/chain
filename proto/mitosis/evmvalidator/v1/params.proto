@@ -25,11 +25,7 @@ message Params {
 
   // min_voting_power is the minimum voting power required to be a validator
   // if voting power < min_voting_power, the validator will be jailed
-  string min_voting_power = 3 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  int64 min_voting_power = 3;
 
   // withdrawal_limit is the maximum number of withdrawals that can be processed
   // in a single block (to avoid performance issues)

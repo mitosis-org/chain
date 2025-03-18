@@ -47,7 +47,7 @@ COMPRESSED_PUBKEY=$(jq -r ".pub_key.value" "$VALIDATOR_PRIVKEY_FILE" | base64 -d
 
 # Add validator to evmvalidator genesis state
 # Parameters: pubkey, collateral (gwei), extra_voting_power, jailed
-$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" 1000000000000000000 0 false --home "$MITOSISD_HOME"
+$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
 
 # Comment out if you need to collect gentxs
 #$MITOSISD genesis collect-gentxs --home "$MITOSISD_HOME"

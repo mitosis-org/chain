@@ -61,9 +61,9 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 			}
 
 			// Parse extra voting power
-			extraVotingPower, ok := math.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("invalid extra voting power: %s", args[2])
+			extraVotingPower, err := math.LegacyNewDecFromStr(args[2])
+			if err != nil {
+				return errors.Wrap(err, "failed to parse extra voting power")
 			}
 
 			// Parse jailed status
@@ -78,7 +78,7 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 				Pubkey:           pubkey,
 				Collateral:       collateral,
 				ExtraVotingPower: extraVotingPower,
-				VotingPower:      math.ZeroInt(), // Will be computed during InitGenesis
+				VotingPower:      0, // Will be computed during InitGenesis
 				Jailed:           jailed,
 				Bonded:           false,
 			}

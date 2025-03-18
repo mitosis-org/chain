@@ -212,7 +212,7 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	if err := k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroInt(), false); err != nil {
+	if err := k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.LegacyZeroDec(), false); err != nil {
 		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
 			errors.Is(err, types.ErrInvalidPubKey)
 		return errors.Wrap(err, "failed to register validator"), ignore
@@ -322,8 +322,8 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 		return types.ErrValidatorNotFound, true
 	}
 
-	// Convert the extra voting power to math.Int
-	extraVotingPower := sdkmath.NewIntFromBigInt(event.ExtraVotingPowerGwei)
+	// Convert the extra voting power
+	extraVotingPower := sdkmath.LegacyNewDecFromBigInt(event.ExtraVotingPowerWei).QuoInt(types.VotingPowerReductionForWei) // 1 wei = 1 / 1e18
 
 	// Update extra voting power
 	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {

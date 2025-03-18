@@ -44,29 +44,25 @@ func (v Validator) ConsensusVotingPower() int64 {
 		return 0
 	}
 
-	return v.VotingPower.Int64()
+	return v.VotingPower
 }
 
 // ComputeVotingPower calculates voting power based on collateral and extra voting power
 // with respect to the max leverage ratio
-func (v Validator) ComputeVotingPower(maxLeverageRatio math.LegacyDec) math.Int {
-	// If collateral is zero, voting power should be zero
-	if v.Collateral.IsZero() {
-		return math.ZeroInt()
-	}
-
-	// Calculate the sum of collateral and extra voting power
-	totalPower := v.Collateral.Add(v.ExtraVotingPower)
+func (v Validator) ComputeVotingPower(maxLeverageRatio math.LegacyDec) int64 {
+	collateralPower := math.LegacyNewDecFromInt(v.Collateral).QuoInt(VotingPowerReductionForGwei)
+	totalPower := collateralPower.Add(v.ExtraVotingPower).TruncateInt64()
 
 	// Calculate the maximum allowed by the leverage ratio
 	// maxPower = collateral * maxLeverageRatio
-	maxCollateralPower := math.LegacyNewDecFromInt(v.Collateral).Mul(maxLeverageRatio).TruncateInt()
+	maxCollateralPower := collateralPower.Mul(maxLeverageRatio).TruncateInt64()
 
 	// Return the minimum of the two calculations
-	if totalPower.GT(maxCollateralPower) {
+	if totalPower > maxCollateralPower {
 		return maxCollateralPower
+	} else {
+		return totalPower
 	}
-	return totalPower
 }
 
 // ABCIValidatorUpdate creates an ABCI validator update object from a validator

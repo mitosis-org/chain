@@ -20,7 +20,7 @@ message Validator {
   // pubkey is the compressed secp256k1 public key of the validator
   bytes pubkey = 2;
 
-  // collateral is the amount of MITO used as a collateral
+  // collateral is the amount of MITO used as a collateral (gwei unit)
   string collateral = 3 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
@@ -29,17 +29,13 @@ message Validator {
 
   // extra_voting_power is additional voting power assigned to the validator
   string extra_voting_power = 4 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // voting_power is the actual voting power used in consensus (calculated)
-  string voting_power = 5 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  int64 voting_power = 5;
 
   // jailed indicates if the validator is jailed
   bool jailed = 6;
@@ -59,7 +55,7 @@ message Withdrawal {
     (gogoproto.nullable) = false
   ];
 
-  // amount is the amount of collateral to withdraw
+  // amount is the amount of collateral to withdraw (gwei unit)
   uint64 amount = 3;
 
   // receiver is the address that will receive the withdrawn collateral

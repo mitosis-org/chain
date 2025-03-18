@@ -83,7 +83,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 
 		// Log the update
 		if found {
-			k.Logger(sdkCtx).Info("[Active Validator Set] Power changed",
+			k.Logger(sdkCtx).Info("⚡️Active Validator Set: Power changed",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
@@ -91,7 +91,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 				"new_power", currentPower,
 			)
 		} else {
-			k.Logger(sdkCtx).Info("[Active Validator Set] Bonded",
+			k.Logger(sdkCtx).Info("⚡️Active Validator Set: Bonded",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
@@ -148,7 +148,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 				err = errors.Wrap(err2, "failed to get consensus address")
 				return true
 			}
-			k.Logger(sdkCtx).Info("[Active Validator Set] Unbonded",
+			k.Logger(sdkCtx).Info("⚡️Active Validator Set: Unbonded",
 				"val_addr", valAddr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
