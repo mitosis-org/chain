@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	abci "github.com/cometbft/cometbft/abci/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -53,11 +54,6 @@ func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
 	return AppModuleBasic{cdc: cdc}
 }
 
-// GetTxCmd returns the evmvalidator module's root tx command.
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
-}
-
 // GetQueryCmd returns the evmvalidator module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
@@ -76,7 +72,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(*codec.LegacyAmino) {}
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
 func (AppModuleBasic) RegisterInterfaces(reg codectypes.InterfaceRegistry) {
-	// TODO(thai): RegisterInterfaces for evmvalidator module
+	types.RegisterInterfaces(reg)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
@@ -152,6 +148,7 @@ func (am AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConf
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 
@@ -197,6 +194,12 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	// Parse entrypoint address
 	entrypointAddr := common.HexToAddress(in.Config.EvmValidatorEntrypointAddr)
 
+	// Parse authority address
+	if in.Config.Authority == "" {
+		return ModuleOutputs{}, errors.New("authority address is empty")
+	}
+	authority := authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+
 	// Create keeper
 	k := keeper.NewKeeper(
 		in.Cdc,
@@ -204,6 +207,7 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 		entrypointAddr,
 		in.ValidatorAddressCodec,
 		in.ConsensusAddressCodec,
+		authority.String(),
 	)
 
 	// Create module

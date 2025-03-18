@@ -23,10 +23,9 @@ type Keeper struct {
 	evmEngKeeper                   types.EvmEngineKeeper
 	evmValidatorEntrypointAddr     common.Address
 	evmValidatorEntrypointContract *bindings.ConsensusValidatorEntrypoint
-
-	// Address codecs for compatibility with other modules
-	validatorAddressCodec address.Codec
-	consensusAddressCodec address.Codec
+	validatorAddressCodec          address.Codec
+	consensusAddressCodec          address.Codec
+	authority                      string
 }
 
 // NewKeeper creates a new keeper
@@ -36,6 +35,7 @@ func NewKeeper(
 	evmValidatorEntrypointAddr common.Address,
 	validatorAddressCodec address.Codec,
 	consensusAddressCodec address.Codec,
+	authority string,
 ) *Keeper {
 	// Create contract binding to interact with events
 	consensusValidatorEntrypointContract, err := bindings.NewConsensusValidatorEntrypoint(evmValidatorEntrypointAddr, nil)
@@ -50,6 +50,7 @@ func NewKeeper(
 		evmValidatorEntrypointContract: consensusValidatorEntrypointContract,
 		validatorAddressCodec:          validatorAddressCodec,
 		consensusAddressCodec:          consensusAddressCodec,
+		authority:                      authority,
 	}
 }
 

@@ -16,12 +16,12 @@ var _ types.QueryServer = QueryServer{}
 
 // QueryServer implements the QueryServer interface for the evmvalidator module
 type QueryServer struct {
-	k Keeper
+	k *Keeper
 }
 
 // NewQueryServer creates a new QueryServer instance
 func NewQueryServer(keeper *Keeper) types.QueryServer {
-	return &QueryServer{k: *keeper}
+	return &QueryServer{k: keeper}
 }
 
 // Params returns the module's parameters

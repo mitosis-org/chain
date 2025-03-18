@@ -10,7 +10,6 @@ const (
 	EventTypeUpdateVotingPower      = "update_voting_power"
 	EventTypeJailValidator          = "jail_validator"
 	EventTypeSlashValidator         = "slash_validator"
-	EventTypeUpdateParams           = "update_params"
 	EventTypeWithdrawalMatured      = "withdrawal_matured"
 
 	// Attributes

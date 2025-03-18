@@ -424,3 +424,47 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 
 	return nil
 }
+
+// recalculateAllValidatorVotingPowers recalculates voting power for all validators
+func (k Keeper) recalculateAllValidatorVotingPowers(ctx sdk.Context) error {
+	params := k.GetParams(ctx)
+	validators := k.GetAllValidators(ctx)
+
+	for _, validator := range validators {
+		oldVotingPower := validator.VotingPower
+
+		// Recalculate voting power based on new max leverage ratio
+		validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
+
+		// If the voting power changed, update the validator
+		if validator.VotingPower != oldVotingPower {
+			// Update validator in power index
+			if !validator.Jailed {
+				k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
+				k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
+			}
+
+			// Save updated validator
+			k.SetValidator(ctx, validator)
+
+			// Emit event
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeUpdateVotingPower,
+					sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
+					sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
+					sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
+				),
+			)
+		}
+
+		// Check if validator should be jailed due to min voting power requirement
+		if validator.VotingPower < params.MinVotingPower {
+			if err := k.jail(ctx, &validator, "min voting power requirement is not met after parameter change"); err != nil {
+				return errors.Wrap(err, "failed to jail validator")
+			}
+		}
+	}
+
+	return nil
+}
