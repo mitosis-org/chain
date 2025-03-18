@@ -241,7 +241,7 @@ replace (
 	// TODO(thai): should revise the commit revision.
 	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250316161737-c491fa0eb9b0
 	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250316161737-c491fa0eb9b0
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250316201334-5361ae42c1ff
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250318185406-b9706d4317fe
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
