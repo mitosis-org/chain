@@ -22,9 +22,9 @@ for dir in $proto_dirs; do
     buf generate --template buf.gen.pulsar.yaml
 
     # move generated files to the right places
-    if [ -d "../cosmos" -a "$dir" != "./proto" ]; then
-      cp -r ../cosmos $root/api
-      rm -rf ../cosmos
+    if [ -d "../mitosis" -a "$dir" != "./proto" ]; then
+      cp -r ../mitosis $root/api
+      rm -rf ../mitosis
     fi
   fi
 
