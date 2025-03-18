@@ -223,7 +223,7 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 
 // fallbackRegisterValidator handles the case when the MsgRegisterValidator event fails to process
 func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
-	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralReturnAddr, event.InitialCollateralAmountGwei.Uint64())
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralRefundAddr, event.InitialCollateralAmountGwei.Uint64())
 }
 
 // processDepositCollateral processes MsgDepositCollateral event
@@ -248,7 +248,7 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 
 // fallbackDepositCollateral handles the case when the MsgDepositCollateral event fails to process
 func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
-	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralReturnAddr, event.AmountGwei.Uint64())
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralRefundAddr, event.AmountGwei.Uint64())
 }
 
 // processWithdrawCollateral processes MsgWithdrawCollateral event
