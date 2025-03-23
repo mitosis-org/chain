@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/log"
 
@@ -9,35 +10,47 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/x/evmgov/types"
 	"github.com/omni-network/omni/lib/errors"
 )
 
 type Keeper struct {
-	cdc                             codec.Codec
-	router                          baseapp.MessageRouter
-	evmGovernanceEntrypointAddr     common.Address
-	evmGovernanceEntrypointContract *bindings.ConsensusGovernanceEntrypoint
+	cdc                       codec.Codec
+	router                    baseapp.MessageRouter
+	govEntrypointContractAddr mitotypes.EthAddress
+	govEntrypointContract     *bindings.ConsensusGovernanceEntrypoint
 }
 
-func NewKeeper(cdc codec.Codec, router baseapp.MessageRouter, evmGovernanceEntrypointAddr common.Address) (*Keeper, error) {
-	evmGovernanceEntrypointContract, err := bindings.NewConsensusGovernanceEntrypoint(evmGovernanceEntrypointAddr, nil)
-	if err != nil {
+func NewKeeper(cdc codec.Codec, router baseapp.MessageRouter) (*Keeper, error) {
+	keeper := &Keeper{
+		cdc,
+		router,
+		mitotypes.EthAddress{},
+		nil,
+	}
+
+	if err := keeper.SetGovEntrypointContractAddr(mitotypes.EthAddress{}); err != nil {
 		return nil, err
 	}
 
-	return &Keeper{
-		cdc,
-		router,
-		evmGovernanceEntrypointAddr,
-		evmGovernanceEntrypointContract,
-	}, nil
+	return keeper, nil
 }
 
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k *Keeper) SetGovEntrypointContractAddr(addr mitotypes.EthAddress) error {
+	contract, err := bindings.NewConsensusGovernanceEntrypoint(addr.Address(), nil)
+	if err != nil {
+		return errors.Wrap(err, "failed to create governance entrypoint contract")
+	}
+
+	k.govEntrypointContractAddr = addr
+	k.govEntrypointContract = contract
+
+	return nil
 }
 
 func (k *Keeper) ParseMessages(rawMsgs []string) ([]sdk.Msg, error) {

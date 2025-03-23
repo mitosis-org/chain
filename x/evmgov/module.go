@@ -3,7 +3,6 @@ package evmgov
 import (
 	"cosmossdk.io/depinject/appconfig"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/x/evmgov/keeper"
 	"github.com/omni-network/omni/halo/evmstaking/types"
 
@@ -124,7 +123,6 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	k, err := keeper.NewKeeper(
 		in.Cdc,
 		in.MsgServiceRouter,
-		common.HexToAddress(in.Config.EvmGovernanceEntrypointAddr),
 	)
 	if err != nil {
 		return ModuleOutputs{}, err

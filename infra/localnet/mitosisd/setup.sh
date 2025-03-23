@@ -7,6 +7,7 @@ echo "MITOSISD: $MITOSISD"
 echo "MITOSISD_HOME: $MITOSISD_HOME"
 echo "MITOSISD_CHAIN_ID: $MITOSISD_CHAIN_ID"
 echo "EC_JWT_FILE: $EC_JWT_FILE"
+echo "GOV_ENTRYPOINT: $GOV_ENTRYPOINT"
 echo "----------------------"
 
 # banana omit eye gesture disagree fork zone cup promote plunge neither rug
@@ -25,8 +26,6 @@ jq --arg hash "$hash" '.app_state.evmengine.execution_block_hash = $hash' "$GENE
 # Setup additional modifications on the genesis
 jq '.consensus.params.block.max_bytes = "-1"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
 jq '.consensus.params.validator.pub_key_types = ["secp256k1"]' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
-jq '.app_state.staking.params.unbonding_time = "1s"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
-jq '.app_state.authority.owner = "'"$OWNER"'"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
 
 # Setup app.toml
 sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.001ustake"/' "$MITOSISD_HOME"/config/app.toml
@@ -34,6 +33,7 @@ sed -i.bak'' 's@pruning = "default"@pruning = "nothing"@' "$MITOSISD_HOME"/confi
 #sed -i.bak'' 's/mock = false/mock = true/' "$MITOSISD_HOME"/config/app.toml # Comment out this line to mock execution engine instead of using real execution client.
 sed -i.bak'' 's@endpoint = ""@endpoint = "http://127.0.0.1:8551"@' "$MITOSISD_HOME"/config/app.toml
 sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EC_JWT_FILE"'"@' "$MITOSISD_HOME"/config/app.toml
+sed -i.bak'' 's@entrypoint = "0x0000000000000000000000000000000000000000"@entrypoint = "'"$GOV_ENTRYPOINT"'"@' "$MITOSISD_HOME"/config/app.toml
 
 # Setup config.toml
 sed -i.bak'' 's/type = "flood"/type = "nop"/' "$MITOSISD_HOME"/config/config.toml # we don't use mempool in consensus layer

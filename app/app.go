@@ -1,6 +1,7 @@
 package app
 
 import (
+	mitotypes "github.com/mitosis-org/chain/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -90,6 +91,7 @@ func NewMitosisApp(
 	addrProvider ValidatorAddressProvider,
 	engineBuildDelay time.Duration,
 	engineBuildOptimistic bool,
+	govEntrypointContractAddr mitotypes.EthAddress,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOpts ...func(*baseapp.BaseApp),
@@ -131,6 +133,10 @@ func NewMitosisApp(
 
 	app.EVMValKeeper.SetSlashingKeeper(app.SlashingKeeper)
 	app.EVMValKeeper.SetEvmEngineKeeper(app.EVMEngKeeper)
+
+	if err := app.EVMGovKeeper.SetGovEntrypointContractAddr(govEntrypointContractAddr); err != nil {
+		return nil, errors.Wrap(err, "failed to set governance entrypoint contract address")
+	}
 
 	baseAppOpts = append(baseAppOpts, func(bapp *baseapp.BaseApp) {
 		bapp.SetPrepareProposal(app.EVMEngKeeper.PrepareProposal)

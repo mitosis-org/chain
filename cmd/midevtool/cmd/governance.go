@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mitosis-org/chain/app"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/midevtool/utils"
 	"github.com/spf13/cobra"
@@ -32,10 +31,11 @@ func NewGovernanceCmd() *cobra.Command {
 // newGovernanceExecuteCmd creates a new execute subcommand
 func newGovernanceExecuteCmd() *cobra.Command {
 	var (
-		rpcURL     string
-		privateKey string
-		msgFile    string
-		msgString  string
+		rpcURL                    string
+		privateKey                string
+		msgFile                   string
+		msgString                 string
+		govEntrypointContractAddr string
 	)
 
 	executeCmd := &cobra.Command{
@@ -50,6 +50,10 @@ func newGovernanceExecuteCmd() *cobra.Command {
 
 			if msgFile == "" && msgString == "" {
 				log.Fatal("Error: either --msg-file or --msg must be provided")
+			}
+
+			if govEntrypointContractAddr == "" {
+				log.Fatal("Error: ConsensusGovernanceEntrypoint contract address is required")
 			}
 
 			// Parse messages
@@ -68,7 +72,7 @@ func newGovernanceExecuteCmd() *cobra.Command {
 
 			// Get contract instance
 			contract, err := bindings.NewConsensusGovernanceEntrypoint(
-				common.HexToAddress(app.EVMGovernanceEntrypointAddr),
+				common.HexToAddress(govEntrypointContractAddr),
 				client,
 			)
 			if err != nil {
@@ -93,6 +97,7 @@ func newGovernanceExecuteCmd() *cobra.Command {
 	executeCmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions")
 	executeCmd.Flags().StringVar(&msgFile, "msg-file", "", "A file containing JSON messages")
 	executeCmd.Flags().StringVar(&msgString, "msg", "", "JSON message string")
+	executeCmd.Flags().StringVar(&govEntrypointContractAddr, "entrypoint", "", "ConsensusGovernanceEntrypoint contract address")
 
 	return executeCmd
 }

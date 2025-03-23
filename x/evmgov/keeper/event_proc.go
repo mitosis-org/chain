@@ -30,7 +30,7 @@ func (*Keeper) Name() string {
 
 // FilterParams defines the matching EVM log events.
 func (k *Keeper) FilterParams(_ context.Context) ([]common.Address, [][]common.Hash) {
-	return []common.Address{k.evmGovernanceEntrypointAddr},
+	return []common.Address{k.govEntrypointContractAddr.Address()},
 		[][]common.Hash{{EventMsgExecute.ID}}
 }
 
@@ -81,7 +81,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, _ common.Hash, elog evmengtypes.E
 	// Fortunately, this logic is not critical. If it fails, we can identify the cause
 	// and then proceed with the governance process again at the EVM contract level.
 	case EventMsgExecute.ID:
-		event, err := k.evmGovernanceEntrypointContract.ParseMsgExecute(ethlog)
+		event, err := k.govEntrypointContract.ParseMsgExecute(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgExecute"), false
 		}

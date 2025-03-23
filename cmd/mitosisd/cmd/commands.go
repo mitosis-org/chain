@@ -169,6 +169,11 @@ func newApp(
 		panic(err)
 	}
 
+	govEntrypointContractAddr, err := getGovEntrypointContractAddr(appConfig.EVMGov)
+	if err != nil {
+		panic(err)
+	}
+
 	mitosisApp, err := app.NewMitosisApp(
 		logger,
 		db,
@@ -177,6 +182,7 @@ func newApp(
 		addrProvider,
 		engineBuildDelay,
 		appConfig.Engine.BuildOptimistic,
+		govEntrypointContractAddr,
 		true,
 		appOpts,
 		baseappOptions...,
@@ -230,6 +236,11 @@ func appExport(
 		return servertypes.ExportedApp{}, err
 	}
 
+	govEntrypointContractAddr, err := getGovEntrypointContractAddr(appConfig.EVMGov)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
 	mitosisApp, err = app.NewMitosisApp(
 		logger,
 		db,
@@ -238,6 +249,7 @@ func appExport(
 		addrProvider,
 		engineBuildDelay,
 		appConfig.Engine.BuildOptimistic,
+		govEntrypointContractAddr,
 		loadLatest,
 		appOpts,
 	)

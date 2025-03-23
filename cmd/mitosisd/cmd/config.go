@@ -8,6 +8,7 @@ import (
 type AppConfig struct {
 	serverconfig.Config `mapstructure:",squash"`
 	Engine              *EngineConfig `mapstructure:"engine"`
+	EVMGov              *EVMGovConfig `mapstructure:"evmgov"`
 }
 
 type EngineConfig struct {
@@ -17,6 +18,10 @@ type EngineConfig struct {
 	BuildDelay      string `mapstructure:"build-delay"`
 	BuildOptimistic bool   `mapstructure:"build-optimistic"`
 	FeeRecipient    string `mapstructure:"fee-recipient"`
+}
+
+type EVMGovConfig struct {
+	Entrypoint string `mapstructure:"entrypoint"`
 }
 
 func DefaultAppConfig() AppConfig {
@@ -33,6 +38,9 @@ func DefaultAppConfig() AppConfig {
 			BuildDelay:      "600ms", // it should be slightly longer than geth's --miner.recommit=500ms.
 			BuildOptimistic: true,
 			FeeRecipient:    "", // empty means using priv_validator_key.json's address.
+		},
+		EVMGov: &EVMGovConfig{
+			Entrypoint: "0x0000000000000000000000000000000000000000",
 		},
 	}
 }
@@ -69,6 +77,15 @@ build-optimistic = {{ .Engine.BuildOptimistic }}
 # If it is empty, priv_validator_key.json's address will be used.
 # e.g., 0x0000000000000000000000000000000000000000
 fee-recipient = "{{ .Engine.FeeRecipient }}"
+
+###############################################################################
+###                             EVM Gov                                     ###
+###############################################################################
+
+[evmgov]
+
+# ConsensusGovernanceEntrypoint contract address.
+entrypoint = "{{ .EVMGov.Entrypoint }}"
 `
 
 	return defaultAppTemplate, appConfig

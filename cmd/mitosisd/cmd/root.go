@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	mitotypes "github.com/mitosis-org/chain/types"
 	"os"
 
 	"cosmossdk.io/client/v2/autocli"
@@ -211,6 +212,15 @@ func newEngineClient(rootCmd *cobra.Command) (ethclient.EngineClient, error) {
 	}
 
 	return engineClient, nil
+}
+
+func getGovEntrypointContractAddr(config *EVMGovConfig) (mitotypes.EthAddress, error) {
+	if !common.IsHexAddress(config.Entrypoint) {
+		return mitotypes.EthAddress{}, errors.New("invalid governance entrypoint address")
+	}
+
+	addr := common.HexToAddress(config.Entrypoint)
+	return mitotypes.EthAddress(addr), nil
 }
 
 func getAppConfig(rootCmd *cobra.Command) (AppConfig, error) {

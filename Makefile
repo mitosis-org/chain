@@ -192,6 +192,7 @@ MITOSISD_INFRA_DIR = $(CURDIR)/infra/localnet/mitosisd
 EC_INFRA_DIR = $(CURDIR)/infra/localnet/ec
 GETH_DATA_DIR = $(CURDIR)/tmp/localnet/geth
 RETH_DATA_DIR = $(CURDIR)/tmp/localnet/reth
+GOV_ENTRYPOINT = '0x06c9918ff483fd88C65dD02E788427cfF04545b9'
 
 clean-geth:
 	rm -rf $(GETH_DATA_DIR)
@@ -264,7 +265,11 @@ clean-mitosisd:
 	rm -rf $(MITOSISD_HOME)
 
 setup-mitosisd: build clean-mitosisd
-	MITOSISD=./build/mitosisd MITOSISD_HOME=$(MITOSISD_HOME) MITOSISD_CHAIN_ID=$(MITOSISD_CHAIN_ID) EC_JWT_FILE=$(EC_INFRA_DIR)/jwt.hex \
+	MITOSISD=./build/mitosisd \
+		MITOSISD_HOME=$(MITOSISD_HOME) \
+		MITOSISD_CHAIN_ID=$(MITOSISD_CHAIN_ID) \
+		EC_JWT_FILE=$(EC_INFRA_DIR)/jwt.hex \
+		GOV_ENTRYPOINT=$(GOV_ENTRYPOINT) \
 		$(MITOSISD_INFRA_DIR)/setup.sh
 
 run-mitosisd:

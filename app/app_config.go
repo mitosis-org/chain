@@ -163,8 +163,7 @@ var (
 			{
 				Name: evmgovtypes.ModuleName,
 				Config: appconfig.WrapAny(&evmgovmodulev1.Module{
-					Authority:                   evmgovtypes.ModuleName,
-					EvmGovernanceEntrypointAddr: EVMGovernanceEntrypointAddr,
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 		},
