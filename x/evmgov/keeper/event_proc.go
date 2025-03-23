@@ -29,7 +29,7 @@ func (*Keeper) Name() string {
 }
 
 // FilterParams defines the matching EVM log events.
-func (k *Keeper) FilterParams() ([]common.Address, [][]common.Hash) {
+func (k *Keeper) FilterParams(_ context.Context) ([]common.Address, [][]common.Hash) {
 	return []common.Address{k.evmGovernanceEntrypointAddr},
 		[][]common.Hash{{EventMsgExecute.ID}}
 }

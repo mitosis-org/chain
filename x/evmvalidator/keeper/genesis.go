@@ -16,6 +16,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 		return []abci.ValidatorUpdate{}, err
 	}
 
+	// Set ConsensusValidatorEntrypoint contract address
+	k.SetValidatorEntrypointContractAddr(ctx, data.ValidatorEntrypointContractAddr)
+
 	// Set validators
 	for _, validator := range data.Validators {
 		// voting power will be recalculated
@@ -41,6 +44,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return types.NewGenesisState(
 		k.GetParams(ctx),
+		k.GetValidatorEntrypointContractAddr(ctx),
 		k.GetAllValidators(ctx),
 		k.GetAllWithdrawals(ctx),
 		k.GetLastValidatorPowers(ctx),

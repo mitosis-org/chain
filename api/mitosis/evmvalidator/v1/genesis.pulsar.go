@@ -13,61 +13,10 @@ import (
 	sync "sync"
 )
 
-var _ protoreflect.List = (*_GenesisState_2_list)(nil)
-
-type _GenesisState_2_list struct {
-	list *[]*Validator
-}
-
-func (x *_GenesisState_2_list) Len() int {
-	if x.list == nil {
-		return 0
-	}
-	return len(*x.list)
-}
-
-func (x *_GenesisState_2_list) Get(i int) protoreflect.Value {
-	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
-}
-
-func (x *_GenesisState_2_list) Set(i int, value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Validator)
-	(*x.list)[i] = concreteValue
-}
-
-func (x *_GenesisState_2_list) Append(value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Validator)
-	*x.list = append(*x.list, concreteValue)
-}
-
-func (x *_GenesisState_2_list) AppendMutable() protoreflect.Value {
-	v := new(Validator)
-	*x.list = append(*x.list, v)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_2_list) Truncate(n int) {
-	for i := n; i < len(*x.list); i++ {
-		(*x.list)[i] = nil
-	}
-	*x.list = (*x.list)[:n]
-}
-
-func (x *_GenesisState_2_list) NewElement() protoreflect.Value {
-	v := new(Validator)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_2_list) IsValid() bool {
-	return x.list != nil
-}
-
 var _ protoreflect.List = (*_GenesisState_3_list)(nil)
 
 type _GenesisState_3_list struct {
-	list *[]*Withdrawal
+	list *[]*Validator
 }
 
 func (x *_GenesisState_3_list) Len() int {
@@ -83,18 +32,18 @@ func (x *_GenesisState_3_list) Get(i int) protoreflect.Value {
 
 func (x *_GenesisState_3_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Withdrawal)
+	concreteValue := valueUnwrapped.Interface().(*Validator)
 	(*x.list)[i] = concreteValue
 }
 
 func (x *_GenesisState_3_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Withdrawal)
+	concreteValue := valueUnwrapped.Interface().(*Validator)
 	*x.list = append(*x.list, concreteValue)
 }
 
 func (x *_GenesisState_3_list) AppendMutable() protoreflect.Value {
-	v := new(Withdrawal)
+	v := new(Validator)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
@@ -107,7 +56,7 @@ func (x *_GenesisState_3_list) Truncate(n int) {
 }
 
 func (x *_GenesisState_3_list) NewElement() protoreflect.Value {
-	v := new(Withdrawal)
+	v := new(Validator)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
@@ -118,7 +67,7 @@ func (x *_GenesisState_3_list) IsValid() bool {
 var _ protoreflect.List = (*_GenesisState_4_list)(nil)
 
 type _GenesisState_4_list struct {
-	list *[]*LastValidatorPower
+	list *[]*Withdrawal
 }
 
 func (x *_GenesisState_4_list) Len() int {
@@ -134,18 +83,18 @@ func (x *_GenesisState_4_list) Get(i int) protoreflect.Value {
 
 func (x *_GenesisState_4_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*LastValidatorPower)
+	concreteValue := valueUnwrapped.Interface().(*Withdrawal)
 	(*x.list)[i] = concreteValue
 }
 
 func (x *_GenesisState_4_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*LastValidatorPower)
+	concreteValue := valueUnwrapped.Interface().(*Withdrawal)
 	*x.list = append(*x.list, concreteValue)
 }
 
 func (x *_GenesisState_4_list) AppendMutable() protoreflect.Value {
-	v := new(LastValidatorPower)
+	v := new(Withdrawal)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
@@ -158,7 +107,7 @@ func (x *_GenesisState_4_list) Truncate(n int) {
 }
 
 func (x *_GenesisState_4_list) NewElement() protoreflect.Value {
-	v := new(LastValidatorPower)
+	v := new(Withdrawal)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
@@ -166,18 +115,71 @@ func (x *_GenesisState_4_list) IsValid() bool {
 	return x.list != nil
 }
 
+var _ protoreflect.List = (*_GenesisState_5_list)(nil)
+
+type _GenesisState_5_list struct {
+	list *[]*LastValidatorPower
+}
+
+func (x *_GenesisState_5_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_GenesisState_5_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+}
+
+func (x *_GenesisState_5_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*LastValidatorPower)
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_GenesisState_5_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*LastValidatorPower)
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_GenesisState_5_list) AppendMutable() protoreflect.Value {
+	v := new(LastValidatorPower)
+	*x.list = append(*x.list, v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_5_list) Truncate(n int) {
+	for i := n; i < len(*x.list); i++ {
+		(*x.list)[i] = nil
+	}
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_GenesisState_5_list) NewElement() protoreflect.Value {
+	v := new(LastValidatorPower)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_5_list) IsValid() bool {
+	return x.list != nil
+}
+
 var (
-	md_GenesisState                       protoreflect.MessageDescriptor
-	fd_GenesisState_params                protoreflect.FieldDescriptor
-	fd_GenesisState_validators            protoreflect.FieldDescriptor
-	fd_GenesisState_withdrawals           protoreflect.FieldDescriptor
-	fd_GenesisState_last_validator_powers protoreflect.FieldDescriptor
+	md_GenesisState                                    protoreflect.MessageDescriptor
+	fd_GenesisState_params                             protoreflect.FieldDescriptor
+	fd_GenesisState_validator_entrypoint_contract_addr protoreflect.FieldDescriptor
+	fd_GenesisState_validators                         protoreflect.FieldDescriptor
+	fd_GenesisState_withdrawals                        protoreflect.FieldDescriptor
+	fd_GenesisState_last_validator_powers              protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_mitosis_evmvalidator_v1_genesis_proto_init()
 	md_GenesisState = File_mitosis_evmvalidator_v1_genesis_proto.Messages().ByName("GenesisState")
 	fd_GenesisState_params = md_GenesisState.Fields().ByName("params")
+	fd_GenesisState_validator_entrypoint_contract_addr = md_GenesisState.Fields().ByName("validator_entrypoint_contract_addr")
 	fd_GenesisState_validators = md_GenesisState.Fields().ByName("validators")
 	fd_GenesisState_withdrawals = md_GenesisState.Fields().ByName("withdrawals")
 	fd_GenesisState_last_validator_powers = md_GenesisState.Fields().ByName("last_validator_powers")
@@ -254,20 +256,26 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 			return
 		}
 	}
+	if len(x.ValidatorEntrypointContractAddr) != 0 {
+		value := protoreflect.ValueOfBytes(x.ValidatorEntrypointContractAddr)
+		if !f(fd_GenesisState_validator_entrypoint_contract_addr, value) {
+			return
+		}
+	}
 	if len(x.Validators) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_2_list{list: &x.Validators})
+		value := protoreflect.ValueOfList(&_GenesisState_3_list{list: &x.Validators})
 		if !f(fd_GenesisState_validators, value) {
 			return
 		}
 	}
 	if len(x.Withdrawals) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_3_list{list: &x.Withdrawals})
+		value := protoreflect.ValueOfList(&_GenesisState_4_list{list: &x.Withdrawals})
 		if !f(fd_GenesisState_withdrawals, value) {
 			return
 		}
 	}
 	if len(x.LastValidatorPowers) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_4_list{list: &x.LastValidatorPowers})
+		value := protoreflect.ValueOfList(&_GenesisState_5_list{list: &x.LastValidatorPowers})
 		if !f(fd_GenesisState_last_validator_powers, value) {
 			return
 		}
@@ -289,6 +297,8 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 	switch fd.FullName() {
 	case "mitosis.evmvalidator.v1.GenesisState.params":
 		return x.Params != nil
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		return len(x.ValidatorEntrypointContractAddr) != 0
 	case "mitosis.evmvalidator.v1.GenesisState.validators":
 		return len(x.Validators) != 0
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
@@ -313,6 +323,8 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	case "mitosis.evmvalidator.v1.GenesisState.params":
 		x.Params = nil
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		x.ValidatorEntrypointContractAddr = nil
 	case "mitosis.evmvalidator.v1.GenesisState.validators":
 		x.Validators = nil
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
@@ -338,23 +350,26 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 	case "mitosis.evmvalidator.v1.GenesisState.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		value := x.ValidatorEntrypointContractAddr
+		return protoreflect.ValueOfBytes(value)
 	case "mitosis.evmvalidator.v1.GenesisState.validators":
 		if len(x.Validators) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_2_list{})
+			return protoreflect.ValueOfList(&_GenesisState_3_list{})
 		}
-		listValue := &_GenesisState_2_list{list: &x.Validators}
+		listValue := &_GenesisState_3_list{list: &x.Validators}
 		return protoreflect.ValueOfList(listValue)
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
 		if len(x.Withdrawals) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_3_list{})
+			return protoreflect.ValueOfList(&_GenesisState_4_list{})
 		}
-		listValue := &_GenesisState_3_list{list: &x.Withdrawals}
+		listValue := &_GenesisState_4_list{list: &x.Withdrawals}
 		return protoreflect.ValueOfList(listValue)
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		if len(x.LastValidatorPowers) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_4_list{})
+			return protoreflect.ValueOfList(&_GenesisState_5_list{})
 		}
-		listValue := &_GenesisState_4_list{list: &x.LastValidatorPowers}
+		listValue := &_GenesisState_5_list{list: &x.LastValidatorPowers}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -378,17 +393,19 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 	switch fd.FullName() {
 	case "mitosis.evmvalidator.v1.GenesisState.params":
 		x.Params = value.Message().Interface().(*Params)
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		x.ValidatorEntrypointContractAddr = value.Bytes()
 	case "mitosis.evmvalidator.v1.GenesisState.validators":
 		lv := value.List()
-		clv := lv.(*_GenesisState_2_list)
+		clv := lv.(*_GenesisState_3_list)
 		x.Validators = *clv.list
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
 		lv := value.List()
-		clv := lv.(*_GenesisState_3_list)
+		clv := lv.(*_GenesisState_4_list)
 		x.Withdrawals = *clv.list
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		lv := value.List()
-		clv := lv.(*_GenesisState_4_list)
+		clv := lv.(*_GenesisState_5_list)
 		x.LastValidatorPowers = *clv.list
 	default:
 		if fd.IsExtension() {
@@ -419,20 +436,22 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		if x.Validators == nil {
 			x.Validators = []*Validator{}
 		}
-		value := &_GenesisState_2_list{list: &x.Validators}
+		value := &_GenesisState_3_list{list: &x.Validators}
 		return protoreflect.ValueOfList(value)
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
 		if x.Withdrawals == nil {
 			x.Withdrawals = []*Withdrawal{}
 		}
-		value := &_GenesisState_3_list{list: &x.Withdrawals}
+		value := &_GenesisState_4_list{list: &x.Withdrawals}
 		return protoreflect.ValueOfList(value)
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		if x.LastValidatorPowers == nil {
 			x.LastValidatorPowers = []*LastValidatorPower{}
 		}
-		value := &_GenesisState_4_list{list: &x.LastValidatorPowers}
+		value := &_GenesisState_5_list{list: &x.LastValidatorPowers}
 		return protoreflect.ValueOfList(value)
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		panic(fmt.Errorf("field validator_entrypoint_contract_addr of message mitosis.evmvalidator.v1.GenesisState is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -449,15 +468,17 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 	case "mitosis.evmvalidator.v1.GenesisState.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
+		return protoreflect.ValueOfBytes(nil)
 	case "mitosis.evmvalidator.v1.GenesisState.validators":
 		list := []*Validator{}
-		return protoreflect.ValueOfList(&_GenesisState_2_list{list: &list})
+		return protoreflect.ValueOfList(&_GenesisState_3_list{list: &list})
 	case "mitosis.evmvalidator.v1.GenesisState.withdrawals":
 		list := []*Withdrawal{}
-		return protoreflect.ValueOfList(&_GenesisState_3_list{list: &list})
+		return protoreflect.ValueOfList(&_GenesisState_4_list{list: &list})
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		list := []*LastValidatorPower{}
-		return protoreflect.ValueOfList(&_GenesisState_4_list{list: &list})
+		return protoreflect.ValueOfList(&_GenesisState_5_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -531,6 +552,10 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 			l = options.Size(x.Params)
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		l = len(x.ValidatorEntrypointContractAddr)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if len(x.Validators) > 0 {
 			for _, e := range x.Validators {
 				l = options.Size(e)
@@ -591,7 +616,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x22
+				dAtA[i] = 0x2a
 			}
 		}
 		if len(x.Withdrawals) > 0 {
@@ -607,7 +632,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x1a
+				dAtA[i] = 0x22
 			}
 		}
 		if len(x.Validators) > 0 {
@@ -623,8 +648,15 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x12
+				dAtA[i] = 0x1a
 			}
+		}
+		if len(x.ValidatorEntrypointContractAddr) > 0 {
+			i -= len(x.ValidatorEntrypointContractAddr)
+			copy(dAtA[i:], x.ValidatorEntrypointContractAddr)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ValidatorEntrypointContractAddr)))
+			i--
+			dAtA[i] = 0x12
 		}
 		if x.Params != nil {
 			encoded, err := options.Marshal(x.Params)
@@ -727,6 +759,40 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValidatorEntrypointContractAddr", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ValidatorEntrypointContractAddr = append(x.ValidatorEntrypointContractAddr[:0], dAtA[iNdEx:postIndex]...)
+				if x.ValidatorEntrypointContractAddr == nil {
+					x.ValidatorEntrypointContractAddr = []byte{}
+				}
+				iNdEx = postIndex
+			case 3:
+				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Validators", wireType)
 				}
 				var msglen int
@@ -759,7 +825,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 3:
+			case 4:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Withdrawals", wireType)
 				}
@@ -793,7 +859,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 4:
+			case 5:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LastValidatorPowers", wireType)
 				}
@@ -883,12 +949,15 @@ type GenesisState struct {
 
 	// params defines all the parameters of the module
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
+	// validator_entrypoint_contract_addr is the address of the
+	// ConsensusValidatorEntrypoint contract
+	ValidatorEntrypointContractAddr []byte `protobuf:"bytes,2,opt,name=validator_entrypoint_contract_addr,json=validatorEntrypointContractAddr,proto3" json:"validator_entrypoint_contract_addr,omitempty"`
 	// validators is the list of validators at genesis
-	Validators []*Validator `protobuf:"bytes,2,rep,name=validators,proto3" json:"validators,omitempty"`
+	Validators []*Validator `protobuf:"bytes,3,rep,name=validators,proto3" json:"validators,omitempty"`
 	// withdrawals is the list of pending withdrawals at genesis
-	Withdrawals []*Withdrawal `protobuf:"bytes,3,rep,name=withdrawals,proto3" json:"withdrawals,omitempty"`
+	Withdrawals []*Withdrawal `protobuf:"bytes,4,rep,name=withdrawals,proto3" json:"withdrawals,omitempty"`
 	// last_validator_powers is the list of the last powers of each validator
-	LastValidatorPowers []*LastValidatorPower `protobuf:"bytes,4,rep,name=last_validator_powers,json=lastValidatorPowers,proto3" json:"last_validator_powers,omitempty"`
+	LastValidatorPowers []*LastValidatorPower `protobuf:"bytes,5,rep,name=last_validator_powers,json=lastValidatorPowers,proto3" json:"last_validator_powers,omitempty"`
 }
 
 func (x *GenesisState) Reset() {
@@ -914,6 +983,13 @@ func (*GenesisState) Descriptor() ([]byte, []int) {
 func (x *GenesisState) GetParams() *Params {
 	if x != nil {
 		return x.Params
+	}
+	return nil
+}
+
+func (x *GenesisState) GetValidatorEntrypointContractAddr() []byte {
+	if x != nil {
+		return x.ValidatorEntrypointContractAddr
 	}
 	return nil
 }
@@ -952,42 +1028,51 @@ var file_mitosis_evmvalidator_v1_genesis_proto_rawDesc = []byte{
 	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x27, 0x6d, 0x69,
 	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
 	0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xcb, 0x02, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd0, 0x03, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
 	0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x3d, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
 	0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31,
 	0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x48, 0x0a, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x6d, 0x69, 0x74, 0x6f,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x82, 0x01, 0x0a, 0x22, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x5f, 0x65, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x5f, 0x63,
+	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0c, 0x42, 0x35, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x2d, 0x67, 0x69, 0x74, 0x68,
+	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2d, 0x6f,
+	0x72, 0x67, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x45,
+	0x74, 0x68, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x1f, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f,
+	0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x12, 0x48, 0x0a, 0x0a, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22,
+	0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x73, 0x12, 0x4b, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77,
+	0x61, 0x6c, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f,
 	0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x04, 0xc8,
-	0xde, 0x1f, 0x00, 0x52, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12,
-	0x4b, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x18, 0x03,
-	0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65,
-	0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x57,
-	0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
-	0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0x65, 0x0a, 0x15,
-	0x6c, 0x61, 0x73, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f, 0x70,
-	0x6f, 0x77, 0x65, 0x72, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6d, 0x69,
-	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
-	0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x13,
-	0x6c, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77,
-	0x65, 0x72, 0x73, 0x42, 0xe2, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d, 0x2e, 0x6d, 0x69, 0x74, 0x6f,
-	0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x2e, 0x76, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74,
-	0x6f, 0x50, 0x01, 0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69,
-	0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4d,
-	0x45, 0x58, 0xaa, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x17, 0x4d,
-	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
-	0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
-	0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x19, 0x4d,
-	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x2e, 0x76, 0x31, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x04,
+	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c,
+	0x73, 0x12, 0x65, 0x0a, 0x15, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x5f, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x2b, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x61, 0x73, 0x74, 0x56,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x42, 0x04, 0xc8,
+	0xde, 0x1f, 0x00, 0x52, 0x13, 0x6c, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x73, 0x42, 0xe2, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d,
+	0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
+	0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73,
+	0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f,
+	0x76, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76,
+	0x31, 0xa2, 0x02, 0x03, 0x4d, 0x45, 0x58, 0xaa, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56,
+	0x31, 0xca, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69,
+	0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
+	0x61, 0xea, 0x02, 0x19, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

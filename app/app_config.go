@@ -157,8 +157,7 @@ var (
 			{
 				Name: evmvaltypes.ModuleName,
 				Config: appconfig.WrapAny(&evmvalmodulev1.Module{
-					Authority:                  evmgovtypes.ModuleName,
-					EvmValidatorEntrypointAddr: EVMValidatorEntrypointAddr,
+					Authority: evmgovtypes.ModuleName,
 				}),
 			},
 			{

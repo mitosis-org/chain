@@ -236,7 +236,7 @@ require (
 replace (
 	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250323173041-fe448f434ae2
 	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250323173041-fe448f434ae2
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250323172940-ca882766ee07
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250323200238-ebb03680cbff
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

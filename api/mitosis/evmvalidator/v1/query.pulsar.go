@@ -809,6 +809,784 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 }
 
 var (
+	md_QueryValidatorEntrypointContractAddrRequest protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryValidatorEntrypointContractAddrRequest = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryValidatorEntrypointContractAddrRequest")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryValidatorEntrypointContractAddrRequest)(nil)
+
+type fastReflection_QueryValidatorEntrypointContractAddrRequest QueryValidatorEntrypointContractAddrRequest
+
+func (x *QueryValidatorEntrypointContractAddrRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryValidatorEntrypointContractAddrRequest)(x)
+}
+
+func (x *QueryValidatorEntrypointContractAddrRequest) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType{}
+
+type fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType struct{}
+
+func (x fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryValidatorEntrypointContractAddrRequest)(nil)
+}
+func (x fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryValidatorEntrypointContractAddrRequest)
+}
+func (x fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryValidatorEntrypointContractAddrRequest
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryValidatorEntrypointContractAddrRequest
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryValidatorEntrypointContractAddrRequest_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryValidatorEntrypointContractAddrRequest)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryValidatorEntrypointContractAddrRequest)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrRequest) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrRequest)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrRequest)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrRequest)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryValidatorEntrypointContractAddrRequest: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryValidatorEntrypointContractAddrRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryValidatorEntrypointContractAddrResponse      protoreflect.MessageDescriptor
+	fd_QueryValidatorEntrypointContractAddrResponse_addr protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryValidatorEntrypointContractAddrResponse = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryValidatorEntrypointContractAddrResponse")
+	fd_QueryValidatorEntrypointContractAddrResponse_addr = md_QueryValidatorEntrypointContractAddrResponse.Fields().ByName("addr")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryValidatorEntrypointContractAddrResponse)(nil)
+
+type fastReflection_QueryValidatorEntrypointContractAddrResponse QueryValidatorEntrypointContractAddrResponse
+
+func (x *QueryValidatorEntrypointContractAddrResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryValidatorEntrypointContractAddrResponse)(x)
+}
+
+func (x *QueryValidatorEntrypointContractAddrResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType{}
+
+type fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType struct{}
+
+func (x fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryValidatorEntrypointContractAddrResponse)(nil)
+}
+func (x fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryValidatorEntrypointContractAddrResponse)
+}
+func (x fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryValidatorEntrypointContractAddrResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryValidatorEntrypointContractAddrResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryValidatorEntrypointContractAddrResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryValidatorEntrypointContractAddrResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryValidatorEntrypointContractAddrResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.Addr) != 0 {
+		value := protoreflect.ValueOfBytes(x.Addr)
+		if !f(fd_QueryValidatorEntrypointContractAddrResponse_addr, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		return len(x.Addr) != 0
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		x.Addr = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		value := x.Addr
+		return protoreflect.ValueOfBytes(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		x.Addr = value.Bytes()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		panic(fmt.Errorf("field addr of message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse.addr":
+		return protoreflect.ValueOfBytes(nil)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryValidatorEntrypointContractAddrResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.Addr)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.Addr) > 0 {
+			i -= len(x.Addr)
+			copy(dAtA[i:], x.Addr)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Addr)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryValidatorEntrypointContractAddrResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryValidatorEntrypointContractAddrResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryValidatorEntrypointContractAddrResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Addr", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Addr = append(x.Addr[:0], dAtA[iNdEx:postIndex]...)
+				if x.Addr == nil {
+					x.Addr = []byte{}
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
 	md_QueryValidatorRequest          protoreflect.MessageDescriptor
 	fd_QueryValidatorRequest_val_addr protoreflect.FieldDescriptor
 )
@@ -828,7 +1606,7 @@ func (x *QueryValidatorRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[2]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1250,7 +2028,7 @@ func (x *QueryValidatorResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[3]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1685,7 +2463,7 @@ func (x *QueryValidatorByConsAddrRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorByConsAddrRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[4]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2105,7 +2883,7 @@ func (x *QueryValidatorByConsAddrResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorByConsAddrResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[5]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2540,7 +3318,7 @@ func (x *QueryValidatorsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[6]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3028,7 +3806,7 @@ func (x *QueryValidatorsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryValidatorsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[7]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3548,7 +4326,7 @@ func (x *QueryWithdrawalRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryWithdrawalRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[8]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3952,7 +4730,7 @@ func (x *QueryWithdrawalResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryWithdrawalResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[9]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4387,7 +5165,7 @@ func (x *QueryWithdrawalsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryWithdrawalsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[10]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4875,7 +5653,7 @@ func (x *QueryWithdrawalsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryWithdrawalsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[11]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5397,7 +6175,7 @@ func (x *QueryWithdrawalsByValidatorRequest) ProtoReflect() protoreflect.Message
 }
 
 func (x *QueryWithdrawalsByValidatorRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[12]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5949,7 +6727,7 @@ func (x *QueryWithdrawalsByValidatorResponse) ProtoReflect() protoreflect.Messag
 }
 
 func (x *QueryWithdrawalsByValidatorResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[13]
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6525,6 +7303,71 @@ func (x *QueryParamsResponse) GetParams() *Params {
 	return nil
 }
 
+// QueryValidatorEntrypointContractAddrRequest is the request type for the
+// Query/ValidatorEntrypointContractAddr RPC method
+type QueryValidatorEntrypointContractAddrRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *QueryValidatorEntrypointContractAddrRequest) Reset() {
+	*x = QueryValidatorEntrypointContractAddrRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryValidatorEntrypointContractAddrRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryValidatorEntrypointContractAddrRequest) ProtoMessage() {}
+
+// Deprecated: Use QueryValidatorEntrypointContractAddrRequest.ProtoReflect.Descriptor instead.
+func (*QueryValidatorEntrypointContractAddrRequest) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{2}
+}
+
+// QueryValidatorEntrypointContractAddrResponse is the response type for the
+// Query/ValidatorEntrypointContractAddr RPC method
+type QueryValidatorEntrypointContractAddrResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Addr []byte `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+}
+
+func (x *QueryValidatorEntrypointContractAddrResponse) Reset() {
+	*x = QueryValidatorEntrypointContractAddrResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryValidatorEntrypointContractAddrResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryValidatorEntrypointContractAddrResponse) ProtoMessage() {}
+
+// Deprecated: Use QueryValidatorEntrypointContractAddrResponse.ProtoReflect.Descriptor instead.
+func (*QueryValidatorEntrypointContractAddrResponse) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *QueryValidatorEntrypointContractAddrResponse) GetAddr() []byte {
+	if x != nil {
+		return x.Addr
+	}
+	return nil
+}
+
 // QueryValidatorRequest is the request type for the Query/Validator RPC method
 type QueryValidatorRequest struct {
 	state         protoimpl.MessageState
@@ -6537,7 +7380,7 @@ type QueryValidatorRequest struct {
 func (x *QueryValidatorRequest) Reset() {
 	*x = QueryValidatorRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[2]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6551,7 +7394,7 @@ func (*QueryValidatorRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorRequest.ProtoReflect.Descriptor instead.
 func (*QueryValidatorRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *QueryValidatorRequest) GetValAddr() []byte {
@@ -6574,7 +7417,7 @@ type QueryValidatorResponse struct {
 func (x *QueryValidatorResponse) Reset() {
 	*x = QueryValidatorResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[3]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6588,7 +7431,7 @@ func (*QueryValidatorResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorResponse.ProtoReflect.Descriptor instead.
 func (*QueryValidatorResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *QueryValidatorResponse) GetValidator() *Validator {
@@ -6611,7 +7454,7 @@ type QueryValidatorByConsAddrRequest struct {
 func (x *QueryValidatorByConsAddrRequest) Reset() {
 	*x = QueryValidatorByConsAddrRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[4]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6625,7 +7468,7 @@ func (*QueryValidatorByConsAddrRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorByConsAddrRequest.ProtoReflect.Descriptor instead.
 func (*QueryValidatorByConsAddrRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{4}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *QueryValidatorByConsAddrRequest) GetConsAddr() string {
@@ -6648,7 +7491,7 @@ type QueryValidatorByConsAddrResponse struct {
 func (x *QueryValidatorByConsAddrResponse) Reset() {
 	*x = QueryValidatorByConsAddrResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[5]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6662,7 +7505,7 @@ func (*QueryValidatorByConsAddrResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorByConsAddrResponse.ProtoReflect.Descriptor instead.
 func (*QueryValidatorByConsAddrResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{5}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *QueryValidatorByConsAddrResponse) GetValidator() *Validator {
@@ -6686,7 +7529,7 @@ type QueryValidatorsRequest struct {
 func (x *QueryValidatorsRequest) Reset() {
 	*x = QueryValidatorsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[6]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6700,7 +7543,7 @@ func (*QueryValidatorsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorsRequest.ProtoReflect.Descriptor instead.
 func (*QueryValidatorsRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{6}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *QueryValidatorsRequest) GetPagination() *v1beta1.PageRequest {
@@ -6724,7 +7567,7 @@ type QueryValidatorsResponse struct {
 func (x *QueryValidatorsResponse) Reset() {
 	*x = QueryValidatorsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[7]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6738,7 +7581,7 @@ func (*QueryValidatorsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryValidatorsResponse.ProtoReflect.Descriptor instead.
 func (*QueryValidatorsResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{7}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *QueryValidatorsResponse) GetValidators() []*Validator {
@@ -6768,7 +7611,7 @@ type QueryWithdrawalRequest struct {
 func (x *QueryWithdrawalRequest) Reset() {
 	*x = QueryWithdrawalRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[8]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6782,7 +7625,7 @@ func (*QueryWithdrawalRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalRequest.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{8}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *QueryWithdrawalRequest) GetId() uint64 {
@@ -6805,7 +7648,7 @@ type QueryWithdrawalResponse struct {
 func (x *QueryWithdrawalResponse) Reset() {
 	*x = QueryWithdrawalResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[9]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6819,7 +7662,7 @@ func (*QueryWithdrawalResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalResponse.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{9}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QueryWithdrawalResponse) GetWithdrawal() *Withdrawal {
@@ -6843,7 +7686,7 @@ type QueryWithdrawalsRequest struct {
 func (x *QueryWithdrawalsRequest) Reset() {
 	*x = QueryWithdrawalsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[10]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6857,7 +7700,7 @@ func (*QueryWithdrawalsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalsRequest.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalsRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{10}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *QueryWithdrawalsRequest) GetPagination() *v1beta1.PageRequest {
@@ -6881,7 +7724,7 @@ type QueryWithdrawalsResponse struct {
 func (x *QueryWithdrawalsResponse) Reset() {
 	*x = QueryWithdrawalsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[11]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6895,7 +7738,7 @@ func (*QueryWithdrawalsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalsResponse.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalsResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{11}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *QueryWithdrawalsResponse) GetWithdrawals() []*Withdrawal {
@@ -6927,7 +7770,7 @@ type QueryWithdrawalsByValidatorRequest struct {
 func (x *QueryWithdrawalsByValidatorRequest) Reset() {
 	*x = QueryWithdrawalsByValidatorRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[12]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6941,7 +7784,7 @@ func (*QueryWithdrawalsByValidatorRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalsByValidatorRequest.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalsByValidatorRequest) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{12}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *QueryWithdrawalsByValidatorRequest) GetValAddr() []byte {
@@ -6972,7 +7815,7 @@ type QueryWithdrawalsByValidatorResponse struct {
 func (x *QueryWithdrawalsByValidatorResponse) Reset() {
 	*x = QueryWithdrawalsByValidatorResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[13]
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6986,7 +7829,7 @@ func (*QueryWithdrawalsByValidatorResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryWithdrawalsByValidatorResponse.ProtoReflect.Descriptor instead.
 func (*QueryWithdrawalsByValidatorResponse) Descriptor() ([]byte, []int) {
-	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{13}
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *QueryWithdrawalsByValidatorResponse) GetWithdrawals() []*Withdrawal {
@@ -7030,105 +7873,131 @@ var file_mitosis_evmvalidator_v1_query_proto_rawDesc = []byte{
 	0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73,
 	0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
 	0x76, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8,
-	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x32, 0x0a, 0x15,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64,
-	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x76, 0x61, 0x6c, 0x41, 0x64, 0x64, 0x72,
-	0x22, 0x65, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x09, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22, 0x2e,
-	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x22, 0x61, 0x0a, 0x1f, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41,
-	0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3e, 0x0a, 0x09, 0x63, 0x6f,
-	0x6e, 0x73, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2,
-	0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
-	0x73, 0x75, 0x73, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67,
-	0x52, 0x08, 0x63, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x22, 0x6f, 0x0a, 0x20, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f,
-	0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b,
-	0x0a, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x22, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76,
-	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
-	0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x22, 0x60, 0x0a, 0x16, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xb1, 0x01,
-	0x0a, 0x17, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4d, 0x0a, 0x0a, 0x76, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22, 0x2e,
-	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0a, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x22, 0x28, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x69, 0x64, 0x22, 0x69, 0x0a, 0x17, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4e, 0x0a, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74,
-	0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42,
-	0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0a, 0x77, 0x69, 0x74, 0x68,
-	0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x22, 0x61, 0x0a, 0x17, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57,
-	0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62,
-	0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70,
-	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xb5, 0x01, 0x0a, 0x18, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x50, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x61, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69,
+	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x2d, 0x0a, 0x2b,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e,
+	0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74,
+	0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x79, 0x0a, 0x2c, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74,
+	0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41,
+	0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x49, 0x0a, 0x04, 0x61,
+	0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x35, 0xc8, 0xde, 0x1f, 0x00, 0xda,
+	0xde, 0x1f, 0x2d, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x69,
+	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2d, 0x6f, 0x72, 0x67, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f,
+	0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x45, 0x74, 0x68, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x52, 0x04, 0x61, 0x64, 0x64, 0x72, 0x22, 0x32, 0x0a, 0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x19, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x07, 0x76, 0x61, 0x6c, 0x41, 0x64, 0x64, 0x72, 0x22, 0x65, 0x0a, 0x16, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x09, 0xc8, 0xde, 0x1f,
+	0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x22, 0x61, 0x0a, 0x1f, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x3e, 0x0a, 0x09, 0x63, 0x6f, 0x6e, 0x73, 0x5f, 0x61, 0x64, 0x64,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x08, 0x63, 0x6f, 0x6e, 0x73,
+	0x41, 0x64, 0x64, 0x72, 0x22, 0x6f, 0x0a, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x09, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x6d, 0x69,
 	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c,
-	0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x77, 0x69, 0x74,
-	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x22, 0x87, 0x01, 0x0a, 0x22, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64,
-	0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x5f,
-	0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x76, 0x61, 0x6c, 0x41,
-	0x64, 0x64, 0x72, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52,
-	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xc0, 0x01, 0x0a, 0x23,
+	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42,
+	0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x22, 0x60, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
+	0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67,
+	0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xb1, 0x01, 0x0a, 0x17, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x4d, 0x0a, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x09, 0xc8, 0xde, 0x1f,
+	0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
+	0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52,
+	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x28, 0x0a, 0x16, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x04, 0x52, 0x02, 0x69, 0x64, 0x22, 0x69, 0x0a, 0x17, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x4e, 0x0a, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65,
+	0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x57,
+	0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8,
+	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c,
+	0x22, 0x61, 0x0a, 0x17, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61,
+	0x77, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x46, 0x0a, 0x0a, 0x70,
+	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75,
+	0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x22, 0xb5, 0x01, 0x0a, 0x18, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74,
+	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x50, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
+	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00,
+	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61,
+	0x6c, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
+	0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52,
+	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x87, 0x01, 0x0a, 0x22,
 	0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73,
-	0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x50, 0x0a, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61,
-	0x6c, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73,
-	0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
-	0x76, 0x31, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x09, 0xc8,
-	0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x32, 0xd1,
-	0x09, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x8c, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x12, 0x2b, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x2c, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x21, 0x12, 0x1f, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
-	0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31,
-	0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0xa4, 0x01, 0x0a, 0x09, 0x56, 0x61, 0x6c, 0x69,
+	0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x76, 0x61, 0x6c, 0x41, 0x64, 0x64, 0x72, 0x12, 0x46, 0x0a,
+	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e,
+	0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61,
+	0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xc0, 0x01, 0x0a, 0x23, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57,
+	0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x50, 0x0a,
+	0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x23, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x57, 0x69, 0x74,
+	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0,
+	0x2a, 0x01, 0x52, 0x0b, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12,
+	0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
+	0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61,
+	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x32, 0xc7, 0x0b, 0x0a, 0x05, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x12, 0x8c, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x2b, 0x2e,
+	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e, 0x6d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x21,
+	0x12, 0x1f, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x12, 0xf3, 0x01, 0x0a, 0x1f, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63,
+	0x74, 0x41, 0x64, 0x64, 0x72, 0x12, 0x44, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
+	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e,
+	0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74,
+	0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x45, 0x2e, 0x6d, 0x69,
+	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f,
+	0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x43, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3d, 0x12, 0x3b, 0x2f, 0x6d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f, 0x65,
+	0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61,
+	0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x12, 0xa4, 0x01, 0x0a, 0x09, 0x56, 0x61, 0x6c, 0x69,
 	0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x2e, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
 	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
 	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65,
@@ -7225,58 +8094,62 @@ func file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP() []byte {
 	return file_mitosis_evmvalidator_v1_query_proto_rawDescData
 }
 
-var file_mitosis_evmvalidator_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_mitosis_evmvalidator_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_mitosis_evmvalidator_v1_query_proto_goTypes = []interface{}{
-	(*QueryParamsRequest)(nil),                  // 0: mitosis.evmvalidator.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),                 // 1: mitosis.evmvalidator.v1.QueryParamsResponse
-	(*QueryValidatorRequest)(nil),               // 2: mitosis.evmvalidator.v1.QueryValidatorRequest
-	(*QueryValidatorResponse)(nil),              // 3: mitosis.evmvalidator.v1.QueryValidatorResponse
-	(*QueryValidatorByConsAddrRequest)(nil),     // 4: mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
-	(*QueryValidatorByConsAddrResponse)(nil),    // 5: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
-	(*QueryValidatorsRequest)(nil),              // 6: mitosis.evmvalidator.v1.QueryValidatorsRequest
-	(*QueryValidatorsResponse)(nil),             // 7: mitosis.evmvalidator.v1.QueryValidatorsResponse
-	(*QueryWithdrawalRequest)(nil),              // 8: mitosis.evmvalidator.v1.QueryWithdrawalRequest
-	(*QueryWithdrawalResponse)(nil),             // 9: mitosis.evmvalidator.v1.QueryWithdrawalResponse
-	(*QueryWithdrawalsRequest)(nil),             // 10: mitosis.evmvalidator.v1.QueryWithdrawalsRequest
-	(*QueryWithdrawalsResponse)(nil),            // 11: mitosis.evmvalidator.v1.QueryWithdrawalsResponse
-	(*QueryWithdrawalsByValidatorRequest)(nil),  // 12: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
-	(*QueryWithdrawalsByValidatorResponse)(nil), // 13: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
-	(*Params)(nil),                              // 14: mitosis.evmvalidator.v1.Params
-	(*Validator)(nil),                           // 15: mitosis.evmvalidator.v1.Validator
-	(*v1beta1.PageRequest)(nil),                 // 16: cosmos.base.query.v1beta1.PageRequest
-	(*v1beta1.PageResponse)(nil),                // 17: cosmos.base.query.v1beta1.PageResponse
-	(*Withdrawal)(nil),                          // 18: mitosis.evmvalidator.v1.Withdrawal
+	(*QueryParamsRequest)(nil),                           // 0: mitosis.evmvalidator.v1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),                          // 1: mitosis.evmvalidator.v1.QueryParamsResponse
+	(*QueryValidatorEntrypointContractAddrRequest)(nil),  // 2: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest
+	(*QueryValidatorEntrypointContractAddrResponse)(nil), // 3: mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse
+	(*QueryValidatorRequest)(nil),                        // 4: mitosis.evmvalidator.v1.QueryValidatorRequest
+	(*QueryValidatorResponse)(nil),                       // 5: mitosis.evmvalidator.v1.QueryValidatorResponse
+	(*QueryValidatorByConsAddrRequest)(nil),              // 6: mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
+	(*QueryValidatorByConsAddrResponse)(nil),             // 7: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
+	(*QueryValidatorsRequest)(nil),                       // 8: mitosis.evmvalidator.v1.QueryValidatorsRequest
+	(*QueryValidatorsResponse)(nil),                      // 9: mitosis.evmvalidator.v1.QueryValidatorsResponse
+	(*QueryWithdrawalRequest)(nil),                       // 10: mitosis.evmvalidator.v1.QueryWithdrawalRequest
+	(*QueryWithdrawalResponse)(nil),                      // 11: mitosis.evmvalidator.v1.QueryWithdrawalResponse
+	(*QueryWithdrawalsRequest)(nil),                      // 12: mitosis.evmvalidator.v1.QueryWithdrawalsRequest
+	(*QueryWithdrawalsResponse)(nil),                     // 13: mitosis.evmvalidator.v1.QueryWithdrawalsResponse
+	(*QueryWithdrawalsByValidatorRequest)(nil),           // 14: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
+	(*QueryWithdrawalsByValidatorResponse)(nil),          // 15: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
+	(*Params)(nil),                                       // 16: mitosis.evmvalidator.v1.Params
+	(*Validator)(nil),                                    // 17: mitosis.evmvalidator.v1.Validator
+	(*v1beta1.PageRequest)(nil),                          // 18: cosmos.base.query.v1beta1.PageRequest
+	(*v1beta1.PageResponse)(nil),                         // 19: cosmos.base.query.v1beta1.PageResponse
+	(*Withdrawal)(nil),                                   // 20: mitosis.evmvalidator.v1.Withdrawal
 }
 var file_mitosis_evmvalidator_v1_query_proto_depIdxs = []int32{
-	14, // 0: mitosis.evmvalidator.v1.QueryParamsResponse.params:type_name -> mitosis.evmvalidator.v1.Params
-	15, // 1: mitosis.evmvalidator.v1.QueryValidatorResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
-	15, // 2: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
-	16, // 3: mitosis.evmvalidator.v1.QueryValidatorsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	15, // 4: mitosis.evmvalidator.v1.QueryValidatorsResponse.validators:type_name -> mitosis.evmvalidator.v1.Validator
-	17, // 5: mitosis.evmvalidator.v1.QueryValidatorsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	18, // 6: mitosis.evmvalidator.v1.QueryWithdrawalResponse.withdrawal:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	16, // 7: mitosis.evmvalidator.v1.QueryWithdrawalsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	18, // 8: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	17, // 9: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	16, // 10: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	18, // 11: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	17, // 12: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	16, // 0: mitosis.evmvalidator.v1.QueryParamsResponse.params:type_name -> mitosis.evmvalidator.v1.Params
+	17, // 1: mitosis.evmvalidator.v1.QueryValidatorResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
+	17, // 2: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
+	18, // 3: mitosis.evmvalidator.v1.QueryValidatorsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	17, // 4: mitosis.evmvalidator.v1.QueryValidatorsResponse.validators:type_name -> mitosis.evmvalidator.v1.Validator
+	19, // 5: mitosis.evmvalidator.v1.QueryValidatorsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	20, // 6: mitosis.evmvalidator.v1.QueryWithdrawalResponse.withdrawal:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	18, // 7: mitosis.evmvalidator.v1.QueryWithdrawalsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	20, // 8: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	19, // 9: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	18, // 10: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	20, // 11: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	19, // 12: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
 	0,  // 13: mitosis.evmvalidator.v1.Query.Params:input_type -> mitosis.evmvalidator.v1.QueryParamsRequest
-	2,  // 14: mitosis.evmvalidator.v1.Query.Validator:input_type -> mitosis.evmvalidator.v1.QueryValidatorRequest
-	4,  // 15: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
-	6,  // 16: mitosis.evmvalidator.v1.Query.Validators:input_type -> mitosis.evmvalidator.v1.QueryValidatorsRequest
-	8,  // 17: mitosis.evmvalidator.v1.Query.Withdrawal:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalRequest
-	10, // 18: mitosis.evmvalidator.v1.Query.Withdrawals:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsRequest
-	12, // 19: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
-	1,  // 20: mitosis.evmvalidator.v1.Query.Params:output_type -> mitosis.evmvalidator.v1.QueryParamsResponse
-	3,  // 21: mitosis.evmvalidator.v1.Query.Validator:output_type -> mitosis.evmvalidator.v1.QueryValidatorResponse
-	5,  // 22: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
-	7,  // 23: mitosis.evmvalidator.v1.Query.Validators:output_type -> mitosis.evmvalidator.v1.QueryValidatorsResponse
-	9,  // 24: mitosis.evmvalidator.v1.Query.Withdrawal:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalResponse
-	11, // 25: mitosis.evmvalidator.v1.Query.Withdrawals:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsResponse
-	13, // 26: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
-	20, // [20:27] is the sub-list for method output_type
-	13, // [13:20] is the sub-list for method input_type
+	2,  // 14: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest
+	4,  // 15: mitosis.evmvalidator.v1.Query.Validator:input_type -> mitosis.evmvalidator.v1.QueryValidatorRequest
+	6,  // 16: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
+	8,  // 17: mitosis.evmvalidator.v1.Query.Validators:input_type -> mitosis.evmvalidator.v1.QueryValidatorsRequest
+	10, // 18: mitosis.evmvalidator.v1.Query.Withdrawal:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalRequest
+	12, // 19: mitosis.evmvalidator.v1.Query.Withdrawals:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsRequest
+	14, // 20: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
+	1,  // 21: mitosis.evmvalidator.v1.Query.Params:output_type -> mitosis.evmvalidator.v1.QueryParamsResponse
+	3,  // 22: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse
+	5,  // 23: mitosis.evmvalidator.v1.Query.Validator:output_type -> mitosis.evmvalidator.v1.QueryValidatorResponse
+	7,  // 24: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
+	9,  // 25: mitosis.evmvalidator.v1.Query.Validators:output_type -> mitosis.evmvalidator.v1.QueryValidatorsResponse
+	11, // 26: mitosis.evmvalidator.v1.Query.Withdrawal:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalResponse
+	13, // 27: mitosis.evmvalidator.v1.Query.Withdrawals:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsResponse
+	15, // 28: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
+	21, // [21:29] is the sub-list for method output_type
+	13, // [13:21] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
 	13, // [13:13] is the sub-list for extension extendee
 	0,  // [0:13] is the sub-list for field type_name
@@ -7315,7 +8188,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorRequest); i {
+			switch v := v.(*QueryValidatorEntrypointContractAddrRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7327,7 +8200,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorResponse); i {
+			switch v := v.(*QueryValidatorEntrypointContractAddrResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7339,7 +8212,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorByConsAddrRequest); i {
+			switch v := v.(*QueryValidatorRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7351,7 +8224,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorByConsAddrResponse); i {
+			switch v := v.(*QueryValidatorResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7363,7 +8236,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorsRequest); i {
+			switch v := v.(*QueryValidatorByConsAddrRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7375,7 +8248,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryValidatorsResponse); i {
+			switch v := v.(*QueryValidatorByConsAddrResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7387,7 +8260,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryWithdrawalRequest); i {
+			switch v := v.(*QueryValidatorsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7399,7 +8272,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryWithdrawalResponse); i {
+			switch v := v.(*QueryValidatorsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7411,7 +8284,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryWithdrawalsRequest); i {
+			switch v := v.(*QueryWithdrawalRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7423,7 +8296,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryWithdrawalsResponse); i {
+			switch v := v.(*QueryWithdrawalResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7435,7 +8308,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryWithdrawalsByValidatorRequest); i {
+			switch v := v.(*QueryWithdrawalsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -7447,6 +8320,30 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			}
 		}
 		file_mitosis_evmvalidator_v1_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryWithdrawalsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryWithdrawalsByValidatorRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryWithdrawalsByValidatorResponse); i {
 			case 0:
 				return &v.state
@@ -7465,7 +8362,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_mitosis_evmvalidator_v1_query_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

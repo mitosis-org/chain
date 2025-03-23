@@ -23,6 +23,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetCmdQueryParams(),
+		GetCmdQueryValidatorEntrypointContractAddr(),
 		GetCmdQueryValidator(),
 		GetCmdQueryValidatorByConsAddr(),
 		GetCmdQueryValidators(),
@@ -48,6 +49,33 @@ func GetCmdQueryParams() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryValidatorEntrypointContractAddr implements the query ConsensusValidatorEntrypoint contract address command.
+func GetCmdQueryValidatorEntrypointContractAddr() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "validator-entrypoint-contract-addr",
+		Short: "Query the ConsensusValidatorEntrypoint contract address",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.ValidatorEntrypointContractAddr(cmd.Context(), &types.QueryValidatorEntrypointContractAddrRequest{})
 			if err != nil {
 				return err
 			}

@@ -20,26 +20,29 @@ var (
 	// ParamsKey is the key for module parameters
 	ParamsKey = []byte{0x01}
 
+	// ValidatorEntrypointContractAddrKey is the prefix for a ConsensusValidatorEntrypoint contract address
+	ValidatorEntrypointContractAddrKey = []byte{0x02}
+
 	// ValidatorKeyPrefix is the prefix for a validator
-	ValidatorKeyPrefix = []byte{0x02}
+	ValidatorKeyPrefix = []byte{0x03}
 
 	// ValidatorByConsAddrKeyPrefix is the prefix for a validator index, by consensus address
-	ValidatorByConsAddrKeyPrefix = []byte{0x03}
+	ValidatorByConsAddrKeyPrefix = []byte{0x04}
 
 	// ValidatorByPowerIndexKeyPrefix is the prefix for a validator index, sorted by power
-	ValidatorByPowerIndexKeyPrefix = []byte{0x04}
+	ValidatorByPowerIndexKeyPrefix = []byte{0x05}
 
 	// LastValidatorPowerKeyPrefix is the prefix for last validator powers
-	LastValidatorPowerKeyPrefix = []byte{0x05}
+	LastValidatorPowerKeyPrefix = []byte{0x06}
 
 	// WithdrawalLastIDKeyPrefix is the key for the last withdrawal ID
-	WithdrawalLastIDKeyPrefix = []byte{0x06}
+	WithdrawalLastIDKeyPrefix = []byte{0x07}
 
 	// WithdrawalByMaturesAtKeyPrefix is the prefix for a withdrawal by maturesAt and ID
-	WithdrawalByMaturesAtKeyPrefix = []byte{0x07}
+	WithdrawalByMaturesAtKeyPrefix = []byte{0x08}
 
 	// WithdrawalByValidatorKeyPrefix is the prefix for a withdrawal by validator address, maturesAt, and ID
-	WithdrawalByValidatorKeyPrefix = []byte{0x08}
+	WithdrawalByValidatorKeyPrefix = []byte{0x09}
 )
 
 // GetValidatorKey creates key for a validator from validator address

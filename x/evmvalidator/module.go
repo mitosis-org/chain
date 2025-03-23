@@ -14,7 +14,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
 	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	modulev1 "github.com/mitosis-org/chain/api/mitosis/evmvalidator/module/v1"
 	"github.com/mitosis-org/chain/x/evmvalidator/client/cli"
@@ -193,9 +192,6 @@ type ModuleOutputs struct {
 }
 
 func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
-	// Parse entrypoint address
-	entrypointAddr := common.HexToAddress(in.Config.EvmValidatorEntrypointAddr)
-
 	// Parse authority address
 	if in.Config.Authority == "" {
 		return ModuleOutputs{}, errors.New("authority address is empty")
@@ -206,7 +202,6 @@ func ProvideModule(in ModuleInputs) (ModuleOutputs, error) {
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.StoreKey,
-		entrypointAddr,
 		in.ValidatorAddressCodec,
 		in.ConsensusAddressCodec,
 		authority.String(),

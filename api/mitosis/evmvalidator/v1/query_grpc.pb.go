@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Params_FullMethodName                 = "/mitosis.evmvalidator.v1.Query/Params"
-	Query_Validator_FullMethodName              = "/mitosis.evmvalidator.v1.Query/Validator"
-	Query_ValidatorByConsAddr_FullMethodName    = "/mitosis.evmvalidator.v1.Query/ValidatorByConsAddr"
-	Query_Validators_FullMethodName             = "/mitosis.evmvalidator.v1.Query/Validators"
-	Query_Withdrawal_FullMethodName             = "/mitosis.evmvalidator.v1.Query/Withdrawal"
-	Query_Withdrawals_FullMethodName            = "/mitosis.evmvalidator.v1.Query/Withdrawals"
-	Query_WithdrawalsByValidator_FullMethodName = "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator"
+	Query_Params_FullMethodName                          = "/mitosis.evmvalidator.v1.Query/Params"
+	Query_ValidatorEntrypointContractAddr_FullMethodName = "/mitosis.evmvalidator.v1.Query/ValidatorEntrypointContractAddr"
+	Query_Validator_FullMethodName                       = "/mitosis.evmvalidator.v1.Query/Validator"
+	Query_ValidatorByConsAddr_FullMethodName             = "/mitosis.evmvalidator.v1.Query/ValidatorByConsAddr"
+	Query_Validators_FullMethodName                      = "/mitosis.evmvalidator.v1.Query/Validators"
+	Query_Withdrawal_FullMethodName                      = "/mitosis.evmvalidator.v1.Query/Withdrawal"
+	Query_Withdrawals_FullMethodName                     = "/mitosis.evmvalidator.v1.Query/Withdrawals"
+	Query_WithdrawalsByValidator_FullMethodName          = "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator"
 )
 
 // QueryClient is the client API for Query service.
@@ -34,6 +35,9 @@ const (
 type QueryClient interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// ValidatorEntrypointContractAddr returns the address of the entrypoint
+	// contract for validators
+	ValidatorEntrypointContractAddr(ctx context.Context, in *QueryValidatorEntrypointContractAddrRequest, opts ...grpc.CallOption) (*QueryValidatorEntrypointContractAddrResponse, error)
 	// Validator returns validator details by address
 	Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error)
 	// ValidatorByConsAddr returns validator details by consensus address
@@ -59,6 +63,15 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
 	out := new(QueryParamsResponse)
 	err := c.cc.Invoke(ctx, Query_Params_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ValidatorEntrypointContractAddr(ctx context.Context, in *QueryValidatorEntrypointContractAddrRequest, opts ...grpc.CallOption) (*QueryValidatorEntrypointContractAddrResponse, error) {
+	out := new(QueryValidatorEntrypointContractAddrResponse)
+	err := c.cc.Invoke(ctx, Query_ValidatorEntrypointContractAddr_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +138,9 @@ func (c *queryClient) WithdrawalsByValidator(ctx context.Context, in *QueryWithd
 type QueryServer interface {
 	// Params returns the parameters of the x/evmvalidator module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// ValidatorEntrypointContractAddr returns the address of the entrypoint
+	// contract for validators
+	ValidatorEntrypointContractAddr(context.Context, *QueryValidatorEntrypointContractAddrRequest) (*QueryValidatorEntrypointContractAddrResponse, error)
 	// Validator returns validator details by address
 	Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error)
 	// ValidatorByConsAddr returns validator details by consensus address
@@ -146,6 +162,9 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (UnimplementedQueryServer) ValidatorEntrypointContractAddr(context.Context, *QueryValidatorEntrypointContractAddrRequest) (*QueryValidatorEntrypointContractAddrResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidatorEntrypointContractAddr not implemented")
 }
 func (UnimplementedQueryServer) Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Validator not implemented")
@@ -192,6 +211,24 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Params(ctx, req.(*QueryParamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ValidatorEntrypointContractAddr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorEntrypointContractAddrRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ValidatorEntrypointContractAddr(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_ValidatorEntrypointContractAddr_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ValidatorEntrypointContractAddr(ctx, req.(*QueryValidatorEntrypointContractAddrRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -314,6 +351,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "ValidatorEntrypointContractAddr",
+			Handler:    _Query_ValidatorEntrypointContractAddr_Handler,
 		},
 		{
 			MethodName: "Validator",

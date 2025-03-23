@@ -19,6 +19,15 @@ service Query {
     option (google.api.http).get = "/mitosis/evmvalidator/v1/params";
   }
 
+  // ValidatorEntrypointContractAddr returns the address of the entrypoint
+  // contract for validators
+  rpc ValidatorEntrypointContractAddr(
+      QueryValidatorEntrypointContractAddrRequest)
+      returns (QueryValidatorEntrypointContractAddrResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/validator_entrypoint_contract_addr";
+  }
+
   // Validator returns validator details by address
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
     option (google.api.http).get =
@@ -62,6 +71,19 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   Params params = 1
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// QueryValidatorEntrypointContractAddrRequest is the request type for the
+// Query/ValidatorEntrypointContractAddr RPC method
+message QueryValidatorEntrypointContractAddrRequest {}
+
+// QueryValidatorEntrypointContractAddrResponse is the response type for the
+// Query/ValidatorEntrypointContractAddr RPC method
+message QueryValidatorEntrypointContractAddrResponse {
+  bytes addr = 1 [
+    (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryValidatorRequest is the request type for the Query/Validator RPC method

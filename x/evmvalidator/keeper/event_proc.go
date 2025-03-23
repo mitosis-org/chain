@@ -2,10 +2,8 @@ package keeper
 
 import (
 	"context"
-	stderrors "errors"
-
 	sdkmath "cosmossdk.io/math"
-
+	stderrors "errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -34,6 +32,9 @@ var (
 		EventMsgUnjail.ID:                 EventMsgUnjail,
 		EventMsgUpdateExtraVotingPower.ID: EventMsgUpdateExtraVotingPower,
 	}
+
+	cachedValidatorEntrypointAddr     common.Address
+	cachedValidatorEntrypointContract *bindings.ConsensusValidatorEntrypoint
 )
 
 // Name returns the name of the module
@@ -42,8 +43,10 @@ func (*Keeper) Name() string {
 }
 
 // FilterParams defines the matching EVM log events
-func (k *Keeper) FilterParams() ([]common.Address, [][]common.Hash) {
-	return []common.Address{k.evmValidatorEntrypointAddr},
+func (k *Keeper) FilterParams(ctx context.Context) ([]common.Address, [][]common.Hash) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	contractAddr := k.GetValidatorEntrypointContractAddr(sdkCtx).Address()
+	return []common.Address{contractAddr},
 		[][]common.Hash{
 			{
 				EventMsgRegisterValidator.ID,
@@ -95,6 +98,11 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		return err, false
 	}
 
+	contract, err := getValidatorEntrypointContract(ethlog.Address)
+	if err != nil {
+		return err, false
+	}
+
 	switch ethlog.Topics[0] {
 	// Potential failure cases are:
 	// - The validator already exist (might be verified at the EVM contract level)
@@ -103,7 +111,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 	// The fallback logic must not fail due to its critical nature and should not fail because it's trivial.
 	// Therefore, we raise an error if the fallback fails.
 	case EventMsgRegisterValidator.ID:
-		event, err := k.evmValidatorEntrypointContract.ParseMsgRegisterValidator(ethlog)
+		event, err := contract.ParseMsgRegisterValidator(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgRegisterValidator"), false
 		}
@@ -133,7 +141,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 	// The fallback logic must not fail due to its critical nature and should not fail because it's trivial.
 	// Therefore, we raise an error if the fallback fails.
 	case EventMsgDepositCollateral.ID:
-		event, err := k.evmValidatorEntrypointContract.ParseMsgDepositCollateral(ethlog)
+		event, err := contract.ParseMsgDepositCollateral(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgDepositCollateral"), false
 		}
@@ -163,7 +171,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
 	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgWithdrawCollateral.ID:
-		event, err := k.evmValidatorEntrypointContract.ParseMsgWithdrawCollateral(ethlog)
+		event, err := contract.ParseMsgWithdrawCollateral(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgWithdrawCollateral"), false
 		}
@@ -177,7 +185,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
 	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgUnjail.ID:
-		event, err := k.evmValidatorEntrypointContract.ParseMsgUnjail(ethlog)
+		event, err := contract.ParseMsgUnjail(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
@@ -190,7 +198,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
 	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
 	case EventMsgUpdateExtraVotingPower.ID:
-		event, err := k.evmValidatorEntrypointContract.ParseMsgUpdateExtraVotingPower(ethlog)
+		event, err := contract.ParseMsgUpdateExtraVotingPower(ethlog)
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
@@ -333,6 +341,20 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 	}
 
 	return nil, false
+}
+
+func getValidatorEntrypointContract(addr common.Address) (*bindings.ConsensusValidatorEntrypoint, error) {
+	if addr != cachedValidatorEntrypointAddr {
+		var err error
+
+		cachedValidatorEntrypointContract, err = bindings.NewConsensusValidatorEntrypoint(addr, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create consensus validator entrypoint contract")
+		}
+		cachedValidatorEntrypointAddr = addr
+	}
+
+	return cachedValidatorEntrypointContract, nil
 }
 
 // mustGetABI returns the metadata's ABI as an abi.ABI type.

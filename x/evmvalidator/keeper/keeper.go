@@ -11,48 +11,35 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/mitosis-org/chain/bindings"
 	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 )
 
 // Keeper of the evmvalidator store
 type Keeper struct {
-	cdc                            codec.BinaryCodec
-	storeKey                       storetypes.StoreKey
-	slashingKeeper                 types.SlashingKeeper // initialized later
-	evmEngKeeper                   types.EvmEngineKeeper
-	evmValidatorEntrypointAddr     common.Address
-	evmValidatorEntrypointContract *bindings.ConsensusValidatorEntrypoint
-	validatorAddressCodec          address.Codec
-	consensusAddressCodec          address.Codec
-	authority                      string
+	cdc                   codec.BinaryCodec
+	storeKey              storetypes.StoreKey
+	slashingKeeper        types.SlashingKeeper // initialized later
+	evmEngKeeper          types.EvmEngineKeeper
+	validatorAddressCodec address.Codec
+	consensusAddressCodec address.Codec
+	authority             string
 }
 
 // NewKeeper creates a new keeper
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	evmValidatorEntrypointAddr common.Address,
 	validatorAddressCodec address.Codec,
 	consensusAddressCodec address.Codec,
 	authority string,
 ) *Keeper {
-	// Create contract binding to interact with events
-	consensusValidatorEntrypointContract, err := bindings.NewConsensusValidatorEntrypoint(evmValidatorEntrypointAddr, nil)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create consensus validator entrypoint contract: %v", err))
-	}
-
 	return &Keeper{
-		cdc:                            cdc,
-		storeKey:                       storeKey,
-		evmValidatorEntrypointAddr:     evmValidatorEntrypointAddr,
-		evmValidatorEntrypointContract: consensusValidatorEntrypointContract,
-		validatorAddressCodec:          validatorAddressCodec,
-		consensusAddressCodec:          consensusAddressCodec,
-		authority:                      authority,
+		cdc:                   cdc,
+		storeKey:              storeKey,
+		validatorAddressCodec: validatorAddressCodec,
+		consensusAddressCodec: consensusAddressCodec,
+		authority:             authority,
 	}
 }
 
@@ -94,6 +81,23 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	store.Set(types.ParamsKey, bz)
 
 	return nil
+}
+
+// GetValidatorEntrypointContractAddr gets the ConsensusValidatorEntrypoint contract address
+func (k Keeper) GetValidatorEntrypointContractAddr(ctx sdk.Context) mitotypes.EthAddress {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ValidatorEntrypointContractAddrKey)
+	if bz == nil {
+		return mitotypes.EthAddress{}
+	}
+
+	return mitotypes.BytesToEthAddress(bz)
+}
+
+// SetValidatorEntrypointContractAddr sets the ConsensusValidatorEntrypoint contract address
+func (k Keeper) SetValidatorEntrypointContractAddr(ctx sdk.Context, addr mitotypes.EthAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.ValidatorEntrypointContractAddrKey, addr.Bytes())
 }
 
 // GetValidator gets a validator by address

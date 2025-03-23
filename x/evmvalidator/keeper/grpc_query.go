@@ -36,6 +36,17 @@ func (q QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest) 
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
+// ValidatorEntrypointContractAddr returns the address of the ConsensusValidatorEntrypoint contract
+func (q QueryServer) ValidatorEntrypointContractAddr(ctx context.Context, req *types.QueryValidatorEntrypointContractAddrRequest) (*types.QueryValidatorEntrypointContractAddrResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	addr := q.k.GetValidatorEntrypointContractAddr(sdkCtx)
+	return &types.QueryValidatorEntrypointContractAddrResponse{Addr: addr}, nil
+}
+
 // Validator returns a specific validator by validator address
 func (q QueryServer) Validator(ctx context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
 	if req == nil {

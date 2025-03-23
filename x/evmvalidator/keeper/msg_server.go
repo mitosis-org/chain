@@ -47,3 +47,16 @@ func (m msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+// UpdateValidatorEntrypointContractAddr updates the address of the ConsensusValidatorEntrypoint contract
+func (m msgServer) UpdateValidatorEntrypointContractAddr(ctx context.Context, msg *types.MsgUpdateValidatorEntrypointContractAddr) (*types.MsgUpdateValidatorEntrypointContractAddrResponse, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	if m.k.authority != msg.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", m.k.authority, msg.Authority)
+	}
+
+	m.k.SetValidatorEntrypointContractAddr(sdkCtx, msg.Addr)
+
+	return &types.MsgUpdateValidatorEntrypointContractAddrResponse{}, nil
+}

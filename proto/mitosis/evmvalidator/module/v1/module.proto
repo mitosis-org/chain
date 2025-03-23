@@ -11,8 +11,4 @@ message Module {
 
   // authority defines the custom module authority.
   string authority = 1;
-
-  // evm_validator_entrypoint_addr defines the address of the
-  // ConsensusValidatorEntrypoint contract
-  string evm_validator_entrypoint_addr = 2;
 }

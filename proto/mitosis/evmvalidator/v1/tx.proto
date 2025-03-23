@@ -15,6 +15,12 @@ service Msg {
 
   // UpdateParams updates the module parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // UpdateValidatorEntrypointContractAddr updates the address of the
+  // ConsensusValidatorEntrypoint contract
+  rpc UpdateValidatorEntrypointContractAddr(
+      MsgUpdateValidatorEntrypointContractAddr)
+      returns (MsgUpdateValidatorEntrypointContractAddrResponse);
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type
@@ -30,3 +36,22 @@ message MsgUpdateParams {
 
 // MsgUpdateParamsResponse is the Msg/UpdateParams response type
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateValidatorEntrypointContractAddr is the
+// Msg/UpdateValidatorEntrypointContractAddr request type
+message MsgUpdateValidatorEntrypointContractAddr {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address that controls the module
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // addr is the new address of the ConsensusValidatorEntrypoint contract
+  bytes addr = 2 [
+    (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUpdateValidatorEntrypointContractAddrResponse is the
+// Msg/UpdateValidatorEntrypointContractAddr response type
+message MsgUpdateValidatorEntrypointContractAddrResponse {}

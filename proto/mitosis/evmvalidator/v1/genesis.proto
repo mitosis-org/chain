@@ -13,13 +13,20 @@ message GenesisState {
   // params defines all the parameters of the module
   Params params = 1 [ (gogoproto.nullable) = false ];
 
+  // validator_entrypoint_contract_addr is the address of the
+  // ConsensusValidatorEntrypoint contract
+  bytes validator_entrypoint_contract_addr = 2 [
+    (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
+    (gogoproto.nullable) = false
+  ];
+
   // validators is the list of validators at genesis
-  repeated Validator validators = 2 [ (gogoproto.nullable) = false ];
+  repeated Validator validators = 3 [ (gogoproto.nullable) = false ];
 
   // withdrawals is the list of pending withdrawals at genesis
-  repeated Withdrawal withdrawals = 3 [ (gogoproto.nullable) = false ];
+  repeated Withdrawal withdrawals = 4 [ (gogoproto.nullable) = false ];
 
   // last_validator_powers is the list of the last powers of each validator
-  repeated LastValidatorPower last_validator_powers = 4
+  repeated LastValidatorPower last_validator_powers = 5
       [ (gogoproto.nullable) = false ];
 }

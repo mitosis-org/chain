@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	mitotypes "github.com/mitosis-org/chain/types"
 
 	"github.com/omni-network/omni/lib/errors"
 )
@@ -9,25 +10,28 @@ import (
 // NewGenesisState creates a new GenesisState object
 func NewGenesisState(
 	params Params,
+	validatorEntrypointContractAddr mitotypes.EthAddress,
 	validators []Validator,
 	withdrawals []Withdrawal,
 	lastValidatorPowers []LastValidatorPower,
 ) *GenesisState {
 	return &GenesisState{
-		Params:              params,
-		Validators:          validators,
-		Withdrawals:         withdrawals,
-		LastValidatorPowers: lastValidatorPowers,
+		Params:                          params,
+		ValidatorEntrypointContractAddr: validatorEntrypointContractAddr,
+		Validators:                      validators,
+		Withdrawals:                     withdrawals,
+		LastValidatorPowers:             lastValidatorPowers,
 	}
 }
 
 // DefaultGenesisState creates a default GenesisState object
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params:              DefaultParams(),
-		Validators:          []Validator{},
-		Withdrawals:         []Withdrawal{},
-		LastValidatorPowers: []LastValidatorPower{},
+		Params:                          DefaultParams(),
+		ValidatorEntrypointContractAddr: mitotypes.EthAddress{},
+		Validators:                      []Validator{},
+		Withdrawals:                     []Withdrawal{},
+		LastValidatorPowers:             []LastValidatorPower{},
 	}
 }
 
