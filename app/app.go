@@ -1,11 +1,12 @@
 package app
 
 import (
-	mitotypes "github.com/mitosis-org/chain/types"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"

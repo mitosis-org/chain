@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	mitotypes "github.com/mitosis-org/chain/types"
 
 	"github.com/omni-network/omni/lib/errors"

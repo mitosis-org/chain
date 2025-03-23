@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	mitotypes "github.com/mitosis-org/chain/types"
 	"os"
+
+	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/client/v2/autocli"
 	clientv2keyring "cosmossdk.io/client/v2/autocli/keyring"

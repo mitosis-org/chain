@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/log"
