@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	cosmossdk.io/api v0.7.6
-	cosmossdk.io/client/v2 v2.0.0-beta.5
+	cosmossdk.io/client/v2 v2.0.0-beta.8
 	cosmossdk.io/core v0.11.2 // NOTE: don't use core v0.12 because it was tagged wrong (SDK v0.51.x)
 	cosmossdk.io/depinject v1.1.0
 	cosmossdk.io/errors v1.0.1
@@ -14,28 +14,22 @@ require (
 	cosmossdk.io/tools/confix v0.1.2
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/upgrade v0.1.4
-	github.com/cometbft/cometbft v0.38.15
+	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-db v1.1.1
-	github.com/cosmos/cosmos-sdk v0.50.12
-	github.com/cosmos/go-bip39 v1.0.0
-	github.com/ethereum/go-ethereum v1.15.5
-	github.com/hashicorp/go-metrics v0.5.3 // indirect
-	github.com/omni-network/omni v0.0.0-00010101000000-000000000000
-	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.6 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	google.golang.org/grpc v1.70.0
-)
-
-require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
+	github.com/cosmos/cosmos-sdk v0.50.13
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.0
+	github.com/ethereum/go-ethereum v1.15.5
 	github.com/golang/protobuf v1.5.4
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/omni-network/omni v0.13.0
+	github.com/spf13/cobra v1.9.1
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f
-	google.golang.org/protobuf v1.36.4
+	google.golang.org/grpc v1.70.0
+	google.golang.org/protobuf v1.36.5
 )
 
 require (
@@ -45,7 +39,7 @@ require (
 	cloud.google.com/go/storage v1.38.0 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/orm v1.0.0-beta.3 // indirect
-	cosmossdk.io/x/tx v0.13.7 // indirect
+	cosmossdk.io/x/tx v0.13.8 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -116,7 +110,7 @@ require (
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
@@ -133,6 +127,7 @@ require (
 	github.com/hashicorp/go-getter v1.7.5 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
+	github.com/hashicorp/go-metrics v0.5.3 // indirect
 	github.com/hashicorp/go-plugin v1.5.2 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
@@ -167,7 +162,7 @@ require (
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.15.2 // indirect
+	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a // indirect
 	github.com/oklog/run v1.1.0 // indirect
@@ -192,6 +187,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
@@ -220,6 +216,7 @@ require (
 	golang.org/x/exp v0.0.0-20250103183323-7d7fa50e5329 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.24.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
@@ -236,12 +233,10 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-// following versions might cause unexpected behavior
 replace (
-	// TODO(thai): should revise the commit revision.
-	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250316161737-c491fa0eb9b0
-	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.12-0.20250316161737-c491fa0eb9b0
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.0.0-20250318185406-b9706d4317fe
+	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250323173041-fe448f434ae2
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250323173041-fe448f434ae2
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250323172940-ca882766ee07
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
