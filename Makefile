@@ -236,7 +236,7 @@ setup-reth: clean-reth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.3.1 init \
+		ghcr.io/paradigmxyz/reth:v1.3.4 init \
 			--datadir /data \
 			--chain /infra/genesis.json
 
