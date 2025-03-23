@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
-	sdklog "cosmossdk.io/log"
 	"fmt"
+
+	sdklog "cosmossdk.io/log"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"

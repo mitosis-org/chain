@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
 

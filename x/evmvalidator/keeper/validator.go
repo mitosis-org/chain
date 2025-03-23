@@ -1,15 +1,17 @@
 package keeper
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"encoding/hex"
 	"fmt"
+	"strconv"
+	"time"
+
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/omni-network/omni/lib/errors"
-	"strconv"
-	"time"
 )
 
 func (k Keeper) registerValidator(

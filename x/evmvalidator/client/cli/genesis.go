@@ -83,17 +83,20 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 				Bonded:           false,
 			}
 
-			println("------------ Validator Info ------------")
-			consAddr, _ := validator.ConsAddr()
-			println("evm address :", valAddr.String())
-			println("acc address :", sdk.AccAddress(valAddr.Bytes()).String())
-			println("val address :", sdk.ValAddress(valAddr.Bytes()).String())
-			println("cons address:", consAddr.String())
-			println()
+			//nolint:forbidigo
+			{
+				println("------------ Validator Info ------------")
+				consAddr, _ := validator.ConsAddr()
+				println("evm address :", valAddr.String())
+				println("acc address :", sdk.AccAddress(valAddr.Bytes()).String())
+				println("val address :", sdk.ValAddress(valAddr.Bytes()).String())
+				println("cons address:", consAddr.String())
+				println()
 
-			println("pubkey (hex)   :", fmt.Sprintf("%X", pubkey))
-			println("pubkey (base64):", base64.StdEncoding.EncodeToString(pubkey))
-			println("----------------------------------------")
+				println("pubkey (hex)   :", fmt.Sprintf("%X", pubkey))
+				println("pubkey (base64):", base64.StdEncoding.EncodeToString(pubkey))
+				println("----------------------------------------")
+			}
 
 			// Get the server context
 			serverCtx := server.GetServerContextFromCmd(cmd)

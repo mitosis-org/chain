@@ -1,8 +1,10 @@
 package keeper
 
 import (
-	"cosmossdk.io/log"
 	"fmt"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -84,6 +86,5 @@ func safeExecuteHandler(ctx sdk.Context, msg sdk.Msg, handler baseapp.MsgService
 			err = fmt.Errorf("handling msg [%s] PANICKED: %v", msg, r)
 		}
 	}()
-	res, err = handler(ctx, msg)
-	return
+	return handler(ctx, msg)
 }

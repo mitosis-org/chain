@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	mitotypes "github.com/mitosis-org/chain/types"
@@ -57,7 +58,7 @@ func GetValidatorByPowerIndexKey(power int64, valAddr mitotypes.EthAddress) []by
 	powerBytes := make([]byte, 8)
 	// power is converted to descending order for the key (higher power first)
 	// because we want to iterate from highest to lowest power in EndBlocker
-	binary.BigEndian.PutUint64(powerBytes, uint64(^power))
+	binary.BigEndian.PutUint64(powerBytes, uint64(^power)) //nolint:gosec
 	return append(ValidatorByPowerIndexKeyPrefix, append(powerBytes, address.MustLengthPrefix(valAddr.Bytes())...)...)
 }
 
@@ -74,7 +75,7 @@ func GetWithdrawalLastIDKey() []byte {
 // GetWithdrawalByMaturesAtKey creates a key for a withdrawal by maturesAt and ID
 func GetWithdrawalByMaturesAtKey(maturesAt int64, id uint64) []byte {
 	maturesAtBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt))
+	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt)) //nolint:gosec
 	idBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(idBytes, id)
 	return append(WithdrawalByMaturesAtKeyPrefix, append(maturesAtBytes, idBytes...)...)
@@ -83,7 +84,7 @@ func GetWithdrawalByMaturesAtKey(maturesAt int64, id uint64) []byte {
 // GetWithdrawalByValidatorKey creates a key for a withdrawal by validator and maturesAt
 func GetWithdrawalByValidatorKey(valAddr mitotypes.EthAddress, maturesAt int64, id uint64) []byte {
 	maturesAtBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt))
+	binary.BigEndian.PutUint64(maturesAtBytes, uint64(maturesAt)) //nolint:gosec
 	idBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(idBytes, id)
 	return append(WithdrawalByValidatorKeyPrefix, append(address.MustLengthPrefix(valAddr.Bytes()), append(maturesAtBytes, idBytes...)...)...)

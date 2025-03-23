@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/cometbft/cometbft/crypto/secp256k1"
 	"os"
 	"path/filepath"
+
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 
 	cfg "github.com/cometbft/cometbft/config"
 	cmtos "github.com/cometbft/cometbft/libs/os"

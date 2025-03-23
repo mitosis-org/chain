@@ -125,7 +125,7 @@ func parseMessages(filePath, msgString string) ([]string, error) {
 	// Validate that it's a proper JSON array
 	var jsonArray []json.RawMessage
 	if err := json.Unmarshal([]byte(content), &jsonArray); err != nil {
-		return nil, fmt.Errorf("invalid JSON array: %v", err)
+		return nil, fmt.Errorf("invalid JSON array: %w", err)
 	}
 
 	// Convert each JSON object to string and return

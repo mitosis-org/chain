@@ -1,6 +1,11 @@
 package app
 
 import (
+	"io"
+	"os"
+	"path/filepath"
+	"time"
+
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
@@ -19,10 +24,6 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/ethclient"
-	"io"
-	"os"
-	"path/filepath"
-	"time"
 
 	consensusparamskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	evmgovkeeper "github.com/mitosis-org/chain/x/evmgov/keeper"
@@ -42,9 +43,7 @@ import (
 	_ "github.com/mitosis-org/chain/x/evmvalidator"   // import for side-effects
 )
 
-var (
-	DefaultNodeHome string
-)
+var DefaultNodeHome string
 
 var (
 	_ runtime.AppI            = (*MitosisApp)(nil)

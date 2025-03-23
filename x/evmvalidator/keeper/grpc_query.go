@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/store/prefix"
@@ -99,7 +100,6 @@ func (q QueryServer) Validators(ctx context.Context, req *types.QueryValidatorsR
 		validators = append(validators, validator)
 		return nil
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -158,7 +158,6 @@ func (q QueryServer) Withdrawals(ctx context.Context, req *types.QueryWithdrawal
 		withdrawals = append(withdrawals, withdrawal)
 		return nil
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -193,7 +192,6 @@ func (q QueryServer) WithdrawalsByValidator(ctx context.Context, req *types.Quer
 		withdrawals = append(withdrawals, withdrawal)
 		return nil
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

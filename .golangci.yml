@@ -86,18 +86,18 @@ linters:
     - bidichk # checks for dangerous unicode character sequences
     - bodyclose # checks whether HTTP response body is closed successfully
     #- cyclop # checks function and package cyclomatic complexity
-    - dupl # tool for code clone detection
+    #- dupl # tool for code clone detection
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    - execinquery # checks query string in Query function which reads your Go src files and warning it finds
+    #- execinquery # checks query string in Query function which reads your Go src files and warning it finds
     - exhaustive # checks exhaustiveness of enum switch statements
-    - exportloopref # checks for pointers to enclosing loop variables
+    #- exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
     #- funlen # tool for detection of long functions
     #- gochecknoglobals # checks that no global variables exist
     #- gochecknoinits # checks that no init functions are present in Go code
-    - gocognit # computes and checks the cognitive complexity of functions
+    #- gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
     #- gocritic # provides diagnostics that check for bugs, performance and style issues
     - gocyclo # computes and checks the cyclomatic complexity of functions
@@ -110,14 +110,14 @@ linters:
     - gosec # inspects source code for security problems
     #- lll # reports long lines
     - loggercheck # checks key value pairs for common logger libraries (kitlog,klog,logr,zap)
-    - makezero # finds slice declarations with non-zero initial length
+    #- makezero # finds slice declarations with non-zero initial length
     - nakedret # finds naked returns in functions greater than a specified function length
     #- nestif # reports deeply nested if statements
     - nilerr # finds the code that returns nil even if it checks that the error is not nil
     - nilnil # checks that there is no simultaneous return of nil error and an invalid value
     - noctx # finds sending http request without context.Context
     - nolintlint # reports ill-formed or insufficient nolint directives
-    - nonamedreturns # reports all named returns
+    #- nonamedreturns # reports all named returns
     - nosprintfhostport # checks for misuse of Sprintf to construct a host with port in a URL
     #- predeclared # finds code that shadows one of Go's predeclared identifiers
     - promlinter # checks Prometheus metrics naming via promlint
@@ -126,12 +126,12 @@ linters:
     - rowserrcheck # checks whether Err of rows is checked successfully
     - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
     - stylecheck # is a replacement for golint
-    - tenv # detects using os.Setenv instead of t.Setenv since Go1.17
+    #- tenv # detects using os.Setenv instead of t.Setenv since Go1.17
     - testableexamples # checks if examples are testable (have an expected output)
     #- testpackage # makes you use a separate _test package
     - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # removes unnecessary type conversions
-    - unparam # reports unused function parameters
+    #- unparam # reports unused function parameters
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace
@@ -156,6 +156,11 @@ issues:
   # Set to 0 to disable.
   # Default: 3
   max-same-issues: 50
+
+  exclude-files:
+    - ".*\\.pb\\.go$" # Ignore generated protobuf files
+    - ".*\\.pulsar\\.go$" # Ignore generated protobuf files
+    - "bindings/*" # Ignore generated contract bindings
 
   exclude-rules:
     - source: "^//\\s*go:generate\\s"

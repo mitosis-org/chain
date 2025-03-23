@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/omni-network/omni/lib/k1util"
@@ -11,7 +12,7 @@ import (
 func ValidatePubkeyWithEthAddress(pubkey []byte, addr mitotypes.EthAddress) error {
 	expectedAddr, err := PubkeyToEthAddress(pubkey)
 	if err != nil {
-		return nil
+		return errors.Wrap(err, "failed to convert pubkey to eth address")
 	}
 
 	if addr != expectedAddr {

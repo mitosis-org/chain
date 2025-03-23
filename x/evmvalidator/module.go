@@ -2,11 +2,14 @@ package evmvalidator
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
 	storetypes "cosmossdk.io/store/types"
-	"encoding/json"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -19,7 +22,6 @@ import (
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/omni-network/omni/lib/errors"
 	"github.com/spf13/cobra"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

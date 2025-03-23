@@ -243,7 +243,6 @@ func appExport(
 	)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
-
 	}
 
 	if height != -1 {

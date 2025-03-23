@@ -1,12 +1,14 @@
 package keeper
 
 import (
+	"encoding/binary"
+	"fmt"
+
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"encoding/binary"
-	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"

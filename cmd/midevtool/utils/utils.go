@@ -9,7 +9,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -22,9 +21,7 @@ func GetEthClient(rpcURL string) (*ethclient.Client, error) {
 // GetPrivateKey converts a hex string to an ECDSA private key
 func GetPrivateKey(key string) *ecdsa.PrivateKey {
 	// Remove 0x prefix if present
-	if strings.HasPrefix(key, "0x") {
-		key = key[2:]
-	}
+	key = strings.TrimPrefix(key, "0x")
 
 	privKey := ethcrypto.ToECDSAUnsafe(common.Hex2Bytes(key))
 	return privKey
@@ -32,7 +29,7 @@ func GetPrivateKey(key string) *ecdsa.PrivateKey {
 
 // CreateTransactOpts creates transaction options for a contract call
 func CreateTransactOpts(client *ethclient.Client, privKey *ecdsa.PrivateKey, value *big.Int) *bind.TransactOpts {
-	addr := common.BytesToAddress(crypto.PubkeyToAddress(privKey.PublicKey).Bytes())
+	addr := common.BytesToAddress(ethcrypto.PubkeyToAddress(privKey.PublicKey).Bytes())
 
 	nonce, err := client.PendingNonceAt(context.Background(), addr)
 	if err != nil {
@@ -49,7 +46,7 @@ func CreateTransactOpts(client *ethclient.Client, privKey *ecdsa.PrivateKey, val
 		panic(err)
 	}
 
-	opts.Nonce = big.NewInt(int64(nonce))
+	opts.Nonce = new(big.Int).SetUint64(nonce)
 	opts.Value = value
 
 	return opts

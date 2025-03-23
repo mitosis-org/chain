@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"fmt"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
-	"time"
 )
 
 // ProcessMaturedWithdrawals processes withdrawals that have matured

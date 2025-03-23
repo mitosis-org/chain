@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	"github.com/omni-network/omni/lib/errors"
 )
 
