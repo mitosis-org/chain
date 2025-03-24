@@ -47,13 +47,12 @@ sleep 3
 reth node \
     --datadir "$DATA_DIR" \
     --chain "$GENESIS_FILE" \
+    --builder.interval 30ms \
+    --builder.deadline 1 \
     --http \
     --http.addr 0.0.0.0 \
     --http.api eth,net,web3,txpool,rpc,debug,trace,admin \
     --authrpc.addr 0.0.0.0 \
     --authrpc.jwtsecret "$JWT_FILE" \
     --metrics 0.0.0.0:9001 \
-    --builder.interval 30ms \
-    --builder.deadline 1 \
-    --engine.legacy \
     $FULL_NODE_PARAMS

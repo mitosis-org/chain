@@ -249,7 +249,7 @@ run-reth:
 		-p 9001:9001 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.3.1 node \
+		ghcr.io/paradigmxyz/reth:v1.3.4 node \
 			--datadir /data \
 			--chain /infra/genesis.json \
 			--http \

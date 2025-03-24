@@ -15,6 +15,7 @@ echo "MITOSISD_CHAIN_ID: $MITOSISD_CHAIN_ID"
 echo "GENESIS_FILE: $GENESIS_FILE"
 echo "EC_ENDPOINT: $EC_ENDPOINT"
 echo "EC_JWT_FILE: $EC_JWT_FILE"
+echo "GOV_ENTRYPOINT: $GOV_ENTRYPOINT"
 echo "VAL_MNEMONIC (sha256): $(echo -n "$VAL_MNEMONIC" | sha256sum)"
 echo "----------------------"
 
@@ -28,11 +29,9 @@ else
   if [ -n "$VAL_MNEMONIC" ]; then
     echo "It's a Validator Node."
     echo "$VAL_MNEMONIC" | base64 -d | $MITOSISD init validator --recover --chain-id "$MITOSISD_CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
-
-    echo "$VAL_MNEMONIC" | base64 -d | $MITOSISD keys add validator --recover --algo "secp256k1" --keyring-backend test --home "$MITOSISD_HOME"
   else
     echo "It's a Non-Validator Node."
-    $MITOSISD init validator --chain-id "$MITOSISD_CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
+    $MITOSISD init node --chain-id "$MITOSISD_CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
   fi
 
   cp "$GENESIS_FILE" "$MITOSISD_HOME"/config/genesis.json
@@ -42,8 +41,9 @@ else
 
   # Setup app.toml
   sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.001ustake"/' "$app_toml"
-  sed -i.bak'' 's@endpoint = ""@endpoint = "'"$EC_ENDPOINT"'"@' "$app_toml"
+  sed -i.bak'' 's@endpoint = "http://127.0.0.1:8551"@endpoint = "'"$EC_ENDPOINT"'"@' "$app_toml"
   sed -i.bak'' 's@jwt-file = ""@jwt-file = "'"$EC_JWT_FILE"'"@' "$app_toml"
+  sed -i.bak'' 's@entrypoint = "0x0000000000000000000000000000000000000000"@entrypoint = "'"$GOV_ENTRYPOINT"'"@' "$app_toml"
 
   if [ "$MODE" == "archive" ]; then # archive node
     sed -i.bak'' 's@pruning = "default"@pruning = "nothing"@' "$app_toml"
@@ -55,8 +55,9 @@ else
   fi
 
   # Setup config.toml
+  sed -i.bak'' 's/type = "flood"/type = "nop"/' "$config_toml" # we don't use mempool in consensus layer
+  sed -i.bak'' 's/broadcast = true/broadcast = false/' "$config_toml" # we don't use mempool in consensus layer
   sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$config_toml"
-  sed -i.bak'' 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/' "$config_toml"
 fi
 
 # Wait for peer

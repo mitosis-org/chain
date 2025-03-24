@@ -4,39 +4,55 @@ set -e
 
 echo "----- Input Envs -----"
 echo "MITOSISD: $MITOSISD"
+echo "MIDEVTOOL: $MIDEVTOOL"
 echo "MITOSISD_HOME: $MITOSISD_HOME"
 echo "MITOSISD_CHAIN_ID: $MITOSISD_CHAIN_ID"
-echo "MITOSISD_NODE_RPC: $MITOSISD_NODE_RPC"
-echo "VALIDATOR_JSON_FILE: $VALIDATOR_JSON_FILE"
-
-# optional if it needs to be funded
-echo "NEED_FUNDING: $NEED_FUNDING" # if it is "yes", it will be funded by the funder
+echo "EC_RPC_URL: $EC_RPC_URL"
+echo "GOV_ENTRYPOINT: $GOV_ENTRYPOINT"
+echo "VAL_ENTRYPOINT: $VAL_ENTRYPOINT"
 echo "FUNDER_MNEMONIC (sha256): $(echo -n "$FUNDER_MNEMONIC" | sha256sum)"
-echo "FUNDING_AMOUNT: $FUNDING_AMOUNT" # e.g. 150000ustake
 echo "----------------------"
 
-VALIDATOR=$(mitosisd keys show validator --address --keyring-backend test --home "$MITOSISD_HOME")
+FUNDING_AMOUNT=100010ether # (100k + 10) MITO
+INITIAL_COLLATERAL_AMOUNT=100000ether # 100k MITO
 
-if [ "$NEED_FUNDING" == "yes" ]; then
-  echo "Funding the validator: $VALIDATOR"
+FUNDER_MNEMONIC_PLAIN=$(echo "$FUNDER_MNEMONIC" | base64 -d)
+FUNDER_PRIVKEY=$(cast wallet private-key --mnemonic "$FUNDER_MNEMONIC_PLAIN")
 
-  if $MITOSISD keys show funder --keyring-backend test --home "$MITOSISD_HOME" 2>/dev/null; then
-    echo "The funder key already exists."
-  else
-    echo "Creating the funder key..."
-    echo "$FUNDER_MNEMONIC" | base64 -d | $MITOSISD keys add funder --recover --algo "secp256k1" --keyring-backend test --home "$MITOSISD_HOME"
-  fi
+VAL_PRIVKEY_FILE="$MITOSISD_HOME/config/priv_validator_key.json"
+VAL_PUBKEY=0x$(jq -r ".pub_key.value" "$VAL_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000 | tr '[:lower:]' '[:upper:]')
+VAL_PRIVKEY=0x$(jq -r ".priv_key.value" "$VAL_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000 | tr '[:lower:]' '[:upper:]')
+VALIDATOR=$(cast wallet address --private-key "$VAL_PRIVKEY")
 
-  echo "Sending $FUNDING_AMOUNT from the funder to the validator..."
-  $MITOSISD --home "$MITOSISD_HOME" --keyring-backend test --chain-id "$MITOSISD_CHAIN_ID" \
-    --fees 1000ustake --node "$MITOSISD_NODE_RPC" \
-    tx bank send funder "$VALIDATOR" "$FUNDING_AMOUNT" --yes
+echo "Funding the validator: $VALIDATOR"
 
-  # wait for the transaction to be committed
-  sleep 8
-fi
+echo "Sending $FUNDING_AMOUNT from the funder to the validator..."
+cast send "$VALIDATOR" \
+  --value "$FUNDING_AMOUNT" \
+  --mnemonic "$FUNDER_MNEMONIC_PLAIN" \
+  --rpc-url "$EC_RPC_URL" \
+  --gas-price 1gwei \
+  --priority-gas-price 1gwei
 
-echo "Creating the validator: $VALIDATOR"
-$MITOSISD --home "$MITOSISD_HOME" --keyring-backend test --chain-id "$MITOSISD_CHAIN_ID" \
-    --fees 1000ustake --node "$MITOSISD_NODE_RPC" \
-    tx staking create-validator "$VALIDATOR_JSON_FILE" --from validator --yes
+sleep 2
+
+echo "Updating the validator entrypoint contract address..."
+$MIDEVTOOL governance execute \
+  --entrypoint "$GOV_ENTRYPOINT" \
+  --private-key "$FUNDER_PRIVKEY" \
+  --msg '[{"@type":"/mitosis.evmvalidator.v1.MsgUpdateValidatorEntrypointContractAddr","authority":"mito1g86pactsvfrcglkvqzvdwkxhjshafu280q95p7","addr":"'"$VAL_ENTRYPOINT"'"}]' \
+  --rpc "$EC_RPC_URL"
+
+sleep 2
+
+# Get validator pubkey in compressed format
+
+echo "Registering the validator: $VALIDATOR (pubkey: $VAL_PUBKEY)..."
+cast send "$VAL_ENTRYPOINT" "registerValidator(address, bytes, address)" \
+    "$VALIDATOR" "$VAL_PUBKEY" "$VALIDATOR" \
+    --value "$INITIAL_COLLATERAL_AMOUNT" \
+    --private-key "$FUNDER_PRIVKEY" \
+    --rpc-url "$EC_RPC_URL" \
+    --gas-limit 2000000 \
+    --gas-price 1gwei \
+    --priority-gas-price 1gwei

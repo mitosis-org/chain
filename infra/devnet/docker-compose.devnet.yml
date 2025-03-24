@@ -22,7 +22,7 @@ x-service-templates:
 
   _geth: &geth
     <<: *base
-    image: ethereum/client-go:v1.14.11
+    image: ethereum/client-go:v1.15.5
     entrypoint: /infra/devnet/ec/geth.sh
     environment: &geth-environment
       DATA_DIR: /data
@@ -32,7 +32,7 @@ x-service-templates:
 
   _reth: &reth
     <<: *base
-    image: ghcr.io/paradigmxyz/reth:v1.1.0
+    image: ghcr.io/paradigmxyz/reth:v1.3.4
     entrypoint: /infra/devnet/ec/reth.sh
     environment: &reth-environment
       DATA_DIR: /data
@@ -49,6 +49,7 @@ x-service-templates:
     entrypoint: /infra/devnet/mitosisd/node.sh
     environment: &mitosisd-environment
       MITOSISD: /usr/bin/mitosisd
+      MIDEVTOOL: /usr/bin/midevtool
       MITOSISD_HOME: /root/.mitosisd
       MITOSISD_CHAIN_ID: mitosis-devnet-1
       GENESIS_FILE: /artifacts/genesis.json
@@ -70,9 +71,6 @@ services:
     environment:
       <<: *mitosisd-environment
       EC_GENESIS_BLOCK_HASH_FILE: /infra/devnet/ec/genesis/genesis-block-hash.txt
-      # sponsor worry verify hobby armed physical olympic find speak wink develop blush
-      OWNER: mito1cj8p2y9j8xkkg399n0c09xjlngp9zgsceqx8z4
-      GEN_VAL_MONIKER: "Mitosis Foundation"
       # banana omit eye gesture disagree fork zone cup promote plunge neither rug
       GEN_VAL_MNEMONIC: "YmFuYW5hIG9taXQgZXllIGdlc3R1cmUgZGlzYWdyZWUgZm9yayB6b25lIGN1cCBwcm9tb3RlIHBsdW5nZSBuZWl0aGVyIHJ1Zw=="
       ARTIFACTS_DIR: /artifacts
@@ -118,8 +116,8 @@ services:
       PEER_P2P: genval-mitosisd:26656
       EC_ENDPOINT: http://node-reth:8551
       EC_JWT_FILE: /infra/devnet/ec/config/node/jwt.hex
+      GOV_ENTRYPOINT: 0x06c9918ff483fd88C65dD02E788427cfF04545b9
       VAL_MNEMONIC: ""
-      VAL_MONIKER: ""
     ports:
       - "36657:26657" # rpc
       - "19090:9090" # grpc
@@ -168,6 +166,7 @@ services:
       PEER_P2P: ""
       EC_ENDPOINT: http://genval-geth:8551
       EC_JWT_FILE: /infra/devnet/ec/config/genval/jwt.hex
+      GOV_ENTRYPOINT: 0x06c9918ff483fd88C65dD02E788427cfF04545b9
       # banana omit eye gesture disagree fork zone cup promote plunge neither rug
       VAL_MNEMONIC: "YmFuYW5hIG9taXQgZXllIGdlc3R1cmUgZGlzYWdyZWUgZm9yayB6b25lIGN1cCBwcm9tb3RlIHBsdW5nZSBuZWl0aGVyIHJ1Zw=="
     ports:
@@ -218,6 +217,7 @@ services:
       PEER_P2P: genval-mitosisd:26656
       EC_ENDPOINT: http://subval-geth:8551
       EC_JWT_FILE: /infra/devnet/ec/config/subval/jwt.hex
+      GOV_ENTRYPOINT: 0x06c9918ff483fd88C65dD02E788427cfF04545b9
       # rude mountain surge galaxy leisure torch mother differ buffalo match animal layer
       VAL_MNEMONIC: "cnVkZSBtb3VudGFpbiBzdXJnZSBnYWxheHkgbGVpc3VyZSB0b3JjaCBtb3RoZXIgZGlmZmVyIGJ1ZmZhbG8gbWF0Y2ggYW5pbWFsIGxheWVy"
     ports:
@@ -242,12 +242,13 @@ services:
     entrypoint: /infra/devnet/mitosisd/create-validator.sh
     environment:
       <<: *mitosisd-environment
-      MITOSISD_NODE_RPC: tcp://subval-mitosisd:26657
-      VALIDATOR_JSON_FILE: /infra/devnet/mitosisd/config/subval/validator.json
-      NEED_FUNDING: yes
-      # sponsor worry verify hobby armed physical olympic find speak wink develop blush
-      FUNDER_MNEMONIC: "c3BvbnNvciB3b3JyeSB2ZXJpZnkgaG9iYnkgYXJtZWQgcGh5c2ljYWwgb2x5bXBpYyBmaW5kIHNwZWFrIHdpbmsgZGV2ZWxvcCBibHVzaA=="
-      FUNDING_AMOUNT: 1500000ustake
+      EC_RPC_URL: http://subval-geth:8545
+      GOV_ENTRYPOINT: 0x06c9918ff483fd88C65dD02E788427cfF04545b9
+      VAL_ENTRYPOINT: 0x9866D79EF3e9c0c22Db2b55877013e13a60AD478
+      # rude mountain surge galaxy leisure torch mother differ buffalo match animal layer
+      VAL_MNEMONIC: "cnVkZSBtb3VudGFpbiBzdXJnZSBnYWxheHkgbGVpc3VyZSB0b3JjaCBtb3RoZXIgZGlmZmVyIGJ1ZmZhbG8gbWF0Y2ggYW5pbWFsIGxheWVy"
+      # end alley essay random boost student weather sibling coffee grow again brief
+      FUNDER_MNEMONIC: "ZW5kIGFsbGV5IGVzc2F5IHJhbmRvbSBib29zdCBzdHVkZW50IHdlYXRoZXIgc2libGluZyBjb2ZmZWUgZ3JvdyBhZ2FpbiBicmllZg=="
     volumes:
       - *infra-volume
       - *artifacts-volume

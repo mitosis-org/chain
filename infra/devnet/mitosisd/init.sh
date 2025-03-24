@@ -9,9 +9,6 @@ echo "MITOSISD_CHAIN_ID: $MITOSISD_CHAIN_ID"
 
 echo "EC_GENESIS_BLOCK_HASH_FILE: $EC_GENESIS_BLOCK_HASH_FILE"
 
-echo "OWNER: $OWNER"
-
-echo "GEN_VAL_MONIKER: $GEN_VAL_MONIKER"
 echo "GEN_VAL_MNEMONIC (sha256): $(echo -n "$GEN_VAL_MNEMONIC" | sha256sum)"
 
 echo "ARTIFACTS_DIR: $ARTIFACTS_DIR"
@@ -23,14 +20,7 @@ GENESIS_FILE="$MITOSISD_HOME/config/genesis.json"
 TEMP="$MITOSISD_HOME/config/genesis.json.tmp"
 
 # Init for genesis validator
-echo "$GEN_VAL_MNEMONIC" | base64 -d | $MITOSISD init "$GEN_VAL_MONIKER" --recover --chain-id "$MITOSISD_CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
-
-# Setup genesis account for owner
-$MITOSISD genesis add-genesis-account "$OWNER" 999999999000000ustake --keyring-backend test --home "$MITOSISD_HOME" # (1B - 1) * 1M ustake
-
-# Setup genesis account for genesis validator
-echo "$GEN_VAL_MNEMONIC" | base64 -d | $MITOSISD keys add genval --recover --algo "secp256k1" --keyring-backend test --home "$MITOSISD_HOME"
-$MITOSISD genesis add-genesis-account genval 1000000ustake --keyring-backend test --home "$MITOSISD_HOME"
+echo "$GEN_VAL_MNEMONIC" | base64 -d | $MITOSISD init tmp --recover --chain-id "$MITOSISD_CHAIN_ID" --default-denom ustake --home "$MITOSISD_HOME"
 
 # Setup execution block hash on the genesis
 hash=$(echo -n "$EC_GENESIS_BLOCK_HASH" | xxd -r -p | base64)
@@ -39,19 +29,14 @@ jq --arg hash "$hash" '.app_state.evmengine.execution_block_hash = $hash' "$GENE
 # Setup additional modifications on the genesis
 jq '.consensus.params.block.max_bytes = "-1"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
 jq '.consensus.params.validator.pub_key_types = ["secp256k1"]' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
-jq '.app_state.staking.params.unbonding_time = "1s"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
-jq '.app_state.authority.owner = "'"$OWNER"'"' "$GENESIS_FILE" > "$TEMP" && mv "$TEMP" "$GENESIS_FILE"
 
-# Setup gentx on the genesis
-$MITOSISD genesis gentx genval 1000000ustake --chain-id "$MITOSISD_CHAIN_ID" --keyring-backend test --home "$MITOSISD_HOME" \
-  --moniker="$GEN_VAL_MONIKER" \
-  --commission-max-change-rate=0 \
-  --commission-max-rate=0 \
-  --commission-rate=0 \
-  --details="" \
-  --security-contact="" \
-  --website="https://x.com/baddest_dev"
-$MITOSISD genesis collect-gentxs --home "$MITOSISD_HOME"
+# Get validator pubkey in compressed format for a genesis validator
+VAL_PRIVKEY_FILE="$MITOSISD_HOME/config/priv_validator_key.json"
+COMPRESSED_PUBKEY=$(jq -r ".pub_key.value" "$VAL_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000 | tr '[:lower:]' '[:upper:]')
+
+# Add validator to evmvalidator genesis state
+# Parameters: pubkey, collateral (gwei), extra_voting_power, jailed
+$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
 
 # artifacts
 mkdir -p "$ARTIFACTS_DIR"
