@@ -317,7 +317,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 
 	// unjail validator through slashing keeper
 	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
-		return errors.Wrap(err, "failed to unjail validator"), false
+		return errors.Wrap(err, "failed to unjail validator"), true
 	}
 
 	return nil, false
