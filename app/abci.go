@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/omni-network/omni/lib/errors"
+
 	sdklog "cosmossdk.io/log"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -124,9 +126,10 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 		logger.Error("FinalizeBlock contains unexpected failed transaction [BUG]",
 			"info", res.Info, "code", res.Code, "log", res.Log,
 			"code_space", res.Codespace, "index", i, "height", req.Height)
+		return resp, errors.New("FinalizeBlock contains unexpected failed transaction [BUG]")
 	}
 
-	return resp, err
+	return resp, nil
 }
 
 func (a ABCIWrappedApplication) ExtendVote(ctx context.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
