@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	stderrors "errors"
+	"sync"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -35,8 +36,7 @@ var (
 		EventMsgUpdateExtraVotingPower.ID: EventMsgUpdateExtraVotingPower,
 	}
 
-	cachedValidatorEntrypointAddr     common.Address
-	cachedValidatorEntrypointContract *bindings.ConsensusValidatorEntrypoint
+	contractCache sync.Map
 )
 
 // Name returns the name of the module
@@ -356,17 +356,20 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 }
 
 func getValidatorEntrypointContract(addr common.Address) (*bindings.ConsensusValidatorEntrypoint, error) {
-	if addr != cachedValidatorEntrypointAddr {
-		var err error
-
-		cachedValidatorEntrypointContract, err = bindings.NewConsensusValidatorEntrypoint(addr, nil)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create consensus validator entrypoint contract")
-		}
-		cachedValidatorEntrypointAddr = addr
+	// Try to get from cache
+	if cached, ok := contractCache.Load(addr); ok {
+		return cached.(*bindings.ConsensusValidatorEntrypoint), nil //nolint:errcheck
 	}
 
-	return cachedValidatorEntrypointContract, nil
+	// Create new contract
+	contract, err := bindings.NewConsensusValidatorEntrypoint(addr, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store in cache (if another goroutine stored it first, use that one)
+	actual, _ := contractCache.LoadOrStore(addr, contract)
+	return actual.(*bindings.ConsensusValidatorEntrypoint), nil //nolint:errcheck
 }
 
 // mustGetABI returns the metadata's ABI as an abi.ABI type.
