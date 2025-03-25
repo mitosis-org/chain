@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	mitotypes "github.com/mitosis-org/chain/types"
 
 	"cosmossdk.io/depinject"
@@ -148,11 +151,25 @@ func NewMitosisApp(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOpts...)
 
+	app.SetPreBlocker(app.PreBlocker)
+
+	// Set handlers and store loaders for upgrades.
+	app.setupUpgradeHandlers()
+	app.setupUpgradeStoreLoaders()
+
 	if err := app.Load(loadLatest); err != nil {
 		return nil, errors.Wrap(err, "failed to load latest version")
 	}
 
 	return app, nil
+}
+
+// PreBlocker application updates every pre block.
+func (app *MitosisApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	// Forks should be scheduled prior to PreBlocker of x/upgrade module.
+	app.scheduleForkUpgrade(ctx)
+
+	return app.ModuleManager.PreBlock(ctx)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
