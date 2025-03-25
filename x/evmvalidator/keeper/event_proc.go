@@ -94,7 +94,9 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 
 // processEvent parses the provided event and processes it.
 // If the second return value is true, the error will be ignored.
-func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
+func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
+	ctx, writeCache := originCtx.CacheContext()
+
 	ethlog, err := elog.ToEthLog()
 	if err != nil {
 		return err, false
@@ -121,6 +123,9 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 			if !ignore {
 				return errors.Wrap(err, "process MsgRegisterValidator"), false
 			}
+
+			// Reset the context to the original context to rollback previous state changes
+			ctx, writeCache = originCtx.CacheContext()
 
 			if errFB := k.fallbackRegisterValidator(ctx, event); errFB != nil {
 				return stderrors.Join(
@@ -151,6 +156,9 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 			if !ignore {
 				return errors.Wrap(err, "process MsgDepositCollateral"), false
 			}
+
+			// Reset the context to the original context to rollback previous state changes
+			ctx, writeCache = originCtx.CacheContext()
 
 			if errFB := k.fallbackDepositCollateral(ctx, event); errFB != nil {
 				return stderrors.Join(
@@ -212,6 +220,8 @@ func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmen
 		return errors.New("unknown event"), false
 	}
 
+	// If we reached here, processing was successful, so commit the changes to the parent context
+	writeCache()
 	return nil, false
 }
 
