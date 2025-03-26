@@ -146,7 +146,8 @@ func (k Keeper) IterateValidators_(ctx sdk.Context, fn func(index int64, validat
 }
 
 // GetAllValidators gets all validators
-func (k Keeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator) {
+func (k Keeper) GetAllValidators(ctx sdk.Context) []types.Validator {
+	var validators []types.Validator
 	k.IterateValidators_(ctx, func(_ int64, validator types.Validator) bool {
 		validators = append(validators, validator)
 		return false
