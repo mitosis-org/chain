@@ -304,7 +304,7 @@ func (k Keeper) GetWithdrawalLastID(ctx sdk.Context) uint64 {
 	bz := store.Get(types.GetWithdrawalLastIDKey())
 
 	if bz == nil {
-		return 1 // Start from 1
+		return 0
 	}
 
 	return binary.BigEndian.Uint64(bz)

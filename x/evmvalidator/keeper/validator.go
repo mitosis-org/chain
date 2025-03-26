@@ -70,15 +70,12 @@ func (k Keeper) RegisterValidator(
 		sdk.NewEvent(
 			types.EventTypeRegisterValidator,
 			sdk.NewAttribute(types.AttributeKeyValAddr, valAddr.String()),
-			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
-			sdk.NewAttribute(types.AttributeKeyCollateral, collateral.String()),
-			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
-			sdk.NewAttribute(types.AttributeKeyJailed, strconv.FormatBool(jailed)),
+			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
+			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, validator.ExtraVotingPower.String()),
+			sdk.NewAttribute(types.AttributeKeyJailed, strconv.FormatBool(validator.Jailed)),
 		),
 	)
-
-	// Update the validator state to calculate voting power
-	k.UpdateValidatorState(ctx, &validator, "register validator")
 
 	k.Logger(ctx).Info("🆕 Validator Registered",
 		"height", ctx.BlockHeight(),
@@ -90,15 +87,15 @@ func (k Keeper) RegisterValidator(
 		"jailed", validator.Jailed,
 	)
 
+	// Update the validator state to calculate voting power
+	k.UpdateValidatorState(ctx, &validator, "register validator")
+
 	return nil
 }
 
 func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Uint) {
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
-
-	// Update the validator state
-	k.UpdateValidatorState(ctx, validator, "deposit collateral")
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
@@ -107,9 +104,18 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
 			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
-			sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
 		),
 	)
+
+	k.Logger(ctx).Info("💵 Validator Collateral Deposited",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"amount", amount.String(),
+		"collateral", validator.Collateral.String(),
+	)
+
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "deposit collateral")
 }
 
 func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
@@ -130,9 +136,6 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Sub(amount)
 
-	// Update the validator state
-	k.UpdateValidatorState(ctx, validator, "withdraw collateral")
-
 	// Add a new withdrawal
 	k.AddNewWithdrawalWithNextID(ctx, withdrawal)
 
@@ -147,6 +150,18 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 			sdk.NewAttribute(types.AttributeKeyMaturesAt, time.Unix(withdrawal.MaturesAt, 0).String()),
 		),
 	)
+
+	k.Logger(ctx).Info("💸 Validator Collateral Withdrawal Requested",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"withdrawalID", withdrawal.ID,
+		"amount", amount.String(),
+		"receiver", withdrawal.Receiver.String(),
+		"maturesAt", time.Unix(withdrawal.MaturesAt, 0),
+	)
+
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "withdraw collateral")
 
 	return nil
 }
@@ -221,9 +236,6 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 
 	actualSlashAmount := targetSlashAmount.Sub(remainingSlashAmount)
 
-	// Update the validator state
-	k.UpdateValidatorState(ctx, validator, "slash")
-
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -244,6 +256,9 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 		"infractionHeight", infractionHeight,
 		"infractionPower", power,
 	)
+
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "slash")
 
 	return actualSlashAmount, nil
 }
@@ -317,10 +332,7 @@ func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 	oldExtraVotingPower := validator.ExtraVotingPower
 	validator.ExtraVotingPower = extraVotingPower
 
-	// Update the validator state
-	k.UpdateValidatorState(ctx, validator, "update extra voting power")
-
-	// Emit events
+	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateExtraVotingPower,
@@ -329,6 +341,16 @@ func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
 		),
 	)
+
+	k.Logger(ctx).Info("💳 Validator Extra Voting Power Updated",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"oldExtraVotingPower", oldExtraVotingPower,
+		"newExtraVotingPower", extraVotingPower,
+	)
+
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "update extra voting power")
 }
 
 func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator, context string) {
@@ -356,6 +378,14 @@ func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator
 				sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
 				sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
 			),
+		)
+
+		k.Logger(ctx).Info("🔋 Validator Voting Power Updated",
+			"height", ctx.BlockHeight(),
+			"context", context,
+			"validator", validator.Addr.String(),
+			"oldVotingPower", oldVotingPower,
+			"newVotingPower", validator.VotingPower,
 		)
 	}
 
