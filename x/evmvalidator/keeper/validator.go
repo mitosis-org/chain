@@ -97,7 +97,7 @@ func (k Keeper) registerValidator(
 	return nil
 }
 
-func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) {
+func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) error {
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
 
@@ -137,6 +137,16 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 			),
 		)
 	}
+
+	// NOTE: It might not happen. But leave it here for safety and consistency with other functions.
+	// If min voting power requirement is not met, jail the validator
+	if validator.VotingPower < params.MinVotingPower {
+		if err := k.jail(ctx, validator, "min voting power requirement is not met due to deposit"); err != nil {
+			return errors.Wrap(err, "failed to jail validator")
+		}
+	}
+
+	return nil
 }
 
 func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
@@ -377,6 +387,10 @@ func (k Keeper) unjail(ctx sdk.Context, validator *types.Validator) error {
 }
 
 func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validator, extraVotingPower sdkmath.LegacyDec) error {
+	if extraVotingPower.IsNegative() {
+		return errors.New("extra voting power cannot be negative: %s", extraVotingPower.String())
+	}
+
 	// Update validator's extra voting power
 	oldVotingPower := validator.VotingPower
 	oldExtraVotingPower := validator.ExtraVotingPower

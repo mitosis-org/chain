@@ -309,7 +309,9 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	amount := sdkmath.NewIntFromBigInt(event.AmountGwei)
 
 	// Update validator's collateral
-	k.depositCollateral(ctx, &validator, amount)
+	if err := k.depositCollateral(ctx, &validator, amount); err != nil {
+		return err, false
+	}
 
 	return nil, false
 }
