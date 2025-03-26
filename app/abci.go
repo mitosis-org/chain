@@ -110,14 +110,7 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 		return resp, err
 	}
 
-	attrs := []any{
-		"val_updates", len(resp.ValidatorUpdates),
-	}
-	for i, update := range resp.ValidatorUpdates {
-		attrs = append(attrs, fmt.Sprintf("pubkey_%d", i), hex7(update.PubKey.GetSecp256K1()))
-		attrs = append(attrs, fmt.Sprintf("power_%d", i), update.Power)
-	}
-	logger.Info("ABCI response: FinalizeBlock", attrs...)
+	logger.Info("ABCI response: FinalizeBlock", "val_updates", len(resp.ValidatorUpdates))
 
 	for i, res := range resp.TxResults {
 		if res.Code == 0 {

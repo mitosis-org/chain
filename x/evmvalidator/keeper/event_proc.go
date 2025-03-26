@@ -275,12 +275,10 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
-
-	// Convert the amount to math.Int
-	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
+	collateral := sdkmath.NewUintFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	if err := k.registerValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.LegacyZeroDec(), false); err != nil {
+	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroUint(), false); err != nil {
 		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
 			errors.Is(err, types.ErrInvalidPubKey)
 		return errors.Wrap(err, "failed to register validator"), ignore
@@ -298,6 +296,7 @@ func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.Cons
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	amount := sdkmath.NewUintFromBigInt(event.AmountGwei)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
@@ -305,11 +304,8 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 		return types.ErrValidatorNotFound, true
 	}
 
-	// Convert the amount to math.Int
-	amount := sdkmath.NewIntFromBigInt(event.AmountGwei)
-
-	// Update validator's collateral
-	k.depositCollateral(ctx, &validator, amount)
+	// Deposit collateral
+	k.DepositCollateral(ctx, &validator, amount)
 
 	return nil, false
 }
@@ -324,6 +320,12 @@ func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.Cons
 func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
+	// Check if the amount is too large
+	if !event.AmountGwei.IsUint64() {
+		return errors.New("amount too large for uint64"), true
+	}
+	amount := event.AmountGwei.Uint64()
+
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
@@ -334,14 +336,14 @@ func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 	withdrawal := types.Withdrawal{
 		ID:             0, // ID will be set later
 		ValAddr:        valAddr,
-		Amount:         event.AmountGwei.Uint64(),
+		Amount:         amount,
 		Receiver:       mitotypes.EthAddress(event.Receiver),
 		MaturesAt:      event.MaturesAt.Int64(),
 		CreationHeight: ctx.BlockHeight(),
 	}
 
 	// Request withdrawal
-	if err := k.withdrawCollateral(ctx, &validator, &withdrawal); err != nil {
+	if err := k.WithdrawCollateral(ctx, &validator, &withdrawal); err != nil {
 		ignore := errors.Is(err, types.ErrInsufficientCollateral)
 		return errors.Wrap(err, "failed to withdraw collateral"), ignore
 	}
@@ -371,7 +373,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 		return errors.Wrap(err, "failed to get consensus address"), false
 	}
 
-	// unjail validator through slashing keeper
+	// Unjail validator through slashing keeper
 	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
 		return errors.Wrap(err, "failed to unjail validator"), true
 	}
@@ -383,6 +385,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	extraVotingPower := sdkmath.NewUintFromBigInt(event.ExtraVotingPowerWei).QuoUint64(1e9) // wei to gwei
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
@@ -390,13 +393,8 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 		return types.ErrValidatorNotFound, true
 	}
 
-	// Convert the extra voting power
-	extraVotingPower := sdkmath.LegacyNewDecFromBigInt(event.ExtraVotingPowerWei).QuoInt(types.VotingPowerReductionForWei) // 1 wei = 1 / 1e18
-
 	// Update extra voting power
-	if err := k.updateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
-		return errors.Wrap(err, "failed to update extra voting power"), false
-	}
+	k.UpdateExtraVotingPower(ctx, &validator, extraVotingPower)
 
 	return nil, false
 }

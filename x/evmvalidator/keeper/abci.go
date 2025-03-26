@@ -12,6 +12,6 @@ func (k Keeper) EndBlocker(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
 		return nil, err
 	}
 
-	// Update validator set
+	// Update active validator set
 	return k.ApplyAndReturnValidatorSetUpdates(ctx)
 }

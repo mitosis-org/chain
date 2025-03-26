@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 
+	"github.com/omni-network/omni/lib/errors"
+
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/math"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -34,7 +36,7 @@ func (k Keeper) ConsensusAddressCodec() address.Codec {
 func (k Keeper) IterateValidators(ctx context.Context, fn func(index int64, validator slashingtypes.ValidatorI) (stop bool)) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var index int64
-	k.IterateValidatorsExec(sdkCtx, func(_ int64, validator types.Validator) (stop bool) {
+	k.IterateValidators_(sdkCtx, func(_ int64, validator types.Validator) (stop bool) {
 		return fn(index, validator)
 	})
 	return nil
@@ -57,7 +59,20 @@ func (k *Keeper) Slash(
 	power int64,
 	slashFraction math.LegacyDec,
 ) (math.Int, error) {
-	return k.slash(sdk.UnwrapSDKContext(ctx), consAddress, infractionHeight, power, slashFraction)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// Find the validator by consensus address
+	validator, found := k.GetValidatorByConsAddr(sdkCtx, consAddress)
+	if !found {
+		return math.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddress.String())
+	}
+
+	slashedAmount, err := k.Slash_(sdkCtx, &validator, infractionHeight, power, slashFraction)
+	if err != nil {
+		return math.Int{}, err
+	}
+
+	return math.NewIntFromBigInt(slashedAmount.BigInt()), nil
 }
 
 // SlashWithInfractionReason implements the StakingKeeper interface
@@ -79,7 +94,8 @@ func (k *Keeper) Jail(ctx context.Context, consAddress sdk.ConsAddress) error {
 	if !found {
 		return types.ErrValidatorNotFound
 	}
-	return k.jail(sdkCtx, &validator, "triggered from slashing module")
+	k.Jail_(sdkCtx, &validator, "triggered from slashing module")
+	return nil
 }
 
 func (k *Keeper) Unjail(ctx context.Context, consAddress sdk.ConsAddress) error {
@@ -88,7 +104,7 @@ func (k *Keeper) Unjail(ctx context.Context, consAddress sdk.ConsAddress) error 
 	if !found {
 		return types.ErrValidatorNotFound
 	}
-	return k.unjail(sdkCtx, &validator)
+	return k.Unjail_(sdkCtx, &validator)
 }
 
 // MaxValidators implements the StakingKeeper interface

@@ -46,6 +46,15 @@ func (k Keeper) ProcessMaturedWithdrawals(ctx sdk.Context) error {
 			),
 		)
 
+		k.Logger(ctx).Info("🍂 Withdrawal Matured",
+			"height", ctx.BlockHeight(),
+			"id", withdrawal.ID,
+			"validator", withdrawal.ValAddr.String(),
+			"amount", withdrawal.Amount,
+			"receiver", withdrawal.Receiver.String(),
+			"matures_at", time.Unix(withdrawal.MaturesAt, 0),
+		)
+
 		k.DeleteWithdrawal(ctx, withdrawal)
 		processedCount++
 

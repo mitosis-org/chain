@@ -22,7 +22,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 	// Set validators
 	for _, validator := range data.Validators {
 		// voting power will be recalculated
-		if err = k.registerValidator(ctx, validator.Addr, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
+		if err = k.RegisterValidator(ctx, validator.Addr, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
 			return nil, err
 		}
 	}

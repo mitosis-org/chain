@@ -22,15 +22,16 @@ message Validator {
 
   // collateral is the amount of MITO used as a collateral (gwei unit)
   string collateral = 3 [
-    (cosmos_proto.scalar) = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
     (gogoproto.nullable) = false
   ];
 
   // extra_voting_power is additional voting power assigned to the validator
+  // (gwei unit)
   string extra_voting_power = 4 [
-    (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
     (gogoproto.nullable) = false
   ];
 

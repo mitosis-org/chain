@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
