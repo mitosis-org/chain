@@ -39,16 +39,19 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			lastPower = 0
 		}
 
-		// Skip if no change in voting power
-		currentPower := validator.ConsensusVotingPower()
-		if currentPower == lastPower {
-			continue
-		}
-
 		// if we get to a zero-power validator (which we don't bond),
 		// there are no more possible bonded validators
+		currentPower := validator.ConsensusVotingPower()
 		if currentPower <= 0 {
 			break
+		}
+
+		// Record that this validator should be being bonded
+		bondedVals[validator.Addr] = true
+
+		// Skip if no change in voting power
+		if currentPower == lastPower {
+			continue
 		}
 
 		// Update the last validator power
@@ -68,9 +71,6 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			validator.Bonded = true
 			k.SetValidator(sdkCtx, validator)
 		}
-
-		// Record that this validator was processed
-		bondedVals[validator.Addr] = true
 
 		// Append to validator updates
 		abciUpdate, err := validator.ABCIValidatorUpdate()
