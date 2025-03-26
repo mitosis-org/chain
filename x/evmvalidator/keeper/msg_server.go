@@ -40,8 +40,9 @@ func (m msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 	}
 
 	if oldParams.MaxLeverageRatio != msg.Params.MaxLeverageRatio || oldParams.MinVotingPower != msg.Params.MinVotingPower {
-		if err := m.k.recalculateAllValidatorVotingPowers(sdkCtx); err != nil {
-			return nil, errors.Wrap(err, "failed to recalculate validator voting power")
+		validators := m.k.GetAllValidators(sdkCtx)
+		for _, validator := range validators {
+			m.k.UpdateValidatorState(sdkCtx, &validator, "update params")
 		}
 	}
 

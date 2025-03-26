@@ -126,8 +126,8 @@ func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 	store.Set(types.GetValidatorKey(validator.Addr), bz)
 }
 
-// IterateValidatorsExec is an internal implementation of IterateValidators that works with the SDK Context
-func (k Keeper) IterateValidatorsExec(ctx sdk.Context, fn func(index int64, validator types.Validator) (stop bool)) {
+// IterateValidators_ iterates through all validators and performs the provided function
+func (k Keeper) IterateValidators_(ctx sdk.Context, fn func(index int64, validator types.Validator) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := storetypes.KVStorePrefixIterator(store, types.ValidatorKeyPrefix)
 	defer iterator.Close()
@@ -147,7 +147,7 @@ func (k Keeper) IterateValidatorsExec(ctx sdk.Context, fn func(index int64, vali
 
 // GetAllValidators gets all validators
 func (k Keeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator) {
-	k.IterateValidatorsExec(ctx, func(_ int64, validator types.Validator) bool {
+	k.IterateValidators_(ctx, func(_ int64, validator types.Validator) bool {
 		validators = append(validators, validator)
 		return false
 	})

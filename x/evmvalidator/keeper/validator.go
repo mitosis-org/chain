@@ -14,7 +14,7 @@ import (
 	"github.com/omni-network/omni/lib/errors"
 )
 
-func (k Keeper) registerValidator(
+func (k Keeper) RegisterValidator(
 	ctx sdk.Context,
 	valAddr mitotypes.EthAddress,
 	pubkey []byte,
@@ -33,20 +33,26 @@ func (k Keeper) registerValidator(
 		return errors.Wrap(types.ErrValidatorAlreadyExists, valAddr.String())
 	}
 
+	// Ensure collateral is positive
+	if collateral.IsNegative() {
+		return errors.New("collateral cannot be negative: %s", collateral.String())
+	}
+
+	// Ensure extra voting power is non-negative
+	if extraVotingPower.IsNegative() {
+		return errors.New("extra voting power cannot be negative: %s", extraVotingPower.String())
+	}
+
 	// Create a new validator
 	validator := types.Validator{
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
 		ExtraVotingPower: extraVotingPower,
-		VotingPower:      0, // will be computed later
+		VotingPower:      0, // will be calculated later
 		Jailed:           jailed,
 		Bonded:           false,
 	}
-
-	// Compute voting power
-	params := k.GetParams(ctx)
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
 
 	// Get consensus public key and address
 	consPubKey, err := validator.ConsPubKey()
@@ -64,11 +70,6 @@ func (k Keeper) registerValidator(
 	// Set the validator in consensus address index
 	k.SetValidatorByConsAddr(ctx, consAddr, validator.Addr)
 
-	// Set the validator in power index
-	if !validator.Jailed {
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-	}
-
 	// Call slashing hook
 	if err = k.slashingKeeper.AfterValidatorCreated(ctx, consPubKey); err != nil {
 		return errors.Wrap(err, "failed to call AfterValidatorCreated hook")
@@ -82,38 +83,27 @@ func (k Keeper) registerValidator(
 			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(pubkey)),
 			sdk.NewAttribute(types.AttributeKeyCollateral, collateral.String()),
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
-			sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
 			sdk.NewAttribute(types.AttributeKeyJailed, strconv.FormatBool(jailed)),
 		),
 	)
 
-	// If min voting power requirement is not met, jail the validator
-	if validator.VotingPower < params.MinVotingPower {
-		if err := k.jail(ctx, &validator, "min voting power requirement is not met during registration"); err != nil {
-			return errors.Wrap(err, "failed to jail validator")
-		}
-	}
+	// Update the validator state to calculate voting power
+	k.UpdateValidatorState(ctx, &validator, "register validator")
 
 	return nil
 }
 
-func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) error {
+func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) error {
+	// Ensure amount is positive
+	if amount.IsNegative() {
+		return errors.New("amount cannot be negative: %s", amount.String())
+	}
+
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
 
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Update the validator in state
-	k.SetValidator(ctx, *validator)
-
-	// Update the validator in power index
-	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-	}
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "deposit collateral")
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
@@ -126,30 +116,14 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 		),
 	)
 
-	// If voting power changed, emit update event
-	if validator.VotingPower != oldVotingPower {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
-				sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
-			),
-		)
-	}
-
-	// NOTE: It might not happen. But leave it here for safety and consistency with other functions.
-	// If min voting power requirement is not met, jail the validator
-	if validator.VotingPower < params.MinVotingPower {
-		if err := k.jail(ctx, validator, "min voting power requirement is not met due to deposit"); err != nil {
-			return errors.Wrap(err, "failed to jail validator")
-		}
-	}
-
 	return nil
 }
 
-func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
+func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
+	if withdrawal.Amount == 0 {
+		return nil // nothing to withdraw
+	}
+
 	amount := sdkmath.NewIntFromUint64(withdrawal.Amount)
 
 	// Ensure validator has enough collateral
@@ -166,19 +140,8 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	// Update validator's collateral (immediately reduce to prevent multiple withdrawals)
 	validator.Collateral = validator.Collateral.Sub(amount)
 
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Update the validator in state
-	k.SetValidator(ctx, *validator)
-
-	// Update the validator in power index
-	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-	}
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "withdraw collateral")
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
@@ -192,43 +155,18 @@ func (k Keeper) withdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		),
 	)
 
-	// If voting power changed, emit update event
-	if validator.VotingPower != oldVotingPower {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
-				sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
-			),
-		)
-	}
-
-	// If min voting power requirement is not met, jail the validator
-	if validator.VotingPower < params.MinVotingPower {
-		if err := k.jail(ctx, validator, "min voting power requirement is not met due to withdrawal"); err != nil {
-			return errors.Wrap(err, "failed to jail validator")
-		}
-	}
-
 	return nil
 }
 
-// slash slashes a validator's collateral by a fraction
-func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
+// Slash_ slashes a validator's collateral by a fraction
+func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
 	currentTime := ctx.BlockTime().Unix()
 
-	// Find the validator by consensus address
-	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
-	if !found {
-		return sdkmath.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddr.String())
-	}
-
 	if slashFraction.IsNegative() {
-		return sdkmath.ZeroInt(), fmt.Errorf("attempted to slash with a negative slash factor: %s", slashFraction.String())
+		return sdkmath.ZeroInt(), fmt.Errorf("attempted to Slash_ with a negative Slash_ factor: %s", slashFraction.String())
 	}
 
-	// Calculate the collateral amount to slash
+	// Calculate the collateral amount to Slash_
 	targetSlashAmount := sdkmath.LegacyNewDec(power).MulInt(types.VotingPowerReductionForGwei).Mul(slashFraction).TruncateInt()
 
 	remainingSlashAmount := targetSlashAmount
@@ -249,7 +187,7 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 			return false
 		}
 
-		// slash the withdrawal
+		// Slash_ the withdrawal
 		withdrawalAmount := sdkmath.NewIntFromUint64(w.Amount)
 
 		if withdrawalAmount.GTE(remainingSlashAmount) {
@@ -280,21 +218,10 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	actualSlashAmount := targetSlashAmount.Sub(remainingSlashAmount)
 
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	oldVotingPower := validator.VotingPower
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "slash")
 
-	// Update the validator in state
-	k.SetValidator(ctx, validator)
-
-	// Update the validator in power index
-	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-	}
-
-	// Emit events
+	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSlashValidator,
@@ -306,42 +233,21 @@ func (k Keeper) slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		),
 	)
 
-	// If voting power changed, emit update event
-	if validator.VotingPower != oldVotingPower {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateVotingPower,
-				sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
-				sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
-				sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
-			),
-		)
-	}
-
-	// If min voting power requirement is not met, jail the validator
-	if validator.VotingPower < params.MinVotingPower {
-		if err := k.jail(ctx, &validator, "min voting power requirement is not met due to slashing"); err != nil {
-			return sdkmath.ZeroInt(), errors.Wrap(err, "failed to jail validator")
-		}
-	}
-
 	return actualSlashAmount, nil
 }
 
-// jail jails a validator
-func (k Keeper) jail(ctx sdk.Context, validator *types.Validator, reason string) error {
+// Jail_ jails a validator
+func (k Keeper) Jail_(ctx sdk.Context, validator *types.Validator, reason string) {
 	if validator.Jailed {
-		return nil // already jailed
+		return // already jailed
 	}
 
-	validator.Jailed = true
-	oldVotingPower := validator.VotingPower
-
 	// Update the validator in state
+	validator.Jailed = true
 	k.SetValidator(ctx, *validator)
 
 	// Delete the validator in power index
-	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
+	k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
@@ -351,12 +257,10 @@ func (k Keeper) jail(ctx sdk.Context, validator *types.Validator, reason string)
 			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
 	)
-
-	return nil
 }
 
-// unjail unjails a validator
-func (k Keeper) unjail(ctx sdk.Context, validator *types.Validator) error {
+// Unjail_ unjails a validator
+func (k Keeper) Unjail_(ctx sdk.Context, validator *types.Validator) error {
 	if !validator.Jailed {
 		return nil // already unjailed
 	}
@@ -367,9 +271,8 @@ func (k Keeper) unjail(ctx sdk.Context, validator *types.Validator) error {
 		return errors.Wrap(types.ErrInvalidVotingPower, "voting power below minimum requirement")
 	}
 
-	validator.Jailed = false
-
 	// Update the validator in state
+	validator.Jailed = false
 	k.SetValidator(ctx, *validator)
 
 	// Set the validator back in power index
@@ -386,28 +289,17 @@ func (k Keeper) unjail(ctx sdk.Context, validator *types.Validator) error {
 	return nil
 }
 
-func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validator, extraVotingPower sdkmath.LegacyDec) error {
+func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validator, extraVotingPower sdkmath.LegacyDec) error {
 	if extraVotingPower.IsNegative() {
 		return errors.New("extra voting power cannot be negative: %s", extraVotingPower.String())
 	}
 
 	// Update validator's extra voting power
-	oldVotingPower := validator.VotingPower
 	oldExtraVotingPower := validator.ExtraVotingPower
 	validator.ExtraVotingPower = extraVotingPower
 
-	// Recompute voting power
-	params := k.GetParams(ctx)
-	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-	// Update the validator in state
-	k.SetValidator(ctx, *validator)
-
-	// Update the validator in power index
-	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
-		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-	}
+	// Update the validator state
+	k.UpdateValidatorState(ctx, validator, "update extra voting power")
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
@@ -419,7 +311,26 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 		),
 	)
 
-	// If voting power changed, emit update event
+	return nil
+}
+
+func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator, context string) {
+	params := k.GetParams(ctx)
+	oldVotingPower := validator.VotingPower
+
+	// Recompute voting power
+	validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
+
+	// Update the validator in state
+	k.SetValidator(ctx, *validator)
+
+	// Update the validator in power index
+	if !validator.Jailed {
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
+		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
+	}
+
+	// Emit update event if voting power changed
 	if validator.VotingPower != oldVotingPower {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -431,56 +342,8 @@ func (k Keeper) updateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 		)
 	}
 
-	// If min voting power requirement is not met, jail the validator
+	// Check min voting power requirement
 	if validator.VotingPower < params.MinVotingPower {
-		if err := k.jail(ctx, validator, "min voting power requirement is not met due to extra voting power update"); err != nil {
-			return errors.Wrap(err, "failed to jail validator")
-		}
+		k.Jail_(ctx, validator, fmt.Sprintf("min voting power requirement is not met: %s", context))
 	}
-
-	return nil
-}
-
-// recalculateAllValidatorVotingPowers recalculates voting power for all validators
-func (k Keeper) recalculateAllValidatorVotingPowers(ctx sdk.Context) error {
-	params := k.GetParams(ctx)
-	validators := k.GetAllValidators(ctx)
-
-	for _, validator := range validators {
-		oldVotingPower := validator.VotingPower
-
-		// Recalculate voting power based on new max leverage ratio
-		validator.VotingPower = validator.ComputeVotingPower(params.MaxLeverageRatio)
-
-		// If the voting power changed, update the validator
-		if validator.VotingPower != oldVotingPower {
-			// Update validator in power index
-			if !validator.Jailed {
-				k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
-				k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
-			}
-
-			// Save updated validator
-			k.SetValidator(ctx, validator)
-
-			// Emit event
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeUpdateVotingPower,
-					sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
-					sdk.NewAttribute(types.AttributeKeyOldVotingPower, fmt.Sprintf("%d", oldVotingPower)),
-					sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
-				),
-			)
-		}
-
-		// Check if validator should be jailed due to min voting power requirement
-		if validator.VotingPower < params.MinVotingPower {
-			if err := k.jail(ctx, &validator, "min voting power requirement is not met after parameter change"); err != nil {
-				return errors.Wrap(err, "failed to jail validator")
-			}
-		}
-	}
-
-	return nil
 }
