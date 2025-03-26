@@ -80,6 +80,16 @@ func (k Keeper) RegisterValidator(
 	// Update the validator state to calculate voting power
 	k.UpdateValidatorState(ctx, &validator, "register validator")
 
+	k.Logger(ctx).Info("🆕 Validator Registered",
+		"height", ctx.BlockHeight(),
+		"addr", valAddr.String(),
+		"consAddr", consAddr.String(),
+		"pubkey", hex.EncodeToString(validator.Pubkey),
+		"collateral", validator.Collateral,
+		"extraVotingPower", validator.ExtraVotingPower,
+		"jailed", validator.Jailed,
+	)
+
 	return nil
 }
 
@@ -226,6 +236,15 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 		),
 	)
 
+	k.Logger(ctx).Info("💥 Validator Slashed",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"slashAmount", actualSlashAmount.String(),
+		"slashFraction", slashFraction.String(),
+		"infractionHeight", infractionHeight,
+		"infractionPower", power,
+	)
+
 	return actualSlashAmount, nil
 }
 
@@ -249,6 +268,12 @@ func (k Keeper) Jail_(ctx sdk.Context, validator *types.Validator, reason string
 			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
+	)
+
+	k.Logger(ctx).Info("🔒 Validator Jailed",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"reason", reason,
 	)
 }
 
@@ -277,6 +302,11 @@ func (k Keeper) Unjail_(ctx sdk.Context, validator *types.Validator) error {
 			types.EventTypeUnjailValidator,
 			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
 		),
+	)
+
+	k.Logger(ctx).Info("🔓 Validator Unjailed",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
 	)
 
 	return nil
