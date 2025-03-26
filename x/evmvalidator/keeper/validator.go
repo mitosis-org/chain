@@ -111,7 +111,7 @@ func (k Keeper) depositCollateral(ctx sdk.Context, validator *types.Validator, a
 
 	// Update the validator in power index
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
+		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
 		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
 	}
 
