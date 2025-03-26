@@ -183,7 +183,7 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 		// Slash the withdrawal
 		withdrawalAmount := sdkmath.NewUint(w.Amount)
 
-		if withdrawalAmount.GTE(remainingSlashAmount) {
+		if withdrawalAmount.GT(remainingSlashAmount) {
 			w.Amount = withdrawalAmount.Sub(remainingSlashAmount).Uint64()
 			remainingSlashAmount = sdkmath.ZeroUint()
 			k.SetWithdrawal(ctx, w) // overwrite the withdrawal
