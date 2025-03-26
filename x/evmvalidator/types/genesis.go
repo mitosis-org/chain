@@ -50,7 +50,7 @@ func (gs GenesisState) Validate() error {
 		if validator.Collateral.IsNil() {
 			return fmt.Errorf("validator %d has invalid collateral: %s", i, validator.Collateral)
 		}
-		if validator.ExtraVotingPower.IsNil() || validator.ExtraVotingPower.IsNegative() {
+		if validator.ExtraVotingPower.IsNil() {
 			return fmt.Errorf("validator %d has invalid extra voting power: %s", i, validator.ExtraVotingPower)
 		}
 

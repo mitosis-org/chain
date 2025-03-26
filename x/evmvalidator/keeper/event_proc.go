@@ -278,7 +278,7 @@ func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.Conse
 	collateral := sdkmath.NewUintFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.LegacyZeroDec(), false); err != nil {
+	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroUint(), false); err != nil {
 		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
 			errors.Is(err, types.ErrInvalidPubKey)
 		return errors.Wrap(err, "failed to register validator"), ignore
@@ -304,10 +304,8 @@ func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.Conse
 		return types.ErrValidatorNotFound, true
 	}
 
-	// Update validator's collateral
-	if err := k.DepositCollateral(ctx, &validator, amount); err != nil {
-		return err, false
-	}
+	// Deposit collateral
+	k.DepositCollateral(ctx, &validator, amount)
 
 	return nil, false
 }
@@ -387,6 +385,7 @@ func (k *Keeper) processUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	extraVotingPower := sdkmath.NewUintFromBigInt(event.ExtraVotingPowerWei).QuoUint64(1e9) // wei to gwei
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
@@ -394,13 +393,8 @@ func (k *Keeper) processUpdateExtraVotingPower(ctx sdk.Context, event *bindings.
 		return types.ErrValidatorNotFound, true
 	}
 
-	// Convert the extra voting power
-	extraVotingPower := sdkmath.LegacyNewDecFromBigInt(event.ExtraVotingPowerWei).QuoInt(types.VotingPowerReductionForWei) // 1 wei = 1 / 1e18
-
 	// Update extra voting power
-	if err := k.UpdateExtraVotingPower(ctx, &validator, extraVotingPower); err != nil {
-		return errors.Wrap(err, "failed to update extra voting power"), false
-	}
+	k.UpdateExtraVotingPower(ctx, &validator, extraVotingPower)
 
 	return nil, false
 }

@@ -19,7 +19,7 @@ func (k Keeper) RegisterValidator(
 	valAddr mitotypes.EthAddress,
 	pubkey []byte,
 	collateral sdkmath.Uint,
-	extraVotingPower sdkmath.LegacyDec,
+	extraVotingPower sdkmath.Uint,
 	jailed bool,
 ) error {
 	// Validate pubkey with address
@@ -31,11 +31,6 @@ func (k Keeper) RegisterValidator(
 	// Check if validator already exists
 	if k.HasValidator(ctx, valAddr) {
 		return errors.Wrap(types.ErrValidatorAlreadyExists, valAddr.String())
-	}
-
-	// Ensure extra voting power is non-negative
-	if extraVotingPower.IsNegative() {
-		return errors.New("extra voting power cannot be negative: %s", extraVotingPower.String())
 	}
 
 	// Create a new validator
@@ -88,7 +83,7 @@ func (k Keeper) RegisterValidator(
 	return nil
 }
 
-func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Uint) error {
+func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Uint) {
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
 
@@ -105,8 +100,6 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 			sdk.NewAttribute(types.AttributeKeyVotingPower, fmt.Sprintf("%d", validator.VotingPower)),
 		),
 	)
-
-	return nil
 }
 
 func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
@@ -152,14 +145,18 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Uint, error) {
 	currentTime := ctx.BlockTime().Unix()
 
+	// Ensure power and slash fraction are non-negative
+	if power < 0 {
+		return sdkmath.ZeroUint(), fmt.Errorf("attempted to slash with a negative power: %d", power)
+	}
 	if slashFraction.IsNegative() {
-		return sdkmath.ZeroUint(), fmt.Errorf("attempted to Slash_ with a negative Slash_ factor: %s", slashFraction.String())
+		return sdkmath.ZeroUint(), fmt.Errorf("attempted to slash with a negative slash fraction: %s", slashFraction.String())
 	}
 
-	// Calculate the collateral amount to Slash_
+	// Calculate the collateral amount to slash
 	targetSlashAmount := sdkmath.NewUintFromBigInt(
 		sdkmath.LegacyNewDec(power).
-			MulInt(types.VotingPowerReductionForGwei).
+			MulInt(types.VotingPowerReduction).
 			Mul(slashFraction).
 			TruncateInt().
 			BigInt(),
@@ -285,11 +282,7 @@ func (k Keeper) Unjail_(ctx sdk.Context, validator *types.Validator) error {
 	return nil
 }
 
-func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validator, extraVotingPower sdkmath.LegacyDec) error {
-	if extraVotingPower.IsNegative() {
-		return errors.New("extra voting power cannot be negative: %s", extraVotingPower.String())
-	}
-
+func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validator, extraVotingPower sdkmath.Uint) {
 	// Update validator's extra voting power
 	oldExtraVotingPower := validator.ExtraVotingPower
 	validator.ExtraVotingPower = extraVotingPower
@@ -306,8 +299,6 @@ func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, extraVotingPower.String()),
 		),
 	)
-
-	return nil
 }
 
 func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator, context string) {

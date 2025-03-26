@@ -50,16 +50,17 @@ func (v Validator) ConsensusVotingPower() int64 {
 // ComputeVotingPower calculates voting power based on collateral and extra voting power
 // with respect to the max leverage ratio
 func (v Validator) ComputeVotingPower(maxLeverageRatio math.LegacyDec) int64 {
-	collateralPower := math.LegacyNewDecFromBigInt(v.Collateral.BigInt()).QuoInt(VotingPowerReductionForGwei)
-	totalPower := collateralPower.Add(v.ExtraVotingPower).TruncateInt64()
+	collateralPower := math.LegacyNewDecFromBigInt(v.Collateral.BigInt()).QuoInt(VotingPowerReduction)
+	extraPower := math.LegacyNewDecFromBigInt(v.ExtraVotingPower.BigInt()).QuoInt(VotingPowerReduction)
+	totalPower := collateralPower.Add(extraPower).TruncateInt64()
 
 	// Calculate the maximum allowed by the leverage ratio
 	// maxPower = collateral * maxLeverageRatio
-	maxCollateralPower := collateralPower.Mul(maxLeverageRatio).TruncateInt64()
+	maxPower := collateralPower.Mul(maxLeverageRatio).TruncateInt64()
 
 	// Return the minimum of the two calculations
-	if totalPower > maxCollateralPower {
-		return maxCollateralPower
+	if totalPower > maxPower {
+		return maxPower
 	} else {
 		return totalPower
 	}

@@ -58,10 +58,7 @@ $ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c6778936
 			collateral := math.NewUintFromString(args[1])
 
 			// Parse extra voting power
-			extraVotingPower, err := math.LegacyNewDecFromStr(args[2])
-			if err != nil {
-				return errors.Wrap(err, "failed to parse extra voting power")
-			}
+			extraVotingPower := math.NewUintFromString(args[2])
 
 			// Parse jailed status
 			jailed, err := strconv.ParseBool(args[3])

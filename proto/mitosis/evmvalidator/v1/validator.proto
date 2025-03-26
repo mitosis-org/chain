@@ -28,9 +28,10 @@ message Validator {
   ];
 
   // extra_voting_power is additional voting power assigned to the validator
+  // (gwei unit)
   string extra_voting_power = 4 [
-    (cosmos_proto.scalar) = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
     (gogoproto.nullable) = false
   ];
 
