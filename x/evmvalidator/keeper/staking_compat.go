@@ -67,7 +67,12 @@ func (k *Keeper) Slash(
 		return math.ZeroInt(), errors.Wrap(types.ErrValidatorNotFound, consAddress.String())
 	}
 
-	return k.Slash_(sdkCtx, &validator, infractionHeight, power, slashFraction)
+	slashedAmount, err := k.Slash_(sdkCtx, &validator, infractionHeight, power, slashFraction)
+	if err != nil {
+		return math.Int{}, err
+	}
+
+	return math.NewIntFromBigInt(slashedAmount.BigInt()), nil
 }
 
 // SlashWithInfractionReason implements the StakingKeeper interface

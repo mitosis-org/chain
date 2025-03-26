@@ -18,7 +18,7 @@ func (k Keeper) RegisterValidator(
 	ctx sdk.Context,
 	valAddr mitotypes.EthAddress,
 	pubkey []byte,
-	collateral sdkmath.Int,
+	collateral sdkmath.Uint,
 	extraVotingPower sdkmath.LegacyDec,
 	jailed bool,
 ) error {
@@ -31,11 +31,6 @@ func (k Keeper) RegisterValidator(
 	// Check if validator already exists
 	if k.HasValidator(ctx, valAddr) {
 		return errors.Wrap(types.ErrValidatorAlreadyExists, valAddr.String())
-	}
-
-	// Ensure collateral is positive
-	if collateral.IsNegative() {
-		return errors.New("collateral cannot be negative: %s", collateral.String())
 	}
 
 	// Ensure extra voting power is non-negative
@@ -93,12 +88,7 @@ func (k Keeper) RegisterValidator(
 	return nil
 }
 
-func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Int) error {
-	// Ensure amount is positive
-	if amount.IsNegative() {
-		return errors.New("amount cannot be negative: %s", amount.String())
-	}
-
+func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Uint) error {
 	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Add(amount)
 
@@ -120,11 +110,11 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 }
 
 func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
-	if withdrawal.Amount == 0 {
+	amount := sdkmath.NewUint(withdrawal.Amount)
+
+	if amount.IsZero() {
 		return nil // nothing to withdraw
 	}
-
-	amount := sdkmath.NewIntFromUint64(withdrawal.Amount)
 
 	// Ensure validator has enough collateral
 	if validator.Collateral.LT(amount) {
@@ -134,14 +124,14 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		)
 	}
 
-	// Add a new withdrawal
-	k.AddNewWithdrawalWithNextID(ctx, withdrawal)
-
-	// Update validator's collateral (immediately reduce to prevent multiple withdrawals)
+	// Update validator's collateral
 	validator.Collateral = validator.Collateral.Sub(amount)
 
 	// Update the validator state
 	k.UpdateValidatorState(ctx, validator, "withdraw collateral")
+
+	// Add a new withdrawal
+	k.AddNewWithdrawalWithNextID(ctx, withdrawal)
 
 	// Emit events
 	ctx.EventManager().EmitEvent(
@@ -159,15 +149,21 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 }
 
 // Slash_ slashes a validator's collateral by a fraction
-func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Int, error) {
+func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHeight int64, power int64, slashFraction sdkmath.LegacyDec) (sdkmath.Uint, error) {
 	currentTime := ctx.BlockTime().Unix()
 
 	if slashFraction.IsNegative() {
-		return sdkmath.ZeroInt(), fmt.Errorf("attempted to Slash_ with a negative Slash_ factor: %s", slashFraction.String())
+		return sdkmath.ZeroUint(), fmt.Errorf("attempted to Slash_ with a negative Slash_ factor: %s", slashFraction.String())
 	}
 
 	// Calculate the collateral amount to Slash_
-	targetSlashAmount := sdkmath.LegacyNewDec(power).MulInt(types.VotingPowerReductionForGwei).Mul(slashFraction).TruncateInt()
+	targetSlashAmount := sdkmath.NewUintFromBigInt(
+		sdkmath.LegacyNewDec(power).
+			MulInt(types.VotingPowerReductionForGwei).
+			Mul(slashFraction).
+			TruncateInt().
+			BigInt(),
+	)
 
 	remainingSlashAmount := targetSlashAmount
 
@@ -187,12 +183,12 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 			return false
 		}
 
-		// Slash_ the withdrawal
-		withdrawalAmount := sdkmath.NewIntFromUint64(w.Amount)
+		// Slash the withdrawal
+		withdrawalAmount := sdkmath.NewUint(w.Amount)
 
 		if withdrawalAmount.GTE(remainingSlashAmount) {
 			w.Amount = withdrawalAmount.Sub(remainingSlashAmount).Uint64()
-			remainingSlashAmount = sdkmath.ZeroInt()
+			remainingSlashAmount = sdkmath.ZeroUint()
 			k.SetWithdrawal(ctx, w) // overwrite the withdrawal
 		} else {
 			remainingSlashAmount = remainingSlashAmount.Sub(withdrawalAmount)
@@ -205,7 +201,7 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 	// Slash the collateral
 	if validator.Collateral.GTE(remainingSlashAmount) {
 		validator.Collateral = validator.Collateral.Sub(remainingSlashAmount)
-		remainingSlashAmount = sdkmath.ZeroInt()
+		remainingSlashAmount = sdkmath.ZeroUint()
 	} else {
 		k.Logger(ctx).Error("Slash amount exceeds validator's collateral",
 			"validator", validator.Addr.String(),
@@ -213,7 +209,7 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 			"collateral", validator.Collateral.String(),
 		)
 		remainingSlashAmount = remainingSlashAmount.Sub(validator.Collateral)
-		validator.Collateral = sdkmath.ZeroInt()
+		validator.Collateral = sdkmath.ZeroUint()
 	}
 
 	actualSlashAmount := targetSlashAmount.Sub(remainingSlashAmount)

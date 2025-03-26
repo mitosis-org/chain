@@ -47,7 +47,7 @@ func (gs GenesisState) Validate() error {
 		if err := ValidatePubkeyWithEthAddress(validator.Pubkey, validator.Addr); err != nil {
 			return errors.Wrap(err, fmt.Sprintf("validator %d has not matched addr and pubkey: %s, %X", i, validator.Addr.String(), validator.Pubkey))
 		}
-		if validator.Collateral.IsNil() || validator.Collateral.IsNegative() {
+		if validator.Collateral.IsNil() {
 			return fmt.Errorf("validator %d has invalid collateral: %s", i, validator.Collateral)
 		}
 		if validator.ExtraVotingPower.IsNil() || validator.ExtraVotingPower.IsNegative() {

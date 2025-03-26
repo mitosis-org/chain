@@ -275,9 +275,7 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
-
-	// Convert the amount to math.Int
-	collateral := sdkmath.NewIntFromBigInt(event.InitialCollateralAmountGwei)
+	collateral := sdkmath.NewUintFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
 	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.LegacyZeroDec(), false); err != nil {
@@ -298,15 +296,13 @@ func (k *Keeper) fallbackRegisterValidator(ctx sdk.Context, event *bindings.Cons
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) processDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	amount := sdkmath.NewUintFromBigInt(event.AmountGwei)
 
 	// Check if validator exists
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return types.ErrValidatorNotFound, true
 	}
-
-	// Convert the amount to math.Int
-	amount := sdkmath.NewIntFromBigInt(event.AmountGwei)
 
 	// Update validator's collateral
 	if err := k.DepositCollateral(ctx, &validator, amount); err != nil {
@@ -326,17 +322,17 @@ func (k *Keeper) fallbackDepositCollateral(ctx sdk.Context, event *bindings.Cons
 func (k *Keeper) processWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
 
-	// Check if validator exists
-	validator, found := k.GetValidator(ctx, valAddr)
-	if !found {
-		return types.ErrValidatorNotFound, true
-	}
-
 	// Check if the amount is too large
 	if !event.AmountGwei.IsUint64() {
 		return errors.New("amount too large for uint64"), true
 	}
 	amount := event.AmountGwei.Uint64()
+
+	// Check if validator exists
+	validator, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return types.ErrValidatorNotFound, true
+	}
 
 	// Create a withdrawal
 	withdrawal := types.Withdrawal{
