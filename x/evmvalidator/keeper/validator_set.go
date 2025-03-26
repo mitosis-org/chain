@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"github.com/mitosis-org/chain/x/evmvalidator/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -26,8 +27,8 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 	// Collect validator updates by comparing with last validator powers
 	var validatorUpdates []abci.ValidatorUpdate
 
-	// Create a map to track validators that have been updated
-	processedVals := make(map[mitotypes.EthAddress]bool)
+	// Create a map to track validators that are bonded in the active set
+	bondedVals := make(map[mitotypes.EthAddress]bool)
 
 	// Process current validators first
 	for _, validator := range validators {
@@ -68,7 +69,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		}
 
 		// Record that this validator was processed
-		processedVals[validator.Addr] = true
+		bondedVals[validator.Addr] = true
 
 		// Append to validator updates
 		abciUpdate, err := validator.ABCIValidatorUpdate()
@@ -106,56 +107,57 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 	// Process validators that were removed (not in the current set)
 	// We need to iterate through all last powers and check if they've been processed
 	k.IterateLastValidatorPowers(sdkCtx, func(valAddr mitotypes.EthAddress, power int64) bool {
-		if processedVals[valAddr] {
-			// Already processed this validator
+		if bondedVals[valAddr] {
+			// This validator is still bonded in the active set
 			return false
 		}
 
-		// This validator is no longer in the active set or has been jailed
-		// Create a validator update with power 0 to remove it
+		// This validator is no longer bonded in the active set. So we need to unbond it.
+
 		validator, found := k.GetValidator(sdkCtx, valAddr)
-		if !found || validator.Jailed {
-			// Create a zero power update
-			pk, err2 := k1util.PubKeyBytesToCosmos(validator.Pubkey)
-			if err2 != nil {
-				err = errors.Wrap(err2, "failed to convert pubkey")
-				return true
-			}
-
-			// Remove from last validator powers since it's no longer active validator
-			k.DeleteLastValidatorPower(sdkCtx, valAddr)
-
-			// Set the validator as not bonded
-			if validator.Bonded {
-				validator.Bonded = false
-				k.SetValidator(sdkCtx, validator)
-			}
-
-			// Append to validator updates
-			cmtPk, err2 := cryptocodec.ToCmtProtoPublicKey(pk)
-			if err2 != nil {
-				err = errors.Wrap(err2, "failed to convert to CometBFT pubkey")
-				return true
-			}
-			validatorUpdate := abci.ValidatorUpdate{
-				PubKey: cmtPk,
-				Power:  0,
-			}
-			validatorUpdates = append(validatorUpdates, validatorUpdate)
-
-			// Log the removal
-			consAddr, err2 := validator.ConsAddr()
-			if err2 != nil {
-				err = errors.Wrap(err2, "failed to get consensus address")
-				return true
-			}
-			k.Logger(sdkCtx).Info("😈 Active Validator Set: Unbonded",
-				"val_addr", valAddr.String(),
-				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
-				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
-				"previous_power", power,
-			)
+		if !found {
+			err = errors.Wrap(types.ErrValidatorNotFound, "validator not found for address %s [BUG]", valAddr)
+			return true
 		}
+
+		// Create a zero power update
+		pk, err2 := k1util.PubKeyBytesToCosmos(validator.Pubkey)
+		if err2 != nil {
+			err = errors.Wrap(err2, "failed to convert pubkey")
+			return true
+		}
+
+		// Remove from last validator powers since it's no longer active validator
+		k.DeleteLastValidatorPower(sdkCtx, valAddr)
+
+		// Set the validator as not bonded
+		validator.Bonded = false
+		k.SetValidator(sdkCtx, validator)
+
+		// Append to validator updates
+		cmtPk, err2 := cryptocodec.ToCmtProtoPublicKey(pk)
+		if err2 != nil {
+			err = errors.Wrap(err2, "failed to convert to CometBFT pubkey")
+			return true
+		}
+		validatorUpdate := abci.ValidatorUpdate{
+			PubKey: cmtPk,
+			Power:  0,
+		}
+		validatorUpdates = append(validatorUpdates, validatorUpdate)
+
+		// Log the removal
+		consAddr, err2 := validator.ConsAddr()
+		if err2 != nil {
+			err = errors.Wrap(err2, "failed to get consensus address")
+			return true
+		}
+		k.Logger(sdkCtx).Info("😈 Active Validator Set: Unbonded",
+			"val_addr", valAddr.String(),
+			"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
+			"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
+			"previous_power", power,
+		)
 
 		return false // continue iteration
 	})
