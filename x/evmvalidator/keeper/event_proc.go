@@ -3,7 +3,9 @@ package keeper
 import (
 	"context"
 	stderrors "errors"
+	"fmt"
 	"sync"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -119,6 +121,16 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 		if err != nil {
 			return errors.Wrap(err, "parse MsgRegisterValidator"), false
 		}
+
+		k.Logger(ctx).Info("📣 Process MsgRegisterValidator",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+			"_pubKey", fmt.Sprintf("%X", event.PubKey),
+			"_initialCollateralAmountGwei", event.InitialCollateralAmountGwei,
+			"_collateralRefundAddr", event.CollateralRefundAddr.String(),
+		)
+
 		if err, ignore := k.processRegisterValidator(ctx, event); err != nil {
 			if !ignore {
 				return errors.Wrap(err, "process MsgRegisterValidator"), false
@@ -152,6 +164,15 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 		if err != nil {
 			return errors.Wrap(err, "parse MsgDepositCollateral"), false
 		}
+
+		k.Logger(ctx).Info("📣 Process MsgDepositCollateral",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+			"_amountGwei", event.AmountGwei,
+			"_collateralRefundAddr", event.CollateralRefundAddr.String(),
+		)
+
 		if err, ignore := k.processDepositCollateral(ctx, event); err != nil {
 			if !ignore {
 				return errors.Wrap(err, "process MsgDepositCollateral"), false
@@ -185,6 +206,16 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 		if err != nil {
 			return errors.Wrap(err, "parse MsgWithdrawCollateral"), false
 		}
+
+		k.Logger(ctx).Info("📣 Process MsgWithdrawCollateral",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+			"_amountGwei", event.AmountGwei,
+			"_receiver", event.Receiver.String(),
+			"_maturesAt", time.Unix(event.MaturesAt.Int64(), 0).String(),
+		)
+
 		if err, ignore := k.processWithdrawCollateral(ctx, event); err != nil {
 			return errors.Wrap(err, "process MsgWithdrawCollateral"), ignore
 		}
@@ -199,6 +230,13 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
+
+		k.Logger(ctx).Info("📣 Process MsgUnjail",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+		)
+
 		if err, ignore := k.processUnjail(ctx, event); err != nil {
 			return errors.Wrap(err, "process MsgUnjail"), ignore
 		}
@@ -212,6 +250,14 @@ func (k *Keeper) processEvent(originCtx sdk.Context, blockHash common.Hash, elog
 		if err != nil {
 			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
+
+		k.Logger(ctx).Info("📣 Process MsgUpdateExtraVotingPower",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+			"_extraVotingPowerWei", event.ExtraVotingPowerWei,
+		)
+
 		if err, ignore := k.processUpdateExtraVotingPower(ctx, event); err != nil {
 			return errors.Wrap(err, "process MsgUpdateExtraVotingPower"), ignore
 		}

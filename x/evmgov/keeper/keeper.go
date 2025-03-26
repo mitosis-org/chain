@@ -54,39 +54,31 @@ func (k *Keeper) SetGovEntrypointContractAddr(addr mitotypes.EthAddress) error {
 	return nil
 }
 
-func (k *Keeper) ParseMessages(rawMsgs []string) ([]sdk.Msg, error) {
+func (k *Keeper) ParseMessage(rawMsg string) (sdk.Msg, error) {
 	// Example of rawMsg: {"@type": "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade", "authority": "...", "plan": {...}}
 
-	var msgs []sdk.Msg
-
 	// TODO(thai): There is no error even though there is missing field. How can we make sure there is no missing field?
-	for _, rawMsg := range rawMsgs {
-		var protoMsg codectypes.Any
-		err := k.cdc.UnmarshalJSON([]byte(rawMsg), &protoMsg)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse message")
-		}
-
-		var msg sdk.Msg
-		err = k.cdc.UnpackAny(&protoMsg, &msg)
-		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("failed to unpack message of %s", protoMsg.TypeUrl))
-		}
-
-		msgs = append(msgs, msg)
+	var protoMsg codectypes.Any
+	err := k.cdc.UnmarshalJSON([]byte(rawMsg), &protoMsg)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse message")
 	}
 
-	return msgs, nil
+	var msg sdk.Msg
+	err = k.cdc.UnpackAny(&protoMsg, &msg)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to unpack message of %s", protoMsg.TypeUrl))
+	}
+
+	return msg, nil
 }
 
-func (k *Keeper) ExecuteMessages(ctx sdk.Context, msgs []sdk.Msg) error {
-	for _, msg := range msgs {
-		handler := k.router.Handler(msg)
+func (k *Keeper) ExecuteMessage(ctx sdk.Context, msg sdk.Msg) error {
+	handler := k.router.Handler(msg)
 
-		_, err := safeExecuteHandler(ctx, msg, handler)
-		if err != nil {
-			return errors.Wrap(err, "failed to execute message")
-		}
+	_, err := safeExecuteHandler(ctx, msg, handler)
+	if err != nil {
+		return errors.Wrap(err, "failed to execute message")
 	}
 
 	return nil

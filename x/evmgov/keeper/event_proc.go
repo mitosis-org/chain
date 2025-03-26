@@ -68,7 +68,7 @@ func (k *Keeper) Deliver(ctx context.Context, blockHash common.Hash, elog evmeng
 
 // processEvent parses the provided event and processes it.
 // If the second return value is true, the error will be ignored.
-func (k *Keeper) processEvent(ctx sdk.Context, _ common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
+func (k *Keeper) processEvent(ctx sdk.Context, blockHash common.Hash, elog evmengtypes.EVMEvent) (error, bool) {
 	ethlog, err := elog.ToEthLog()
 	if err != nil {
 		return err, false
@@ -86,7 +86,7 @@ func (k *Keeper) processEvent(ctx sdk.Context, _ common.Hash, elog evmengtypes.E
 			return errors.Wrap(err, "parse MsgExecute"), false
 		}
 
-		if err := k.processMsgExecute(ctx, event); err != nil {
+		if err := k.processMsgExecute(ctx, blockHash, event); err != nil {
 			return errors.Wrap(err, "process MsgExecute"), true
 		}
 	default:
@@ -97,13 +97,25 @@ func (k *Keeper) processEvent(ctx sdk.Context, _ common.Hash, elog evmengtypes.E
 }
 
 // processMsgExecute processes the MsgExecute event.
-func (k *Keeper) processMsgExecute(ctx sdk.Context, event *bindings.ConsensusGovernanceEntrypointMsgExecute) error {
-	msgs, err := k.ParseMessages(event.Messages)
-	if err != nil {
-		return err
+func (k *Keeper) processMsgExecute(ctx sdk.Context, evmBlockHash common.Hash, event *bindings.ConsensusGovernanceEntrypointMsgExecute) error {
+	for _, rawMsg := range event.Messages {
+		k.Logger(ctx).Info("⚡️ Execute the message",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", evmBlockHash.Hex(),
+			"rawMsg", rawMsg,
+		)
+
+		msg, err := k.ParseMessage(rawMsg)
+		if err != nil {
+			return err
+		}
+
+		if err = k.ExecuteMessage(ctx, msg); err != nil {
+			return err
+		}
 	}
 
-	return k.ExecuteMessages(ctx, msgs)
+	return nil
 }
 
 // mustGetABI returns the metadata's ABI as an abi.ABI type.
