@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"strings"
 
+	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtime "github.com/cometbft/cometbft/types/time"
@@ -54,7 +55,7 @@ func PubkeyToConsAddr(pubkey []byte) sdk.ConsAddress {
 	pubKey := &secp256k1.PubKey{Key: pubkey}
 
 	// Get consensus key
-	cpk, err := cryptocodec.ToTmPubKeyInterface(pubKey)
+	cpk, err := cryptocodec.ToCmtPubKeyInterface(pubKey)
 	if err != nil {
 		panic(err)
 	}
@@ -73,8 +74,8 @@ func HexToCompressedPubkey(hexPubkey string) []byte {
 	return bz
 }
 
-// CreateTestInput returns a test keeper with minimal working dependencies
-func CreateTestInput(s *suite.Suite) TestKeeper {
+// NewTestKeeper returns a test keeper with minimal working dependencies
+func NewTestKeeper(s *suite.Suite) TestKeeper {
 	// Create store keys
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 	testCtx := testutil.DefaultContextWithDB(s.T(), storeKey, storetypes.NewTransientStoreKey("transient_test"))
@@ -105,4 +106,40 @@ func CreateTestInput(s *suite.Suite) TestKeeper {
 		MockSlash:  mockSlash,
 		MockEvmEng: mockEvmEng,
 	}
+}
+
+// SetupDefaultTestParams sets up test parameters with commonly used default values
+func (tk TestKeeper) SetupDefaultTestParams() types.Params {
+	return tk.SetupTestParams(
+		types.Params{
+			MaxValidators:    100,
+			MaxLeverageRatio: math.LegacyNewDec(10),
+			MinVotingPower:   1,
+			WithdrawalLimit:  10,
+		},
+	)
+}
+
+// SetupTestParams sets up standard test parameters for tests
+func (tk TestKeeper) SetupTestParams(params types.Params) types.Params {
+	err := tk.Keeper.SetParams(tk.Ctx, params)
+	if err != nil {
+		panic(err)
+	}
+	return params
+}
+
+// RegisterTestValidator is a helper function to register a validator for testing
+func (tk TestKeeper) RegisterTestValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
+	_, pubkey, valAddr := GenerateSecp256k1Key()
+	err := tk.Keeper.RegisterValidator(tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
+	if err != nil {
+		panic(err)
+	}
+
+	validator, found := tk.Keeper.GetValidator(tk.Ctx, valAddr)
+	if !found {
+		panic("validator not found after registration")
+	}
+	return validator
 }

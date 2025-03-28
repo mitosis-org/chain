@@ -22,39 +22,16 @@ type QueryTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *QueryTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 	s.queryServer = keeper.NewQueryServer(s.tk.Keeper)
 
 	// Set up params
-	s.setupParams()
+	s.tk.SetupDefaultTestParams()
 }
 
 // TestQueryTestSuite runs the query test suite
 func TestQueryTestSuite(t *testing.T) {
 	suite.Run(t, new(QueryTestSuite))
-}
-
-// setupParams sets up the params for testing
-func (s *QueryTestSuite) setupParams() {
-	params := types.Params{
-		MaxValidators:    100,
-		MaxLeverageRatio: math.LegacyNewDec(10),
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-}
-
-// registerValidator is a helper function to register a validator
-func (s *QueryTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
-	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
-	s.Require().NoError(err)
-
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
-	s.Require().True(found)
-	return validator
 }
 
 // Test_QueryParams tests the Params query
@@ -92,7 +69,7 @@ func (s *QueryTestSuite) Test_QueryValidatorEntrypointContractAddr() {
 // Test_QueryValidator tests the Validator query
 func (s *QueryTestSuite) Test_QueryValidator() {
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 
 	// Query the validator
 	req := &types.QueryValidatorRequest{
@@ -125,9 +102,9 @@ func (s *QueryTestSuite) Test_QueryValidator() {
 // Test_QueryValidators tests the Validators query
 func (s *QueryTestSuite) Test_QueryValidators() {
 	// Register multiple validators
-	val1 := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
-	val2 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false)
-	val3 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false)
+	val1 := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	val2 := s.tk.RegisterTestValidator(math.NewUint(2000000000), math.ZeroUint(), false)
+	val3 := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false)
 
 	expectedValidators := []types.Validator{val1, val2, val3}
 
@@ -176,7 +153,7 @@ func (s *QueryTestSuite) Test_QueryValidators() {
 // Test_QueryWithdrawal tests the Withdrawal query
 func (s *QueryTestSuite) Test_QueryWithdrawal() {
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 
 	// Create a withdrawal
 	withdrawal := &types.Withdrawal{
@@ -220,7 +197,7 @@ func (s *QueryTestSuite) Test_QueryWithdrawal() {
 // Test_QueryWithdrawals tests the Withdrawals query
 func (s *QueryTestSuite) Test_QueryWithdrawals() {
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 
 	// Create withdrawals directly with the keeper's method
 	withdrawal1 := &types.Withdrawal{
@@ -261,7 +238,7 @@ func (s *QueryTestSuite) Test_QueryWithdrawals() {
 // Test_QueryWithdrawalsByValidator tests the WithdrawalsByValidator query
 func (s *QueryTestSuite) Test_QueryWithdrawalsByValidator() {
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 
 	// Create withdrawals
 	withdrawal1 := &types.Withdrawal{

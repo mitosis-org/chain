@@ -57,5 +57,7 @@ func (m MockEvmEngineKeeper) InsertWithdrawal(ctx context.Context, withdrawalAdd
 	return nil
 }
 
-var _ types.SlashingKeeper = MockSlashingKeeper{}
-var _ types.EvmEngineKeeper = MockEvmEngineKeeper{}
+var (
+	_ types.SlashingKeeper  = MockSlashingKeeper{}
+	_ types.EvmEngineKeeper = MockEvmEngineKeeper{}
+)

@@ -23,7 +23,7 @@ type EventProcessingTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *EventProcessingTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestEventProcessingTestSuite runs the event processing test suite
@@ -31,33 +31,21 @@ func TestEventProcessingTestSuite(t *testing.T) {
 	suite.Run(t, new(EventProcessingTestSuite))
 }
 
-// Helper functions to reduce duplication
-func (s *EventProcessingTestSuite) setupTestParams() types.Params {
-	params := types.Params{
-		MaxValidators:    100,
-		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-	return params
-}
-
-// Skip this test for now since it has issues with EthAddress comparisons
-func (s *EventProcessingTestSuite) Skip_Test_ProcessRegisterValidator() {
+// Skip this test for now since it has issues with valAddress comparisons
+func (s *EventProcessingTestSuite) Test_ProcessRegisterValidator() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, refundAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the register validator event
 	event := &bindings.ConsensusValidatorEntrypointMsgRegisterValidator{
-		ValAddr:                     common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:                     common.BytesToAddress(valAddr.Bytes()),
 		PubKey:                      pubkey,
 		InitialCollateralAmountGwei: big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr:        common.BytesToAddress(ethAddr.Bytes()),
+		CollateralRefundAddr:        common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Process the register validator event
@@ -66,33 +54,29 @@ func (s *EventProcessingTestSuite) Skip_Test_ProcessRegisterValidator() {
 	s.Require().False(ignore)
 
 	// Verify validator was registered
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
-	s.Require().True(found, "Validator should be registered")
-	s.Require().Equal(event.ValAddr, validator.Addr.Address())
-
-	s.Require().Equal(pubkey, validator.Pubkey)
-	s.Require().Equal(math.NewUintFromBigInt(event.InitialCollateralAmountGwei), validator.Collateral)
-	s.Require().Equal(math.ZeroUint(), validator.ExtraVotingPower)
-	s.Require().Equal(int64(1), validator.VotingPower) // 1 MITO = 1 voting power
-	s.Require().False(validator.Jailed)
-	s.Require().True(validator.Bonded)
-
-	// Try registering the same validator again (should fail with ignore=true)
-	err, ignore = s.tk.Keeper.ProcessRegisterValidator(s.tk.Ctx, event)
-	s.Require().Error(err)
-	s.Require().True(ignore)
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+	s.Require().Equal(types.Validator{
+		Addr:             valAddr,
+		Pubkey:           pubkey,
+		Collateral:       math.NewUintFromBigInt(event.InitialCollateralAmountGwei),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      1,
+		Jailed:           false,
+	}, validator)
 }
 
 func (s *EventProcessingTestSuite) Test_FallbackRegisterValidator() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, refundAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the register validator event
 	event := &bindings.ConsensusValidatorEntrypointMsgRegisterValidator{
-		ValAddr:                     common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:                     common.BytesToAddress(valAddr.Bytes()),
 		PubKey:                      pubkey,
 		InitialCollateralAmountGwei: big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr:        common.BytesToAddress(ethAddr.Bytes()),
+		CollateralRefundAddr:        common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Track inserted withdrawals
@@ -114,29 +98,16 @@ func (s *EventProcessingTestSuite) Test_FallbackRegisterValidator() {
 }
 
 func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
-	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
-	// Register a validator first
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	initialCollateral := math.NewUint(1000000000) // 1 MITO
-
-	// Register validator directly
-	err := s.tk.Keeper.RegisterValidator(
-		s.tk.Ctx,
-		ethAddr,
-		pubkey,
-		initialCollateral,
-		math.ZeroUint(),
-		false,
-	)
-	s.Require().NoError(err)
+	initialValidator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	_, _, refundAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the deposit collateral event
 	event := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
-		ValAddr:              common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:              common.BytesToAddress(initialValidator.Addr.Bytes()),
 		AmountGwei:           big.NewInt(1000000000), // 1 MITO more
-		CollateralRefundAddr: common.BytesToAddress(ethAddr.Bytes()),
+		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Process the deposit collateral event
@@ -145,18 +116,19 @@ func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
 	s.Require().False(ignore)
 
 	// Verify validator's collateral was increased
-	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, initialValidator.Addr)
 	s.Require().True(found)
-	expectedCollateral := initialCollateral.Add(math.NewUintFromBigInt(event.AmountGwei))
-	s.Require().Equal(expectedCollateral, updatedValidator.Collateral)
-	s.Require().Equal(int64(2), updatedValidator.VotingPower) // 2 MITO = 2 voting power
+	expectedValidator := initialValidator
+	expectedValidator.Collateral = expectedValidator.Collateral.Add(math.NewUintFromBigInt(event.AmountGwei))
+	expectedValidator.VotingPower = 2
+	s.Require().Equal(expectedValidator, updatedValidator)
 
 	// Try depositing to a non-existent validator (should return error with ignore=true)
 	_, _, nonExistentAddr := testutil.GenerateSecp256k1Key()
 	invalidEvent := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
 		ValAddr:              common.BytesToAddress(nonExistentAddr.Bytes()),
 		AmountGwei:           big.NewInt(1000000000),
-		CollateralRefundAddr: common.BytesToAddress(nonExistentAddr.Bytes()),
+		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	err, ignore = s.tk.Keeper.ProcessDepositCollateral(s.tk.Ctx, invalidEvent)
@@ -167,13 +139,14 @@ func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
 
 func (s *EventProcessingTestSuite) Test_FallbackDepositCollateral() {
 	// Generate validator data
-	_, _, ethAddr := testutil.GenerateSecp256k1Key()
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, refundAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the deposit collateral event
 	event := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
-		ValAddr:              common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:              common.BytesToAddress(valAddr.Bytes()),
 		AmountGwei:           big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr: common.BytesToAddress(ethAddr.Bytes()),
+		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Track inserted withdrawals
@@ -196,28 +169,17 @@ func (s *EventProcessingTestSuite) Test_FallbackDepositCollateral() {
 
 func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator first with 3 MITO collateral
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	initialCollateral := math.NewUint(3000000000) // 3 MITO
-
-	// Register validator directly
-	err := s.tk.Keeper.RegisterValidator(
-		s.tk.Ctx,
-		ethAddr,
-		pubkey,
-		initialCollateral,
-		math.ZeroUint(),
-		false,
-	)
-	s.Require().NoError(err)
+	initialValidator := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO
+	valAddr := initialValidator.Addr
+	_, _, receiverAddr := testutil.GenerateSecp256k1Key()
 
 	// Create withdraw collateral event
 	now := time.Now().Unix()
-	receiverAddr := ethAddr // Use same address for simplicity
 	event := &bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral{
-		ValAddr:    common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:    common.BytesToAddress(valAddr.Bytes()),
 		AmountGwei: big.NewInt(1000000000), // 1 MITO
 		Receiver:   common.BytesToAddress(receiverAddr.Bytes()),
 		MaturesAt:  big.NewInt(now + 86400), // 1 day from now
@@ -229,33 +191,35 @@ func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 	s.Require().False(ignore)
 
 	// Verify validator's collateral was reduced
-	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
-	expectedCollateral := initialCollateral.Sub(math.NewUint(event.AmountGwei.Uint64()))
-	s.Require().Equal(expectedCollateral, updatedValidator.Collateral)
-	s.Require().Equal(int64(2), updatedValidator.VotingPower) // 2 MITO = 2 voting power
+	expectedValidator := initialValidator
+	expectedValidator.Collateral = expectedValidator.Collateral.Sub(math.NewUintFromBigInt(event.AmountGwei))
+	expectedValidator.VotingPower = 2
+	s.Require().Equal(expectedValidator, updatedValidator)
 
 	// Verify withdrawal was created
-	var foundWithdrawal bool
-	var withdrawal types.Withdrawal
-	s.tk.Keeper.IterateWithdrawalsForValidator(s.tk.Ctx, ethAddr, func(w types.Withdrawal) bool {
-		if w.ValAddr == ethAddr && w.Amount == event.AmountGwei.Uint64() {
-			foundWithdrawal = true
-			withdrawal = w
+	expectedWithdrawal := types.Withdrawal{
+		ID:             1,
+		ValAddr:        valAddr,
+		Amount:         event.AmountGwei.Uint64(),
+		Receiver:       receiverAddr,
+		MaturesAt:      event.MaturesAt.Int64(),
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+	found = false
+	s.tk.Keeper.IterateWithdrawalsForValidator(s.tk.Ctx, valAddr, func(w types.Withdrawal) bool {
+		if w == expectedWithdrawal {
+			found = true
 			return true
 		}
 		return false
 	})
-
-	s.Require().True(foundWithdrawal, "Withdrawal should be created")
-	s.Require().Equal(event.AmountGwei.Uint64(), withdrawal.Amount)
-	s.Require().Equal(receiverAddr, withdrawal.Receiver)
-	s.Require().Equal(event.MaturesAt.Int64(), withdrawal.MaturesAt)
-	s.Require().Equal(s.tk.Ctx.BlockHeight(), withdrawal.CreationHeight)
+	s.Require().True(found)
 
 	// Try withdrawing more than available collateral (should fail with ignore=true)
 	invalidEvent := &bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral{
-		ValAddr:    common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:    common.BytesToAddress(valAddr.Bytes()),
 		AmountGwei: big.NewInt(3000000000), // 3 MITO (more than remaining collateral)
 		Receiver:   common.BytesToAddress(receiverAddr.Bytes()),
 		MaturesAt:  big.NewInt(now + 86400),
@@ -269,43 +233,23 @@ func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 
 func (s *EventProcessingTestSuite) Test_ProcessUnjail() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	initialCollateral := math.NewUint(1000000000) // 1 MITO
-
-	// Register validator directly
-	err := s.tk.Keeper.RegisterValidator(
-		s.tk.Ctx,
-		ethAddr,
-		pubkey,
-		initialCollateral,
-		math.ZeroUint(),
-		false,
-	)
-	s.Require().NoError(err)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	valAddr := validator.Addr
 
 	// Jail validator directly
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
-	s.Require().True(found)
-	err = s.tk.Keeper.Jail(s.tk.Ctx, validator.MustConsAddr())
-	s.Require().NoError(err)
+	s.tk.Keeper.Jail_(s.tk.Ctx, &validator, "test")
 
 	// Create unjail event
 	event := &bindings.ConsensusValidatorEntrypointMsgUnjail{
-		ValAddr: common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr: common.BytesToAddress(valAddr.Bytes()),
 	}
 
 	// Mock the slashing keeper's UnjailFromConsAddr function
-	var calledConsAddr sdk.ConsAddress
 	s.tk.MockSlash.UnjailFromConsAddrFn = func(ctx context.Context, consAddr sdk.ConsAddress) error {
-		calledConsAddr = consAddr
-		// Unjail directly since we're mocking the function
-		validator, _ := s.tk.Keeper.GetValidator(sdk.UnwrapSDKContext(ctx), ethAddr)
-		validator.Jailed = false
-		s.tk.Keeper.SetValidator(sdk.UnwrapSDKContext(ctx), validator)
-		return nil
+		return s.tk.Keeper.Unjail(ctx, consAddr)
 	}
 
 	// Process unjail event
@@ -313,13 +257,12 @@ func (s *EventProcessingTestSuite) Test_ProcessUnjail() {
 	s.Require().NoError(err)
 	s.Require().False(ignore)
 
-	// Verify slashing keeper was called with correct consensus address
-	s.Require().Equal(validator.MustConsAddr(), calledConsAddr)
-
 	// Verify validator is now unjailed
-	unjailedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
-	s.Require().False(unjailedValidator.Jailed)
+	expectedValidator := validator
+	expectedValidator.Jailed = false
+	s.Require().Equal(expectedValidator, updatedValidator)
 
 	// Try unjailing an already unjailed validator (should return error with ignore=true)
 	err, ignore = s.tk.Keeper.ProcessUnjail(s.tk.Ctx, event)
@@ -330,33 +273,20 @@ func (s *EventProcessingTestSuite) Test_ProcessUnjail() {
 
 func (s *EventProcessingTestSuite) Test_ProcessUpdateExtraVotingPower() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	initialCollateral := math.NewUint(1000000000) // 1 MITO
-
-	// Register validator directly
-	err := s.tk.Keeper.RegisterValidator(
-		s.tk.Ctx,
-		ethAddr,
-		pubkey,
-		initialCollateral,
-		math.ZeroUint(),
-		false,
-	)
-	s.Require().NoError(err)
+	initialValidator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	valAddr := initialValidator.Addr
 
 	// Verify initial state
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
-	s.Require().True(found)
-	s.Require().Equal(math.ZeroUint(), validator.ExtraVotingPower)
-	s.Require().Equal(int64(1), validator.VotingPower) // 1 MITO = 1 voting power
+	s.Require().Equal(math.ZeroUint(), initialValidator.ExtraVotingPower)
+	s.Require().Equal(int64(1), initialValidator.VotingPower) // 1 MITO = 1 voting power
 
 	// Create update extra voting power event (1 MITO = 1e18 wei / 1e9 = 1e9 gwei)
-	extraPowerWei := big.NewInt(0).Mul(big.NewInt(1000000000), big.NewInt(1000000000))
+	extraPowerWei := big.NewInt(0).Mul(big.NewInt(1e9), big.NewInt(1e9))
 	event := &bindings.ConsensusValidatorEntrypointMsgUpdateExtraVotingPower{
-		ValAddr:             common.BytesToAddress(ethAddr.Bytes()),
+		ValAddr:             common.BytesToAddress(valAddr.Bytes()),
 		ExtraVotingPowerWei: extraPowerWei, // 1 MITO in wei
 	}
 
@@ -366,10 +296,12 @@ func (s *EventProcessingTestSuite) Test_ProcessUpdateExtraVotingPower() {
 	s.Require().False(ignore)
 
 	// Verify validator's extra voting power and total voting power were updated
-	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
-	s.Require().Equal(math.NewUint(1000000000), updatedValidator.ExtraVotingPower) // 1 MITO extra
-	s.Require().Equal(int64(2), updatedValidator.VotingPower)                      // 1 MITO collateral + 1 MITO extra = 2 VP
+	expectedValidator := initialValidator
+	expectedValidator.ExtraVotingPower = math.NewUint(1e9)
+	expectedValidator.VotingPower = 2
+	s.Require().Equal(expectedValidator, updatedValidator)
 
 	// Try updating a non-existent validator (should return error with ignore=true)
 	_, _, nonExistentAddr := testutil.GenerateSecp256k1Key()

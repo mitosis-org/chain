@@ -19,7 +19,7 @@ type ValidatorSetTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *ValidatorSetTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestValidatorSetTestSuite runs the validator set test suite
@@ -27,38 +27,14 @@ func TestValidatorSetTestSuite(t *testing.T) {
 	suite.Run(t, new(ValidatorSetTestSuite))
 }
 
-// setupTestParams sets up test parameters
-func (s *ValidatorSetTestSuite) setupTestParams() types.Params {
-	params := types.Params{
-		MaxValidators:    10,
-		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-	return params
-}
-
-// registerValidator is a helper function to register a validator
-func (s *ValidatorSetTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
-	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
-	s.Require().NoError(err)
-
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
-	s.Require().True(found)
-	return validator
-}
-
 func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_NewValidators() {
 	// Set test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register validators
-	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
-	validator3 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
+	validator1 := s.tk.RegisterTestValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator3 := s.tk.RegisterTestValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
 
 	// Mock slashing keeper hooks
 	bondedValidators := make(map[string]bool)
@@ -114,14 +90,14 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_NewValida
 	s.Require().True(bondedValidators[validator3.MustConsAddr().String()])
 }
 
-// Test_ApplyAndReturnValidatorSetUpdates_NoChanges tests that no updates are returned when there are no changes
+// Test_ApplyAndReturnValidatorSetUpdates_PowerChange tests that no updates are returned when there are no changes
 func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_PowerChange() {
 	// Set test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register validators
-	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator1 := s.tk.RegisterTestValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
 
 	// Initial update
 	initialUpdates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
@@ -165,11 +141,11 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_PowerChan
 // Test_ApplyAndReturnValidatorSetUpdates_JailedValidator tests validators are excluded when jailed
 func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_JailedValidator() {
 	// Set test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register validators - one normal, one jailed
-	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator1 := s.tk.RegisterTestValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
 
 	// Initial update
 	initialUpdates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
@@ -231,9 +207,9 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_MaxValida
 	s.Require().NoError(err)
 
 	// Register 3 validators with decreasing power
-	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
-	validator3 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
+	validator1 := s.tk.RegisterTestValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.tk.RegisterTestValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator3 := s.tk.RegisterTestValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
 	initialValidator1 := validator1
 	initialValidator2 := validator2
 	initialValidator3 := validator3

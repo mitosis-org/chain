@@ -21,7 +21,7 @@ type KeeperTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *KeeperTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestKeeperTestSuite runs the keeper test suite

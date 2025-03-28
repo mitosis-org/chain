@@ -18,7 +18,7 @@ type MsgServerTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *MsgServerTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestMsgServerTestSuite runs the msg server test suite
@@ -26,34 +26,10 @@ func TestMsgServerTestSuite(t *testing.T) {
 	suite.Run(t, new(MsgServerTestSuite))
 }
 
-// setupInitialParams sets up initial params for testing
-func (s *MsgServerTestSuite) setupInitialParams() types.Params {
-	params := types.Params{
-		MaxValidators:    100,
-		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-	return params
-}
-
-// registerValidator is a helper function to register a validator
-func (s *MsgServerTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
-	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
-	s.Require().NoError(err)
-
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
-	s.Require().True(found)
-	return validator
-}
-
 // Test_UpdateParams tests the UpdateParams message handler
 func (s *MsgServerTestSuite) Test_UpdateParams() {
 	// Set up initial params
-	initialParams := s.setupInitialParams()
+	initialParams := s.tk.SetupDefaultTestParams()
 
 	// Create msg server
 	msgServer := keeper.NewMsgServerImpl(s.tk.Keeper)
@@ -121,7 +97,7 @@ func (s *MsgServerTestSuite) Test_UpdateParams_UpdatesValidatorStates_MaxLeverag
 	s.Require().NoError(err)
 
 	// Register a validator with exactly enough voting power to meet the initial requirement
-	initialValidator := s.registerValidator(math.NewUint(1000000000), math.NewUint(1000000000*10), false) // 1 MITO collateral, 10 MITO extra voting power, 10 voting power
+	initialValidator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.NewUint(1000000000*10), false) // 1 MITO collateral, 10 MITO extra voting power, 10 voting power
 
 	s.Require().False(initialValidator.Jailed, "Validator should not be jailed initially")
 	s.Require().Equal(int64(10), initialValidator.VotingPower, "Initial voting power should be 10")
@@ -156,10 +132,10 @@ func (s *MsgServerTestSuite) Test_UpdateParams_UpdatesValidatorStates_MaxLeverag
 // with changes to MinVotingPower triggers validator state updates
 func (s *MsgServerTestSuite) Test_UpdateParams_UpdatesValidatorStates_MinVotingPower() {
 	// Set up initial params with MinVotingPower = 1
-	initialParams := s.setupInitialParams()
+	initialParams := s.tk.SetupDefaultTestParams()
 
 	// Register a validator with exactly enough voting power to meet the initial requirement
-	initialValidator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO collateral
+	initialValidator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO collateral
 
 	// Verify initial validator state
 	s.Require().False(initialValidator.Jailed, "Validator should not be jailed initially")
@@ -192,7 +168,7 @@ func (s *MsgServerTestSuite) Test_UpdateParams_UpdatesValidatorStates_MinVotingP
 // Test_UpdateValidatorEntrypointContractAddr tests the UpdateValidatorEntrypointContractAddr message handler
 func (s *MsgServerTestSuite) Test_UpdateValidatorEntrypointContractAddr() {
 	// Set up initial params
-	s.setupInitialParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Create msg server
 	msgServer := keeper.NewMsgServerImpl(s.tk.Keeper)

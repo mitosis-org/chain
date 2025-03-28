@@ -21,35 +21,12 @@ type ValidatorTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *ValidatorTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestValidatorTestSuite runs the validator test suite
 func TestValidatorTestSuite(t *testing.T) {
 	suite.Run(t, new(ValidatorTestSuite))
-}
-
-// Helper functions to reduce duplication
-func (s *ValidatorTestSuite) setupTestParams() types.Params {
-	params := types.Params{
-		MaxValidators:    100,
-		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-	return params
-}
-
-func (s *ValidatorTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
-	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
-	s.Require().NoError(err)
-
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
-	s.Require().True(found)
-	return validator
 }
 
 // ==================== RegisterValidator Tests ====================
@@ -151,8 +128,8 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_NotMatchedPubkey() {
 
 func (s *ValidatorTestSuite) Test_DepositCollateral() {
 	// Use helper functions
-	s.setupTestParams()
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	s.tk.SetupDefaultTestParams()
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Initial voting power should be 1
@@ -180,7 +157,7 @@ func (s *ValidatorTestSuite) Test_DepositCollateral() {
 
 func (s *ValidatorTestSuite) Test_DepositCollateral_ZeroAmount() {
 	// Use helper function to register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Deposit zero collateral
@@ -195,10 +172,10 @@ func (s *ValidatorTestSuite) Test_DepositCollateral_ZeroAmount() {
 
 func (s *ValidatorTestSuite) Test_WithdrawCollateral() {
 	// Set parameters for test
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator with enough collateral to have voting power = 2
-	validator := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(2000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Create withdrawal request
@@ -223,10 +200,10 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral() {
 
 func (s *ValidatorTestSuite) Test_WithdrawCollateral_InsufficientCollateral() {
 	// Set parameters for test
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Try withdrawing more than available (should fail)
@@ -266,10 +243,10 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral_InsufficientCollateral() {
 
 func (s *ValidatorTestSuite) Test_WithdrawCollateral_ZeroAmount() {
 	// Set parameters for test
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator with enough collateral to have voting power = 2
-	validator := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(2000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Initial voting power should be 2
@@ -299,10 +276,10 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral_ZeroAmount() {
 
 func (s *ValidatorTestSuite) Test_Slash_() {
 	// Set up test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 
 	// Should have 1 voting power based on 1 MITO collateral
 	naturalVotingPower := validator.VotingPower
@@ -345,10 +322,10 @@ func (s *ValidatorTestSuite) Test_Slash_() {
 
 func (s *ValidatorTestSuite) Test_Slash_ExceedsCollateral() {
 	// Set up test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 	initialValidator := validator
 
 	// Should have 1 voting power based on 1 MITO collateral
@@ -375,8 +352,8 @@ func (s *ValidatorTestSuite) Test_Slash_ExceedsCollateral() {
 
 func (s *ValidatorTestSuite) Test_Slash_Withdrawals() {
 	// ==================== SETUP ====================
-	s.setupTestParams()
-	validator := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO
+	s.tk.SetupDefaultTestParams()
+	validator := s.tk.RegisterTestValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO
 
 	// ==================== SETUP WITHDRAWALS ====================
 	now := time.Now().Unix()
@@ -456,7 +433,7 @@ func (s *ValidatorTestSuite) Test_Slash_Withdrawals() {
 
 func (s *ValidatorTestSuite) Test_Jail_() {
 	// Register a validator
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
 	initialValidator := validator
 	s.Require().False(validator.Jailed)
 
@@ -482,20 +459,11 @@ func (s *ValidatorTestSuite) Test_Jail_() {
 // ==================== Unjail_ Tests ====================
 
 func (s *ValidatorTestSuite) Test_Unjail_() {
-	// Define parameters for testing with minimum voting power of 1
-	params := types.Params{
-		MaxValidators:    100,
-		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
-		MinVotingPower:   1,
-		WithdrawalLimit:  10,
-	}
+	// Set up test parameters
+	s.tk.SetupDefaultTestParams()
 
-	// Set parameters
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-
-	// Register a jailed validator with enough collateral to meet min voting power
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), true)
+	// Register a validator
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), true)
 	initialValidator := validator
 
 	// Check if validator was not added to power index because it is jailed
@@ -511,7 +479,7 @@ func (s *ValidatorTestSuite) Test_Unjail_() {
 	}
 
 	// Unjail the validator
-	err = s.tk.Keeper.Unjail_(s.tk.Ctx, &validator)
+	err := s.tk.Keeper.Unjail_(s.tk.Ctx, &validator)
 	s.Require().NoError(err)
 
 	// Check if validator was unjailed
@@ -535,19 +503,15 @@ func (s *ValidatorTestSuite) Test_Unjail_() {
 
 func (s *ValidatorTestSuite) Test_Unjail_InsufficientVotingPower() {
 	// Define parameters for testing with minimum voting power of 10
-	params := types.Params{
+	s.tk.SetupTestParams(types.Params{
 		MaxValidators:    100,
 		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
 		MinVotingPower:   10,                    // Higher minimum voting power
 		WithdrawalLimit:  10,
-	}
-
-	// Set parameters
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
+	})
 
 	// Register a jailed validator with insufficient collateral
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), true)
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), true)
 
 	// For mocking the slashing keeper's UnjailFromConsAddr function
 	s.tk.MockSlash.UnjailFromConsAddrFn = func(ctx context.Context, consAddr sdk.ConsAddress) error {
@@ -555,7 +519,7 @@ func (s *ValidatorTestSuite) Test_Unjail_InsufficientVotingPower() {
 	}
 
 	// Try to unjail the validator with insufficient voting power
-	err = s.tk.Keeper.Unjail_(s.tk.Ctx, &validator)
+	err := s.tk.Keeper.Unjail_(s.tk.Ctx, &validator)
 	s.Require().Error(err)
 	s.Require().Contains(err.Error(), "voting power below minimum requirement")
 }
@@ -563,9 +527,9 @@ func (s *ValidatorTestSuite) Test_Unjail_InsufficientVotingPower() {
 // ==================== UpdateExtraVotingPower Tests ====================
 
 func (s *ValidatorTestSuite) Test_UpdateExtraVotingPower() {
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
 	initialValidator := validator
 
 	// Update extra voting power
@@ -582,9 +546,9 @@ func (s *ValidatorTestSuite) Test_UpdateExtraVotingPower() {
 // ==================== UpdateValidatorState Tests ====================
 
 func (s *ValidatorTestSuite) Test_UpdateValidatorState() {
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
 	initialValidator := validator
 	valAddr := validator.Addr
 
@@ -618,9 +582,9 @@ func (s *ValidatorTestSuite) Test_UpdateValidatorState() {
 }
 
 func (s *ValidatorTestSuite) Test_UpdateValidatorState_Jailed() {
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
 	initialValidator := validator
 	valAddr := validator.Addr
 
@@ -640,9 +604,9 @@ func (s *ValidatorTestSuite) Test_UpdateValidatorState_Jailed() {
 }
 
 func (s *ValidatorTestSuite) Test_UpdateValidatorState_BelowMinVotingPower() {
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
-	validator := s.registerValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
 	initialValidator := validator
 	valAddr := validator.Addr
 
@@ -684,7 +648,7 @@ func (s *ValidatorTestSuite) Test_UpdateValidatorState_MaxLeverageRatio() {
 	// Register a validator
 	initialCollateral := math.NewUint(1000000000) // 1 MITO in gwei
 	initialExtraVP := math.NewUint(3000000000)    // 3 MITO in gwei as extra voting power
-	validator := s.registerValidator(initialCollateral, initialExtraVP, false)
+	validator := s.tk.RegisterTestValidator(initialCollateral, initialExtraVP, false)
 	initialValidator := validator
 	valAddr := validator.Addr
 

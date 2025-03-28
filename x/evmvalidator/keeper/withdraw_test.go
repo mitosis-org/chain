@@ -22,36 +22,12 @@ type WithdrawTestSuite struct {
 
 // SetupTest initializes the test suite
 func (s *WithdrawTestSuite) SetupTest() {
-	s.tk = testutil.CreateTestInput(&s.Suite)
+	s.tk = testutil.NewTestKeeper(&s.Suite)
 }
 
 // TestWithdrawTestSuite runs the withdraw test suite
 func TestWithdrawTestSuite(t *testing.T) {
 	suite.Run(t, new(WithdrawTestSuite))
-}
-
-// setupTestParams sets up test parameters
-func (s *WithdrawTestSuite) setupTestParams() types.Params {
-	params := types.Params{
-		MaxValidators:    10,
-		MaxLeverageRatio: math.LegacyNewDec(10),
-		MinVotingPower:   1,
-		WithdrawalLimit:  2, // Set a low limit to test the limit functionality
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
-	return params
-}
-
-// createTestValidator registers a validator for testing
-func (s *WithdrawTestSuite) createTestValidator(collateral math.Uint) types.Validator {
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr, pubkey, collateral, math.ZeroUint(), false)
-	s.Require().NoError(err)
-
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
-	s.Require().True(found)
-	return validator
 }
 
 // createAndAddWithdrawal creates a withdrawal and adds it to state
@@ -74,10 +50,15 @@ func (s *WithdrawTestSuite) createAndAddWithdrawal(
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupTestParams(types.Params{
+		MaxValidators:    100,
+		MaxLeverageRatio: math.LegacyNewDec(10),
+		MinVotingPower:   1,
+		WithdrawalLimit:  2, // Set a low limit to test the limit functionality
+	})
 
 	// Create a validator
-	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 	valAddr := validator.Addr
 	receiverAddr := valAddr // Using the same address for receiver for simplicity
 
@@ -125,10 +106,10 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals() {
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_NoMaturedWithdrawals() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Create a validator
-	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 	valAddr := validator.Addr
 
 	// Set the current block time
@@ -162,10 +143,10 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_NoMaturedWithdrawals(
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_InsertError() {
 	// Setup test parameters
-	s.setupTestParams()
+	s.tk.SetupDefaultTestParams()
 
 	// Create a validator
-	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 	valAddr := validator.Addr
 
 	// Set the current block time
@@ -188,18 +169,15 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_InsertError() {
 }
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
-	// Setup test parameters with a very low withdrawal limit
-	params := types.Params{
-		MaxValidators:    10,
+	s.tk.SetupTestParams(types.Params{
+		MaxValidators:    100,
 		MaxLeverageRatio: math.LegacyNewDec(10),
 		MinVotingPower:   1,
 		WithdrawalLimit:  1, // Only process 1 withdrawal per block
-	}
-	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
-	s.Require().NoError(err)
+	})
 
 	// Create a validator
-	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.tk.RegisterTestValidator(math.NewUint(10000000000), math.ZeroUint(), false) // 10 MITO
 	valAddr := validator.Addr
 
 	// Set the current block time
@@ -220,7 +198,7 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
 	}
 
 	// Process matured withdrawals - should only process the oldest one
-	err = s.tk.Keeper.ProcessMaturedWithdrawals(ctx)
+	err := s.tk.Keeper.ProcessMaturedWithdrawals(ctx)
 	s.Require().NoError(err)
 
 	// Verify only the oldest withdrawal was processed
