@@ -111,17 +111,17 @@ func (s *KeeperTestSuite) Test_SetValidatorEntrypointContractAddr() {
 
 func (s *KeeperTestSuite) Test_GetValidator() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 	collateral := math.NewUint(1000000000)
 	extraVotingPower := math.NewUint(500000000)
 
 	// Test GetValidator when validator doesn't exist
-	_, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	_, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().False(found)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
 		ExtraVotingPower: extraVotingPower,
@@ -134,22 +134,22 @@ func (s *KeeperTestSuite) Test_GetValidator() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Test GetValidator when validator exists
-	gotValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	gotValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 	s.Require().Equal(validator, gotValidator)
 }
 
 func (s *KeeperTestSuite) Test_HasValidator() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Test HasValidator when validator doesn't exist
-	has := s.tk.Keeper.HasValidator(s.tk.Ctx, ethAddr)
+	has := s.tk.Keeper.HasValidator(s.tk.Ctx, valAddr)
 	s.Require().False(has)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -162,19 +162,19 @@ func (s *KeeperTestSuite) Test_HasValidator() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Test HasValidator when validator exists
-	has = s.tk.Keeper.HasValidator(s.tk.Ctx, ethAddr)
+	has = s.tk.Keeper.HasValidator(s.tk.Ctx, valAddr)
 	s.Require().True(has)
 }
 
 func (s *KeeperTestSuite) Test_SetValidator() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 	collateral := math.NewUint(1000000000)
 	extraVotingPower := math.NewUint(500000000)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
 		ExtraVotingPower: extraVotingPower,
@@ -187,7 +187,7 @@ func (s *KeeperTestSuite) Test_SetValidator() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Test GetValidator when validator exists
-	gotValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	gotValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 	s.Require().Equal(validator, gotValidator)
 }
@@ -195,9 +195,9 @@ func (s *KeeperTestSuite) Test_SetValidator() {
 func (s *KeeperTestSuite) Test_IterateValidators_() {
 	// Setup validators
 	// Generate validator 1
-	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
+	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
 	validator1 := types.Validator{
-		Addr:             ethAddr1,
+		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(5000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -208,9 +208,9 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator1)
 
 	// Generate validator 2
-	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
 	validator2 := types.Validator{
-		Addr:             ethAddr2,
+		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(3000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -221,9 +221,9 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator2)
 
 	// Generate validator 3
-	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
+	_, pubkey3, valAddr3 := testutil.GenerateSecp256k1Key()
 	validator3 := types.Validator{
-		Addr:             ethAddr3,
+		Addr:             valAddr3,
 		Pubkey:           pubkey3,
 		Collateral:       math.NewUint(2000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -242,9 +242,9 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 
 	// Verify all validators were iterated
 	s.Require().Equal(3, len(validators), "Should have iterated through all 3 validators")
-	s.Require().Equal(validator1, validators[ethAddr1.String()], "Validator 1 should match")
-	s.Require().Equal(validator2, validators[ethAddr2.String()], "Validator 2 should match")
-	s.Require().Equal(validator3, validators[ethAddr3.String()], "Validator 3 should match")
+	s.Require().Equal(validator1, validators[valAddr1.String()], "Validator 1 should match")
+	s.Require().Equal(validator2, validators[valAddr2.String()], "Validator 2 should match")
+	s.Require().Equal(validator3, validators[valAddr3.String()], "Validator 3 should match")
 
 	// Test early termination
 	count := 0
@@ -275,9 +275,9 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 
 	// Setup validators
 	// Generate validator 1
-	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
+	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
 	validator1 := types.Validator{
-		Addr:             ethAddr1,
+		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(5000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -288,9 +288,9 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator1)
 
 	// Generate validator 2
-	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
 	validator2 := types.Validator{
-		Addr:             ethAddr2,
+		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(3000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -301,9 +301,9 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator2)
 
 	// Generate validator 3 (jailed)
-	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
+	_, pubkey3, valAddr3 := testutil.GenerateSecp256k1Key()
 	validator3 := types.Validator{
-		Addr:             ethAddr3,
+		Addr:             valAddr3,
 		Pubkey:           pubkey3,
 		Collateral:       math.NewUint(2000000000),
 		ExtraVotingPower: math.ZeroUint(),
@@ -326,12 +326,12 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 	}
 
 	// Verify each validator
-	s.Require().Equal(validator1, validatorMap[ethAddr1.String()], "Validator 1 should match")
-	s.Require().Equal(validator2, validatorMap[ethAddr2.String()], "Validator 2 should match")
-	s.Require().Equal(validator3, validatorMap[ethAddr3.String()], "Validator 3 should match")
+	s.Require().Equal(validator1, validatorMap[valAddr1.String()], "Validator 1 should match")
+	s.Require().Equal(validator2, validatorMap[valAddr2.String()], "Validator 2 should match")
+	s.Require().Equal(validator3, validatorMap[valAddr3.String()], "Validator 3 should match")
 
 	// Verify jailed validator is included (unlike GetNotJailedValidatorsByPower)
-	s.Require().True(validatorMap[ethAddr3.String()].Jailed, "Jailed validator should be included")
+	s.Require().True(validatorMap[valAddr3.String()].Jailed, "Jailed validator should be included")
 
 	// Verify GetAllValidators returns what we would get by iterating
 	var iteratedValidators []types.Validator
@@ -366,31 +366,31 @@ func (s *KeeperTestSuite) Test_GetNotJailedValidatorsByPower() {
 
 	// Register validators with different powers
 	// Generate validator 1 with power 5
-	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr1, pubkey1, math.NewUint(5000000000), math.ZeroUint(), false)
+	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr1, pubkey1, math.NewUint(5000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
-	validator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr1)
+	validator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr1)
 	s.Require().True(found)
 
 	// Generate validator 2 with power 3
-	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr2, pubkey2, math.NewUint(3000000000), math.ZeroUint(), false)
+	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr2, pubkey2, math.NewUint(3000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
-	validator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr2)
+	validator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr2)
 	s.Require().True(found)
 
 	// Generate validator 3 with power 2
-	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr3, pubkey3, math.NewUint(2000000000), math.ZeroUint(), false)
+	_, pubkey3, valAddr3 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr3, pubkey3, math.NewUint(2000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
-	validator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr3)
+	validator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr3)
 	s.Require().True(found)
 
 	// Generate validator 4 with power 1, jailed
-	_, pubkey4, ethAddr4 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr4, pubkey4, math.NewUint(1000000000), math.ZeroUint(), true)
+	_, pubkey4, valAddr4 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr4, pubkey4, math.NewUint(1000000000), math.ZeroUint(), true)
 	s.Require().NoError(err)
-	_, found = s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr4)
+	_, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr4)
 	s.Require().True(found)
 
 	// Get not jailed validators with max of 10
@@ -418,13 +418,13 @@ func (s *KeeperTestSuite) Test_GetNotJailedValidatorsByPower() {
 
 func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 	collateral := math.NewUint(1000000000)
 	extraVotingPower := math.NewUint(500000000)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
 		ExtraVotingPower: extraVotingPower,
@@ -444,7 +444,7 @@ func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
 	s.Require().False(found)
 
 	// Set validator by consensus address
-	s.tk.Keeper.SetValidatorByConsAddr(s.tk.Ctx, consAddr, ethAddr)
+	s.tk.Keeper.SetValidatorByConsAddr(s.tk.Ctx, consAddr, valAddr)
 
 	// Get validator by consensus address
 	gotValidator, found := s.tk.Keeper.GetValidatorByConsAddr(s.tk.Ctx, consAddr)
@@ -454,11 +454,11 @@ func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
 
 func (s *KeeperTestSuite) Test_SetValidatorByConsAddr() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -474,7 +474,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByConsAddr() {
 	consAddr := validator.MustConsAddr()
 
 	// Set validator by consensus address
-	s.tk.Keeper.SetValidatorByConsAddr(s.tk.Ctx, consAddr, ethAddr)
+	s.tk.Keeper.SetValidatorByConsAddr(s.tk.Ctx, consAddr, valAddr)
 
 	// Get validator by consensus address
 	gotValidator, found := s.tk.Keeper.GetValidatorByConsAddr(s.tk.Ctx, consAddr)
@@ -484,12 +484,12 @@ func (s *KeeperTestSuite) Test_SetValidatorByConsAddr() {
 
 func (s *KeeperTestSuite) Test_GetValidatorsByPowerIndexIterator() {
 	// Generate validator data
-	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
-	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
 
 	// Create validators
 	validator1 := types.Validator{
-		Addr:             ethAddr1,
+		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -499,7 +499,7 @@ func (s *KeeperTestSuite) Test_GetValidatorsByPowerIndexIterator() {
 	}
 
 	validator2 := types.Validator{
-		Addr:             ethAddr2,
+		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(2000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -531,12 +531,12 @@ func (s *KeeperTestSuite) Test_GetValidatorsByPowerIndexIterator() {
 
 func (s *KeeperTestSuite) Test_SetValidatorByPowerIndex() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 	votingPower := int64(100)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -549,7 +549,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByPowerIndex() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Set validator by power index
-	s.tk.Keeper.SetValidatorByPowerIndex(s.tk.Ctx, votingPower, ethAddr)
+	s.tk.Keeper.SetValidatorByPowerIndex(s.tk.Ctx, votingPower, valAddr)
 
 	// Get validator iterator by power index
 	iterator := s.tk.Keeper.GetValidatorsByPowerIndexIterator(s.tk.Ctx)
@@ -562,7 +562,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByPowerIndex() {
 		value := iterator.Value()
 		addr := mitotypes.BytesToEthAddress(value)
 
-		if addr.String() == ethAddr.String() {
+		if addr.String() == valAddr.String() {
 			found = true
 			break
 		}
@@ -573,12 +573,12 @@ func (s *KeeperTestSuite) Test_SetValidatorByPowerIndex() {
 
 func (s *KeeperTestSuite) Test_DeleteValidatorByPowerIndex() {
 	// Generate validator data
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
 	votingPower := int64(100)
 
 	// Create a validator
 	validator := types.Validator{
-		Addr:             ethAddr,
+		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -591,10 +591,10 @@ func (s *KeeperTestSuite) Test_DeleteValidatorByPowerIndex() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Set validator by power index
-	s.tk.Keeper.SetValidatorByPowerIndex(s.tk.Ctx, votingPower, ethAddr)
+	s.tk.Keeper.SetValidatorByPowerIndex(s.tk.Ctx, votingPower, valAddr)
 
 	// Delete validator from power index
-	s.tk.Keeper.DeleteValidatorByPowerIndex(s.tk.Ctx, votingPower, ethAddr)
+	s.tk.Keeper.DeleteValidatorByPowerIndex(s.tk.Ctx, votingPower, valAddr)
 
 	// Get validator iterator by power index
 	iterator := s.tk.Keeper.GetValidatorsByPowerIndexIterator(s.tk.Ctx)
@@ -607,7 +607,7 @@ func (s *KeeperTestSuite) Test_DeleteValidatorByPowerIndex() {
 		value := iterator.Value()
 		addr := mitotypes.BytesToEthAddress(value)
 
-		if addr.String() == ethAddr.String() {
+		if addr.String() == valAddr.String() {
 			found = true
 			break
 		}
@@ -618,66 +618,66 @@ func (s *KeeperTestSuite) Test_DeleteValidatorByPowerIndex() {
 
 func (s *KeeperTestSuite) Test_GetLastValidatorPower() {
 	// Generate validator address
-	_, _, ethAddr := testutil.GenerateSecp256k1Key()
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Test GetLastValidatorPower when power doesn't exist
-	_, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, ethAddr)
+	_, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr)
 	s.Require().False(found)
 
 	// Set validator power
 	power := int64(1000)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr, power)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr, power)
 
 	// Test GetLastValidatorPower when power exists
-	gotPower, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, ethAddr)
+	gotPower, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 	s.Require().Equal(power, gotPower)
 }
 
 func (s *KeeperTestSuite) Test_SetLastValidatorPower() {
 	// Generate validator address
-	_, _, ethAddr := testutil.GenerateSecp256k1Key()
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Set validator power
 	power := int64(1000)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr, power)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr, power)
 
 	// Verify power was set correctly
-	gotPower, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, ethAddr)
+	gotPower, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 	s.Require().Equal(power, gotPower)
 }
 
 func (s *KeeperTestSuite) Test_DeleteLastValidatorPower() {
 	// Generate validator address
-	_, _, ethAddr := testutil.GenerateSecp256k1Key()
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Set validator power
 	power := int64(1000)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr, power)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr, power)
 
 	// Verify power exists
-	_, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, ethAddr)
+	_, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 
 	// Delete validator power
-	s.tk.Keeper.DeleteLastValidatorPower(s.tk.Ctx, ethAddr)
+	s.tk.Keeper.DeleteLastValidatorPower(s.tk.Ctx, valAddr)
 
 	// Test GetLastValidatorPower after deletion
-	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, ethAddr)
+	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr)
 	s.Require().False(found)
 }
 
 func (s *KeeperTestSuite) Test_IterateLastValidatorPowers() {
 	// Generate validator addresses
-	_, _, ethAddr1 := testutil.GenerateSecp256k1Key()
-	_, _, ethAddr2 := testutil.GenerateSecp256k1Key()
-	_, _, ethAddr3 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr3 := testutil.GenerateSecp256k1Key()
 
 	// Set validator powers
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr1, 100)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr2, 200)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr3, 300)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr1, 100)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr2, 200)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr3, 300)
 
 	// Test IterateLastValidatorPowers
 	powers := make(map[string]int64)
@@ -687,9 +687,9 @@ func (s *KeeperTestSuite) Test_IterateLastValidatorPowers() {
 	})
 
 	s.Require().Equal(3, len(powers))
-	s.Require().Equal(int64(100), powers[ethAddr1.String()])
-	s.Require().Equal(int64(200), powers[ethAddr2.String()])
-	s.Require().Equal(int64(300), powers[ethAddr3.String()])
+	s.Require().Equal(int64(100), powers[valAddr1.String()])
+	s.Require().Equal(int64(200), powers[valAddr2.String()])
+	s.Require().Equal(int64(300), powers[valAddr3.String()])
 
 	// Test early termination
 	count := 0
@@ -703,12 +703,12 @@ func (s *KeeperTestSuite) Test_IterateLastValidatorPowers() {
 
 func (s *KeeperTestSuite) Test_IterateLastValidators() {
 	// Generate validator data
-	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
-	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
 
 	// Create validators
 	validator1 := types.Validator{
-		Addr:             ethAddr1,
+		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -718,7 +718,7 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 	}
 
 	validator2 := types.Validator{
-		Addr:             ethAddr2,
+		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(2000000000),
 		ExtraVotingPower: math.NewUint(0),
@@ -732,8 +732,8 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator2)
 
 	// Set validator powers
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr1, validator1.VotingPower)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr2, validator2.VotingPower)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr1, validator1.VotingPower)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr2, validator2.VotingPower)
 
 	// Test IterateLastValidators
 	validators := make(map[string]types.Validator)
@@ -745,8 +745,8 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 
 	s.Require().NoError(err)
 	s.Require().Equal(2, len(validators))
-	s.Require().Equal(validator1, validators[ethAddr1.String()])
-	s.Require().Equal(validator2, validators[ethAddr2.String()])
+	s.Require().Equal(validator1, validators[valAddr1.String()])
+	s.Require().Equal(validator2, validators[valAddr2.String()])
 
 	// Test early termination
 	count := 0
@@ -761,12 +761,12 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 
 func (s *KeeperTestSuite) Test_GetLastValidatorPowers() {
 	// Generate validator addresses
-	_, _, ethAddr1 := testutil.GenerateSecp256k1Key()
-	_, _, ethAddr2 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
 
 	// Set validator powers
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr1, 100)
-	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, ethAddr2, 200)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr1, 100)
+	s.tk.Keeper.SetLastValidatorPower(s.tk.Ctx, valAddr2, 200)
 
 	// Test GetLastValidatorPowers
 	powers := s.tk.Keeper.GetLastValidatorPowers(s.tk.Ctx)
@@ -778,8 +778,8 @@ func (s *KeeperTestSuite) Test_GetLastValidatorPowers() {
 	}
 
 	s.Require().Equal(2, len(powers))
-	s.Require().Equal(int64(100), powerMap[ethAddr1.String()])
-	s.Require().Equal(int64(200), powerMap[ethAddr2.String()])
+	s.Require().Equal(int64(100), powerMap[valAddr1.String()])
+	s.Require().Equal(int64(200), powerMap[valAddr2.String()])
 }
 
 func (s *KeeperTestSuite) Test_GetWithdrawalLastID() {
