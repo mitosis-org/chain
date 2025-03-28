@@ -28,8 +28,8 @@ type TestKeeper struct {
 	Ctx        sdk.Context
 	Cdc        codec.Codec
 	StoreKey   storetypes.StoreKey
-	MockSlash  MockSlashingKeeper
-	MockEvmEng MockEvmEngineKeeper
+	MockSlash  *MockSlashingKeeper
+	MockEvmEng *MockEvmEngineKeeper
 }
 
 // GenerateSecp256k1Key generates a new secp256k1 private key and returns the private key, compressed pubkey, and eth address
@@ -82,8 +82,8 @@ func CreateTestInput(s *suite.Suite) TestKeeper {
 	encCfg := moduletestutil.MakeTestEncodingConfig()
 
 	// Create mock keepers
-	mockSlash := MockSlashingKeeper{}
-	mockEvmEng := MockEvmEngineKeeper{}
+	mockSlash := &MockSlashingKeeper{}
+	mockEvmEng := &MockEvmEngineKeeper{}
 
 	// Create keeper
 	k := keeper.NewKeeper(

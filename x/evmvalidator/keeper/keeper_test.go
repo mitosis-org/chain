@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"sort"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -171,6 +172,230 @@ func (s *KeeperTestSuite) Test_SetValidator() {
 	gotValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
 	s.Require().True(found)
 	s.Require().Equal(validator, gotValidator)
+}
+
+func (s *KeeperTestSuite) Test_IterateValidators_() {
+	// Setup validators
+	// Generate validator 1
+	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
+	validator1 := types.Validator{
+		Addr:             ethAddr1,
+		Pubkey:           pubkey1,
+		Collateral:       math.NewUint(5000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      5,
+		Jailed:           false,
+		Bonded:           true,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator1)
+
+	// Generate validator 2
+	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	validator2 := types.Validator{
+		Addr:             ethAddr2,
+		Pubkey:           pubkey2,
+		Collateral:       math.NewUint(3000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      3,
+		Jailed:           false,
+		Bonded:           true,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator2)
+
+	// Generate validator 3
+	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
+	validator3 := types.Validator{
+		Addr:             ethAddr3,
+		Pubkey:           pubkey3,
+		Collateral:       math.NewUint(2000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      2,
+		Jailed:           true, // Jailed validator
+		Bonded:           false,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator3)
+
+	// Test iteration with accumulation
+	validators := make(map[string]types.Validator)
+	s.tk.Keeper.IterateValidators_(s.tk.Ctx, func(index int64, validator types.Validator) (stop bool) {
+		validators[validator.Addr.String()] = validator
+		return false // Continue iteration
+	})
+
+	// Verify all validators were iterated
+	s.Require().Equal(3, len(validators), "Should have iterated through all 3 validators")
+	s.Require().Equal(validator1, validators[ethAddr1.String()], "Validator 1 should match")
+	s.Require().Equal(validator2, validators[ethAddr2.String()], "Validator 2 should match")
+	s.Require().Equal(validator3, validators[ethAddr3.String()], "Validator 3 should match")
+
+	// Test early termination
+	count := 0
+	s.tk.Keeper.IterateValidators_(s.tk.Ctx, func(index int64, validator types.Validator) (stop bool) {
+		count++
+		return true // Stop after first item
+	})
+	s.Require().Equal(1, count, "Should have stopped after first validator")
+
+	// Test index correctness
+	indices := make([]int64, 0)
+	s.tk.Keeper.IterateValidators_(s.tk.Ctx, func(index int64, validator types.Validator) (stop bool) {
+		indices = append(indices, index)
+		return false
+	})
+
+	// Verify indices are sequential
+	s.Require().Equal(3, len(indices), "Should have 3 indices")
+	s.Require().Equal(int64(0), indices[0], "First index should be 0")
+	s.Require().Equal(int64(1), indices[1], "Second index should be 1")
+	s.Require().Equal(int64(2), indices[2], "Third index should be 2")
+}
+
+func (s *KeeperTestSuite) Test_GetAllValidators() {
+	// Initial state should have no validators
+	initialValidators := s.tk.Keeper.GetAllValidators(s.tk.Ctx)
+	s.Require().Equal(0, len(initialValidators), "Should start with no validators")
+
+	// Setup validators
+	// Generate validator 1
+	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
+	validator1 := types.Validator{
+		Addr:             ethAddr1,
+		Pubkey:           pubkey1,
+		Collateral:       math.NewUint(5000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      5,
+		Jailed:           false,
+		Bonded:           true,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator1)
+
+	// Generate validator 2
+	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	validator2 := types.Validator{
+		Addr:             ethAddr2,
+		Pubkey:           pubkey2,
+		Collateral:       math.NewUint(3000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      3,
+		Jailed:           false,
+		Bonded:           true,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator2)
+
+	// Generate validator 3 (jailed)
+	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
+	validator3 := types.Validator{
+		Addr:             ethAddr3,
+		Pubkey:           pubkey3,
+		Collateral:       math.NewUint(2000000000),
+		ExtraVotingPower: math.ZeroUint(),
+		VotingPower:      2,
+		Jailed:           true, // Jailed validator
+		Bonded:           false,
+	}
+	s.tk.Keeper.SetValidator(s.tk.Ctx, validator3)
+
+	// Get all validators
+	allValidators := s.tk.Keeper.GetAllValidators(s.tk.Ctx)
+
+	// Verify all validators are returned
+	s.Require().Equal(3, len(allValidators), "Should return all 3 validators")
+
+	// Create map for easier lookup
+	validatorMap := make(map[string]types.Validator)
+	for _, val := range allValidators {
+		validatorMap[val.Addr.String()] = val
+	}
+
+	// Verify each validator
+	s.Require().Equal(validator1, validatorMap[ethAddr1.String()], "Validator 1 should match")
+	s.Require().Equal(validator2, validatorMap[ethAddr2.String()], "Validator 2 should match")
+	s.Require().Equal(validator3, validatorMap[ethAddr3.String()], "Validator 3 should match")
+
+	// Verify jailed validator is included (unlike GetNotJailedValidatorsByPower)
+	s.Require().True(validatorMap[ethAddr3.String()].Jailed, "Jailed validator should be included")
+
+	// Verify GetAllValidators returns what we would get by iterating
+	var iteratedValidators []types.Validator
+	s.tk.Keeper.IterateValidators_(s.tk.Ctx, func(_ int64, validator types.Validator) bool {
+		iteratedValidators = append(iteratedValidators, validator)
+		return false
+	})
+
+	// Sort both lists by address to ensure fair comparison
+	sortByAddr := func(validators []types.Validator) {
+		sort.Slice(validators, func(i, j int) bool {
+			return validators[i].Addr.String() < validators[j].Addr.String()
+		})
+	}
+
+	sortByAddr(allValidators)
+	sortByAddr(iteratedValidators)
+
+	s.Require().Equal(iteratedValidators, allValidators, "GetAllValidators should match iterating through validators")
+}
+
+func (s *KeeperTestSuite) Test_GetNotJailedValidatorsByPower() {
+	// Set test parameters
+	params := types.Params{
+		MaxValidators:    10,
+		MaxLeverageRatio: math.LegacyNewDec(10), // 10x leverage
+		MinVotingPower:   1,
+		WithdrawalLimit:  10,
+	}
+	err := s.tk.Keeper.SetParams(s.tk.Ctx, params)
+	s.Require().NoError(err)
+
+	// Register validators with different powers
+	// Generate validator 1 with power 5
+	_, pubkey1, ethAddr1 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr1, pubkey1, math.NewUint(5000000000), math.ZeroUint(), false)
+	s.Require().NoError(err)
+	validator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr1)
+	s.Require().True(found)
+
+	// Generate validator 2 with power 3
+	_, pubkey2, ethAddr2 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr2, pubkey2, math.NewUint(3000000000), math.ZeroUint(), false)
+	s.Require().NoError(err)
+	validator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr2)
+	s.Require().True(found)
+
+	// Generate validator 3 with power 2
+	_, pubkey3, ethAddr3 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr3, pubkey3, math.NewUint(2000000000), math.ZeroUint(), false)
+	s.Require().NoError(err)
+	validator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr3)
+	s.Require().True(found)
+
+	// Generate validator 4 with power 1, jailed
+	_, pubkey4, ethAddr4 := testutil.GenerateSecp256k1Key()
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr4, pubkey4, math.NewUint(1000000000), math.ZeroUint(), true)
+	s.Require().NoError(err)
+	_, found = s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr4)
+	s.Require().True(found)
+
+	// Get not jailed validators with max of 10
+	validators := s.tk.Keeper.GetNotJailedValidatorsByPower(s.tk.Ctx, 10)
+	s.Require().Equal(3, len(validators))
+	s.Require().Equal(validator1.Addr, validators[0].Addr)
+	s.Require().Equal(validator2.Addr, validators[1].Addr)
+	s.Require().Equal(validator3.Addr, validators[2].Addr)
+
+	// Limit the max validators to 2
+	limitedValidators := s.tk.Keeper.GetNotJailedValidatorsByPower(s.tk.Ctx, 2)
+	s.Require().Equal(2, len(limitedValidators))
+	s.Require().Equal(validator1.Addr, limitedValidators[0].Addr)
+	s.Require().Equal(validator2.Addr, limitedValidators[1].Addr)
+
+	// Delete validator 2 from power index
+	s.tk.Keeper.DeleteValidatorByPowerIndex(s.tk.Ctx, validator2.VotingPower, validator2.Addr)
+
+	// Get validators again
+	updatedValidators := s.tk.Keeper.GetNotJailedValidatorsByPower(s.tk.Ctx, 10)
+	s.Require().Equal(2, len(updatedValidators))
+	s.Require().Equal(validator1.Addr, updatedValidators[0].Addr)
+	s.Require().Equal(validator3.Addr, updatedValidators[1].Addr)
 }
 
 func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
