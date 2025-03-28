@@ -54,11 +54,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 // WriteValidators returns a slice of bonded genesis validators.
 func (k Keeper) WriteValidators(ctx sdk.Context) (vals []cmttypes.GenesisValidator, returnErr error) {
 	err := k.IterateLastValidators(ctx, func(_ int64, validator types.Validator) (stop bool) {
-		pk, err := validator.ConsPubKey()
-		if err != nil {
-			returnErr = err
-			return true
-		}
+		pk := validator.MustConsPubKey()
 		cmtPk, err := cryptocodec.ToCmtPubKeyInterface(pk)
 		if err != nil {
 			returnErr = err

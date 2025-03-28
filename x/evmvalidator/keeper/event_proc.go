@@ -367,14 +367,8 @@ func (k *Keeper) ProcessUnjail(ctx sdk.Context, event *bindings.ConsensusValidat
 		return errors.New("validator is not jailed", "validator", valAddr), true
 	}
 
-	// Get consensus address
-	consAddr, err := validator.ConsAddr()
-	if err != nil {
-		return errors.Wrap(err, "failed to get consensus address"), false
-	}
-
 	// Unjail validator through slashing keeper
-	if err = k.slashingKeeper.UnjailFromConsAddr(ctx, consAddr); err != nil {
+	if err := k.slashingKeeper.UnjailFromConsAddr(ctx, validator.MustConsAddr()); err != nil {
 		return errors.Wrap(err, "failed to unjail validator"), true
 	}
 

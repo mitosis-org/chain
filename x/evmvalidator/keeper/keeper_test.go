@@ -437,8 +437,7 @@ func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Get consensus address
-	consAddr, err := validator.ConsAddr()
-	s.Require().NoError(err)
+	consAddr := validator.MustConsAddr()
 
 	// Before setting validator by consensus address
 	_, found := s.tk.Keeper.GetValidatorByConsAddr(s.tk.Ctx, consAddr)
@@ -472,8 +471,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByConsAddr() {
 	s.tk.Keeper.SetValidator(s.tk.Ctx, validator)
 
 	// Get consensus address
-	consAddr, err := validator.ConsAddr()
-	s.Require().NoError(err)
+	consAddr := validator.MustConsAddr()
 
 	// Set validator by consensus address
 	s.tk.Keeper.SetValidatorByConsAddr(s.tk.Ctx, consAddr, ethAddr)

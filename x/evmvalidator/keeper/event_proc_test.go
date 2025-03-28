@@ -289,9 +289,7 @@ func (s *EventProcessingTestSuite) Test_ProcessUnjail() {
 	// Jail validator directly
 	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
 	s.Require().True(found)
-	consAddr, err := validator.ConsAddr()
-	s.Require().NoError(err)
-	err = s.tk.Keeper.Jail(s.tk.Ctx, consAddr)
+	err = s.tk.Keeper.Jail(s.tk.Ctx, validator.MustConsAddr())
 	s.Require().NoError(err)
 
 	// Create unjail event
@@ -316,7 +314,7 @@ func (s *EventProcessingTestSuite) Test_ProcessUnjail() {
 	s.Require().False(ignore)
 
 	// Verify slashing keeper was called with correct consensus address
-	s.Require().Equal(consAddr, calledConsAddr)
+	s.Require().Equal(validator.MustConsAddr(), calledConsAddr)
 
 	// Verify validator is now unjailed
 	unjailedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)

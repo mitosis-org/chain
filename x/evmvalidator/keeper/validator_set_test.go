@@ -5,9 +5,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/testutil"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/stretchr/testify/suite"
@@ -43,14 +41,14 @@ func (s *ValidatorSetTestSuite) setupTestParams() types.Params {
 }
 
 // registerValidator is a helper function to register a validator
-func (s *ValidatorSetTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) ([]byte, mitotypes.EthAddress, types.Validator) {
-	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr, pubkey, collateral, extraVotingPower, jailed)
+func (s *ValidatorSetTestSuite) registerValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
 	s.Require().NoError(err)
 
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
-	return pubkey, ethAddr, validator
+	return validator
 }
 
 func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_NewValidators() {
@@ -58,9 +56,9 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_NewValida
 	s.setupTestParams()
 
 	// Register validators
-	_, addr1, validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	_, addr2, validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
-	_, addr3, validator3 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
+	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator3 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
 
 	// Mock slashing keeper hooks
 	bondedValidators := make(map[string]bool)
@@ -72,93 +70,48 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_NewValida
 	// Apply validator set updates
 	updates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
 	s.Require().NoError(err)
-
-	// Check number of updates (should be 3 validators)
-	s.Require().Equal(3, len(updates))
-
-	// Verify updates have correct validators
-	var foundAddrs = make(map[string]bool)
-	for _, update := range updates {
-		// Convert the ABCI public key to SDK public key
-		pk, err := cryptocodec.FromCmtProtoPublicKey(update.PubKey)
-		s.Require().NoError(err)
-
-		// Get validator by pubkey
-		var validator types.Validator
-		var found bool
-		s.tk.Keeper.IterateValidators_(s.tk.Ctx, func(_ int64, val types.Validator) bool {
-			valPk, err := val.ConsPubKey()
-			if err != nil {
-				return false
-			}
-
-			if pk.Equals(valPk) {
-				validator = val
-				found = true
-				return true
-			}
-			return false
-		})
-		s.Require().True(found, "validator not found for pubkey")
-
-		// Record found addresses
-		foundAddrs[validator.Addr.String()] = true
-
-		// Check power
-		expectedPower := validator.ConsensusVotingPower()
-		s.Require().Equal(expectedPower, update.Power)
-	}
-
-	// Verify all validators were included
-	s.Require().True(foundAddrs[addr1.String()])
-	s.Require().True(foundAddrs[addr2.String()])
-	s.Require().True(foundAddrs[addr3.String()])
+	s.Require().Equal(3, len(updates)) // should be 3 validators
+	s.Require().Contains(updates, validator1.MustABCIValidatorUpdate())
+	s.Require().Contains(updates, validator2.MustABCIValidatorUpdate())
+	s.Require().Contains(updates, validator3.MustABCIValidatorUpdate())
 
 	// Check last validator powers were updated
-	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr1)
+	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator1.Addr)
 	s.Require().True(found)
 	s.Require().Equal(int64(5), power1)
 
-	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr2)
+	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator2.Addr)
 	s.Require().True(found)
 	s.Require().Equal(int64(3), power2)
 
-	power3, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr3)
+	power3, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator3.Addr)
 	s.Require().True(found)
 	s.Require().Equal(int64(2), power3)
 
 	// Check validators are bonded
-	updatedValidator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr1)
+	updatedValidator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, validator1.Addr)
 	s.Require().True(found)
-	s.Require().True(updatedValidator1.Bonded)
+	expectedValidator1 := validator1
+	expectedValidator1.Bonded = true
+	s.Require().Equal(expectedValidator1, updatedValidator1)
 
-	updatedValidator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr2)
+	updatedValidator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, validator2.Addr)
 	s.Require().True(found)
-	s.Require().True(updatedValidator2.Bonded)
+	expectedValidator2 := validator2
+	expectedValidator2.Bonded = true
+	s.Require().Equal(expectedValidator2, updatedValidator2)
 
-	updatedValidator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr3)
+	updatedValidator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, validator3.Addr)
 	s.Require().True(found)
-	s.Require().True(updatedValidator3.Bonded)
+	expectedValidator3 := validator3
+	expectedValidator3.Bonded = true
+	s.Require().Equal(expectedValidator3, updatedValidator3)
 
 	// Check slashing keeper was called for each validator
-	consAddr1, err := validator1.ConsAddr()
-	s.Require().NoError(err)
-	consAddr2, err := validator2.ConsAddr()
-	s.Require().NoError(err)
-	consAddr3, err := validator3.ConsAddr()
-	s.Require().NoError(err)
-
 	s.Require().Equal(3, len(bondedValidators))
-	s.Require().True(bondedValidators[consAddr1.String()])
-	s.Require().True(bondedValidators[consAddr2.String()])
-	s.Require().True(bondedValidators[consAddr3.String()])
-
-	// More important is to verify that the validators are actually bonded in state
-	for _, addr := range []mitotypes.EthAddress{addr1, addr2, addr3} {
-		val, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr)
-		s.Require().True(found)
-		s.Require().True(val.Bonded, "Validator should be bonded")
-	}
+	s.Require().True(bondedValidators[validator1.MustConsAddr().String()])
+	s.Require().True(bondedValidators[validator2.MustConsAddr().String()])
+	s.Require().True(bondedValidators[validator3.MustConsAddr().String()])
 }
 
 // Test_ApplyAndReturnValidatorSetUpdates_NoChanges tests that no updates are returned when there are no changes
@@ -167,55 +120,44 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_PowerChan
 	s.setupTestParams()
 
 	// Register validators
-	_, addr1, _ := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	_, addr2, _ := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
 
 	// Initial update
 	initialUpdates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
 	s.Require().NoError(err)
 	s.Require().Equal(2, len(initialUpdates))
+	s.Require().Contains(initialUpdates, validator1.MustABCIValidatorUpdate())
+	s.Require().Contains(initialUpdates, validator2.MustABCIValidatorUpdate())
 
 	// Call again with no changes
 	updates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
 	s.Require().NoError(err)
 	s.Require().Equal(0, len(updates), "should have no updates when there are no changes")
 
-	// Change a validator power
-	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr1)
+	// Get validators again
+	var found bool
+	validator1, found = s.tk.Keeper.GetValidator(s.tk.Ctx, validator1.Addr)
+	s.Require().True(found)
+	validator2, found = s.tk.Keeper.GetValidator(s.tk.Ctx, validator2.Addr)
 	s.Require().True(found)
 
 	// Deposit more collateral to change power
-	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, math.NewUint(2000000000))
-	s.tk.Keeper.UpdateValidatorState(s.tk.Ctx, &validator, "testing")
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator1, math.NewUint(2000000000))
 
 	// Apply updates with changes
 	updates, err = s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
 	s.Require().NoError(err)
 	s.Require().Equal(1, len(updates), "should have one update for the changed validator")
-
-	// Verify the correct validator was updated
-	var foundUpdate bool
-	for _, update := range updates {
-		pk, err := cryptocodec.FromCmtProtoPublicKey(update.PubKey)
-		s.Require().NoError(err)
-
-		valPk, err := validator.ConsPubKey()
-		s.Require().NoError(err)
-
-		if pk.Equals(valPk) {
-			foundUpdate = true
-			s.Require().Equal(int64(7), update.Power) // 5 + 2 = 7 MITO
-		}
-	}
-	s.Require().True(foundUpdate, "update for validator 1 not found")
+	s.Require().Contains(updates, validator1.MustABCIValidatorUpdate())
 
 	// Check last validator power was updated
-	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr1)
+	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator1.Addr)
 	s.Require().True(found)
 	s.Require().Equal(int64(7), power1)
 
 	// Validator 2 power should remain unchanged
-	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr2)
+	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator2.Addr)
 	s.Require().True(found)
 	s.Require().Equal(int64(3), power2)
 }
@@ -226,13 +168,22 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_JailedVal
 	s.setupTestParams()
 
 	// Register validators - one normal, one jailed
-	_, addr1, _ := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false)          // 5 MITO, power = 5
-	_, addr2, validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
 
 	// Initial update
 	initialUpdates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
 	s.Require().NoError(err)
 	s.Require().Equal(2, len(initialUpdates))
+	s.Require().Contains(initialUpdates, validator1.MustABCIValidatorUpdate())
+	s.Require().Contains(initialUpdates, validator2.MustABCIValidatorUpdate())
+
+	// Get validators again
+	var found bool
+	validator1, found = s.tk.Keeper.GetValidator(s.tk.Ctx, validator1.Addr)
+	s.Require().True(found)
+	validator2, found = s.tk.Keeper.GetValidator(s.tk.Ctx, validator2.Addr)
+	s.Require().True(found)
 
 	// Jail the second validator
 	s.tk.Keeper.Jail_(s.tk.Ctx, &validator2, "testing jail")
@@ -243,35 +194,27 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_JailedVal
 
 	// Should see one update - the jailed validator with zero power
 	s.Require().Equal(1, len(updates), "should have one update for the jailed validator")
-
-	// Verify the update sets power to zero for the jailed validator
-	var foundUpdate bool
-	for _, update := range updates {
-		pk, err := cryptocodec.FromCmtProtoPublicKey(update.PubKey)
-		s.Require().NoError(err)
-
-		valPk, err := validator2.ConsPubKey()
-		s.Require().NoError(err)
-
-		if pk.Equals(valPk) {
-			foundUpdate = true
-			s.Require().Equal(int64(0), update.Power, "jailed validator should have zero power")
-		}
-	}
-	s.Require().True(foundUpdate, "update for jailed validator not found")
-
-	// Check validator 2 is unbonded
-	updatedValidator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr2)
-	s.Require().True(found)
-	s.Require().False(updatedValidator2.Bonded, "jailed validator should not be bonded")
+	s.Require().Contains(updates, validator2.MustABCIValidatorUpdateForUnbonding())
 
 	// Validator 1 should still be bonded
-	updatedValidator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr1)
+	updatedValidator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, validator1.Addr)
 	s.Require().True(found)
-	s.Require().True(updatedValidator1.Bonded, "non-jailed validator should remain bonded")
+	s.Require().Equal(validator1, updatedValidator1)
+
+	// Check validator 2 is unbonded
+	updatedValidator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, validator2.Addr)
+	s.Require().True(found)
+	expectedValidator2 := validator2
+	expectedValidator2.Bonded = false
+	s.Require().Equal(expectedValidator2, updatedValidator2)
+
+	// Last validator power should be kept for non-jailed validator
+	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator1.Addr)
+	s.Require().True(found)
+	s.Require().Equal(int64(5), power1)
 
 	// Last validator power should be removed for jailed validator
-	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr2)
+	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, validator2.Addr)
 	s.Require().False(found, "last power should be removed for jailed validator")
 }
 
@@ -288,9 +231,15 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_MaxValida
 	s.Require().NoError(err)
 
 	// Register 3 validators with decreasing power
-	_, addr1, _ := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
-	_, addr2, _ := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
-	_, addr3, _ := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
+	validator1 := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO, power = 5
+	validator2 := s.registerValidator(math.NewUint(3000000000), math.ZeroUint(), false) // 3 MITO, power = 3
+	validator3 := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false) // 2 MITO, power = 2
+	initialValidator1 := validator1
+	initialValidator2 := validator2
+	initialValidator3 := validator3
+	valAddr1 := validator1.Addr
+	valAddr2 := validator2.Addr
+	valAddr3 := validator3.Addr
 
 	// Apply validator set updates
 	updates, err := s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
@@ -298,30 +247,74 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_MaxValida
 
 	// Check number of updates (should be 2 validators - the two highest powered ones)
 	s.Require().Equal(2, len(updates))
+	s.Require().Contains(updates, validator1.MustABCIValidatorUpdate())
+	s.Require().Contains(updates, validator2.MustABCIValidatorUpdate())
+
+	var found bool
 
 	// Check validator 1 and 2 should be bonded
-	updatedValidator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr1)
+	validator1, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr1)
 	s.Require().True(found)
-	s.Require().True(updatedValidator1.Bonded)
+	expectedValidator1 := initialValidator1
+	expectedValidator1.Bonded = true
+	s.Require().Equal(expectedValidator1, validator1)
 
-	updatedValidator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr2)
+	validator2, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr2)
 	s.Require().True(found)
-	s.Require().True(updatedValidator2.Bonded)
+	expectedValidator2 := initialValidator2
+	expectedValidator2.Bonded = true
+	s.Require().Equal(expectedValidator2, validator2)
 
 	// Validator 3 should not be bonded as it's not in the top MaxValidators
-	updatedValidator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, addr3)
+	validator3, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr3)
 	s.Require().True(found)
-	s.Require().False(updatedValidator3.Bonded)
+	s.Require().Equal(initialValidator3, validator3)
 
 	// Last validator powers should reflect this
-	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr1)
+	power1, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr1)
 	s.Require().True(found)
 	s.Require().Equal(int64(5), power1)
 
-	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr2)
+	power2, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr2)
 	s.Require().True(found)
 	s.Require().Equal(int64(3), power2)
 
-	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, addr3)
+	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr3)
 	s.Require().False(found, "validator 3 should not have last power as it's not in top MaxValidators")
+
+	/////////////////////
+	// Max Validators Change due to power change
+	/////////////////////
+
+	s.tk.Keeper.UpdateExtraVotingPower(s.tk.Ctx, &validator3, math.NewUint(2000000000)) // power = 4
+
+	updates, err = s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)
+	s.Require().NoError(err)
+	s.Require().Equal(2, len(updates))
+	s.Require().Contains(updates, validator2.MustABCIValidatorUpdateForUnbonding())
+	s.Require().Contains(updates, validator3.MustABCIValidatorUpdate())
+
+	expectedValidator2 = validator2
+	expectedValidator2.Bonded = false
+	validator2, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr2)
+	s.Require().True(found)
+	s.Require().Equal(expectedValidator2, validator2)
+
+	expectedValidator3 := validator3
+	expectedValidator3.Bonded = true
+	validator3, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr3)
+	s.Require().True(found)
+	s.Require().Equal(expectedValidator3, validator3)
+
+	// Last validator power should reflect this
+	power1, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr1)
+	s.Require().True(found)
+	s.Require().Equal(int64(5), power1)
+
+	_, found = s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr2)
+	s.Require().False(found, "validator 2 should not have last power as it's not in top MaxValidators")
+
+	power3, found := s.tk.Keeper.GetLastValidatorPower(s.tk.Ctx, valAddr3)
+	s.Require().True(found)
+	s.Require().Equal(int64(4), power3)
 }

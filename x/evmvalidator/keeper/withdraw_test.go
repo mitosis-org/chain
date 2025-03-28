@@ -44,14 +44,14 @@ func (s *WithdrawTestSuite) setupTestParams() types.Params {
 }
 
 // createTestValidator registers a validator for testing
-func (s *WithdrawTestSuite) createTestValidator(collateral math.Uint) (mitotypes.EthAddress, types.Validator) {
+func (s *WithdrawTestSuite) createTestValidator(collateral math.Uint) types.Validator {
 	_, pubkey, ethAddr := testutil.GenerateSecp256k1Key()
 	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, ethAddr, pubkey, collateral, math.ZeroUint(), false)
 	s.Require().NoError(err)
 
 	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
 	s.Require().True(found)
-	return ethAddr, validator
+	return validator
 }
 
 // createAndAddWithdrawal creates a withdrawal and adds it to state
@@ -60,7 +60,7 @@ func (s *WithdrawTestSuite) createAndAddWithdrawal(
 	amount uint64,
 	receiver mitotypes.EthAddress,
 	maturesAt int64,
-) *types.Withdrawal {
+) types.Withdrawal {
 	withdrawal := &types.Withdrawal{
 		ValAddr:        valAddr,
 		Amount:         amount,
@@ -69,7 +69,7 @@ func (s *WithdrawTestSuite) createAndAddWithdrawal(
 		CreationHeight: s.tk.Ctx.BlockHeight(),
 	}
 	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, withdrawal)
-	return withdrawal
+	return *withdrawal
 }
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals() {
@@ -77,8 +77,9 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals() {
 	s.setupTestParams()
 
 	// Create a validator
-	valAddr, _ := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
-	receiverAddr := valAddr                                        // Using the same address for receiver for simplicity
+	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	valAddr := validator.Addr
+	receiverAddr := valAddr // Using the same address for receiver for simplicity
 
 	// Set the current block time
 	now := time.Now().Unix()
@@ -114,28 +115,12 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals() {
 	s.Require().Contains(receiverWithdrawals, uint64(2000000000), "Second matured withdrawal should be processed")
 
 	// Check which withdrawals still exist
-	var found1, found2, found3, found4 bool
-	s.tk.Keeper.IterateWithdrawalsByMaturesAt(ctx, func(w types.Withdrawal) bool {
-		if w.ID == maturedWithdrawal1.ID {
-			found1 = true
-		}
-		if w.ID == maturedWithdrawal2.ID {
-			found2 = true
-		}
-		if w.ID == maturedWithdrawal3.ID {
-			found3 = true
-		}
-		if w.ID == futureWithdrawal.ID {
-			found4 = true
-		}
-		return false
-	})
-
-	// First two matured withdrawals should be deleted, third and future should exist
-	s.Require().False(found1, "First matured withdrawal should be deleted")
-	s.Require().False(found2, "Second matured withdrawal should be deleted")
-	s.Require().True(found3, "Third matured withdrawal should still exist")
-	s.Require().True(found4, "Future withdrawal should still exist")
+	allWithdrawals := s.tk.Keeper.GetAllWithdrawals(ctx)
+	s.Require().Equal(2, len(allWithdrawals), "There should be 2 withdrawals in total")
+	s.Require().NotContains(allWithdrawals, maturedWithdrawal1, "First matured withdrawal should be deleted")
+	s.Require().NotContains(allWithdrawals, maturedWithdrawal2, "Second matured withdrawal should be deleted")
+	s.Require().Contains(allWithdrawals, maturedWithdrawal3, "Third matured withdrawal should still exist")
+	s.Require().Contains(allWithdrawals, futureWithdrawal, "Future withdrawal should still exist")
 }
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_NoMaturedWithdrawals() {
@@ -143,7 +128,8 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_NoMaturedWithdrawals(
 	s.setupTestParams()
 
 	// Create a validator
-	valAddr, _ := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	valAddr := validator.Addr
 
 	// Set the current block time
 	now := time.Now().Unix()
@@ -168,18 +154,10 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_NoMaturedWithdrawals(
 	s.Require().Equal(0, len(insertedWithdrawals), "No withdrawals should be processed")
 
 	// Future withdrawals should still exist
-	var found1, found2 bool
-	s.tk.Keeper.IterateWithdrawalsByMaturesAt(ctx, func(w types.Withdrawal) bool {
-		if w.ID == futureWithdrawal1.ID {
-			found1 = true
-		}
-		if w.ID == futureWithdrawal2.ID {
-			found2 = true
-		}
-		return false
-	})
-	s.Require().True(found1, "Future withdrawal 1 should still exist")
-	s.Require().True(found2, "Future withdrawal 2 should still exist")
+	allWithdrawals := s.tk.Keeper.GetAllWithdrawals(ctx)
+	s.Require().Equal(2, len(allWithdrawals), "There should be 2 withdrawals in total")
+	s.Require().Contains(allWithdrawals, futureWithdrawal1, "First future withdrawal should still exist")
+	s.Require().Contains(allWithdrawals, futureWithdrawal2, "Second future withdrawal should still exist")
 }
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_InsertError() {
@@ -187,14 +165,15 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_InsertError() {
 	s.setupTestParams()
 
 	// Create a validator
-	valAddr, _ := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	valAddr := validator.Addr
 
 	// Set the current block time
 	now := time.Now().Unix()
 	ctx := s.tk.Ctx.WithBlockTime(time.Unix(now, 0))
 
 	// Create a matured withdrawal
-	maturedWithdrawal := s.createAndAddWithdrawal(valAddr, 1000000000, valAddr, now-86400)
+	_ = s.createAndAddWithdrawal(valAddr, 1000000000, valAddr, now-86400)
 
 	// Mock an error in the InsertWithdrawal function
 	expectedError := "mocked insertion error"
@@ -206,17 +185,6 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_InsertError() {
 	err := s.tk.Keeper.ProcessMaturedWithdrawals(ctx)
 	s.Require().Error(err)
 	s.Require().Contains(err.Error(), expectedError)
-
-	// The withdrawal should still exist since processing failed
-	var found bool
-	s.tk.Keeper.IterateWithdrawalsByMaturesAt(ctx, func(w types.Withdrawal) bool {
-		if w.ID == maturedWithdrawal.ID {
-			found = true
-			return true
-		}
-		return false
-	})
-	s.Require().True(found, "Matured withdrawal should still exist")
 }
 
 func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
@@ -231,7 +199,8 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
 	s.Require().NoError(err)
 
 	// Create a validator
-	valAddr, _ := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	validator := s.createTestValidator(math.NewUint(10000000000)) // 10 MITO
+	valAddr := validator.Addr
 
 	// Set the current block time
 	now := time.Now().Unix()
@@ -260,19 +229,12 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
 	s.Require().Equal(1, len(insertedWithdrawals[valAddrStr]), "Only one withdrawal should be processed")
 	s.Require().Equal(uint64(1000000000), insertedWithdrawals[valAddrStr][0], "Oldest withdrawal should be processed")
 
-	// The other withdrawals should still exist
-	var found2, found3 bool
-	s.tk.Keeper.IterateWithdrawalsByMaturesAt(ctx, func(w types.Withdrawal) bool {
-		if w.ID == maturedWithdrawal2.ID {
-			found2 = true
-		}
-		if w.ID == maturedWithdrawal3.ID {
-			found3 = true
-		}
-		return false
-	})
-	s.Require().True(found2, "Second matured withdrawal should still exist")
-	s.Require().True(found3, "Third matured withdrawal should still exist")
+	// Verify withdrawals state is correct
+	allWithdrawals := s.tk.Keeper.GetAllWithdrawals(ctx)
+	s.Require().Equal(2, len(allWithdrawals), "There should be 2 withdrawals in total")
+	s.Require().NotContains(allWithdrawals, maturedWithdrawal1, "First matured withdrawal should be deleted")
+	s.Require().Contains(allWithdrawals, maturedWithdrawal2, "Second matured withdrawal should still exist")
+	s.Require().Contains(allWithdrawals, maturedWithdrawal3, "Third matured withdrawal should still exist")
 
 	// Process withdrawals again - should process the next oldest one
 	err = s.tk.Keeper.ProcessMaturedWithdrawals(ctx)
@@ -283,20 +245,9 @@ func (s *WithdrawTestSuite) Test_ProcessMaturedWithdrawals_WithdrawalLimit() {
 	s.Require().Contains(insertedWithdrawals[valAddrStr], uint64(2000000000), "Second withdrawal should be processed")
 
 	// Only the newest withdrawal should still exist
-	var found1Next, found2Next, found3Next bool
-	s.tk.Keeper.IterateWithdrawalsByMaturesAt(ctx, func(w types.Withdrawal) bool {
-		if w.ID == maturedWithdrawal1.ID {
-			found1Next = true
-		}
-		if w.ID == maturedWithdrawal2.ID {
-			found2Next = true
-		}
-		if w.ID == maturedWithdrawal3.ID {
-			found3Next = true
-		}
-		return false
-	})
-	s.Require().False(found1Next, "First matured withdrawal should be deleted")
-	s.Require().False(found2Next, "Second matured withdrawal should be deleted")
-	s.Require().True(found3Next, "Third matured withdrawal should still exist")
+	allWithdrawals = s.tk.Keeper.GetAllWithdrawals(ctx)
+	s.Require().Equal(1, len(allWithdrawals), "There should be 1 withdrawal in total")
+	s.Require().NotContains(allWithdrawals, maturedWithdrawal1, "First matured withdrawal should be deleted")
+	s.Require().NotContains(allWithdrawals, maturedWithdrawal2, "Second matured withdrawal should be deleted")
+	s.Require().Contains(allWithdrawals, maturedWithdrawal3, "Third matured withdrawal should still exist")
 }

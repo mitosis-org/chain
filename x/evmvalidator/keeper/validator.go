@@ -45,14 +45,8 @@ func (k Keeper) RegisterValidator(
 	}
 
 	// Get consensus public key and address
-	consPubKey, err := validator.ConsPubKey()
-	if err != nil {
-		return errors.Wrap(err, "failed to get consensus public key")
-	}
-	consAddr, err := validator.ConsAddr()
-	if err != nil {
-		return errors.Wrap(err, "failed to get consensus address")
-	}
+	consPubKey := validator.MustConsPubKey()
+	consAddr := validator.MustConsAddr()
 
 	// Set the validator in state
 	k.SetValidator(ctx, validator)
@@ -364,8 +358,8 @@ func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator
 	k.SetValidator(ctx, *validator)
 
 	// Update the validator in power index
+	k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
 	if !validator.Jailed {
-		k.DeleteValidatorByPowerIndex(ctx, oldVotingPower, validator.Addr)
 		k.SetValidatorByPowerIndex(ctx, validator.VotingPower, validator.Addr)
 	}
 

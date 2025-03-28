@@ -209,6 +209,17 @@ func (k Keeper) GetValidatorsByPowerIndexIterator(ctx sdk.Context) storetypes.It
 	return storetypes.KVStorePrefixIterator(store, types.ValidatorByPowerIndexKeyPrefix)
 }
 
+// GetValidatorByPowerIndex returns a validator by power and address
+func (k Keeper) GetValidatorByPowerIndex(ctx sdk.Context, power int64, valAddr mitotypes.EthAddress) (mitotypes.EthAddress, bool) {
+	store := ctx.KVStore(k.storeKey)
+	storeKey := types.GetValidatorByPowerIndexKey(power, valAddr)
+	bz := store.Get(storeKey)
+	if bz == nil {
+		return mitotypes.EthAddress{}, false
+	}
+	return mitotypes.BytesToEthAddress(bz), true
+}
+
 // SetValidatorByPowerIndex sets a validator in the power index
 func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, power int64, valAddr mitotypes.EthAddress) {
 	store := ctx.KVStore(k.storeKey)
