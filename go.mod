@@ -25,6 +25,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/omni-network/omni v0.13.0
 	github.com/spf13/cobra v1.9.1
+	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f
@@ -189,7 +190,6 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/supranational/blst v0.3.14 // indirect
 	github.com/syndtr/goleveldb v1.0.1 // indirect
@@ -236,7 +236,7 @@ require (
 replace (
 	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250323173041-fe448f434ae2
 	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250323173041-fe448f434ae2
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250323200238-ebb03680cbff
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250328221420-01a135d2ee3f
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

@@ -104,7 +104,7 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 		NextValidatorsHash: req.NextValidatorsHash,
 		AppHash:            resp.AppHash, // The app hash after the block is finalized.
 	}
-	sdkCtx := sdk.NewContext(a.Application.CommitMultiStore().CacheMultiStore(), header, false, nil)
+	sdkCtx := sdk.NewContext(a.Application.CommitMultiStore().CacheMultiStore(), header, false, a.logger.With("context", "postFinalize"))
 	if err := a.postFinalize(sdkCtx); err != nil {
 		logger.Error("PostFinalize callback failed [BUG]", "err", err)
 		return resp, err
