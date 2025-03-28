@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"sort"
 	"testing"
+	"time"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
@@ -26,6 +27,23 @@ func (s *KeeperTestSuite) SetupTest() {
 // TestKeeperTestSuite runs the keeper test suite
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
+}
+
+// createTestWithdrawal returns a test withdrawal
+func (s *KeeperTestSuite) createTestWithdrawal(
+	valAddr mitotypes.EthAddress,
+	amount uint64,
+	maturesAt int64,
+	id uint64,
+) types.Withdrawal {
+	return types.Withdrawal{
+		ID:             id,
+		ValAddr:        valAddr,
+		Amount:         amount,
+		Receiver:       valAddr, // Use the same address as receiver for simplicity
+		MaturesAt:      maturesAt,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
 }
 
 func (s *KeeperTestSuite) Test_GetParams() {
@@ -784,14 +802,14 @@ func (s *KeeperTestSuite) Test_SetWithdrawalLastID() {
 
 func (s *KeeperTestSuite) Test_SetWithdrawal() {
 	// Generate validator address
-	_, _, ethAddr := testutil.GenerateSecp256k1Key()
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
 
 	// Create withdrawal
 	withdrawal := types.Withdrawal{
 		ID:             1,
-		ValAddr:        ethAddr,
+		ValAddr:        valAddr,
 		Amount:         1000000000,
-		Receiver:       ethAddr,
+		Receiver:       valAddr,
 		MaturesAt:      1000,
 		CreationHeight: 100,
 	}
@@ -799,8 +817,175 @@ func (s *KeeperTestSuite) Test_SetWithdrawal() {
 	// Set withdrawal
 	s.tk.Keeper.SetWithdrawal(s.tk.Ctx, withdrawal)
 
-	// Verify withdrawal was set by iterating through all withdrawals
-	// Note: This requires implementing a test for the GetAllWithdrawals or
-	// the related iterator functions, which isn't in scope for this file
-	// This test is limited to ensuring SetWithdrawal doesn't panic
+	// Verify withdrawal was stored by iterating through all withdrawals
+	var found bool
+	s.tk.Keeper.IterateWithdrawalsByMaturesAt(s.tk.Ctx, func(w types.Withdrawal) bool {
+		if w.ID == withdrawal.ID {
+			found = true
+			s.Require().Equal(withdrawal.ValAddr, w.ValAddr)
+			s.Require().Equal(withdrawal.Amount, w.Amount)
+			s.Require().Equal(withdrawal.Receiver, w.Receiver)
+			s.Require().Equal(withdrawal.MaturesAt, w.MaturesAt)
+			s.Require().Equal(withdrawal.CreationHeight, w.CreationHeight)
+			return true
+		}
+		return false
+	})
+	s.Require().True(found, "withdrawal not found")
+}
+
+func (s *KeeperTestSuite) Test_AddNewWithdrawalWithNextID() {
+	// Setup
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+
+	// Create withdrawal without ID
+	withdrawal := s.createTestWithdrawal(valAddr, 1000000000, time.Now().Unix()+86400, 0)
+
+	// Add withdrawal with next ID
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal)
+
+	// ID should be 1 (since we start from 0)
+	s.Require().Equal(uint64(1), withdrawal.ID)
+
+	// Last ID should be updated to 1
+	lastID := s.tk.Keeper.GetWithdrawalLastID(s.tk.Ctx)
+	s.Require().Equal(uint64(1), lastID)
+
+	// Add another withdrawal
+	withdrawal2 := s.createTestWithdrawal(valAddr, 2000000000, time.Now().Unix()+86400*2, 0)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal2)
+
+	// ID should be 2
+	s.Require().Equal(uint64(2), withdrawal2.ID)
+
+	// Last ID should be updated to 2
+	lastID = s.tk.Keeper.GetWithdrawalLastID(s.tk.Ctx)
+	s.Require().Equal(uint64(2), lastID)
+}
+
+func (s *KeeperTestSuite) Test_DeleteWithdrawal() {
+	// Setup
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+
+	// Create and add withdrawal
+	withdrawal := s.createTestWithdrawal(valAddr, 1000000000, time.Now().Unix()+86400, 0)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal)
+
+	// Verify withdrawal exists
+	var foundBefore bool
+	s.tk.Keeper.IterateWithdrawalsByMaturesAt(s.tk.Ctx, func(w types.Withdrawal) bool {
+		if w.ID == withdrawal.ID {
+			foundBefore = true
+			return true
+		}
+		return false
+	})
+	s.Require().True(foundBefore, "withdrawal should exist before deletion")
+
+	// Delete withdrawal
+	s.tk.Keeper.DeleteWithdrawal(s.tk.Ctx, withdrawal)
+
+	// Verify withdrawal was deleted
+	var foundAfter bool
+	s.tk.Keeper.IterateWithdrawalsByMaturesAt(s.tk.Ctx, func(w types.Withdrawal) bool {
+		if w.ID == withdrawal.ID {
+			foundAfter = true
+			return true
+		}
+		return false
+	})
+	s.Require().False(foundAfter, "withdrawal should not exist after deletion")
+}
+
+func (s *KeeperTestSuite) Test_IterateWithdrawalsByMaturesAt() {
+	// Setup
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+
+	// Create withdrawals with different maturity times
+	now := time.Now().Unix()
+	withdrawal1 := s.createTestWithdrawal(valAddr, 1000000000, now+86400, 0)   // 1 day from now
+	withdrawal2 := s.createTestWithdrawal(valAddr, 2000000000, now+86400*2, 0) // 2 days from now
+	withdrawal3 := s.createTestWithdrawal(valAddr, 3000000000, now+86400*3, 0) // 3 days from now
+
+	// Add withdrawals
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal1)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal2)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal3)
+
+	// Iterate and collect withdrawals
+	var withdrawals []types.Withdrawal
+	s.tk.Keeper.IterateWithdrawalsByMaturesAt(s.tk.Ctx, func(w types.Withdrawal) bool {
+		withdrawals = append(withdrawals, w)
+		return false
+	})
+
+	// Should have 3 withdrawals
+	s.Require().Equal(3, len(withdrawals))
+
+	// Withdrawals should be sorted by maturesAt (ascending)
+	s.Require().Equal(withdrawal1.ID, withdrawals[0].ID)
+	s.Require().Equal(withdrawal2.ID, withdrawals[1].ID)
+	s.Require().Equal(withdrawal3.ID, withdrawals[2].ID)
+}
+
+func (s *KeeperTestSuite) Test_GetAllWithdrawals() {
+	// Setup
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+
+	// Create and add withdrawals
+	now := time.Now().Unix()
+	withdrawal1 := s.createTestWithdrawal(valAddr, 1000000000, now+86400, 0)
+	withdrawal2 := s.createTestWithdrawal(valAddr, 2000000000, now+86400*2, 0)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal1)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal2)
+
+	// Get all withdrawals
+	withdrawals := s.tk.Keeper.GetAllWithdrawals(s.tk.Ctx)
+
+	// Should have 2 withdrawals
+	s.Require().Equal(2, len(withdrawals))
+
+	// Withdrawals should be sorted by maturesAt
+	s.Require().Equal(withdrawal1.ID, withdrawals[0].ID)
+	s.Require().Equal(withdrawal2.ID, withdrawals[1].ID)
+}
+
+func (s *KeeperTestSuite) Test_IterateWithdrawalsForValidator() {
+	// Setup
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
+
+	// Create withdrawals for different validators
+	now := time.Now().Unix()
+	withdrawal1 := s.createTestWithdrawal(valAddr1, 1000000000, now+86400, 0)
+	withdrawal2 := s.createTestWithdrawal(valAddr1, 2000000000, now+86400*2, 0)
+	withdrawal3 := s.createTestWithdrawal(valAddr2, 3000000000, now+86400, 0)
+
+	// Add withdrawals
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal1)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal2)
+	s.tk.Keeper.AddNewWithdrawalWithNextID(s.tk.Ctx, &withdrawal3)
+
+	// Iterate for validator 1
+	var withdrawalsVal1 []types.Withdrawal
+	s.tk.Keeper.IterateWithdrawalsForValidator(s.tk.Ctx, valAddr1, func(w types.Withdrawal) bool {
+		withdrawalsVal1 = append(withdrawalsVal1, w)
+		return false
+	})
+
+	// Should have 2 withdrawals for validator 1
+	s.Require().Equal(2, len(withdrawalsVal1))
+	s.Require().Equal(withdrawal1.ID, withdrawalsVal1[0].ID)
+	s.Require().Equal(withdrawal2.ID, withdrawalsVal1[1].ID)
+
+	// Iterate for validator 2
+	var withdrawalsVal2 []types.Withdrawal
+	s.tk.Keeper.IterateWithdrawalsForValidator(s.tk.Ctx, valAddr2, func(w types.Withdrawal) bool {
+		withdrawalsVal2 = append(withdrawalsVal2, w)
+		return false
+	})
+
+	// Should have 1 withdrawal for validator 2
+	s.Require().Equal(1, len(withdrawalsVal2))
+	s.Require().Equal(withdrawal3.ID, withdrawalsVal2[0].ID)
 }

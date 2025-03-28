@@ -275,6 +275,67 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral() {
 	s.Require().Equal(expectedVotingPower, finalValidator.VotingPower)
 }
 
+func (s *ValidatorTestSuite) Test_WithdrawCollateral_ToMinimumRequired() {
+	// Set up test parameters
+	s.setupTestParams()
+
+	// Register a validator with enough collateral
+	_, ethAddr, validator := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false)
+	initialCollateral := validator.Collateral
+
+	s.Require().Equal(int64(2), validator.VotingPower) // Should have 2 voting power
+
+	// Withdraw to just above the minimum (1 MITO)
+	withdrawalAmount := uint64(900000000) // 0.9 MITO in gwei
+	receiver := ethAddr
+	maturesAt := time.Now().Unix() + 86400 // 1 day from now
+
+	withdrawal := &types.Withdrawal{
+		ValAddr:        ethAddr,
+		Amount:         withdrawalAmount,
+		Receiver:       receiver,
+		MaturesAt:      maturesAt,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+
+	// Withdraw collateral
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, withdrawal)
+	s.Require().NoError(err)
+
+	// Expected remaining collateral: 2 MITO - 0.9 MITO = 1.1 MITO
+	expectedCollateral := initialCollateral.Sub(math.NewUint(withdrawalAmount))
+	expectedVotingPower := int64(1) // Voting power should be 1
+
+	// Check updated validator
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	s.Require().True(found)
+	s.Require().Equal(expectedCollateral, updatedValidator.Collateral)
+	s.Require().Equal(expectedVotingPower, updatedValidator.VotingPower)
+	s.Require().False(updatedValidator.Jailed)
+
+	// Now withdraw to just below the minimum (1 MITO)
+	belowMinWithdrawal := &types.Withdrawal{
+		ValAddr:        ethAddr,
+		Amount:         200000000, // 0.2 MITO in gwei
+		Receiver:       receiver,
+		MaturesAt:      maturesAt,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+
+	// Withdraw collateral
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &updatedValidator, belowMinWithdrawal)
+	s.Require().NoError(err)
+
+	// Final collateral: 1.1 MITO - 0.2 MITO = 0.9 MITO (below min required)
+	finalValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	s.Require().True(found)
+	s.Require().Equal(math.NewUint(900000000), finalValidator.Collateral)
+	s.Require().Zero(finalValidator.VotingPower) // Should have 0 voting power
+
+	// Validator should be jailed because voting power is below minimum
+	s.Require().True(finalValidator.Jailed, "Validator should be jailed when voting power drops below minimum")
+}
+
 // ==================== Slash_ Tests ====================
 
 func (s *ValidatorTestSuite) Test_Slash_() {
@@ -358,65 +419,119 @@ func (s *ValidatorTestSuite) Test_Slash_ExceedsCollateral() {
 	s.Require().True(updatedValidator.Jailed)
 }
 
-func (s *ValidatorTestSuite) Test_WithdrawCollateral_ToMinimumRequired() {
-	// Set up test parameters
+func (s *ValidatorTestSuite) Test_Slash_WithdrawalsAndCollateral() {
+	// ==================== SETUP ====================
 	s.setupTestParams()
+	_, valAddr, validator := s.registerValidator(math.NewUint(5000000000), math.ZeroUint(), false) // 5 MITO
 
-	// Register a validator with enough collateral
-	_, ethAddr, validator := s.registerValidator(math.NewUint(2000000000), math.ZeroUint(), false)
-	initialCollateral := validator.Collateral
+	// ==================== SETUP WITHDRAWALS ====================
+	now := time.Now().Unix()
 
-	s.Require().Equal(int64(2), validator.VotingPower) // Should have 2 voting power
-
-	// Withdraw to just above the minimum (1 MITO)
-	withdrawalAmount := uint64(900000000) // 0.9 MITO in gwei
-	receiver := ethAddr
-	maturesAt := time.Now().Unix() + 86400 // 1 day from now
-
-	withdrawal := &types.Withdrawal{
-		ValAddr:        ethAddr,
-		Amount:         withdrawalAmount,
-		Receiver:       receiver,
-		MaturesAt:      maturesAt,
+	// Create two future withdrawals with different maturity times
+	futureWithdrawal1 := &types.Withdrawal{
+		ValAddr:        valAddr,
+		Amount:         600000000, // 0.6 MITO
+		Receiver:       valAddr,
+		MaturesAt:      now + 86400, // 1 day from now
 		CreationHeight: s.tk.Ctx.BlockHeight(),
 	}
 
-	// Withdraw collateral
-	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, withdrawal)
-	s.Require().NoError(err)
-
-	// Expected remaining collateral: 2 MITO - 0.9 MITO = 1.1 MITO
-	expectedCollateral := initialCollateral.Sub(math.NewUint(withdrawalAmount))
-	expectedVotingPower := int64(1) // Voting power should be 1
-
-	// Check updated validator
-	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
-	s.Require().True(found)
-	s.Require().Equal(expectedCollateral, updatedValidator.Collateral)
-	s.Require().Equal(expectedVotingPower, updatedValidator.VotingPower)
-	s.Require().False(updatedValidator.Jailed)
-
-	// Now withdraw to just below the minimum (1 MITO)
-	belowMinWithdrawal := &types.Withdrawal{
-		ValAddr:        ethAddr,
-		Amount:         200000000, // 0.2 MITO in gwei
-		Receiver:       receiver,
-		MaturesAt:      maturesAt,
+	futureWithdrawal2 := &types.Withdrawal{
+		ValAddr:        valAddr,
+		Amount:         800000000, // 0.8 MITO
+		Receiver:       valAddr,
+		MaturesAt:      now + 172800, // 2 days from now
 		CreationHeight: s.tk.Ctx.BlockHeight(),
 	}
 
-	// Withdraw collateral
-	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &updatedValidator, belowMinWithdrawal)
+	// Create an already matured withdrawal (1 day ago)
+	maturedWithdrawal := &types.Withdrawal{
+		ValAddr:        valAddr,
+		Amount:         2000000000, // 2 MITO
+		Receiver:       valAddr,
+		MaturesAt:      now - 86400,
+		CreationHeight: s.tk.Ctx.BlockHeight() - 100,
+	}
+
+	// Process the withdrawals
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, futureWithdrawal1)
+	s.Require().NoError(err)
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, futureWithdrawal2)
+	s.Require().NoError(err)
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, maturedWithdrawal)
 	s.Require().NoError(err)
 
-	// Final collateral: 1.1 MITO - 0.2 MITO = 0.9 MITO (below min required)
-	finalValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, ethAddr)
+	// Get updated validator with 1.6 MITO (5 - 0.6 - 0.8 - 2) of collateral
+	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
-	s.Require().Equal(math.NewUint(900000000), finalValidator.Collateral)
-	s.Require().Zero(finalValidator.VotingPower) // Should have 0 voting power
+	s.Require().Equal(math.NewUint(1600000000), updatedValidator.Collateral, "Validator should have 1.6 MITO collateral")
+	s.Require().Equal(int64(1), updatedValidator.VotingPower, "Validator should have 1 voting power")
 
-	// Validator should be jailed because voting power is below minimum
-	s.Require().True(finalValidator.Jailed, "Validator should be jailed when voting power drops below minimum")
+	// ==================== RECORD STATE BEFORE SLASHING ====================
+	// Log the validator state before slashing for reporting purposes
+	s.T().Logf("Before slashing: Validator collateral=%s, power=%d",
+		updatedValidator.Collateral.String(), updatedValidator.VotingPower)
+
+	// ==================== PERFORM SLASHING ====================
+	// Slash the validator by 100% of voting power (1 MITO)
+	slashFraction := math.LegacyOneDec() // 100%
+	slashedAmount, err := s.tk.Keeper.Slash_(s.tk.Ctx, &updatedValidator, s.tk.Ctx.BlockHeight()-10, 1, slashFraction)
+	s.Require().NoError(err)
+
+	// ==================== VERIFY RESULTS ====================
+	// 1. Verify slashed amount matches expectation (1 MITO)
+	expectedSlashedAmount := math.NewUint(1000000000)
+	s.Require().Equal(expectedSlashedAmount, slashedAmount, "Should slash 1 MITO")
+
+	// 2. Check which withdrawals remain after slashing
+	var remainingWithdrawals []types.Withdrawal
+	s.tk.Keeper.IterateWithdrawalsForValidator(s.tk.Ctx, valAddr, func(w types.Withdrawal) bool {
+		remainingWithdrawals = append(remainingWithdrawals, w)
+		return false
+	})
+
+	// 3. Matured withdrawals should not be affected by slashing
+	var foundMaturedWithdrawal bool
+	for _, w := range remainingWithdrawals {
+		if w.MaturesAt == maturedWithdrawal.MaturesAt {
+			foundMaturedWithdrawal = true
+			s.Require().Equal(maturedWithdrawal.Amount, w.Amount,
+				"Matured withdrawal amount should be unchanged")
+			break
+		}
+	}
+	s.Require().True(foundMaturedWithdrawal, "Matured withdrawal should still exist")
+
+	// 4. First future withdrawal (0.6 MITO) should be completely slashed and deleted
+	var foundFirstFutureWithdrawal bool
+	for _, w := range remainingWithdrawals {
+		if w.MaturesAt == futureWithdrawal1.MaturesAt {
+			foundFirstFutureWithdrawal = true
+			break
+		}
+	}
+	s.Require().False(foundFirstFutureWithdrawal,
+		"First future withdrawal should be deleted, not set to zero amount")
+
+	// 5. Second future withdrawal (0.8 MITO) should be partially slashed (by 0.4 MITO)
+	// leaving 0.4 MITO remaining
+	var foundSecondFutureWithdrawal bool
+	for _, w := range remainingWithdrawals {
+		if w.MaturesAt == futureWithdrawal2.MaturesAt {
+			foundSecondFutureWithdrawal = true
+			s.Require().Equal(uint64(400000000), w.Amount,
+				"Second future withdrawal should be partially slashed to 0.4 MITO")
+			break
+		}
+	}
+	s.Require().True(foundSecondFutureWithdrawal,
+		"Second future withdrawal should still exist with reduced amount")
+
+	// 6. Verify validator collateral remains unchanged
+	finalValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+	s.Require().Equal(math.NewUint(1600000000), finalValidator.Collateral,
+		"Validator collateral should remain unchanged")
 }
 
 // ==================== Jail_ Tests ====================
