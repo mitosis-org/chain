@@ -9,6 +9,7 @@ type AppConfig struct {
 	serverconfig.Config `mapstructure:",squash"`
 	Engine              *EngineConfig `mapstructure:"engine"`
 	EVMGov              *EVMGovConfig `mapstructure:"evmgov"`
+	Sentry              *SentryConfig `mapstructure:"sentry"`
 }
 
 type EngineConfig struct {
@@ -22,6 +23,11 @@ type EngineConfig struct {
 
 type EVMGovConfig struct {
 	Entrypoint string `mapstructure:"entrypoint"`
+}
+
+type SentryConfig struct {
+	DSN         string `mapstructure:"dsn"`
+	Environment string `mapstructure:"environment"`
 }
 
 func DefaultAppConfig() AppConfig {
@@ -41,6 +47,10 @@ func DefaultAppConfig() AppConfig {
 		},
 		EVMGov: &EVMGovConfig{
 			Entrypoint: "0x0000000000000000000000000000000000000000",
+		},
+		Sentry: &SentryConfig{
+			DSN:         "",
+			Environment: "",
 		},
 	}
 }
@@ -86,6 +96,19 @@ fee-recipient = "{{ .Engine.FeeRecipient }}"
 
 # ConsensusGovernanceEntrypoint contract address.
 entrypoint = "{{ .EVMGov.Entrypoint }}"
+
+###############################################################################
+###                             Sentry                                      ###
+###############################################################################
+
+[sentry]
+
+# Sentry DSN.
+# If it is empty, Sentry will be disabled.
+dsn = "{{ .Sentry.DSN }}"
+
+# Sentry environment.
+environment = "{{ .Sentry.Environment }}"
 `
 
 	return defaultAppTemplate, appConfig

@@ -154,6 +154,11 @@ func newApp(
 		panic(err)
 	}
 
+	logger, err = InitSentry(appConfig.Sentry, logger)
+	if err != nil {
+		panic(err)
+	}
+
 	engineCl, err := newEngineClient(runningCmd)
 	if err != nil {
 		panic(err)
@@ -217,6 +222,11 @@ func appExport(
 	}
 
 	appConfig, err := getAppConfig(runningCmd)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
+	logger, err = InitSentry(appConfig.Sentry, logger)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
