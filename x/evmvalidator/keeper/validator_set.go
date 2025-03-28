@@ -7,11 +7,9 @@ import (
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/omni-network/omni/lib/errors"
-	"github.com/omni-network/omni/lib/k1util"
 )
 
 // ApplyAndReturnValidatorSetUpdates applies and returns accumulated updates to the validator set.
@@ -33,6 +31,8 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 
 	// Process current validators first
 	for _, validator := range validators {
+		consAddr := validator.MustConsAddr()
+
 		// Get the last power from the store
 		lastPower, found := k.GetLastValidatorPower(sdkCtx, validator.Addr)
 		if !found {
@@ -59,11 +59,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 
 		if !found {
 			// Call hook if the validator becomes bonded
-			consAddr, err := validator.ConsAddr()
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to get consensus address")
-			}
-			if err = k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
+			if err := k.slashingKeeper.AfterValidatorBonded(ctx, consAddr); err != nil {
 				return nil, errors.Wrap(err, "failed to call AfterValidatorBonded hook")
 			}
 
@@ -75,14 +71,9 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		// Append to validator updates
 		abciUpdate, err := validator.ABCIValidatorUpdate()
 		if err != nil {
-			return nil, errors.Wrap(err, "create validator update")
+			return nil, errors.Wrap(err, "create abci validator update")
 		}
 		validatorUpdates = append(validatorUpdates, abciUpdate)
-
-		consAddr, err := validator.ConsAddr()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get consensus address")
-		}
 
 		// Log the update
 		if found {
@@ -121,13 +112,6 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 			return true
 		}
 
-		// Create a zero power update
-		pk, err2 := k1util.PubKeyBytesToCosmos(validator.Pubkey)
-		if err2 != nil {
-			err = errors.Wrap(err2, "failed to convert pubkey")
-			return true
-		}
-
 		// Remove from last validator powers since it's no longer active validator
 		k.DeleteLastValidatorPower(sdkCtx, valAddr)
 
@@ -136,27 +120,18 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 		k.SetValidator(sdkCtx, validator)
 
 		// Append to validator updates
-		cmtPk, err2 := cryptocodec.ToCmtProtoPublicKey(pk)
+		abciUpdate, err2 := validator.ABCIValidatorUpdateForUnbonding()
 		if err2 != nil {
-			err = errors.Wrap(err2, "failed to convert to CometBFT pubkey")
+			err = errors.Wrap(err2, "create abci validator update")
 			return true
 		}
-		validatorUpdate := abci.ValidatorUpdate{
-			PubKey: cmtPk,
-			Power:  0,
-		}
-		validatorUpdates = append(validatorUpdates, validatorUpdate)
+		validatorUpdates = append(validatorUpdates, abciUpdate)
 
 		// Log the removal
-		consAddr, err2 := validator.ConsAddr()
-		if err2 != nil {
-			err = errors.Wrap(err2, "failed to get consensus address")
-			return true
-		}
 		k.Logger(sdkCtx).Info("😈 Active Validator Set: Unbonded",
 			"val_addr", valAddr.String(),
 			"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
-			"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),
+			"cons_addr_hex", fmt.Sprintf("%X", validator.MustConsAddr().Bytes()),
 			"previous_power", power,
 		)
 
