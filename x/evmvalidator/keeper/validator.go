@@ -71,7 +71,7 @@ func (k Keeper) RegisterValidator(
 		),
 	)
 
-	k.Logger(ctx).Info("🆕 Validator Registered",
+	k.Logger(ctx).Debug("🆕 Validator Registered",
 		"height", ctx.BlockHeight(),
 		"addr", valAddr.String(),
 		"consAddr", consAddr.String(),
@@ -101,7 +101,7 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 		),
 	)
 
-	k.Logger(ctx).Info("💵 Validator Collateral Deposited",
+	k.Logger(ctx).Debug("💵 Validator Collateral Deposited",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 		"amount", amount.String(),
@@ -145,7 +145,7 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		),
 	)
 
-	k.Logger(ctx).Info("💸 Validator Collateral Withdrawal Requested",
+	k.Logger(ctx).Debug("💸 Validator Collateral Withdrawal Requested",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 		"withdrawalID", withdrawal.ID,
@@ -242,7 +242,7 @@ func (k Keeper) Slash_(ctx sdk.Context, validator *types.Validator, infractionHe
 		),
 	)
 
-	k.Logger(ctx).Info("💥 Validator Slashed",
+	k.Logger(ctx).Debug("💥 Validator Slashed",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 		"slashAmount", actualSlashAmount.String(),
@@ -279,7 +279,7 @@ func (k Keeper) Jail_(ctx sdk.Context, validator *types.Validator, reason string
 		),
 	)
 
-	k.Logger(ctx).Info("🔒 Validator Jailed",
+	k.Logger(ctx).Debug("🔒 Validator Jailed",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 		"reason", reason,
@@ -313,7 +313,7 @@ func (k Keeper) Unjail_(ctx sdk.Context, validator *types.Validator) error {
 		),
 	)
 
-	k.Logger(ctx).Info("🔓 Validator Unjailed",
+	k.Logger(ctx).Debug("🔓 Validator Unjailed",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 	)
@@ -336,7 +336,7 @@ func (k Keeper) UpdateExtraVotingPower(ctx sdk.Context, validator *types.Validat
 		),
 	)
 
-	k.Logger(ctx).Info("💳 Validator Extra Voting Power Updated",
+	k.Logger(ctx).Debug("💳 Validator Extra Voting Power Updated",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
 		"oldExtraVotingPower", oldExtraVotingPower,
@@ -374,7 +374,7 @@ func (k Keeper) UpdateValidatorState(ctx sdk.Context, validator *types.Validator
 			),
 		)
 
-		k.Logger(ctx).Info("🔋 Validator Voting Power Updated",
+		k.Logger(ctx).Debug("🔋 Validator Voting Power Updated",
 			"height", ctx.BlockHeight(),
 			"context", context,
 			"validator", validator.Addr.String(),

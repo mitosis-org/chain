@@ -122,7 +122,7 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			return errors.Wrap(err, "parse MsgRegisterValidator"), false
 		}
 
-		k.Logger(ctx).Info("📣 Process MsgRegisterValidator",
+		k.Logger(ctx).Debug("📣 Process MsgRegisterValidator",
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
@@ -165,7 +165,7 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			return errors.Wrap(err, "parse MsgDepositCollateral"), false
 		}
 
-		k.Logger(ctx).Info("📣 Process MsgDepositCollateral",
+		k.Logger(ctx).Debug("📣 Process MsgDepositCollateral",
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
@@ -207,7 +207,7 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			return errors.Wrap(err, "parse MsgWithdrawCollateral"), false
 		}
 
-		k.Logger(ctx).Info("📣 Process MsgWithdrawCollateral",
+		k.Logger(ctx).Debug("📣 Process MsgWithdrawCollateral",
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
@@ -231,7 +231,7 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			return errors.Wrap(err, "parse MsgUnjail"), false
 		}
 
-		k.Logger(ctx).Info("📣 Process MsgUnjail",
+		k.Logger(ctx).Debug("📣 Process MsgUnjail",
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
@@ -251,7 +251,7 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			return errors.Wrap(err, "parse MsgUpdateExtraVotingPower"), false
 		}
 
-		k.Logger(ctx).Info("📣 Process MsgUpdateExtraVotingPower",
+		k.Logger(ctx).Debug("📣 Process MsgUpdateExtraVotingPower",
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),

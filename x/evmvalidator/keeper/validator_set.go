@@ -77,7 +77,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) ([]abci.V
 
 		// Log the update
 		if found {
-			k.Logger(sdkCtx).Info("😈 Active Validator Set: Power changed",
+			k.Logger(sdkCtx).Debug("😈 Active Validator Set: Power changed",
 				"val_addr", validator.Addr.String(),
 				"val_pubkey", fmt.Sprintf("%X", validator.Pubkey),
 				"cons_addr_hex", fmt.Sprintf("%X", consAddr.Bytes()),

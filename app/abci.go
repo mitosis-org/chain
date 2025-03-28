@@ -27,12 +27,12 @@ func NewABCIWrappedApplication(app *MitosisApp) *ABCIWrappedApplication {
 	return &ABCIWrappedApplication{
 		Application:  app,
 		postFinalize: app.EVMEngKeeper.PostFinalize,
-		logger:       app.Logger(),
+		logger:       app.Logger().With("module", "abci-wrapper"),
 	}
 }
 
 func (a ABCIWrappedApplication) Info(info *abci.RequestInfo) (*abci.ResponseInfo, error) {
-	a.logger.Info("ABCI call: Info")
+	a.logger.Debug("ABCI call: Info")
 
 	resp, err := a.Application.Info(info)
 	if err != nil {
@@ -47,12 +47,12 @@ func (a ABCIWrappedApplication) Query(ctx context.Context, query *abci.RequestQu
 }
 
 func (a ABCIWrappedApplication) CheckTx(tx *abci.RequestCheckTx) (*abci.ResponseCheckTx, error) {
-	a.logger.Info("ABCI call: CheckTx")
+	a.logger.Debug("ABCI call: CheckTx")
 	return a.Application.CheckTx(tx)
 }
 
 func (a ABCIWrappedApplication) InitChain(chain *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
-	a.logger.Info("ABCI call: InitChain")
+	a.logger.Debug("ABCI call: InitChain")
 
 	resp, err := a.Application.InitChain(chain)
 	if err != nil {
@@ -64,7 +64,7 @@ func (a ABCIWrappedApplication) InitChain(chain *abci.RequestInitChain) (*abci.R
 
 func (a ABCIWrappedApplication) PrepareProposal(proposal *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
 	logger := a.logger.With("height", proposal.Height, "proposer", hex7(proposal.ProposerAddress))
-	logger.Info("ABCI call: PrepareProposal")
+	logger.Debug("ABCI call: PrepareProposal")
 
 	resp, err := a.Application.PrepareProposal(proposal)
 	if err != nil {
@@ -76,7 +76,7 @@ func (a ABCIWrappedApplication) PrepareProposal(proposal *abci.RequestPreparePro
 
 func (a ABCIWrappedApplication) ProcessProposal(proposal *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
 	logger := a.logger.With("height", proposal.Height, "proposer", hex7(proposal.ProposerAddress))
-	logger.Info("ABCI call: ProcessProposal")
+	logger.Debug("ABCI call: ProcessProposal")
 
 	resp, err := a.Application.ProcessProposal(proposal)
 	if err != nil {
@@ -88,7 +88,7 @@ func (a ABCIWrappedApplication) ProcessProposal(proposal *abci.RequestProcessPro
 
 func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.ResponseFinalizeBlock, error) {
 	logger := a.logger.With("height", req.Height, "proposer", hex7(req.ProposerAddress))
-	logger.Info("ABCI call: FinalizeBlock")
+	logger.Debug("ABCI call: FinalizeBlock")
 
 	resp, err := a.Application.FinalizeBlock(req)
 	if err != nil {
@@ -110,8 +110,6 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 		return resp, err
 	}
 
-	logger.Info("ABCI response: FinalizeBlock", "val_updates", len(resp.ValidatorUpdates))
-
 	for i, res := range resp.TxResults {
 		if res.Code == 0 {
 			continue
@@ -127,7 +125,7 @@ func (a ABCIWrappedApplication) FinalizeBlock(req *abci.RequestFinalizeBlock) (*
 
 func (a ABCIWrappedApplication) ExtendVote(ctx context.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
 	logger := a.logger.With("height", vote.Height, "proposer", hex7(vote.ProposerAddress))
-	logger.Info("ABCI call: ExtendVote")
+	logger.Debug("ABCI call: ExtendVote")
 
 	resp, err := a.Application.ExtendVote(ctx, vote)
 	if err != nil {
@@ -139,7 +137,7 @@ func (a ABCIWrappedApplication) ExtendVote(ctx context.Context, vote *abci.Reque
 
 func (a ABCIWrappedApplication) VerifyVoteExtension(extension *abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
 	logger := a.logger.With("height", extension.Height, "validator", hex7(extension.ValidatorAddress))
-	logger.Info("ABCI call: VerifyVoteExtension")
+	logger.Debug("ABCI call: VerifyVoteExtension")
 
 	resp, err := a.Application.VerifyVoteExtension(extension)
 	if err != nil {
@@ -150,27 +148,27 @@ func (a ABCIWrappedApplication) VerifyVoteExtension(extension *abci.RequestVerif
 }
 
 func (a ABCIWrappedApplication) Commit() (*abci.ResponseCommit, error) {
-	a.logger.Info("ABCI call: Commit")
+	a.logger.Debug("ABCI call: Commit")
 	return a.Application.Commit()
 }
 
 func (a ABCIWrappedApplication) ListSnapshots(listSnapshots *abci.RequestListSnapshots) (*abci.ResponseListSnapshots, error) {
-	a.logger.Info("ABCI call: ListSnapshots")
+	a.logger.Debug("ABCI call: ListSnapshots")
 	return a.Application.ListSnapshots(listSnapshots)
 }
 
 func (a ABCIWrappedApplication) OfferSnapshot(snapshot *abci.RequestOfferSnapshot) (*abci.ResponseOfferSnapshot, error) {
-	a.logger.Info("ABCI call: OfferSnapshot")
+	a.logger.Debug("ABCI call: OfferSnapshot")
 	return a.Application.OfferSnapshot(snapshot)
 }
 
 func (a ABCIWrappedApplication) LoadSnapshotChunk(chunk *abci.RequestLoadSnapshotChunk) (*abci.ResponseLoadSnapshotChunk, error) {
-	a.logger.Info("ABCI call: LoadSnapshotChunk")
+	a.logger.Debug("ABCI call: LoadSnapshotChunk")
 	return a.Application.LoadSnapshotChunk(chunk)
 }
 
 func (a ABCIWrappedApplication) ApplySnapshotChunk(chunk *abci.RequestApplySnapshotChunk) (*abci.ResponseApplySnapshotChunk, error) {
-	a.logger.Info("ABCI call: ApplySnapshotChunk")
+	a.logger.Debug("ABCI call: ApplySnapshotChunk")
 	return a.Application.ApplySnapshotChunk(chunk)
 }
 

@@ -46,7 +46,7 @@ func (k Keeper) ProcessMaturedWithdrawals(ctx sdk.Context) error {
 			),
 		)
 
-		k.Logger(ctx).Info("🍂 Withdrawal Matured",
+		k.Logger(ctx).Debug("🍂 Withdrawal Matured",
 			"height", ctx.BlockHeight(),
 			"id", withdrawal.ID,
 			"validator", withdrawal.ValAddr.String(),

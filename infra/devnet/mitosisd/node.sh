@@ -82,4 +82,4 @@ $MITOSISD start --home "$MITOSISD_HOME" \
   --api.enable \
   --api.address=tcp://0.0.0.0:1317 \
   --api.enabled-unsafe-cors \
-  --log_level "info"
+  --log_level "abci-wrapper:debug,x/evmengine:debug,x/evmvalidator:debug,x/evmgov:debug,*:info"
