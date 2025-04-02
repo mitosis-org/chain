@@ -21,6 +21,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/ethereum/go-ethereum v1.15.5
+	github.com/getsentry/sentry-go v0.27.0
 	github.com/golang/protobuf v1.5.4
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/omni-network/omni v0.13.0
@@ -93,7 +94,6 @@ require (
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
@@ -236,7 +236,7 @@ require (
 replace (
 	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250323173041-fe448f434ae2
 	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250323173041-fe448f434ae2
-	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250328221420-01a135d2ee3f
+	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250402063510-bdd44c4f7790
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
