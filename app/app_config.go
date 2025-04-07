@@ -151,10 +151,8 @@ var (
 			{
 				Name: evmengtypes.ModuleName,
 				Config: appconfig.WrapAny(&evmengmodule.Module{
-					Authority: evmgovtypes.ModuleName,
-					// NOTE: 0 means no limit.
-					// It is okay because it is also limited by WithdrawalLimit in the evmvalidator module.
-					MaxWithdrawalsPerBlock: 0,
+					Authority:              evmgovtypes.ModuleName,
+					MaxWithdrawalsPerBlock: 32,
 				}),
 			},
 			{
