@@ -39,8 +39,8 @@ func NewCreateValidatorCmd() *cobra.Command {
 				log.Fatalf("Error getting global validator config: %v", err)
 			}
 
-			// Parse collateral amount and validate it's sufficient
-			collateralAmount, err := utils.ParseValue(initialCollateral)
+			// Parse collateral amount as decimal MITO and convert to wei
+			collateralAmount, err := utils.ParseValueAsWei(initialCollateral)
 			if err != nil {
 				log.Fatalf("Error parsing initial collateral: %v", err)
 			}
@@ -141,7 +141,7 @@ func NewCreateValidatorCmd() *cobra.Command {
 	cmd.Flags().StringVar(&withdrawalRecipient, "withdrawal-recipient", "", "Withdrawal recipient address")
 	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "Commission rate in percentage (e.g., \"5%\")")
 	cmd.Flags().StringVar(&metadata, "metadata", "", "Validator metadata (JSON string)")
-	cmd.Flags().StringVar(&initialCollateral, "initial-collateral", "", "Initial collateral amount in MITO")
+	cmd.Flags().StringVar(&initialCollateral, "initial-collateral", "", "Initial collateral amount in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
 	cmd.MarkFlagRequired("pubkey")

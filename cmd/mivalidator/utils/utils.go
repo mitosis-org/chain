@@ -39,6 +39,34 @@ func ParseValue(value string) (*big.Int, error) {
 	return valueInt, nil
 }
 
+// ParseValueAsWei parses a decimal string (e.g. "1.5") into wei units (multiplied by 10^18)
+func ParseValueAsWei(value string) (*big.Int, error) {
+	if value == "" {
+		return big.NewInt(0), nil
+	}
+
+	// Create a new Float
+	valueFloat := new(big.Float)
+	_, success := valueFloat.SetString(value)
+	if !success {
+		return nil, fmt.Errorf("invalid decimal format: %s", value)
+	}
+
+	// Multiply by 10^18
+	multiplier := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))
+	valueFloat.Mul(valueFloat, multiplier)
+
+	// Convert to big.Int and check accuracy
+	valueInt, accuracy := valueFloat.Int(nil)
+
+	// Check if there was loss of precision
+	if accuracy != big.Exact {
+		return nil, fmt.Errorf("decimal precision exceeds 18 places: %s", value)
+	}
+
+	return valueInt, nil
+}
+
 // FormatWeiToEther formats Wei to MITO for display
 func FormatWeiToEther(wei *big.Int) string {
 	if wei == nil {

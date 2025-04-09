@@ -36,8 +36,8 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 				log.Fatalf("Error getting contract fee: %v", err)
 			}
 
-			// Parse amount to withdraw
-			amountInWei, err := utils.ParseValue(amount)
+			// Parse amount to withdraw as decimal MITO and convert to wei
+			amountInWei, err := utils.ParseValueAsWei(amount)
 			if err != nil {
 				log.Fatalf("Error parsing amount: %v", err)
 			}
@@ -95,7 +95,7 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 
 	// Command-specific flags
 	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
-	cmd.Flags().StringVar(&amount, "amount", "", "Amount to withdraw in MITO")
+	cmd.Flags().StringVar(&amount, "amount", "", "Amount to withdraw in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
 	cmd.MarkFlagRequired("validator")

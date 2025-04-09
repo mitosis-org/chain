@@ -36,8 +36,8 @@ func NewDepositCollateralCmd() *cobra.Command {
 				log.Fatalf("Error getting contract fee: %v", err)
 			}
 
-			// Parse collateral amount
-			collateralAmount, err := utils.ParseValue(amount)
+			// Parse collateral amount as decimal MITO and convert to wei
+			collateralAmount, err := utils.ParseValueAsWei(amount)
 			if err != nil {
 				log.Fatalf("Error parsing amount: %v", err)
 			}
@@ -80,7 +80,7 @@ func NewDepositCollateralCmd() *cobra.Command {
 
 	// Command-specific flags
 	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
-	cmd.Flags().StringVar(&amount, "amount", "", "Amount of collateral to deposit in MITO")
+	cmd.Flags().StringVar(&amount, "amount", "", "Amount of collateral to deposit in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
 	cmd.MarkFlagRequired("validator")
