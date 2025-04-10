@@ -22,6 +22,7 @@ This tool allows operators to create validators, manage collateral, and update v
 	rootCmd.AddCommand(cmd.NewCreateValidatorCmd())
 	rootCmd.AddCommand(cmd.NewDepositCollateralCmd())
 	rootCmd.AddCommand(cmd.NewWithdrawCollateralCmd())
+	rootCmd.AddCommand(cmd.NewUnjailValidatorCmd())
 	rootCmd.AddCommand(cmd.NewUpdateOperatorCmd())
 	rootCmd.AddCommand(cmd.NewUpdateWithdrawalRecipientCmd())
 	rootCmd.AddCommand(cmd.NewUpdateRewardManagerCmd())
