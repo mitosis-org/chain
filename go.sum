@@ -924,10 +924,10 @@ github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyua
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/mitchellh/pointerstructure v1.2.0 h1:O+i9nHnXS3l/9Wu7r4NrEdwA2VFTicjUEN1uBnDo34A=
 github.com/mitchellh/pointerstructure v1.2.0/go.mod h1:BRAsLI5zgXmw97Lf6s25bs8ohIXc3tViBH44KcwB2g4=
-github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250418080424-450b9795c51a h1:jztUXVBoJDx91qjeiQBHxYO8ykeP1oRwRTEwZBHYPIc=
-github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250418080424-450b9795c51a/go.mod h1:hrWEFMU1eoXqLJeE6VVESpJDQH67FS1nnMrQIjO2daw=
-github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250418080424-450b9795c51a h1:xw2EmcBwhQ2wmbi6R6t5NcCd3j4ZoyIoQPNaGpXOXEI=
-github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250418080424-450b9795c51a/go.mod h1:xa/Yd8nYr19cawsEby/hvyqKY1JwgTADkpeLoiQCp/M=
+github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250421074354-0037f6394801 h1:jFrZCeoIPPxlewO5pGolYHmCPL/JGz2GA2Ii35SC3H8=
+github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250421074354-0037f6394801/go.mod h1:hrWEFMU1eoXqLJeE6VVESpJDQH67FS1nnMrQIjO2daw=
+github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250421074354-0037f6394801 h1:zuhNmt8XbhryeTAyFmW1eZwPtbBjndu534UcsET2fQc=
+github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250421074354-0037f6394801/go.mod h1:xa/Yd8nYr19cawsEby/hvyqKY1JwgTADkpeLoiQCp/M=
 github.com/mitosis-org/omni v0.13.1-0.20250402063510-bdd44c4f7790 h1:jNbo9e39T9M2UxsKa/irUWyg5xmjiMwC5anAL6FpEs4=
 github.com/mitosis-org/omni v0.13.1-0.20250402063510-bdd44c4f7790/go.mod h1:2xINSbKt2mMWcet9yjg09zaWM0iSzNNUuyMkSQbxOOc=
 github.com/mmcloughlin/addchain v0.4.0 h1:SobOdjm2xLj1KkXN5/n0xTIWyZA2+s99UCY1iPfkHRY=
