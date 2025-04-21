@@ -234,8 +234,8 @@ require (
 )
 
 replace (
-	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250323173041-fe448f434ae2
-	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250323173041-fe448f434ae2
+	cosmossdk.io/x/evidence => github.com/mitosis-org/cosmos-sdk/x/evidence v0.1.2-0.20250421074354-0037f6394801
+	github.com/cosmos/cosmos-sdk => github.com/mitosis-org/cosmos-sdk v0.50.14-0.20250421074354-0037f6394801
 	github.com/omni-network/omni => github.com/mitosis-org/omni v0.13.1-0.20250402063510-bdd44c4f7790
 
 	// NOTE: https://github.com/cosmos/cosmos-sdk/pull/14952
