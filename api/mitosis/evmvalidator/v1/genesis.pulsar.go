@@ -166,6 +166,57 @@ func (x *_GenesisState_5_list) IsValid() bool {
 	return x.list != nil
 }
 
+var _ protoreflect.List = (*_GenesisState_6_list)(nil)
+
+type _GenesisState_6_list struct {
+	list *[]*CollateralOwnership
+}
+
+func (x *_GenesisState_6_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_GenesisState_6_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+}
+
+func (x *_GenesisState_6_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnership)
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_GenesisState_6_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnership)
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_GenesisState_6_list) AppendMutable() protoreflect.Value {
+	v := new(CollateralOwnership)
+	*x.list = append(*x.list, v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_6_list) Truncate(n int) {
+	for i := n; i < len(*x.list); i++ {
+		(*x.list)[i] = nil
+	}
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_GenesisState_6_list) NewElement() protoreflect.Value {
+	v := new(CollateralOwnership)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_GenesisState_6_list) IsValid() bool {
+	return x.list != nil
+}
+
 var (
 	md_GenesisState                                    protoreflect.MessageDescriptor
 	fd_GenesisState_params                             protoreflect.FieldDescriptor
@@ -173,6 +224,7 @@ var (
 	fd_GenesisState_validators                         protoreflect.FieldDescriptor
 	fd_GenesisState_withdrawals                        protoreflect.FieldDescriptor
 	fd_GenesisState_last_validator_powers              protoreflect.FieldDescriptor
+	fd_GenesisState_collateral_ownerships              protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -183,6 +235,7 @@ func init() {
 	fd_GenesisState_validators = md_GenesisState.Fields().ByName("validators")
 	fd_GenesisState_withdrawals = md_GenesisState.Fields().ByName("withdrawals")
 	fd_GenesisState_last_validator_powers = md_GenesisState.Fields().ByName("last_validator_powers")
+	fd_GenesisState_collateral_ownerships = md_GenesisState.Fields().ByName("collateral_ownerships")
 }
 
 var _ protoreflect.Message = (*fastReflection_GenesisState)(nil)
@@ -280,6 +333,12 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 			return
 		}
 	}
+	if len(x.CollateralOwnerships) != 0 {
+		value := protoreflect.ValueOfList(&_GenesisState_6_list{list: &x.CollateralOwnerships})
+		if !f(fd_GenesisState_collateral_ownerships, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -305,6 +364,8 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 		return len(x.Withdrawals) != 0
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		return len(x.LastValidatorPowers) != 0
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		return len(x.CollateralOwnerships) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -331,6 +392,8 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 		x.Withdrawals = nil
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		x.LastValidatorPowers = nil
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		x.CollateralOwnerships = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -371,6 +434,12 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		}
 		listValue := &_GenesisState_5_list{list: &x.LastValidatorPowers}
 		return protoreflect.ValueOfList(listValue)
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		if len(x.CollateralOwnerships) == 0 {
+			return protoreflect.ValueOfList(&_GenesisState_6_list{})
+		}
+		listValue := &_GenesisState_6_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -407,6 +476,10 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 		lv := value.List()
 		clv := lv.(*_GenesisState_5_list)
 		x.LastValidatorPowers = *clv.list
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		lv := value.List()
+		clv := lv.(*_GenesisState_6_list)
+		x.CollateralOwnerships = *clv.list
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -450,6 +523,12 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		}
 		value := &_GenesisState_5_list{list: &x.LastValidatorPowers}
 		return protoreflect.ValueOfList(value)
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		if x.CollateralOwnerships == nil {
+			x.CollateralOwnerships = []*CollateralOwnership{}
+		}
+		value := &_GenesisState_6_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(value)
 	case "mitosis.evmvalidator.v1.GenesisState.validator_entrypoint_contract_addr":
 		panic(fmt.Errorf("field validator_entrypoint_contract_addr of message mitosis.evmvalidator.v1.GenesisState is not mutable"))
 	default:
@@ -479,6 +558,9 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 	case "mitosis.evmvalidator.v1.GenesisState.last_validator_powers":
 		list := []*LastValidatorPower{}
 		return protoreflect.ValueOfList(&_GenesisState_5_list{list: &list})
+	case "mitosis.evmvalidator.v1.GenesisState.collateral_ownerships":
+		list := []*CollateralOwnership{}
+		return protoreflect.ValueOfList(&_GenesisState_6_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.GenesisState"))
@@ -574,6 +656,12 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				n += 1 + l + runtime.Sov(uint64(l))
 			}
 		}
+		if len(x.CollateralOwnerships) > 0 {
+			for _, e := range x.CollateralOwnerships {
+				l = options.Size(e)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -602,6 +690,22 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.CollateralOwnerships) > 0 {
+			for iNdEx := len(x.CollateralOwnerships) - 1; iNdEx >= 0; iNdEx-- {
+				encoded, err := options.Marshal(x.CollateralOwnerships[iNdEx])
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0x32
+			}
 		}
 		if len(x.LastValidatorPowers) > 0 {
 			for iNdEx := len(x.LastValidatorPowers) - 1; iNdEx >= 0; iNdEx-- {
@@ -893,6 +997,40 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
+			case 6:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnerships", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.CollateralOwnerships = append(x.CollateralOwnerships, &CollateralOwnership{})
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CollateralOwnerships[len(x.CollateralOwnerships)-1]); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -958,6 +1096,8 @@ type GenesisState struct {
 	Withdrawals []*Withdrawal `protobuf:"bytes,4,rep,name=withdrawals,proto3" json:"withdrawals,omitempty"`
 	// last_validator_powers is the list of the last powers of each validator
 	LastValidatorPowers []*LastValidatorPower `protobuf:"bytes,5,rep,name=last_validator_powers,json=lastValidatorPowers,proto3" json:"last_validator_powers,omitempty"`
+	// collateral_ownerships is the list of collateral ownership records
+	CollateralOwnerships []*CollateralOwnership `protobuf:"bytes,6,rep,name=collateral_ownerships,json=collateralOwnerships,proto3" json:"collateral_ownerships,omitempty"`
 }
 
 func (x *GenesisState) Reset() {
@@ -1015,6 +1155,13 @@ func (x *GenesisState) GetLastValidatorPowers() []*LastValidatorPower {
 	return nil
 }
 
+func (x *GenesisState) GetCollateralOwnerships() []*CollateralOwnership {
+	if x != nil {
+		return x.CollateralOwnerships
+	}
+	return nil
+}
+
 var File_mitosis_evmvalidator_v1_genesis_proto protoreflect.FileDescriptor
 
 var file_mitosis_evmvalidator_v1_genesis_proto_rawDesc = []byte{
@@ -1028,7 +1175,7 @@ var file_mitosis_evmvalidator_v1_genesis_proto_rawDesc = []byte{
 	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x27, 0x6d, 0x69,
 	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
 	0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd0, 0x03, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xb9, 0x04, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
 	0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x3d, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
 	0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31,
@@ -1057,22 +1204,28 @@ var file_mitosis_evmvalidator_v1_genesis_proto_rawDesc = []byte{
 	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x61, 0x73, 0x74, 0x56,
 	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x42, 0x04, 0xc8,
 	0xde, 0x1f, 0x00, 0x52, 0x13, 0x6c, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x73, 0x42, 0xe2, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d,
-	0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69,
-	0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73,
-	0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f,
-	0x76, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76,
-	0x31, 0xa2, 0x02, 0x03, 0x4d, 0x45, 0x58, 0xaa, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69,
-	0x73, 0x2e, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56,
-	0x31, 0xca, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76,
-	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69,
-	0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
-	0x61, 0xea, 0x02, 0x19, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x73, 0x12, 0x67, 0x0a, 0x15, 0x63, 0x6f, 0x6c, 0x6c,
+	0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x73, 0x18, 0x06, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65,
+	0x72, 0x73, 0x68, 0x69, 0x70, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x14, 0x63, 0x6f, 0x6c,
+	0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x73, 0x42, 0xe2, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
+	0x01, 0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4d, 0x45, 0x58,
+	0xaa, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x17, 0x4d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45,
+	0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47,
+	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x19, 0x4d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1089,22 +1242,24 @@ func file_mitosis_evmvalidator_v1_genesis_proto_rawDescGZIP() []byte {
 
 var file_mitosis_evmvalidator_v1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_mitosis_evmvalidator_v1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil),       // 0: mitosis.evmvalidator.v1.GenesisState
-	(*Params)(nil),             // 1: mitosis.evmvalidator.v1.Params
-	(*Validator)(nil),          // 2: mitosis.evmvalidator.v1.Validator
-	(*Withdrawal)(nil),         // 3: mitosis.evmvalidator.v1.Withdrawal
-	(*LastValidatorPower)(nil), // 4: mitosis.evmvalidator.v1.LastValidatorPower
+	(*GenesisState)(nil),        // 0: mitosis.evmvalidator.v1.GenesisState
+	(*Params)(nil),              // 1: mitosis.evmvalidator.v1.Params
+	(*Validator)(nil),           // 2: mitosis.evmvalidator.v1.Validator
+	(*Withdrawal)(nil),          // 3: mitosis.evmvalidator.v1.Withdrawal
+	(*LastValidatorPower)(nil),  // 4: mitosis.evmvalidator.v1.LastValidatorPower
+	(*CollateralOwnership)(nil), // 5: mitosis.evmvalidator.v1.CollateralOwnership
 }
 var file_mitosis_evmvalidator_v1_genesis_proto_depIdxs = []int32{
 	1, // 0: mitosis.evmvalidator.v1.GenesisState.params:type_name -> mitosis.evmvalidator.v1.Params
 	2, // 1: mitosis.evmvalidator.v1.GenesisState.validators:type_name -> mitosis.evmvalidator.v1.Validator
 	3, // 2: mitosis.evmvalidator.v1.GenesisState.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
 	4, // 3: mitosis.evmvalidator.v1.GenesisState.last_validator_powers:type_name -> mitosis.evmvalidator.v1.LastValidatorPower
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 4: mitosis.evmvalidator.v1.GenesisState.collateral_ownerships:type_name -> mitosis.evmvalidator.v1.CollateralOwnership
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_mitosis_evmvalidator_v1_genesis_proto_init() }

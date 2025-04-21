@@ -31,7 +31,7 @@ var (
 
 // ConsensusValidatorEntrypointMetaData contains all meta data concerning the ConsensusValidatorEntrypoint contract.
 var ConsensusValidatorEntrypointMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"fallback\",\"stateMutability\":\"payable\"},{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"UPGRADE_INTERFACE_VERSION\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"acceptOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"depositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collateralRefundAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"owner_\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isPermittedCaller\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"pendingOwner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"proxiableUUID\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"registerValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"collateralRefundAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setPermittedCaller\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"unjail\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateExtraVotingPower\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"extraVotingPower\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"upgradeToAndCall\",\"inputs\":[{\"name\":\"newImplementation\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"data\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"withdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"maturesAt\",\"type\":\"uint48\",\"internalType\":\"uint48\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgDepositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"amountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"collateralRefundAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgRegisterValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"},{\"name\":\"initialCollateralAmountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"collateralRefundAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgUnjail\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgUpdateExtraVotingPower\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"extraVotingPowerWei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgWithdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"amountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"maturesAt\",\"type\":\"uint48\",\"indexed\":false,\"internalType\":\"uint48\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferStarted\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"PermittedCallerSet\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Upgraded\",\"inputs\":[{\"name\":\"implementation\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC1967InvalidImplementation\",\"inputs\":[{\"name\":\"implementation\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC1967NonPayable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"FailedCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidParameter\",\"inputs\":[{\"name\":\"description\",\"type\":\"string\",\"internalType\":\"string\"}]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotSupported\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"UUPSUnauthorizedCallContext\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"UUPSUnsupportedProxiableUUID\",\"inputs\":[{\"name\":\"slot\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}]},{\"type\":\"error\",\"name\":\"Unauthorized\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"fallback\",\"stateMutability\":\"payable\"},{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"UPGRADE_INTERFACE_VERSION\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"acceptOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"depositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"owner_\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isPermittedCaller\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"pendingOwner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"proxiableUUID\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"registerValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"initialCollateralOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setPermittedCaller\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferCollateralOwnership\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"prevOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"unjail\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateExtraVotingPower\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"extraVotingPower\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"upgradeToAndCall\",\"inputs\":[{\"name\":\"newImplementation\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"data\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"withdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maturesAt\",\"type\":\"uint48\",\"internalType\":\"uint48\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgDepositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"amountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgRegisterValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"},{\"name\":\"initialCollateralOwner\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"initialCollateralAmountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgTransferCollateralOwnership\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"prevOwner\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgUnjail\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgUpdateExtraVotingPower\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"extraVotingPowerWei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MsgWithdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"amountGwei\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"maturesAt\",\"type\":\"uint48\",\"indexed\":false,\"internalType\":\"uint48\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferStarted\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"PermittedCallerSet\",\"inputs\":[{\"name\":\"caller\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Upgraded\",\"inputs\":[{\"name\":\"implementation\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC1967InvalidImplementation\",\"inputs\":[{\"name\":\"implementation\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC1967NonPayable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"FailedCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidParameter\",\"inputs\":[{\"name\":\"description\",\"type\":\"string\",\"internalType\":\"string\"}]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotSupported\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"UUPSUnauthorizedCallContext\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"UUPSUnsupportedProxiableUUID\",\"inputs\":[{\"name\":\"slot\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}]},{\"type\":\"error\",\"name\":\"Unauthorized\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"ZeroAddress\",\"inputs\":[{\"name\":\"description\",\"type\":\"string\",\"internalType\":\"string\"}]}]",
 }
 
 // ConsensusValidatorEntrypointABI is the input ABI used to generate the binding from.
@@ -358,23 +358,23 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSessi
 
 // DepositCollateral is a paid mutator transaction binding the contract method 0x9a3d08fb.
 //
-// Solidity: function depositCollateral(address valAddr, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) DepositCollateral(opts *bind.TransactOpts, valAddr common.Address, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "depositCollateral", valAddr, collateralRefundAddr)
+// Solidity: function depositCollateral(address valAddr, address collateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) DepositCollateral(opts *bind.TransactOpts, valAddr common.Address, collateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "depositCollateral", valAddr, collateralOwner)
 }
 
 // DepositCollateral is a paid mutator transaction binding the contract method 0x9a3d08fb.
 //
-// Solidity: function depositCollateral(address valAddr, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) DepositCollateral(valAddr common.Address, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.DepositCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralRefundAddr)
+// Solidity: function depositCollateral(address valAddr, address collateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) DepositCollateral(valAddr common.Address, collateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.DepositCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralOwner)
 }
 
 // DepositCollateral is a paid mutator transaction binding the contract method 0x9a3d08fb.
 //
-// Solidity: function depositCollateral(address valAddr, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) DepositCollateral(valAddr common.Address, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.DepositCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralRefundAddr)
+// Solidity: function depositCollateral(address valAddr, address collateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) DepositCollateral(valAddr common.Address, collateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.DepositCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralOwner)
 }
 
 // Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
@@ -400,23 +400,23 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSessi
 
 // RegisterValidator is a paid mutator transaction binding the contract method 0xbc990314.
 //
-// Solidity: function registerValidator(address valAddr, bytes pubKey, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) RegisterValidator(opts *bind.TransactOpts, valAddr common.Address, pubKey []byte, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "registerValidator", valAddr, pubKey, collateralRefundAddr)
+// Solidity: function registerValidator(address valAddr, bytes pubKey, address initialCollateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) RegisterValidator(opts *bind.TransactOpts, valAddr common.Address, pubKey []byte, initialCollateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "registerValidator", valAddr, pubKey, initialCollateralOwner)
 }
 
 // RegisterValidator is a paid mutator transaction binding the contract method 0xbc990314.
 //
-// Solidity: function registerValidator(address valAddr, bytes pubKey, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) RegisterValidator(valAddr common.Address, pubKey []byte, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.RegisterValidator(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, pubKey, collateralRefundAddr)
+// Solidity: function registerValidator(address valAddr, bytes pubKey, address initialCollateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) RegisterValidator(valAddr common.Address, pubKey []byte, initialCollateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.RegisterValidator(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, pubKey, initialCollateralOwner)
 }
 
 // RegisterValidator is a paid mutator transaction binding the contract method 0xbc990314.
 //
-// Solidity: function registerValidator(address valAddr, bytes pubKey, address collateralRefundAddr) payable returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) RegisterValidator(valAddr common.Address, pubKey []byte, collateralRefundAddr common.Address) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.RegisterValidator(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, pubKey, collateralRefundAddr)
+// Solidity: function registerValidator(address valAddr, bytes pubKey, address initialCollateralOwner) payable returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) RegisterValidator(valAddr common.Address, pubKey []byte, initialCollateralOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.RegisterValidator(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, pubKey, initialCollateralOwner)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -459,6 +459,27 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) SetPer
 // Solidity: function setPermittedCaller(address caller, bool isPermitted) returns()
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) SetPermittedCaller(caller common.Address, isPermitted bool) (*types.Transaction, error) {
 	return _ConsensusValidatorEntrypoint.Contract.SetPermittedCaller(&_ConsensusValidatorEntrypoint.TransactOpts, caller, isPermitted)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x4fc85a0c.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address prevOwner, address newOwner) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) TransferCollateralOwnership(opts *bind.TransactOpts, valAddr common.Address, prevOwner common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "transferCollateralOwnership", valAddr, prevOwner, newOwner)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x4fc85a0c.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address prevOwner, address newOwner) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) TransferCollateralOwnership(valAddr common.Address, prevOwner common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.TransferCollateralOwnership(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, prevOwner, newOwner)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x4fc85a0c.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address prevOwner, address newOwner) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) TransferCollateralOwnership(valAddr common.Address, prevOwner common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.TransferCollateralOwnership(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, prevOwner, newOwner)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
@@ -545,25 +566,25 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSessi
 	return _ConsensusValidatorEntrypoint.Contract.UpgradeToAndCall(&_ConsensusValidatorEntrypoint.TransactOpts, newImplementation, data)
 }
 
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0xbfbac82b.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x59fbcd70.
 //
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount, address receiver, uint48 maturesAt) returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) WithdrawCollateral(opts *bind.TransactOpts, valAddr common.Address, amount *big.Int, receiver common.Address, maturesAt *big.Int) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "withdrawCollateral", valAddr, amount, receiver, maturesAt)
+// Solidity: function withdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amount, uint48 maturesAt) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactor) WithdrawCollateral(opts *bind.TransactOpts, valAddr common.Address, collateralOwner common.Address, receiver common.Address, amount *big.Int, maturesAt *big.Int) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.contract.Transact(opts, "withdrawCollateral", valAddr, collateralOwner, receiver, amount, maturesAt)
 }
 
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0xbfbac82b.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x59fbcd70.
 //
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount, address receiver, uint48 maturesAt) returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) WithdrawCollateral(valAddr common.Address, amount *big.Int, receiver common.Address, maturesAt *big.Int) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.WithdrawCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, amount, receiver, maturesAt)
+// Solidity: function withdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amount, uint48 maturesAt) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointSession) WithdrawCollateral(valAddr common.Address, collateralOwner common.Address, receiver common.Address, amount *big.Int, maturesAt *big.Int) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.WithdrawCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralOwner, receiver, amount, maturesAt)
 }
 
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0xbfbac82b.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x59fbcd70.
 //
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount, address receiver, uint48 maturesAt) returns()
-func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) WithdrawCollateral(valAddr common.Address, amount *big.Int, receiver common.Address, maturesAt *big.Int) (*types.Transaction, error) {
-	return _ConsensusValidatorEntrypoint.Contract.WithdrawCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, amount, receiver, maturesAt)
+// Solidity: function withdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amount, uint48 maturesAt) returns()
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointTransactorSession) WithdrawCollateral(valAddr common.Address, collateralOwner common.Address, receiver common.Address, amount *big.Int, maturesAt *big.Int) (*types.Transaction, error) {
+	return _ConsensusValidatorEntrypoint.Contract.WithdrawCollateral(&_ConsensusValidatorEntrypoint.TransactOpts, valAddr, collateralOwner, receiver, amount, maturesAt)
 }
 
 // Fallback is a paid mutator transaction binding the contract fallback function.
@@ -811,15 +832,15 @@ func (it *ConsensusValidatorEntrypointMsgDepositCollateralIterator) Close() erro
 
 // ConsensusValidatorEntrypointMsgDepositCollateral represents a MsgDepositCollateral event raised by the ConsensusValidatorEntrypoint contract.
 type ConsensusValidatorEntrypointMsgDepositCollateral struct {
-	ValAddr              common.Address
-	AmountGwei           *big.Int
-	CollateralRefundAddr common.Address
-	Raw                  types.Log // Blockchain specific contextual infos
+	ValAddr         common.Address
+	CollateralOwner common.Address
+	AmountGwei      *big.Int
+	Raw             types.Log // Blockchain specific contextual infos
 }
 
-// FilterMsgDepositCollateral is a free log retrieval operation binding the contract event 0x9fded7fa6972f3750aecfa8afb6f23e68b4e2e13703a579952f0c03a74fe8081.
+// FilterMsgDepositCollateral is a free log retrieval operation binding the contract event 0xa7ec5f2adeb921d4cf9f5086c7b8d1d983b5a72ab97d00cd0cf60006449e4cf2.
 //
-// Solidity: event MsgDepositCollateral(address valAddr, uint256 amountGwei, address collateralRefundAddr)
+// Solidity: event MsgDepositCollateral(address valAddr, address collateralOwner, uint256 amountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) FilterMsgDepositCollateral(opts *bind.FilterOpts) (*ConsensusValidatorEntrypointMsgDepositCollateralIterator, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.FilterLogs(opts, "MsgDepositCollateral")
@@ -829,9 +850,9 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Filte
 	return &ConsensusValidatorEntrypointMsgDepositCollateralIterator{contract: _ConsensusValidatorEntrypoint.contract, event: "MsgDepositCollateral", logs: logs, sub: sub}, nil
 }
 
-// WatchMsgDepositCollateral is a free log subscription operation binding the contract event 0x9fded7fa6972f3750aecfa8afb6f23e68b4e2e13703a579952f0c03a74fe8081.
+// WatchMsgDepositCollateral is a free log subscription operation binding the contract event 0xa7ec5f2adeb921d4cf9f5086c7b8d1d983b5a72ab97d00cd0cf60006449e4cf2.
 //
-// Solidity: event MsgDepositCollateral(address valAddr, uint256 amountGwei, address collateralRefundAddr)
+// Solidity: event MsgDepositCollateral(address valAddr, address collateralOwner, uint256 amountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) WatchMsgDepositCollateral(opts *bind.WatchOpts, sink chan<- *ConsensusValidatorEntrypointMsgDepositCollateral) (event.Subscription, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.WatchLogs(opts, "MsgDepositCollateral")
@@ -866,9 +887,9 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Watch
 	}), nil
 }
 
-// ParseMsgDepositCollateral is a log parse operation binding the contract event 0x9fded7fa6972f3750aecfa8afb6f23e68b4e2e13703a579952f0c03a74fe8081.
+// ParseMsgDepositCollateral is a log parse operation binding the contract event 0xa7ec5f2adeb921d4cf9f5086c7b8d1d983b5a72ab97d00cd0cf60006449e4cf2.
 //
-// Solidity: event MsgDepositCollateral(address valAddr, uint256 amountGwei, address collateralRefundAddr)
+// Solidity: event MsgDepositCollateral(address valAddr, address collateralOwner, uint256 amountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) ParseMsgDepositCollateral(log types.Log) (*ConsensusValidatorEntrypointMsgDepositCollateral, error) {
 	event := new(ConsensusValidatorEntrypointMsgDepositCollateral)
 	if err := _ConsensusValidatorEntrypoint.contract.UnpackLog(event, "MsgDepositCollateral", log); err != nil {
@@ -949,14 +970,14 @@ func (it *ConsensusValidatorEntrypointMsgRegisterValidatorIterator) Close() erro
 type ConsensusValidatorEntrypointMsgRegisterValidator struct {
 	ValAddr                     common.Address
 	PubKey                      []byte
+	InitialCollateralOwner      common.Address
 	InitialCollateralAmountGwei *big.Int
-	CollateralRefundAddr        common.Address
 	Raw                         types.Log // Blockchain specific contextual infos
 }
 
-// FilterMsgRegisterValidator is a free log retrieval operation binding the contract event 0xa47d4480bd3cdf9c3da0c96c67fb23c34d880ac45801cc860325850b611a34d6.
+// FilterMsgRegisterValidator is a free log retrieval operation binding the contract event 0x4eb098ea3e3d659c98c11bffb8d2a6d6d31607a54e122b807b42605247cdd5c6.
 //
-// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, uint256 initialCollateralAmountGwei, address collateralRefundAddr)
+// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, address initialCollateralOwner, uint256 initialCollateralAmountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) FilterMsgRegisterValidator(opts *bind.FilterOpts) (*ConsensusValidatorEntrypointMsgRegisterValidatorIterator, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.FilterLogs(opts, "MsgRegisterValidator")
@@ -966,9 +987,9 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Filte
 	return &ConsensusValidatorEntrypointMsgRegisterValidatorIterator{contract: _ConsensusValidatorEntrypoint.contract, event: "MsgRegisterValidator", logs: logs, sub: sub}, nil
 }
 
-// WatchMsgRegisterValidator is a free log subscription operation binding the contract event 0xa47d4480bd3cdf9c3da0c96c67fb23c34d880ac45801cc860325850b611a34d6.
+// WatchMsgRegisterValidator is a free log subscription operation binding the contract event 0x4eb098ea3e3d659c98c11bffb8d2a6d6d31607a54e122b807b42605247cdd5c6.
 //
-// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, uint256 initialCollateralAmountGwei, address collateralRefundAddr)
+// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, address initialCollateralOwner, uint256 initialCollateralAmountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) WatchMsgRegisterValidator(opts *bind.WatchOpts, sink chan<- *ConsensusValidatorEntrypointMsgRegisterValidator) (event.Subscription, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.WatchLogs(opts, "MsgRegisterValidator")
@@ -1003,12 +1024,148 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Watch
 	}), nil
 }
 
-// ParseMsgRegisterValidator is a log parse operation binding the contract event 0xa47d4480bd3cdf9c3da0c96c67fb23c34d880ac45801cc860325850b611a34d6.
+// ParseMsgRegisterValidator is a log parse operation binding the contract event 0x4eb098ea3e3d659c98c11bffb8d2a6d6d31607a54e122b807b42605247cdd5c6.
 //
-// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, uint256 initialCollateralAmountGwei, address collateralRefundAddr)
+// Solidity: event MsgRegisterValidator(address valAddr, bytes pubKey, address initialCollateralOwner, uint256 initialCollateralAmountGwei)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) ParseMsgRegisterValidator(log types.Log) (*ConsensusValidatorEntrypointMsgRegisterValidator, error) {
 	event := new(ConsensusValidatorEntrypointMsgRegisterValidator)
 	if err := _ConsensusValidatorEntrypoint.contract.UnpackLog(event, "MsgRegisterValidator", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator is returned from FilterMsgTransferCollateralOwnership and is used to iterate over the raw logs and unpacked data for MsgTransferCollateralOwnership events raised by the ConsensusValidatorEntrypoint contract.
+type ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator struct {
+	Event *ConsensusValidatorEntrypointMsgTransferCollateralOwnership // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(ConsensusValidatorEntrypointMsgTransferCollateralOwnership)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(ConsensusValidatorEntrypointMsgTransferCollateralOwnership)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// ConsensusValidatorEntrypointMsgTransferCollateralOwnership represents a MsgTransferCollateralOwnership event raised by the ConsensusValidatorEntrypoint contract.
+type ConsensusValidatorEntrypointMsgTransferCollateralOwnership struct {
+	ValAddr   common.Address
+	PrevOwner common.Address
+	NewOwner  common.Address
+	Raw       types.Log // Blockchain specific contextual infos
+}
+
+// FilterMsgTransferCollateralOwnership is a free log retrieval operation binding the contract event 0x9d6b2fb9b2bb5189c38dbcd4827c1d1af06009156feba0a43821e8a616d5bee3.
+//
+// Solidity: event MsgTransferCollateralOwnership(address valAddr, address prevOwner, address newOwner)
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) FilterMsgTransferCollateralOwnership(opts *bind.FilterOpts) (*ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator, error) {
+
+	logs, sub, err := _ConsensusValidatorEntrypoint.contract.FilterLogs(opts, "MsgTransferCollateralOwnership")
+	if err != nil {
+		return nil, err
+	}
+	return &ConsensusValidatorEntrypointMsgTransferCollateralOwnershipIterator{contract: _ConsensusValidatorEntrypoint.contract, event: "MsgTransferCollateralOwnership", logs: logs, sub: sub}, nil
+}
+
+// WatchMsgTransferCollateralOwnership is a free log subscription operation binding the contract event 0x9d6b2fb9b2bb5189c38dbcd4827c1d1af06009156feba0a43821e8a616d5bee3.
+//
+// Solidity: event MsgTransferCollateralOwnership(address valAddr, address prevOwner, address newOwner)
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) WatchMsgTransferCollateralOwnership(opts *bind.WatchOpts, sink chan<- *ConsensusValidatorEntrypointMsgTransferCollateralOwnership) (event.Subscription, error) {
+
+	logs, sub, err := _ConsensusValidatorEntrypoint.contract.WatchLogs(opts, "MsgTransferCollateralOwnership")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(ConsensusValidatorEntrypointMsgTransferCollateralOwnership)
+				if err := _ConsensusValidatorEntrypoint.contract.UnpackLog(event, "MsgTransferCollateralOwnership", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseMsgTransferCollateralOwnership is a log parse operation binding the contract event 0x9d6b2fb9b2bb5189c38dbcd4827c1d1af06009156feba0a43821e8a616d5bee3.
+//
+// Solidity: event MsgTransferCollateralOwnership(address valAddr, address prevOwner, address newOwner)
+func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) ParseMsgTransferCollateralOwnership(log types.Log) (*ConsensusValidatorEntrypointMsgTransferCollateralOwnership, error) {
+	event := new(ConsensusValidatorEntrypointMsgTransferCollateralOwnership)
+	if err := _ConsensusValidatorEntrypoint.contract.UnpackLog(event, "MsgTransferCollateralOwnership", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -1353,16 +1510,17 @@ func (it *ConsensusValidatorEntrypointMsgWithdrawCollateralIterator) Close() err
 
 // ConsensusValidatorEntrypointMsgWithdrawCollateral represents a MsgWithdrawCollateral event raised by the ConsensusValidatorEntrypoint contract.
 type ConsensusValidatorEntrypointMsgWithdrawCollateral struct {
-	ValAddr    common.Address
-	AmountGwei *big.Int
-	Receiver   common.Address
-	MaturesAt  *big.Int
-	Raw        types.Log // Blockchain specific contextual infos
+	ValAddr         common.Address
+	CollateralOwner common.Address
+	Receiver        common.Address
+	AmountGwei      *big.Int
+	MaturesAt       *big.Int
+	Raw             types.Log // Blockchain specific contextual infos
 }
 
-// FilterMsgWithdrawCollateral is a free log retrieval operation binding the contract event 0xa2f5c5687a98936a776591ca983c49720f98220a01257a1414160b7035b02e80.
+// FilterMsgWithdrawCollateral is a free log retrieval operation binding the contract event 0xbdab795133b31a218b5ed9311c4ba8d56ca979b26a525191ab0456ba45f94c70.
 //
-// Solidity: event MsgWithdrawCollateral(address valAddr, uint256 amountGwei, address receiver, uint48 maturesAt)
+// Solidity: event MsgWithdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amountGwei, uint48 maturesAt)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) FilterMsgWithdrawCollateral(opts *bind.FilterOpts) (*ConsensusValidatorEntrypointMsgWithdrawCollateralIterator, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.FilterLogs(opts, "MsgWithdrawCollateral")
@@ -1372,9 +1530,9 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Filte
 	return &ConsensusValidatorEntrypointMsgWithdrawCollateralIterator{contract: _ConsensusValidatorEntrypoint.contract, event: "MsgWithdrawCollateral", logs: logs, sub: sub}, nil
 }
 
-// WatchMsgWithdrawCollateral is a free log subscription operation binding the contract event 0xa2f5c5687a98936a776591ca983c49720f98220a01257a1414160b7035b02e80.
+// WatchMsgWithdrawCollateral is a free log subscription operation binding the contract event 0xbdab795133b31a218b5ed9311c4ba8d56ca979b26a525191ab0456ba45f94c70.
 //
-// Solidity: event MsgWithdrawCollateral(address valAddr, uint256 amountGwei, address receiver, uint48 maturesAt)
+// Solidity: event MsgWithdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amountGwei, uint48 maturesAt)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) WatchMsgWithdrawCollateral(opts *bind.WatchOpts, sink chan<- *ConsensusValidatorEntrypointMsgWithdrawCollateral) (event.Subscription, error) {
 
 	logs, sub, err := _ConsensusValidatorEntrypoint.contract.WatchLogs(opts, "MsgWithdrawCollateral")
@@ -1409,9 +1567,9 @@ func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) Watch
 	}), nil
 }
 
-// ParseMsgWithdrawCollateral is a log parse operation binding the contract event 0xa2f5c5687a98936a776591ca983c49720f98220a01257a1414160b7035b02e80.
+// ParseMsgWithdrawCollateral is a log parse operation binding the contract event 0xbdab795133b31a218b5ed9311c4ba8d56ca979b26a525191ab0456ba45f94c70.
 //
-// Solidity: event MsgWithdrawCollateral(address valAddr, uint256 amountGwei, address receiver, uint48 maturesAt)
+// Solidity: event MsgWithdrawCollateral(address valAddr, address collateralOwner, address receiver, uint256 amountGwei, uint48 maturesAt)
 func (_ConsensusValidatorEntrypoint *ConsensusValidatorEntrypointFilterer) ParseMsgWithdrawCollateral(log types.Log) (*ConsensusValidatorEntrypointMsgWithdrawCollateral, error) {
 	event := new(ConsensusValidatorEntrypointMsgWithdrawCollateral)
 	if err := _ConsensusValidatorEntrypoint.contract.UnpackLog(event, "MsgWithdrawCollateral", log); err != nil {

@@ -29,4 +29,8 @@ message GenesisState {
   // last_validator_powers is the list of the last powers of each validator
   repeated LastValidatorPower last_validator_powers = 5
       [ (gogoproto.nullable) = false ];
+
+  // collateral_ownerships is the list of collateral ownership records
+  repeated CollateralOwnership collateral_ownerships = 6
+      [ (gogoproto.nullable) = false ];
 }

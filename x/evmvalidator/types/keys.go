@@ -43,6 +43,9 @@ var (
 
 	// WithdrawalByValidatorKeyPrefix is the prefix for a withdrawal by validator address, maturesAt, and ID
 	WithdrawalByValidatorKeyPrefix = []byte{0x09}
+
+	// CollateralOwnershipKeyPrefix is the prefix for a collateral ownership by validator and owner
+	CollateralOwnershipKeyPrefix = []byte{0x0A}
 )
 
 // GetValidatorKey creates key for a validator from validator address
@@ -96,4 +99,23 @@ func GetWithdrawalByValidatorKey(valAddr mitotypes.EthAddress, maturesAt int64, 
 // GetWithdrawalByValidatorIterationKey creates a key for iterating withdrawals by validator and maturesAt
 func GetWithdrawalByValidatorIterationKey(valAddr mitotypes.EthAddress) []byte {
 	return append(WithdrawalByValidatorKeyPrefix, address.MustLengthPrefix(valAddr.Bytes())...)
+}
+
+// GetCollateralOwnershipKey creates a key for collateral ownership by validator and owner
+func GetCollateralOwnershipKey(valAddr mitotypes.EthAddress, owner mitotypes.EthAddress) []byte {
+	return append(
+		CollateralOwnershipKeyPrefix,
+		append(
+			address.MustLengthPrefix(valAddr.Bytes()),
+			address.MustLengthPrefix(owner.Bytes())...,
+		)...,
+	)
+}
+
+// GetCollateralOwnershipByValidatorIterationKey creates a key for iterating collateral ownerships by validator
+func GetCollateralOwnershipByValidatorIterationKey(valAddr mitotypes.EthAddress) []byte {
+	return append(
+		CollateralOwnershipKeyPrefix,
+		address.MustLengthPrefix(valAddr.Bytes())...,
+	)
 }
