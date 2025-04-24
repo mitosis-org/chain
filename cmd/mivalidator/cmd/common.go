@@ -3,6 +3,8 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/big"
@@ -12,6 +14,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/mitosis-org/chain/bindings"
@@ -27,6 +30,8 @@ var (
 	yes                          bool
 	nonce                        uint64
 	nonceSpecified               bool
+	generateUnsigned             bool
+	fromAddress                  string
 
 	// Shared client and contract instances
 	client   *ethclient.Client
@@ -40,10 +45,15 @@ func AddCommonFlags(cmd *cobra.Command, readonly bool) {
 	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Skip confirmation prompt")
 	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Manually specify nonce for transaction (optional)")
+	cmd.Flags().BoolVar(&generateUnsigned, "unsigned", false, "Generate unsigned transaction data instead of sending transaction")
+	cmd.Flags().StringVar(&fromAddress, "from", "", "From address for unsigned transaction (required when --unsigned is used)")
 
 	// Mark required flags
 	if !readonly {
-		cmd.MarkFlagRequired("private-key")
+		if cmd.Annotations == nil {
+			cmd.Annotations = make(map[string]string)
+		}
+		cmd.Annotations["private-key-required"] = "true"
 	}
 	cmd.MarkFlagRequired("contract")
 
@@ -65,6 +75,16 @@ func AddCommonFlags(cmd *cobra.Command, readonly bool) {
 		contract, err = GetValidatorManagerContract(client)
 		if err != nil {
 			log.Fatalf("%v", err)
+		}
+
+		// Check private key or unsigned mode
+		if !readonly && !generateUnsigned && privateKey == "" {
+			log.Fatalf("Either --private-key or --unsigned with --from must be provided")
+		}
+
+		// Check from address is provided when unsigned is used
+		if generateUnsigned && fromAddress == "" {
+			log.Fatalf("--from address is required when using --unsigned")
 		}
 
 		// Call the existing PreRun if it exists
@@ -105,41 +125,164 @@ func ConfirmAction(message string) bool {
 
 // TransactOpts creates transaction options for a contract call
 func TransactOpts(value *big.Int) *bind.TransactOpts {
-	// Get private key from the flag
-	privKey := utils.GetPrivateKey(privateKey)
+	// If generating unsigned transaction
+	if generateUnsigned {
+		// Parse from address
+		fromAddr := common.HexToAddress(fromAddress)
 
-	// Get address from private key
-	addr := common.BytesToAddress(ethcrypto.PubkeyToAddress(privKey.PublicKey).Bytes())
-
-	// Determine nonce - use specified nonce or get from client
-	var nVal uint64
-	var err error
-	if nonceSpecified {
-		nVal = nonce
-	} else {
-		nVal, err = client.PendingNonceAt(context.Background(), addr)
-		if err != nil {
-			panic(fmt.Errorf("failed to get nonce: %w", err))
+		// Determine nonce - use specified nonce or get from client
+		var nVal uint64
+		var err error
+		if nonceSpecified {
+			nVal = nonce
+		} else {
+			nVal, err = client.PendingNonceAt(context.Background(), fromAddr)
+			if err != nil {
+				panic(fmt.Errorf("failed to get nonce: %w", err))
+			}
 		}
-	}
 
-	// Get chain ID
+		// Create dummy signer that doesn't actually sign
+		opts := &bind.TransactOpts{
+			From:   fromAddr,
+			Nonce:  big.NewInt(int64(nVal)),
+			Value:  value,
+			NoSend: true,
+			Signer: func(address common.Address, tx *types.Transaction) (*types.Transaction, error) {
+				return tx, nil
+			},
+		}
+
+		return opts
+	} else {
+		// Regular transaction with private key
+		privKey := utils.GetPrivateKey(privateKey)
+
+		// Get address from private key
+		addr := common.BytesToAddress(ethcrypto.PubkeyToAddress(privKey.PublicKey).Bytes())
+
+		// Determine nonce - use specified nonce or get from client
+		var nVal uint64
+		var err error
+		if nonceSpecified {
+			nVal = nonce
+		} else {
+			nVal, err = client.PendingNonceAt(context.Background(), addr)
+			if err != nil {
+				panic(fmt.Errorf("failed to get nonce: %w", err))
+			}
+		}
+
+		// Get chain ID
+		chainID, err := client.ChainID(context.Background())
+		if err != nil {
+			panic(fmt.Errorf("failed to get chain ID: %w", err))
+		}
+
+		// Create transaction options
+		opts, err := bind.NewKeyedTransactorWithChainID(privKey, chainID)
+		if err != nil {
+			panic(fmt.Errorf("failed to create transaction options: %w", err))
+		}
+
+		// Set nonce and value
+		opts.Nonce = new(big.Int).SetUint64(nVal)
+		opts.Value = value
+
+		return opts
+	}
+}
+
+// PrintUnsignedTransaction formats and prints the unsigned transaction data in a JSON format
+func PrintUnsignedTransaction(tx *types.Transaction) {
+	// Extract chain ID for the transaction
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		panic(fmt.Errorf("failed to get chain ID: %w", err))
+		log.Fatalf("Failed to get chain ID: %v", err)
 	}
 
-	// Create transaction options
-	opts, err := bind.NewKeyedTransactorWithChainID(privKey, chainID)
-	if err != nil {
-		panic(fmt.Errorf("failed to create transaction options: %w", err))
+	// Convert binary data to hex string, keep type in hex format
+	typeHex := fmt.Sprintf("0x%x", tx.Type())
+	dataHex := "0x" + hex.EncodeToString(tx.Data())
+
+	var txJSON []byte
+
+	// Handle EIP-1559 transaction (type 2)
+	if tx.Type() == 2 {
+		// Define struct for type 2 transaction with specific field order
+		txData := struct {
+			Type                 string `json:"type"`
+			ChainID              string `json:"chainId"`
+			From                 string `json:"from"`
+			To                   string `json:"to"`
+			Value                string `json:"value"`
+			Data                 string `json:"data"`
+			Nonce                string `json:"nonce"`
+			Gas                  string `json:"gas"`
+			MaxFeePerGas         string `json:"maxFeePerGas"`
+			MaxPriorityFeePerGas string `json:"maxPriorityFeePerGas"`
+		}{
+			Type:                 typeHex,
+			ChainID:              chainID.String(),
+			From:                 fromAddress,
+			To:                   tx.To().Hex(),
+			Value:                tx.Value().String(),
+			Data:                 dataHex,
+			Nonce:                fmt.Sprintf("%d", tx.Nonce()),
+			Gas:                  fmt.Sprintf("%d", tx.Gas()),
+			MaxFeePerGas:         tx.GasFeeCap().String(),
+			MaxPriorityFeePerGas: tx.GasTipCap().String(),
+		}
+
+		// Marshal to JSON
+		txJSON, err = json.MarshalIndent(txData, "", "  ")
+		if err != nil {
+			log.Fatalf("Failed to marshal transaction to JSON: %v", err)
+		}
+	} else if tx.Type() == 0 { // Legacy transaction
+		// Define struct for legacy transaction with specific field order
+		txData := struct {
+			ChainID  string `json:"chainId"`
+			From     string `json:"from"`
+			To       string `json:"to"`
+			Value    string `json:"value"`
+			Data     string `json:"data"`
+			Nonce    string `json:"nonce"`
+			Gas      string `json:"gas"`
+			GasPrice string `json:"gasPrice"`
+		}{
+			ChainID:  chainID.String(),
+			From:     fromAddress,
+			To:       tx.To().Hex(),
+			Value:    tx.Value().String(),
+			Data:     dataHex,
+			Nonce:    fmt.Sprintf("%d", tx.Nonce()),
+			Gas:      fmt.Sprintf("%d", tx.Gas()),
+			GasPrice: tx.GasPrice().String(),
+		}
+
+		// Marshal to JSON
+		txJSON, err = json.MarshalIndent(txData, "", "  ")
+		if err != nil {
+			log.Fatalf("Failed to marshal transaction to JSON: %v", err)
+		}
+	} else {
+		log.Fatalf("Unsupported transaction type: %d. Only legacy (type 0) and EIP-1559 (type 2) transactions are supported.", tx.Type())
 	}
 
-	// Set nonce and value
-	opts.Nonce = new(big.Int).SetUint64(nVal)
-	opts.Value = value
+	fmt.Println("\n===== Unsigned Transaction Data =====")
+	fmt.Println(string(txJSON))
+	fmt.Println("\nThis transaction data can be signed offline with hardware wallets or other signing tools.")
+}
 
-	return opts
+// HandleTransaction processes a transaction - either printing unsigned data or sending and waiting for confirmation
+func HandleTransaction(tx *types.Transaction) error {
+	if generateUnsigned {
+		PrintUnsignedTransaction(tx)
+		return nil
+	} else {
+		return WaitForTxConfirmation(client, tx.Hash())
+	}
 }
 
 // WaitForTxConfirmation waits for a transaction to be mined and confirmed

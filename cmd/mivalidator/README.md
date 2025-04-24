@@ -27,10 +27,16 @@ The `--rpc-url` flag is required for all commands and specifies the Ethereum JSO
 The tool supports signing transactions using:
 
 - Private key (using the `--private-key` flag)
+- Generating unsigned transactions for offline signing (using the `--unsigned` and `--from` flags)
 
-Example:
+Example with private key:
 ```bash
 mivalidator update-operator --validator 0x123... --rpc-url https://rpc.example.com --contract <contract-address> --private-key <your-private-key> --operator <new-operator-address>
+```
+
+Example with unsigned transaction:
+```bash
+mivalidator update-operator --validator 0x123... --rpc-url https://rpc.example.com --contract <contract-address> --unsigned --from 0x456... --operator <new-operator-address>
 ```
 
 > ⚠️ **Security Warning**: Providing private keys on the command line is not secure as they may be stored in your shell history. Consider using environment variables or other secure methods to provide private keys.
@@ -198,3 +204,12 @@ For transaction-signing operations:
 --yes             Skip confirmation prompts (use with caution)
 --nonce           Manually specify nonce for transaction (optional)
 ```
+
+For offline signing (cold wallets):
+
+```
+--unsigned        Generate unsigned transaction data instead of sending transaction
+--from            From address for unsigned transaction (required when --unsigned is used)
+```
+
+When using the `--unsigned` flag, the tool will generate the transaction data in JSON format that can be signed offline using hardware wallets or other signing tools.

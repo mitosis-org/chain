@@ -50,8 +50,8 @@ func NewUnjailValidatorCmd() *cobra.Command {
 				log.Fatalf("Error unjailing validator: %v", err)
 			}
 
-			// Wait for transaction confirmation
-			err = WaitForTxConfirmation(client, tx.Hash())
+			// Handle transaction - either print unsigned or wait for confirmation
+			err = HandleTransaction(tx)
 			if err != nil {
 				log.Fatalf("Transaction failed: %v", err)
 			}
