@@ -182,6 +182,22 @@ mivalidator withdraw-collateral \
   --amount <amount-in-MITO>
 ```
 
+### Unjailing
+
+#### unjail-validator
+
+Unjail a validator that has been jailed due to downtime or other violations.
+
+**Required flags:** `--validator`, `--rpc-url`, `--contract`, `--private-key`
+
+```bash
+mivalidator unjail-validator \
+  --rpc-url <rpc-url> \
+  --contract <contract-address> \
+  --private-key <your-private-key> \
+  --validator <validator-address>
+```
+
 ## Common Options
 
 All commands support the following flags:
