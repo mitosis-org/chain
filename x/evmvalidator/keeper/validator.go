@@ -108,6 +108,10 @@ func (k Keeper) RegisterValidator(
 }
 
 func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, owner mitotypes.EthAddress, amount sdkmath.Uint) {
+	if amount.IsZero() {
+		return // nothing to deposit
+	}
+
 	// Calculate shares for this deposit
 	shares := types.CalculateCollateralSharesForDeposit(validator.Collateral, validator.CollateralShares, amount)
 

@@ -119,7 +119,7 @@ func (s *ValidatorSetTestSuite) Test_ApplyAndReturnValidatorSetUpdates_PowerChan
 	s.Require().True(found)
 
 	// Deposit more collateral to change power
-	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator1, math.NewUint(2000000000))
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator1, validator1.Addr, math.NewUint(2000000000))
 
 	// Apply updates with changes
 	updates, err = s.tk.Keeper.ApplyAndReturnValidatorSetUpdates(s.tk.Ctx)

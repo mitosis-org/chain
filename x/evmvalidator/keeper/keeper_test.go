@@ -46,6 +46,19 @@ func (s *KeeperTestSuite) createTestWithdrawal(
 	}
 }
 
+func (s *KeeperTestSuite) createTestCollateralOwnership(
+	valAddr mitotypes.EthAddress,
+	owner mitotypes.EthAddress,
+	shares math.Uint,
+) types.CollateralOwnership {
+	return types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          owner,
+		Shares:         shares,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+}
+
 func (s *KeeperTestSuite) Test_GetParams() {
 	params := s.tk.Keeper.GetParams(s.tk.Ctx)
 
@@ -124,6 +137,7 @@ func (s *KeeperTestSuite) Test_GetValidator() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
+		CollateralShares: collateral,
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      100,
 		Jailed:           false,
@@ -152,6 +166,7 @@ func (s *KeeperTestSuite) Test_HasValidator() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      100,
 		Jailed:           false,
@@ -177,6 +192,7 @@ func (s *KeeperTestSuite) Test_SetValidator() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
+		CollateralShares: collateral,
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      100,
 		Jailed:           false,
@@ -200,6 +216,7 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(5000000000),
+		CollateralShares: math.NewUint(5000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      5,
 		Jailed:           false,
@@ -213,6 +230,7 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(3000000000),
+		CollateralShares: math.NewUint(3000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      3,
 		Jailed:           false,
@@ -226,6 +244,7 @@ func (s *KeeperTestSuite) Test_IterateValidators_() {
 		Addr:             valAddr3,
 		Pubkey:           pubkey3,
 		Collateral:       math.NewUint(2000000000),
+		CollateralShares: math.NewUint(2000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      2,
 		Jailed:           true, // Jailed validator
@@ -280,6 +299,7 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(5000000000),
+		CollateralShares: math.NewUint(5000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      5,
 		Jailed:           false,
@@ -293,6 +313,7 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(3000000000),
+		CollateralShares: math.NewUint(3000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      3,
 		Jailed:           false,
@@ -306,6 +327,7 @@ func (s *KeeperTestSuite) Test_GetAllValidators() {
 		Addr:             valAddr3,
 		Pubkey:           pubkey3,
 		Collateral:       math.NewUint(2000000000),
+		CollateralShares: math.NewUint(2000000000),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      2,
 		Jailed:           true, // Jailed validator
@@ -365,30 +387,30 @@ func (s *KeeperTestSuite) Test_GetNotJailedValidatorsByPower() {
 	s.Require().NoError(err)
 
 	// Register validators with different powers
-	// Generate validator 1 with power 5
+	// Register validator 1
 	_, pubkey1, valAddr1 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr1, pubkey1, math.NewUint(5000000000), math.ZeroUint(), false)
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr1, pubkey1, valAddr1, math.NewUint(5000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
 	validator1, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr1)
 	s.Require().True(found)
 
-	// Generate validator 2 with power 3
+	// Register validator 2
 	_, pubkey2, valAddr2 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr2, pubkey2, math.NewUint(3000000000), math.ZeroUint(), false)
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr2, pubkey2, valAddr2, math.NewUint(3000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
 	validator2, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr2)
 	s.Require().True(found)
 
-	// Generate validator 3 with power 2
+	// Register validator 3
 	_, pubkey3, valAddr3 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr3, pubkey3, math.NewUint(2000000000), math.ZeroUint(), false)
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr3, pubkey3, valAddr3, math.NewUint(2000000000), math.ZeroUint(), false)
 	s.Require().NoError(err)
 	validator3, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr3)
 	s.Require().True(found)
 
-	// Generate validator 4 with power 1, jailed
+	// Register validator 4 (jailed)
 	_, pubkey4, valAddr4 := testutil.GenerateSecp256k1Key()
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr4, pubkey4, math.NewUint(1000000000), math.ZeroUint(), true)
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr4, pubkey4, valAddr4, math.NewUint(1000000000), math.ZeroUint(), true)
 	s.Require().NoError(err)
 	_, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr4)
 	s.Require().True(found)
@@ -427,6 +449,7 @@ func (s *KeeperTestSuite) Test_GetValidatorByConsAddr() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
+		CollateralShares: collateral,
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      100,
 		Jailed:           false,
@@ -461,6 +484,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByConsAddr() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      100,
 		Jailed:           false,
@@ -492,6 +516,7 @@ func (s *KeeperTestSuite) Test_GetValidatorsByPowerIndexIterator() {
 		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      100,
 		Jailed:           false,
@@ -502,6 +527,7 @@ func (s *KeeperTestSuite) Test_GetValidatorsByPowerIndexIterator() {
 		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(2000000000),
+		CollateralShares: math.NewUint(2000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      200,
 		Jailed:           false,
@@ -539,6 +565,7 @@ func (s *KeeperTestSuite) Test_SetValidatorByPowerIndex() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      votingPower,
 		Jailed:           false,
@@ -581,6 +608,7 @@ func (s *KeeperTestSuite) Test_DeleteValidatorByPowerIndex() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      votingPower,
 		Jailed:           false,
@@ -711,6 +739,7 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 		Addr:             valAddr1,
 		Pubkey:           pubkey1,
 		Collateral:       math.NewUint(1000000000),
+		CollateralShares: math.NewUint(1000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      100,
 		Jailed:           false,
@@ -721,6 +750,7 @@ func (s *KeeperTestSuite) Test_IterateLastValidators() {
 		Addr:             valAddr2,
 		Pubkey:           pubkey2,
 		Collateral:       math.NewUint(2000000000),
+		CollateralShares: math.NewUint(2000000000),
 		ExtraVotingPower: math.NewUint(0),
 		VotingPower:      200,
 		Jailed:           false,
@@ -986,4 +1016,212 @@ func (s *KeeperTestSuite) Test_IterateWithdrawalsForValidator() {
 	// Should have 1 withdrawal for validator 2
 	s.Require().Equal(1, len(withdrawalsVal2))
 	s.Require().Equal(withdrawal3.ID, withdrawalsVal2[0].ID)
+}
+
+func (s *KeeperTestSuite) Test_GetCollateralOwnership() {
+	// Generate addresses
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+	ownerAddr := mitotypes.EthAddress(common.HexToAddress("0x1234567890123456789012345678901234567890"))
+	shares := math.NewUint(1000000000)
+
+	// Test GetCollateralOwnership when ownership doesn't exist
+	_, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().False(found)
+
+	// Create a collateral ownership
+	ownership := s.createTestCollateralOwnership(valAddr, ownerAddr, shares)
+
+	// Set the collateral ownership
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership)
+
+	// Test GetCollateralOwnership when ownership exists
+	gotOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+	s.Require().Equal(ownership, gotOwnership)
+}
+
+func (s *KeeperTestSuite) Test_SetCollateralOwnership() {
+	// Generate addresses
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+	ownerAddr := mitotypes.EthAddress(common.HexToAddress("0x1234567890123456789012345678901234567890"))
+	shares := math.NewUint(1000000000)
+
+	// Create a collateral ownership
+	ownership := s.createTestCollateralOwnership(valAddr, ownerAddr, shares)
+
+	// Set the collateral ownership
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership)
+
+	// Verify collateral ownership was set correctly
+	gotOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+	s.Require().Equal(ownership, gotOwnership)
+
+	// Update shares
+	newShares := math.NewUint(2000000000)
+	updatedOwnership := s.createTestCollateralOwnership(valAddr, ownerAddr, newShares)
+
+	// Set the updated collateral ownership
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, updatedOwnership)
+
+	// Verify collateral ownership was updated
+	gotOwnership, found = s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+	s.Require().Equal(updatedOwnership, gotOwnership)
+	s.Require().Equal(newShares, gotOwnership.Shares)
+}
+
+func (s *KeeperTestSuite) Test_DeleteCollateralOwnership() {
+	// Generate addresses
+	_, _, valAddr := testutil.GenerateSecp256k1Key()
+	ownerAddr := mitotypes.EthAddress(common.HexToAddress("0x1234567890123456789012345678901234567890"))
+	shares := math.NewUint(1000000000)
+
+	// Create a collateral ownership
+	ownership := s.createTestCollateralOwnership(valAddr, ownerAddr, shares)
+
+	// Set the collateral ownership
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership)
+
+	// Verify collateral ownership exists
+	_, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+
+	// Delete the collateral ownership
+	s.tk.Keeper.DeleteCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+
+	// Verify collateral ownership was deleted
+	_, found = s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().False(found)
+}
+
+func (s *KeeperTestSuite) Test_IterateCollateralOwnerships() {
+	// Generate validator addresses
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
+
+	// Generate owner addresses
+	owner1 := mitotypes.EthAddress(common.HexToAddress("0x1111111111111111111111111111111111111111"))
+	owner2 := mitotypes.EthAddress(common.HexToAddress("0x2222222222222222222222222222222222222222"))
+	owner3 := mitotypes.EthAddress(common.HexToAddress("0x3333333333333333333333333333333333333333"))
+
+	// Create collateral ownerships
+	ownership1 := s.createTestCollateralOwnership(valAddr1, owner1, math.NewUint(1000000000))
+	ownership2 := s.createTestCollateralOwnership(valAddr1, owner2, math.NewUint(2000000000))
+	ownership3 := s.createTestCollateralOwnership(valAddr2, owner3, math.NewUint(3000000000))
+
+	// Set the collateral ownerships
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership1)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership2)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership3)
+
+	// Collect all ownerships through iteration
+	var collectedOwnerships []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralOwnerships(s.tk.Ctx, func(ownership types.CollateralOwnership) bool {
+		collectedOwnerships = append(collectedOwnerships, ownership)
+		return false // continue iteration
+	})
+
+	// Verify all ownerships were collected
+	s.Require().Len(collectedOwnerships, 3)
+	s.Require().Contains(collectedOwnerships, ownership1)
+	s.Require().Contains(collectedOwnerships, ownership2)
+	s.Require().Contains(collectedOwnerships, ownership3)
+
+	// Test early termination
+	collectedOwnerships = nil
+	s.tk.Keeper.IterateCollateralOwnerships(s.tk.Ctx, func(ownership types.CollateralOwnership) bool {
+		collectedOwnerships = append(collectedOwnerships, ownership)
+		return true // stop iteration after first item
+	})
+
+	s.Require().Len(collectedOwnerships, 1)
+}
+
+func (s *KeeperTestSuite) Test_IterateCollateralByValidator() {
+	// Generate validator addresses
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
+
+	// Generate owner addresses
+	owner1 := mitotypes.EthAddress(common.HexToAddress("0x1111111111111111111111111111111111111111"))
+	owner2 := mitotypes.EthAddress(common.HexToAddress("0x2222222222222222222222222222222222222222"))
+	owner3 := mitotypes.EthAddress(common.HexToAddress("0x3333333333333333333333333333333333333333"))
+
+	// Create collateral ownerships
+	ownership1 := s.createTestCollateralOwnership(valAddr1, owner1, math.NewUint(1000000000))
+	ownership2 := s.createTestCollateralOwnership(valAddr1, owner2, math.NewUint(2000000000))
+	ownership3 := s.createTestCollateralOwnership(valAddr2, owner3, math.NewUint(3000000000))
+
+	// Set the collateral ownerships
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership1)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership2)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership3)
+
+	// Collect ownerships for validator 1
+	var collectedOwnerships []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
+		collectedOwnerships = append(collectedOwnerships, ownership)
+		return false // continue iteration
+	})
+
+	// Verify only validator 1 ownerships were collected
+	s.Require().Len(collectedOwnerships, 2)
+	s.Require().Contains(collectedOwnerships, ownership1)
+	s.Require().Contains(collectedOwnerships, ownership2)
+	s.Require().NotContains(collectedOwnerships, ownership3)
+
+	// Collect ownerships for validator 2
+	collectedOwnerships = nil
+	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr2, func(ownership types.CollateralOwnership) bool {
+		collectedOwnerships = append(collectedOwnerships, ownership)
+		return false // continue iteration
+	})
+
+	// Verify only validator 2 ownerships were collected
+	s.Require().Len(collectedOwnerships, 1)
+	s.Require().Contains(collectedOwnerships, ownership3)
+
+	// Test early termination
+	collectedOwnerships = nil
+	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
+		collectedOwnerships = append(collectedOwnerships, ownership)
+		return true // stop iteration after first item
+	})
+
+	s.Require().Len(collectedOwnerships, 1)
+}
+
+func (s *KeeperTestSuite) Test_GetAllCollateralOwnerships() {
+	// Generate validator addresses
+	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
+	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
+
+	// Generate owner addresses
+	owner1 := mitotypes.EthAddress(common.HexToAddress("0x1111111111111111111111111111111111111111"))
+	owner2 := mitotypes.EthAddress(common.HexToAddress("0x2222222222222222222222222222222222222222"))
+	owner3 := mitotypes.EthAddress(common.HexToAddress("0x3333333333333333333333333333333333333333"))
+
+	// Create collateral ownerships
+	ownership1 := s.createTestCollateralOwnership(valAddr1, owner1, math.NewUint(1000000000))
+	ownership2 := s.createTestCollateralOwnership(valAddr1, owner2, math.NewUint(2000000000))
+	ownership3 := s.createTestCollateralOwnership(valAddr2, owner3, math.NewUint(3000000000))
+
+	// Initial check should return empty slice
+	initialOwnerships := s.tk.Keeper.GetAllCollateralOwnerships(s.tk.Ctx)
+	s.Require().Empty(initialOwnerships)
+
+	// Set the collateral ownerships
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership1)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership2)
+	s.tk.Keeper.SetCollateralOwnership(s.tk.Ctx, ownership3)
+
+	// Get all collateral ownerships
+	allOwnerships := s.tk.Keeper.GetAllCollateralOwnerships(s.tk.Ctx)
+
+	// Verify all ownerships were returned
+	s.Require().Len(allOwnerships, 3)
+	s.Require().Contains(allOwnerships, ownership1)
+	s.Require().Contains(allOwnerships, ownership2)
+	s.Require().Contains(allOwnerships, ownership3)
 }
