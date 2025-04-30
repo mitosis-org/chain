@@ -93,7 +93,7 @@ func newGovernanceExecuteCmd() *cobra.Command {
 	}
 
 	// Command-specific flags
-	executeCmd.Flags().StringVar(&rpcURL, "rpc", "http://localhost:8545", "Ethereum RPC URL")
+	executeCmd.Flags().StringVar(&rpcURL, "rpc-url", "http://localhost:8545", "Ethereum RPC URL")
 	executeCmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions")
 	executeCmd.Flags().StringVar(&msgFile, "msg-file", "", "A file containing JSON messages")
 	executeCmd.Flags().StringVar(&msgString, "msg", "", "JSON message string")

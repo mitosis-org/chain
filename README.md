@@ -179,3 +179,9 @@ make devnet-down
 # It also removes the initialization data which is created by `make devnet-init`.
 make devnet-clean
 ```
+
+## Tools
+
+### Validator Operations
+
+For managing validators in the Mitosis network, please see the [Validator CLI documentation](cmd/mivalidator/README.md).
