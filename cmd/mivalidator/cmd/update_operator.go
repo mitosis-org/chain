@@ -49,17 +49,18 @@ func NewUpdateOperatorCmd() *cobra.Command {
 			fmt.Printf("Validator Address            : %s\n", valAddr.Hex())
 			fmt.Printf("Current Operator             : %s\n", validatorInfo.Operator.Hex())
 			fmt.Printf("New Operator                 : %s\n", operatorAddr.Hex())
-			fmt.Printf("Current Withdrawal Recipient : %s\n", validatorInfo.WithdrawalRecipient.Hex())
 			fmt.Printf("Current Reward Manager       : %s\n", validatorInfo.RewardManager.Hex())
 
 			// Show important warning about other updates that might be needed
 			fmt.Println("\n🚨 IMPORTANT WARNING 🚨")
 			fmt.Println("When changing the operator address, you may also want to update:")
-			fmt.Println("1. Withdrawal Recipient - To ensure funds are sent to the correct address")
-			fmt.Println("2. Reward Manager - To ensure rewards are managed by the correct entity")
+			fmt.Println("1. Reward Manager - To ensure rewards are managed by the correct entity")
+			fmt.Println("2. Collateral Ownership - To manage who can deposit or withdraw collateral")
 			fmt.Println("\nAfter this operation completes, consider using:")
-			fmt.Printf("  - mivalidator update-withdrawal-recipient --validator %s --recipient <new-address>\n", valAddr.Hex())
 			fmt.Printf("  - mivalidator update-reward-manager --validator %s --reward-manager <new-address>\n", valAddr.Hex())
+			fmt.Printf("  - mivalidator set-permitted-collateral-owner --validator %s --collateral-owner <old-address> --permitted false\n", valAddr.Hex())
+			fmt.Printf("  - mivalidator set-permitted-collateral-owner --validator %s --collateral-owner <new-address> --permitted true\n", valAddr.Hex())
+			fmt.Printf("  - mivalidator transfer-collateral-ownership --validator %s --new-owner <new-address>\n", valAddr.Hex())
 
 			// Ask for confirmation
 			if !ConfirmAction("Do you want to update the operator address?") {

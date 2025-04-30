@@ -31,11 +31,10 @@ var (
 
 // IValidatorManagerCreateValidatorRequest is an auto generated low-level Go binding around an user-defined struct.
 type IValidatorManagerCreateValidatorRequest struct {
-	Operator            common.Address
-	RewardManager       common.Address
-	WithdrawalRecipient common.Address
-	CommissionRate      *big.Int
-	Metadata            []byte
+	Operator       common.Address
+	RewardManager  common.Address
+	CommissionRate *big.Int
+	Metadata       []byte
 }
 
 // IValidatorManagerGlobalValidatorConfigResponse is an auto generated low-level Go binding around an user-defined struct.
@@ -61,18 +60,17 @@ type IValidatorManagerUpdateRewardConfigRequest struct {
 
 // IValidatorManagerValidatorInfoResponse is an auto generated low-level Go binding around an user-defined struct.
 type IValidatorManagerValidatorInfoResponse struct {
-	ValAddr             common.Address
-	PubKey              []byte
-	Operator            common.Address
-	RewardManager       common.Address
-	WithdrawalRecipient common.Address
-	CommissionRate      *big.Int
-	Metadata            []byte
+	ValAddr        common.Address
+	PubKey         []byte
+	Operator       common.Address
+	RewardManager  common.Address
+	CommissionRate *big.Int
+	Metadata       []byte
 }
 
 // IValidatorManagerMetaData contains all meta data concerning the IValidatorManager contract.
 var IValidatorManagerMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"function\",\"name\":\"MAX_COMMISSION_RATE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"createValidator\",\"inputs\":[{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.CreateValidatorRequest\",\"components\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"withdrawalRecipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"depositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"entrypoint\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIConsensusValidatorEntrypoint\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"epochFeeder\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIEpochFeeder\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"fee\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"globalValidatorConfig\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.GlobalValidatorConfigResponse\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"setFee\",\"inputs\":[{\"name\":\"fee\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setGlobalValidatorConfig\",\"inputs\":[{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.SetGlobalValidatorConfigRequest\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"unjailValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"updateMetadata\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateOperator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateRewardConfig\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.UpdateRewardConfigRequest\",\"components\":[{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateRewardManager\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateWithdrawalRecipient\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"withdrawalRecipient\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"validatorAt\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorCount\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorInfo\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.ValidatorInfoResponse\",\"components\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"withdrawalRecipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorInfoAt\",\"inputs\":[{\"name\":\"epoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.ValidatorInfoResponse\",\"components\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"withdrawalRecipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorPubKeyToAddress\",\"inputs\":[{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"pure\"},{\"type\":\"function\",\"name\":\"withdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"event\",\"name\":\"CollateralDeposited\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"depositor\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"CollateralWithdrawn\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"recipient\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"EntrypointUpdated\",\"inputs\":[{\"name\":\"entrypoint\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"contractIConsensusValidatorEntrypoint\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"EpochFeederUpdated\",\"inputs\":[{\"name\":\"epochFeeder\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"contractIEpochFeeder\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"FeePaid\",\"inputs\":[{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"FeeSet\",\"inputs\":[{\"name\":\"previousFee\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"newFee\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"GlobalValidatorConfigUpdated\",\"inputs\":[{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.SetGlobalValidatorConfigRequest\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MetadataUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OperatorUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardConfigUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.UpdateRewardConfigRequest\",\"components\":[{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardManagerUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ValidatorCreated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"},{\"name\":\"initialDeposit\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.CreateValidatorRequest\",\"components\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"withdrawalRecipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ValidatorUnjailed\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawalRecipientUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"recipient\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"IValidatorManager__InsufficientFee\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"function\",\"name\":\"MAX_COMMISSION_RATE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"createValidator\",\"inputs\":[{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.CreateValidatorRequest\",\"components\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"depositCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"entrypoint\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIConsensusValidatorEntrypoint\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"epochFeeder\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIEpochFeeder\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"fee\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"globalValidatorConfig\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.GlobalValidatorConfigResponse\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isPermittedCollateralOwner\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"setFee\",\"inputs\":[{\"name\":\"fee\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setGlobalValidatorConfig\",\"inputs\":[{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.SetGlobalValidatorConfigRequest\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setPermittedCollateralOwner\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferCollateralOwnership\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"unjailValidator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"updateMetadata\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateOperator\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateRewardConfig\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"request\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.UpdateRewardConfigRequest\",\"components\":[{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateRewardManager\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"validatorAt\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorCount\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorInfo\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.ValidatorInfoResponse\",\"components\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorInfoAt\",\"inputs\":[{\"name\":\"epoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIValidatorManager.ValidatorInfoResponse\",\"components\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validatorPubKeyToAddress\",\"inputs\":[{\"name\":\"pubKey\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"pure\"},{\"type\":\"function\",\"name\":\"withdrawCollateral\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"event\",\"name\":\"CollateralDeposited\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"CollateralOwnershipTransferred\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"prevOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"CollateralWithdrawn\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"EntrypointUpdated\",\"inputs\":[{\"name\":\"entrypoint\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"contractIConsensusValidatorEntrypoint\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"EpochFeederUpdated\",\"inputs\":[{\"name\":\"epochFeeder\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"contractIEpochFeeder\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"FeePaid\",\"inputs\":[{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"FeeSet\",\"inputs\":[{\"name\":\"previousFee\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"newFee\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"GlobalValidatorConfigUpdated\",\"inputs\":[{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.SetGlobalValidatorConfigRequest\",\"components\":[{\"name\":\"initialValidatorDeposit\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"collateralWithdrawalDelaySeconds\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minimumCommissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"commissionRateUpdateDelayEpoch\",\"type\":\"uint96\",\"internalType\":\"uint96\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MetadataUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OperatorUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"PermittedCollateralOwnerSet\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"collateralOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"isPermitted\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardConfigUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.UpdateRewardConfigRequest\",\"components\":[{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardManagerUpdated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ValidatorCreated\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"pubKey\",\"type\":\"bytes\",\"indexed\":false,\"internalType\":\"bytes\"},{\"name\":\"initialDeposit\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"request\",\"type\":\"tuple\",\"indexed\":false,\"internalType\":\"structIValidatorManager.CreateValidatorRequest\",\"components\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"rewardManager\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"commissionRate\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"metadata\",\"type\":\"bytes\",\"internalType\":\"bytes\"}]}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ValidatorUnjailed\",\"inputs\":[{\"name\":\"valAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"IValidatorManager__InsufficientFee\",\"inputs\":[]}]",
 }
 
 // IValidatorManagerABI is the input ABI used to generate the binding from.
@@ -376,6 +374,37 @@ func (_IValidatorManager *IValidatorManagerCallerSession) GlobalValidatorConfig(
 	return _IValidatorManager.Contract.GlobalValidatorConfig(&_IValidatorManager.CallOpts)
 }
 
+// IsPermittedCollateralOwner is a free data retrieval call binding the contract method 0xffdb3f70.
+//
+// Solidity: function isPermittedCollateralOwner(address valAddr, address collateralOwner) view returns(bool)
+func (_IValidatorManager *IValidatorManagerCaller) IsPermittedCollateralOwner(opts *bind.CallOpts, valAddr common.Address, collateralOwner common.Address) (bool, error) {
+	var out []interface{}
+	err := _IValidatorManager.contract.Call(opts, &out, "isPermittedCollateralOwner", valAddr, collateralOwner)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsPermittedCollateralOwner is a free data retrieval call binding the contract method 0xffdb3f70.
+//
+// Solidity: function isPermittedCollateralOwner(address valAddr, address collateralOwner) view returns(bool)
+func (_IValidatorManager *IValidatorManagerSession) IsPermittedCollateralOwner(valAddr common.Address, collateralOwner common.Address) (bool, error) {
+	return _IValidatorManager.Contract.IsPermittedCollateralOwner(&_IValidatorManager.CallOpts, valAddr, collateralOwner)
+}
+
+// IsPermittedCollateralOwner is a free data retrieval call binding the contract method 0xffdb3f70.
+//
+// Solidity: function isPermittedCollateralOwner(address valAddr, address collateralOwner) view returns(bool)
+func (_IValidatorManager *IValidatorManagerCallerSession) IsPermittedCollateralOwner(valAddr common.Address, collateralOwner common.Address) (bool, error) {
+	return _IValidatorManager.Contract.IsPermittedCollateralOwner(&_IValidatorManager.CallOpts, valAddr, collateralOwner)
+}
+
 // IsValidator is a free data retrieval call binding the contract method 0xfacd743b.
 //
 // Solidity: function isValidator(address valAddr) view returns(bool)
@@ -471,7 +500,7 @@ func (_IValidatorManager *IValidatorManagerCallerSession) ValidatorCount() (*big
 
 // ValidatorInfo is a free data retrieval call binding the contract method 0x4f1811dd.
 //
-// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerCaller) ValidatorInfo(opts *bind.CallOpts, valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	var out []interface{}
 	err := _IValidatorManager.contract.Call(opts, &out, "validatorInfo", valAddr)
@@ -488,21 +517,21 @@ func (_IValidatorManager *IValidatorManagerCaller) ValidatorInfo(opts *bind.Call
 
 // ValidatorInfo is a free data retrieval call binding the contract method 0x4f1811dd.
 //
-// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerSession) ValidatorInfo(valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	return _IValidatorManager.Contract.ValidatorInfo(&_IValidatorManager.CallOpts, valAddr)
 }
 
 // ValidatorInfo is a free data retrieval call binding the contract method 0x4f1811dd.
 //
-// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfo(address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerCallerSession) ValidatorInfo(valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	return _IValidatorManager.Contract.ValidatorInfo(&_IValidatorManager.CallOpts, valAddr)
 }
 
 // ValidatorInfoAt is a free data retrieval call binding the contract method 0xf91f7e80.
 //
-// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerCaller) ValidatorInfoAt(opts *bind.CallOpts, epoch *big.Int, valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	var out []interface{}
 	err := _IValidatorManager.contract.Call(opts, &out, "validatorInfoAt", epoch, valAddr)
@@ -519,14 +548,14 @@ func (_IValidatorManager *IValidatorManagerCaller) ValidatorInfoAt(opts *bind.Ca
 
 // ValidatorInfoAt is a free data retrieval call binding the contract method 0xf91f7e80.
 //
-// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerSession) ValidatorInfoAt(epoch *big.Int, valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	return _IValidatorManager.Contract.ValidatorInfoAt(&_IValidatorManager.CallOpts, epoch, valAddr)
 }
 
 // ValidatorInfoAt is a free data retrieval call binding the contract method 0xf91f7e80.
 //
-// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,address,uint256,bytes))
+// Solidity: function validatorInfoAt(uint256 epoch, address valAddr) view returns((address,bytes,address,address,uint256,bytes))
 func (_IValidatorManager *IValidatorManagerCallerSession) ValidatorInfoAt(epoch *big.Int, valAddr common.Address) (IValidatorManagerValidatorInfoResponse, error) {
 	return _IValidatorManager.Contract.ValidatorInfoAt(&_IValidatorManager.CallOpts, epoch, valAddr)
 }
@@ -562,23 +591,23 @@ func (_IValidatorManager *IValidatorManagerCallerSession) ValidatorPubKeyToAddre
 	return _IValidatorManager.Contract.ValidatorPubKeyToAddress(&_IValidatorManager.CallOpts, pubKey)
 }
 
-// CreateValidator is a paid mutator transaction binding the contract method 0xc883a0b7.
+// CreateValidator is a paid mutator transaction binding the contract method 0x563d3e95.
 //
-// Solidity: function createValidator(bytes pubKey, (address,address,address,uint256,bytes) request) payable returns()
+// Solidity: function createValidator(bytes pubKey, (address,address,uint256,bytes) request) payable returns()
 func (_IValidatorManager *IValidatorManagerTransactor) CreateValidator(opts *bind.TransactOpts, pubKey []byte, request IValidatorManagerCreateValidatorRequest) (*types.Transaction, error) {
 	return _IValidatorManager.contract.Transact(opts, "createValidator", pubKey, request)
 }
 
-// CreateValidator is a paid mutator transaction binding the contract method 0xc883a0b7.
+// CreateValidator is a paid mutator transaction binding the contract method 0x563d3e95.
 //
-// Solidity: function createValidator(bytes pubKey, (address,address,address,uint256,bytes) request) payable returns()
+// Solidity: function createValidator(bytes pubKey, (address,address,uint256,bytes) request) payable returns()
 func (_IValidatorManager *IValidatorManagerSession) CreateValidator(pubKey []byte, request IValidatorManagerCreateValidatorRequest) (*types.Transaction, error) {
 	return _IValidatorManager.Contract.CreateValidator(&_IValidatorManager.TransactOpts, pubKey, request)
 }
 
-// CreateValidator is a paid mutator transaction binding the contract method 0xc883a0b7.
+// CreateValidator is a paid mutator transaction binding the contract method 0x563d3e95.
 //
-// Solidity: function createValidator(bytes pubKey, (address,address,address,uint256,bytes) request) payable returns()
+// Solidity: function createValidator(bytes pubKey, (address,address,uint256,bytes) request) payable returns()
 func (_IValidatorManager *IValidatorManagerTransactorSession) CreateValidator(pubKey []byte, request IValidatorManagerCreateValidatorRequest) (*types.Transaction, error) {
 	return _IValidatorManager.Contract.CreateValidator(&_IValidatorManager.TransactOpts, pubKey, request)
 }
@@ -644,6 +673,48 @@ func (_IValidatorManager *IValidatorManagerSession) SetGlobalValidatorConfig(req
 // Solidity: function setGlobalValidatorConfig((uint256,uint256,uint256,uint96) request) returns()
 func (_IValidatorManager *IValidatorManagerTransactorSession) SetGlobalValidatorConfig(request IValidatorManagerSetGlobalValidatorConfigRequest) (*types.Transaction, error) {
 	return _IValidatorManager.Contract.SetGlobalValidatorConfig(&_IValidatorManager.TransactOpts, request)
+}
+
+// SetPermittedCollateralOwner is a paid mutator transaction binding the contract method 0xff5b8f52.
+//
+// Solidity: function setPermittedCollateralOwner(address valAddr, address collateralOwner, bool isPermitted) returns()
+func (_IValidatorManager *IValidatorManagerTransactor) SetPermittedCollateralOwner(opts *bind.TransactOpts, valAddr common.Address, collateralOwner common.Address, isPermitted bool) (*types.Transaction, error) {
+	return _IValidatorManager.contract.Transact(opts, "setPermittedCollateralOwner", valAddr, collateralOwner, isPermitted)
+}
+
+// SetPermittedCollateralOwner is a paid mutator transaction binding the contract method 0xff5b8f52.
+//
+// Solidity: function setPermittedCollateralOwner(address valAddr, address collateralOwner, bool isPermitted) returns()
+func (_IValidatorManager *IValidatorManagerSession) SetPermittedCollateralOwner(valAddr common.Address, collateralOwner common.Address, isPermitted bool) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.SetPermittedCollateralOwner(&_IValidatorManager.TransactOpts, valAddr, collateralOwner, isPermitted)
+}
+
+// SetPermittedCollateralOwner is a paid mutator transaction binding the contract method 0xff5b8f52.
+//
+// Solidity: function setPermittedCollateralOwner(address valAddr, address collateralOwner, bool isPermitted) returns()
+func (_IValidatorManager *IValidatorManagerTransactorSession) SetPermittedCollateralOwner(valAddr common.Address, collateralOwner common.Address, isPermitted bool) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.SetPermittedCollateralOwner(&_IValidatorManager.TransactOpts, valAddr, collateralOwner, isPermitted)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x6dc493b2.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address newOwner) payable returns()
+func (_IValidatorManager *IValidatorManagerTransactor) TransferCollateralOwnership(opts *bind.TransactOpts, valAddr common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _IValidatorManager.contract.Transact(opts, "transferCollateralOwnership", valAddr, newOwner)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x6dc493b2.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address newOwner) payable returns()
+func (_IValidatorManager *IValidatorManagerSession) TransferCollateralOwnership(valAddr common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.TransferCollateralOwnership(&_IValidatorManager.TransactOpts, valAddr, newOwner)
+}
+
+// TransferCollateralOwnership is a paid mutator transaction binding the contract method 0x6dc493b2.
+//
+// Solidity: function transferCollateralOwnership(address valAddr, address newOwner) payable returns()
+func (_IValidatorManager *IValidatorManagerTransactorSession) TransferCollateralOwnership(valAddr common.Address, newOwner common.Address) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.TransferCollateralOwnership(&_IValidatorManager.TransactOpts, valAddr, newOwner)
 }
 
 // UnjailValidator is a paid mutator transaction binding the contract method 0x7cafdd79.
@@ -751,46 +822,25 @@ func (_IValidatorManager *IValidatorManagerTransactorSession) UpdateRewardManage
 	return _IValidatorManager.Contract.UpdateRewardManager(&_IValidatorManager.TransactOpts, valAddr, rewardManager)
 }
 
-// UpdateWithdrawalRecipient is a paid mutator transaction binding the contract method 0x1c44e7ed.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x2ae8bdfe.
 //
-// Solidity: function updateWithdrawalRecipient(address valAddr, address withdrawalRecipient) returns()
-func (_IValidatorManager *IValidatorManagerTransactor) UpdateWithdrawalRecipient(opts *bind.TransactOpts, valAddr common.Address, withdrawalRecipient common.Address) (*types.Transaction, error) {
-	return _IValidatorManager.contract.Transact(opts, "updateWithdrawalRecipient", valAddr, withdrawalRecipient)
+// Solidity: function withdrawCollateral(address valAddr, address receiver, uint256 amount) payable returns()
+func (_IValidatorManager *IValidatorManagerTransactor) WithdrawCollateral(opts *bind.TransactOpts, valAddr common.Address, receiver common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _IValidatorManager.contract.Transact(opts, "withdrawCollateral", valAddr, receiver, amount)
 }
 
-// UpdateWithdrawalRecipient is a paid mutator transaction binding the contract method 0x1c44e7ed.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x2ae8bdfe.
 //
-// Solidity: function updateWithdrawalRecipient(address valAddr, address withdrawalRecipient) returns()
-func (_IValidatorManager *IValidatorManagerSession) UpdateWithdrawalRecipient(valAddr common.Address, withdrawalRecipient common.Address) (*types.Transaction, error) {
-	return _IValidatorManager.Contract.UpdateWithdrawalRecipient(&_IValidatorManager.TransactOpts, valAddr, withdrawalRecipient)
+// Solidity: function withdrawCollateral(address valAddr, address receiver, uint256 amount) payable returns()
+func (_IValidatorManager *IValidatorManagerSession) WithdrawCollateral(valAddr common.Address, receiver common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.WithdrawCollateral(&_IValidatorManager.TransactOpts, valAddr, receiver, amount)
 }
 
-// UpdateWithdrawalRecipient is a paid mutator transaction binding the contract method 0x1c44e7ed.
+// WithdrawCollateral is a paid mutator transaction binding the contract method 0x2ae8bdfe.
 //
-// Solidity: function updateWithdrawalRecipient(address valAddr, address withdrawalRecipient) returns()
-func (_IValidatorManager *IValidatorManagerTransactorSession) UpdateWithdrawalRecipient(valAddr common.Address, withdrawalRecipient common.Address) (*types.Transaction, error) {
-	return _IValidatorManager.Contract.UpdateWithdrawalRecipient(&_IValidatorManager.TransactOpts, valAddr, withdrawalRecipient)
-}
-
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0x350c35e9.
-//
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount) payable returns()
-func (_IValidatorManager *IValidatorManagerTransactor) WithdrawCollateral(opts *bind.TransactOpts, valAddr common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IValidatorManager.contract.Transact(opts, "withdrawCollateral", valAddr, amount)
-}
-
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0x350c35e9.
-//
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount) payable returns()
-func (_IValidatorManager *IValidatorManagerSession) WithdrawCollateral(valAddr common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IValidatorManager.Contract.WithdrawCollateral(&_IValidatorManager.TransactOpts, valAddr, amount)
-}
-
-// WithdrawCollateral is a paid mutator transaction binding the contract method 0x350c35e9.
-//
-// Solidity: function withdrawCollateral(address valAddr, uint256 amount) payable returns()
-func (_IValidatorManager *IValidatorManagerTransactorSession) WithdrawCollateral(valAddr common.Address, amount *big.Int) (*types.Transaction, error) {
-	return _IValidatorManager.Contract.WithdrawCollateral(&_IValidatorManager.TransactOpts, valAddr, amount)
+// Solidity: function withdrawCollateral(address valAddr, address receiver, uint256 amount) payable returns()
+func (_IValidatorManager *IValidatorManagerTransactorSession) WithdrawCollateral(valAddr common.Address, receiver common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _IValidatorManager.Contract.WithdrawCollateral(&_IValidatorManager.TransactOpts, valAddr, receiver, amount)
 }
 
 // IValidatorManagerCollateralDepositedIterator is returned from FilterCollateralDeposited and is used to iterate over the raw logs and unpacked data for CollateralDeposited events raised by the IValidatorManager contract.
@@ -862,27 +912,27 @@ func (it *IValidatorManagerCollateralDepositedIterator) Close() error {
 
 // IValidatorManagerCollateralDeposited represents a CollateralDeposited event raised by the IValidatorManager contract.
 type IValidatorManagerCollateralDeposited struct {
-	ValAddr   common.Address
-	Depositor common.Address
-	Amount    *big.Int
-	Raw       types.Log // Blockchain specific contextual infos
+	ValAddr         common.Address
+	CollateralOwner common.Address
+	Amount          *big.Int
+	Raw             types.Log // Blockchain specific contextual infos
 }
 
 // FilterCollateralDeposited is a free log retrieval operation binding the contract event 0xf1c0dd7e9b98bbff859029005ef89b127af049cd18df1a8d79f0b7e019911e56.
 //
-// Solidity: event CollateralDeposited(address indexed valAddr, address indexed depositor, uint256 amount)
-func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralDeposited(opts *bind.FilterOpts, valAddr []common.Address, depositor []common.Address) (*IValidatorManagerCollateralDepositedIterator, error) {
+// Solidity: event CollateralDeposited(address indexed valAddr, address indexed collateralOwner, uint256 amount)
+func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralDeposited(opts *bind.FilterOpts, valAddr []common.Address, collateralOwner []common.Address) (*IValidatorManagerCollateralDepositedIterator, error) {
 
 	var valAddrRule []interface{}
 	for _, valAddrItem := range valAddr {
 		valAddrRule = append(valAddrRule, valAddrItem)
 	}
-	var depositorRule []interface{}
-	for _, depositorItem := range depositor {
-		depositorRule = append(depositorRule, depositorItem)
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
 	}
 
-	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "CollateralDeposited", valAddrRule, depositorRule)
+	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "CollateralDeposited", valAddrRule, collateralOwnerRule)
 	if err != nil {
 		return nil, err
 	}
@@ -891,19 +941,19 @@ func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralDeposited(o
 
 // WatchCollateralDeposited is a free log subscription operation binding the contract event 0xf1c0dd7e9b98bbff859029005ef89b127af049cd18df1a8d79f0b7e019911e56.
 //
-// Solidity: event CollateralDeposited(address indexed valAddr, address indexed depositor, uint256 amount)
-func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralDeposited(opts *bind.WatchOpts, sink chan<- *IValidatorManagerCollateralDeposited, valAddr []common.Address, depositor []common.Address) (event.Subscription, error) {
+// Solidity: event CollateralDeposited(address indexed valAddr, address indexed collateralOwner, uint256 amount)
+func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralDeposited(opts *bind.WatchOpts, sink chan<- *IValidatorManagerCollateralDeposited, valAddr []common.Address, collateralOwner []common.Address) (event.Subscription, error) {
 
 	var valAddrRule []interface{}
 	for _, valAddrItem := range valAddr {
 		valAddrRule = append(valAddrRule, valAddrItem)
 	}
-	var depositorRule []interface{}
-	for _, depositorItem := range depositor {
-		depositorRule = append(depositorRule, depositorItem)
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
 	}
 
-	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "CollateralDeposited", valAddrRule, depositorRule)
+	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "CollateralDeposited", valAddrRule, collateralOwnerRule)
 	if err != nil {
 		return nil, err
 	}
@@ -937,10 +987,172 @@ func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralDeposited(op
 
 // ParseCollateralDeposited is a log parse operation binding the contract event 0xf1c0dd7e9b98bbff859029005ef89b127af049cd18df1a8d79f0b7e019911e56.
 //
-// Solidity: event CollateralDeposited(address indexed valAddr, address indexed depositor, uint256 amount)
+// Solidity: event CollateralDeposited(address indexed valAddr, address indexed collateralOwner, uint256 amount)
 func (_IValidatorManager *IValidatorManagerFilterer) ParseCollateralDeposited(log types.Log) (*IValidatorManagerCollateralDeposited, error) {
 	event := new(IValidatorManagerCollateralDeposited)
 	if err := _IValidatorManager.contract.UnpackLog(event, "CollateralDeposited", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// IValidatorManagerCollateralOwnershipTransferredIterator is returned from FilterCollateralOwnershipTransferred and is used to iterate over the raw logs and unpacked data for CollateralOwnershipTransferred events raised by the IValidatorManager contract.
+type IValidatorManagerCollateralOwnershipTransferredIterator struct {
+	Event *IValidatorManagerCollateralOwnershipTransferred // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *IValidatorManagerCollateralOwnershipTransferredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(IValidatorManagerCollateralOwnershipTransferred)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(IValidatorManagerCollateralOwnershipTransferred)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *IValidatorManagerCollateralOwnershipTransferredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *IValidatorManagerCollateralOwnershipTransferredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// IValidatorManagerCollateralOwnershipTransferred represents a CollateralOwnershipTransferred event raised by the IValidatorManager contract.
+type IValidatorManagerCollateralOwnershipTransferred struct {
+	ValAddr   common.Address
+	PrevOwner common.Address
+	NewOwner  common.Address
+	Raw       types.Log // Blockchain specific contextual infos
+}
+
+// FilterCollateralOwnershipTransferred is a free log retrieval operation binding the contract event 0x288b14dfbb673c9e5a0306e1d25f8d5de514f34d09717ac44667d1b53d37c90f.
+//
+// Solidity: event CollateralOwnershipTransferred(address indexed valAddr, address indexed prevOwner, address indexed newOwner)
+func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralOwnershipTransferred(opts *bind.FilterOpts, valAddr []common.Address, prevOwner []common.Address, newOwner []common.Address) (*IValidatorManagerCollateralOwnershipTransferredIterator, error) {
+
+	var valAddrRule []interface{}
+	for _, valAddrItem := range valAddr {
+		valAddrRule = append(valAddrRule, valAddrItem)
+	}
+	var prevOwnerRule []interface{}
+	for _, prevOwnerItem := range prevOwner {
+		prevOwnerRule = append(prevOwnerRule, prevOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "CollateralOwnershipTransferred", valAddrRule, prevOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &IValidatorManagerCollateralOwnershipTransferredIterator{contract: _IValidatorManager.contract, event: "CollateralOwnershipTransferred", logs: logs, sub: sub}, nil
+}
+
+// WatchCollateralOwnershipTransferred is a free log subscription operation binding the contract event 0x288b14dfbb673c9e5a0306e1d25f8d5de514f34d09717ac44667d1b53d37c90f.
+//
+// Solidity: event CollateralOwnershipTransferred(address indexed valAddr, address indexed prevOwner, address indexed newOwner)
+func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *IValidatorManagerCollateralOwnershipTransferred, valAddr []common.Address, prevOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var valAddrRule []interface{}
+	for _, valAddrItem := range valAddr {
+		valAddrRule = append(valAddrRule, valAddrItem)
+	}
+	var prevOwnerRule []interface{}
+	for _, prevOwnerItem := range prevOwner {
+		prevOwnerRule = append(prevOwnerRule, prevOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "CollateralOwnershipTransferred", valAddrRule, prevOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(IValidatorManagerCollateralOwnershipTransferred)
+				if err := _IValidatorManager.contract.UnpackLog(event, "CollateralOwnershipTransferred", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseCollateralOwnershipTransferred is a log parse operation binding the contract event 0x288b14dfbb673c9e5a0306e1d25f8d5de514f34d09717ac44667d1b53d37c90f.
+//
+// Solidity: event CollateralOwnershipTransferred(address indexed valAddr, address indexed prevOwner, address indexed newOwner)
+func (_IValidatorManager *IValidatorManagerFilterer) ParseCollateralOwnershipTransferred(log types.Log) (*IValidatorManagerCollateralOwnershipTransferred, error) {
+	event := new(IValidatorManagerCollateralOwnershipTransferred)
+	if err := _IValidatorManager.contract.UnpackLog(event, "CollateralOwnershipTransferred", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -1016,48 +1228,57 @@ func (it *IValidatorManagerCollateralWithdrawnIterator) Close() error {
 
 // IValidatorManagerCollateralWithdrawn represents a CollateralWithdrawn event raised by the IValidatorManager contract.
 type IValidatorManagerCollateralWithdrawn struct {
-	ValAddr   common.Address
-	Recipient common.Address
-	Amount    *big.Int
-	Raw       types.Log // Blockchain specific contextual infos
+	ValAddr         common.Address
+	CollateralOwner common.Address
+	Receiver        common.Address
+	Amount          *big.Int
+	Raw             types.Log // Blockchain specific contextual infos
 }
 
-// FilterCollateralWithdrawn is a free log retrieval operation binding the contract event 0x45892a46e6cef329bb642da6d69846d324db43d19008edc141ed82382eda1bee.
+// FilterCollateralWithdrawn is a free log retrieval operation binding the contract event 0x066ba4a8f1b0176abba8cd70012fabcaa801a97916823e068d94ec15deb9037a.
 //
-// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed recipient, uint256 amount)
-func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralWithdrawn(opts *bind.FilterOpts, valAddr []common.Address, recipient []common.Address) (*IValidatorManagerCollateralWithdrawnIterator, error) {
+// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed collateralOwner, address indexed receiver, uint256 amount)
+func (_IValidatorManager *IValidatorManagerFilterer) FilterCollateralWithdrawn(opts *bind.FilterOpts, valAddr []common.Address, collateralOwner []common.Address, receiver []common.Address) (*IValidatorManagerCollateralWithdrawnIterator, error) {
 
 	var valAddrRule []interface{}
 	for _, valAddrItem := range valAddr {
 		valAddrRule = append(valAddrRule, valAddrItem)
 	}
-	var recipientRule []interface{}
-	for _, recipientItem := range recipient {
-		recipientRule = append(recipientRule, recipientItem)
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
+	}
+	var receiverRule []interface{}
+	for _, receiverItem := range receiver {
+		receiverRule = append(receiverRule, receiverItem)
 	}
 
-	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "CollateralWithdrawn", valAddrRule, recipientRule)
+	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "CollateralWithdrawn", valAddrRule, collateralOwnerRule, receiverRule)
 	if err != nil {
 		return nil, err
 	}
 	return &IValidatorManagerCollateralWithdrawnIterator{contract: _IValidatorManager.contract, event: "CollateralWithdrawn", logs: logs, sub: sub}, nil
 }
 
-// WatchCollateralWithdrawn is a free log subscription operation binding the contract event 0x45892a46e6cef329bb642da6d69846d324db43d19008edc141ed82382eda1bee.
+// WatchCollateralWithdrawn is a free log subscription operation binding the contract event 0x066ba4a8f1b0176abba8cd70012fabcaa801a97916823e068d94ec15deb9037a.
 //
-// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed recipient, uint256 amount)
-func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralWithdrawn(opts *bind.WatchOpts, sink chan<- *IValidatorManagerCollateralWithdrawn, valAddr []common.Address, recipient []common.Address) (event.Subscription, error) {
+// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed collateralOwner, address indexed receiver, uint256 amount)
+func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralWithdrawn(opts *bind.WatchOpts, sink chan<- *IValidatorManagerCollateralWithdrawn, valAddr []common.Address, collateralOwner []common.Address, receiver []common.Address) (event.Subscription, error) {
 
 	var valAddrRule []interface{}
 	for _, valAddrItem := range valAddr {
 		valAddrRule = append(valAddrRule, valAddrItem)
 	}
-	var recipientRule []interface{}
-	for _, recipientItem := range recipient {
-		recipientRule = append(recipientRule, recipientItem)
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
+	}
+	var receiverRule []interface{}
+	for _, receiverItem := range receiver {
+		receiverRule = append(receiverRule, receiverItem)
 	}
 
-	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "CollateralWithdrawn", valAddrRule, recipientRule)
+	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "CollateralWithdrawn", valAddrRule, collateralOwnerRule, receiverRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1089,9 +1310,9 @@ func (_IValidatorManager *IValidatorManagerFilterer) WatchCollateralWithdrawn(op
 	}), nil
 }
 
-// ParseCollateralWithdrawn is a log parse operation binding the contract event 0x45892a46e6cef329bb642da6d69846d324db43d19008edc141ed82382eda1bee.
+// ParseCollateralWithdrawn is a log parse operation binding the contract event 0x066ba4a8f1b0176abba8cd70012fabcaa801a97916823e068d94ec15deb9037a.
 //
-// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed recipient, uint256 amount)
+// Solidity: event CollateralWithdrawn(address indexed valAddr, address indexed collateralOwner, address indexed receiver, uint256 amount)
 func (_IValidatorManager *IValidatorManagerFilterer) ParseCollateralWithdrawn(log types.Log) (*IValidatorManagerCollateralWithdrawn, error) {
 	event := new(IValidatorManagerCollateralWithdrawn)
 	if err := _IValidatorManager.contract.UnpackLog(event, "CollateralWithdrawn", log); err != nil {
@@ -2099,6 +2320,160 @@ func (_IValidatorManager *IValidatorManagerFilterer) ParseOperatorUpdated(log ty
 	return event, nil
 }
 
+// IValidatorManagerPermittedCollateralOwnerSetIterator is returned from FilterPermittedCollateralOwnerSet and is used to iterate over the raw logs and unpacked data for PermittedCollateralOwnerSet events raised by the IValidatorManager contract.
+type IValidatorManagerPermittedCollateralOwnerSetIterator struct {
+	Event *IValidatorManagerPermittedCollateralOwnerSet // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *IValidatorManagerPermittedCollateralOwnerSetIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(IValidatorManagerPermittedCollateralOwnerSet)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(IValidatorManagerPermittedCollateralOwnerSet)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *IValidatorManagerPermittedCollateralOwnerSetIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *IValidatorManagerPermittedCollateralOwnerSetIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// IValidatorManagerPermittedCollateralOwnerSet represents a PermittedCollateralOwnerSet event raised by the IValidatorManager contract.
+type IValidatorManagerPermittedCollateralOwnerSet struct {
+	ValAddr         common.Address
+	CollateralOwner common.Address
+	IsPermitted     bool
+	Raw             types.Log // Blockchain specific contextual infos
+}
+
+// FilterPermittedCollateralOwnerSet is a free log retrieval operation binding the contract event 0x5a6c62d25cf11d6a7747d4d484c6a460e5b30fec0f07192c179fcd435b1e25d4.
+//
+// Solidity: event PermittedCollateralOwnerSet(address indexed valAddr, address indexed collateralOwner, bool isPermitted)
+func (_IValidatorManager *IValidatorManagerFilterer) FilterPermittedCollateralOwnerSet(opts *bind.FilterOpts, valAddr []common.Address, collateralOwner []common.Address) (*IValidatorManagerPermittedCollateralOwnerSetIterator, error) {
+
+	var valAddrRule []interface{}
+	for _, valAddrItem := range valAddr {
+		valAddrRule = append(valAddrRule, valAddrItem)
+	}
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
+	}
+
+	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "PermittedCollateralOwnerSet", valAddrRule, collateralOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &IValidatorManagerPermittedCollateralOwnerSetIterator{contract: _IValidatorManager.contract, event: "PermittedCollateralOwnerSet", logs: logs, sub: sub}, nil
+}
+
+// WatchPermittedCollateralOwnerSet is a free log subscription operation binding the contract event 0x5a6c62d25cf11d6a7747d4d484c6a460e5b30fec0f07192c179fcd435b1e25d4.
+//
+// Solidity: event PermittedCollateralOwnerSet(address indexed valAddr, address indexed collateralOwner, bool isPermitted)
+func (_IValidatorManager *IValidatorManagerFilterer) WatchPermittedCollateralOwnerSet(opts *bind.WatchOpts, sink chan<- *IValidatorManagerPermittedCollateralOwnerSet, valAddr []common.Address, collateralOwner []common.Address) (event.Subscription, error) {
+
+	var valAddrRule []interface{}
+	for _, valAddrItem := range valAddr {
+		valAddrRule = append(valAddrRule, valAddrItem)
+	}
+	var collateralOwnerRule []interface{}
+	for _, collateralOwnerItem := range collateralOwner {
+		collateralOwnerRule = append(collateralOwnerRule, collateralOwnerItem)
+	}
+
+	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "PermittedCollateralOwnerSet", valAddrRule, collateralOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(IValidatorManagerPermittedCollateralOwnerSet)
+				if err := _IValidatorManager.contract.UnpackLog(event, "PermittedCollateralOwnerSet", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParsePermittedCollateralOwnerSet is a log parse operation binding the contract event 0x5a6c62d25cf11d6a7747d4d484c6a460e5b30fec0f07192c179fcd435b1e25d4.
+//
+// Solidity: event PermittedCollateralOwnerSet(address indexed valAddr, address indexed collateralOwner, bool isPermitted)
+func (_IValidatorManager *IValidatorManagerFilterer) ParsePermittedCollateralOwnerSet(log types.Log) (*IValidatorManagerPermittedCollateralOwnerSet, error) {
+	event := new(IValidatorManagerPermittedCollateralOwnerSet)
+	if err := _IValidatorManager.contract.UnpackLog(event, "PermittedCollateralOwnerSet", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 // IValidatorManagerRewardConfigUpdatedIterator is returned from FilterRewardConfigUpdated and is used to iterate over the raw logs and unpacked data for RewardConfigUpdated events raised by the IValidatorManager contract.
 type IValidatorManagerRewardConfigUpdatedIterator struct {
 	Event *IValidatorManagerRewardConfigUpdated // Event containing the contract specifics and raw log
@@ -2492,9 +2867,9 @@ type IValidatorManagerValidatorCreated struct {
 	Raw            types.Log // Blockchain specific contextual infos
 }
 
-// FilterValidatorCreated is a free log retrieval operation binding the contract event 0x2707028602f92fabeea22c9a85aacf912d326215752c36787a64b0eab8e8e8c8.
+// FilterValidatorCreated is a free log retrieval operation binding the contract event 0xea31a6b526e654addabe881c71ae41c42a8961f2ffa16a59311ca3d10b418497.
 //
-// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,address,uint256,bytes) request)
+// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,uint256,bytes) request)
 func (_IValidatorManager *IValidatorManagerFilterer) FilterValidatorCreated(opts *bind.FilterOpts, valAddr []common.Address, operator []common.Address) (*IValidatorManagerValidatorCreatedIterator, error) {
 
 	var valAddrRule []interface{}
@@ -2513,9 +2888,9 @@ func (_IValidatorManager *IValidatorManagerFilterer) FilterValidatorCreated(opts
 	return &IValidatorManagerValidatorCreatedIterator{contract: _IValidatorManager.contract, event: "ValidatorCreated", logs: logs, sub: sub}, nil
 }
 
-// WatchValidatorCreated is a free log subscription operation binding the contract event 0x2707028602f92fabeea22c9a85aacf912d326215752c36787a64b0eab8e8e8c8.
+// WatchValidatorCreated is a free log subscription operation binding the contract event 0xea31a6b526e654addabe881c71ae41c42a8961f2ffa16a59311ca3d10b418497.
 //
-// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,address,uint256,bytes) request)
+// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,uint256,bytes) request)
 func (_IValidatorManager *IValidatorManagerFilterer) WatchValidatorCreated(opts *bind.WatchOpts, sink chan<- *IValidatorManagerValidatorCreated, valAddr []common.Address, operator []common.Address) (event.Subscription, error) {
 
 	var valAddrRule []interface{}
@@ -2559,9 +2934,9 @@ func (_IValidatorManager *IValidatorManagerFilterer) WatchValidatorCreated(opts 
 	}), nil
 }
 
-// ParseValidatorCreated is a log parse operation binding the contract event 0x2707028602f92fabeea22c9a85aacf912d326215752c36787a64b0eab8e8e8c8.
+// ParseValidatorCreated is a log parse operation binding the contract event 0xea31a6b526e654addabe881c71ae41c42a8961f2ffa16a59311ca3d10b418497.
 //
-// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,address,uint256,bytes) request)
+// Solidity: event ValidatorCreated(address indexed valAddr, address indexed operator, bytes pubKey, uint256 initialDeposit, (address,address,uint256,bytes) request)
 func (_IValidatorManager *IValidatorManagerFilterer) ParseValidatorCreated(log types.Log) (*IValidatorManagerValidatorCreated, error) {
 	event := new(IValidatorManagerValidatorCreated)
 	if err := _IValidatorManager.contract.UnpackLog(event, "ValidatorCreated", log); err != nil {
@@ -2709,168 +3084,6 @@ func (_IValidatorManager *IValidatorManagerFilterer) WatchValidatorUnjailed(opts
 func (_IValidatorManager *IValidatorManagerFilterer) ParseValidatorUnjailed(log types.Log) (*IValidatorManagerValidatorUnjailed, error) {
 	event := new(IValidatorManagerValidatorUnjailed)
 	if err := _IValidatorManager.contract.UnpackLog(event, "ValidatorUnjailed", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-// IValidatorManagerWithdrawalRecipientUpdatedIterator is returned from FilterWithdrawalRecipientUpdated and is used to iterate over the raw logs and unpacked data for WithdrawalRecipientUpdated events raised by the IValidatorManager contract.
-type IValidatorManagerWithdrawalRecipientUpdatedIterator struct {
-	Event *IValidatorManagerWithdrawalRecipientUpdated // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *IValidatorManagerWithdrawalRecipientUpdatedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(IValidatorManagerWithdrawalRecipientUpdated)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(IValidatorManagerWithdrawalRecipientUpdated)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *IValidatorManagerWithdrawalRecipientUpdatedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *IValidatorManagerWithdrawalRecipientUpdatedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// IValidatorManagerWithdrawalRecipientUpdated represents a WithdrawalRecipientUpdated event raised by the IValidatorManager contract.
-type IValidatorManagerWithdrawalRecipientUpdated struct {
-	ValAddr   common.Address
-	Operator  common.Address
-	Recipient common.Address
-	Raw       types.Log // Blockchain specific contextual infos
-}
-
-// FilterWithdrawalRecipientUpdated is a free log retrieval operation binding the contract event 0xc9e0c9fc260d3006a1443854782eaf0e82f7d2aaef5ac2dd10234843c97cccb0.
-//
-// Solidity: event WithdrawalRecipientUpdated(address indexed valAddr, address indexed operator, address indexed recipient)
-func (_IValidatorManager *IValidatorManagerFilterer) FilterWithdrawalRecipientUpdated(opts *bind.FilterOpts, valAddr []common.Address, operator []common.Address, recipient []common.Address) (*IValidatorManagerWithdrawalRecipientUpdatedIterator, error) {
-
-	var valAddrRule []interface{}
-	for _, valAddrItem := range valAddr {
-		valAddrRule = append(valAddrRule, valAddrItem)
-	}
-	var operatorRule []interface{}
-	for _, operatorItem := range operator {
-		operatorRule = append(operatorRule, operatorItem)
-	}
-	var recipientRule []interface{}
-	for _, recipientItem := range recipient {
-		recipientRule = append(recipientRule, recipientItem)
-	}
-
-	logs, sub, err := _IValidatorManager.contract.FilterLogs(opts, "WithdrawalRecipientUpdated", valAddrRule, operatorRule, recipientRule)
-	if err != nil {
-		return nil, err
-	}
-	return &IValidatorManagerWithdrawalRecipientUpdatedIterator{contract: _IValidatorManager.contract, event: "WithdrawalRecipientUpdated", logs: logs, sub: sub}, nil
-}
-
-// WatchWithdrawalRecipientUpdated is a free log subscription operation binding the contract event 0xc9e0c9fc260d3006a1443854782eaf0e82f7d2aaef5ac2dd10234843c97cccb0.
-//
-// Solidity: event WithdrawalRecipientUpdated(address indexed valAddr, address indexed operator, address indexed recipient)
-func (_IValidatorManager *IValidatorManagerFilterer) WatchWithdrawalRecipientUpdated(opts *bind.WatchOpts, sink chan<- *IValidatorManagerWithdrawalRecipientUpdated, valAddr []common.Address, operator []common.Address, recipient []common.Address) (event.Subscription, error) {
-
-	var valAddrRule []interface{}
-	for _, valAddrItem := range valAddr {
-		valAddrRule = append(valAddrRule, valAddrItem)
-	}
-	var operatorRule []interface{}
-	for _, operatorItem := range operator {
-		operatorRule = append(operatorRule, operatorItem)
-	}
-	var recipientRule []interface{}
-	for _, recipientItem := range recipient {
-		recipientRule = append(recipientRule, recipientItem)
-	}
-
-	logs, sub, err := _IValidatorManager.contract.WatchLogs(opts, "WithdrawalRecipientUpdated", valAddrRule, operatorRule, recipientRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(IValidatorManagerWithdrawalRecipientUpdated)
-				if err := _IValidatorManager.contract.UnpackLog(event, "WithdrawalRecipientUpdated", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// ParseWithdrawalRecipientUpdated is a log parse operation binding the contract event 0xc9e0c9fc260d3006a1443854782eaf0e82f7d2aaef5ac2dd10234843c97cccb0.
-//
-// Solidity: event WithdrawalRecipientUpdated(address indexed valAddr, address indexed operator, address indexed recipient)
-func (_IValidatorManager *IValidatorManagerFilterer) ParseWithdrawalRecipientUpdated(log types.Log) (*IValidatorManagerWithdrawalRecipientUpdated, error) {
-	event := new(IValidatorManagerWithdrawalRecipientUpdated)
-	if err := _IValidatorManager.contract.UnpackLog(event, "WithdrawalRecipientUpdated", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

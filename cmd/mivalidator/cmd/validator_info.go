@@ -78,7 +78,6 @@ func displayValidatorInfo(validatorInfo bindings.IValidatorManagerValidatorInfoR
 	fmt.Printf("Public Key               : 0x%s\n", hex.EncodeToString(validatorInfo.PubKey))
 	fmt.Printf("Operator                 : %s\n", validatorInfo.Operator.Hex())
 	fmt.Printf("Reward Manager           : %s\n", validatorInfo.RewardManager.Hex())
-	fmt.Printf("Withdrawal Recipient     : %s\n", validatorInfo.WithdrawalRecipient.Hex())
 	fmt.Printf("Commission Rate          : %s\n", utils.FormatBasisPointsToPercent(validatorInfo.CommissionRate))
 	fmt.Printf("Metadata                 : %s\n", string(validatorInfo.Metadata))
 }

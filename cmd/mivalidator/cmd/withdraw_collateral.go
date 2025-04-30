@@ -14,6 +14,7 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 	var (
 		validator string
 		amount    string
+		receiver  string
 	)
 
 	cmd := &cobra.Command{
@@ -26,6 +27,15 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 				log.Fatal("Error: validator address is required")
 			}
 			valAddr, err := utils.ValidateAddress(validator)
+			if err != nil {
+				log.Fatalf("Error: %v", err)
+			}
+
+			// Validate receiver address
+			if receiver == "" {
+				log.Fatal("Error: receiver address is required")
+			}
+			receiverAddr, err := utils.ValidateAddress(receiver)
 			if err != nil {
 				log.Fatalf("Error: %v", err)
 			}
@@ -53,23 +63,17 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 				log.Fatalf("Error getting global validator config: %v", err)
 			}
 
-			// Get validator info to show the withdrawal recipient
-			validatorInfo, err := contract.ValidatorInfo(nil, valAddr)
-			if err != nil {
-				log.Fatalf("Error getting validator info: %v", err)
-			}
-
 			// Show summary and important information
 			fmt.Println("===== Withdraw Collateral Transaction =====")
 			fmt.Printf("Validator Address          : %s\n", valAddr.Hex())
 			fmt.Printf("Amount to withdraw         : %s MITO\n", utils.FormatWeiToEther(amountInWei))
 			fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
 			fmt.Printf("Withdrawal Delay           : %s seconds\n", config.CollateralWithdrawalDelaySeconds.String())
-			fmt.Printf("Withdrawal Recipient       : %s\n", validatorInfo.WithdrawalRecipient.Hex())
+			fmt.Printf("Withdrawal Recipient       : %s\n", receiverAddr.Hex())
 
 			fmt.Println("\n🚨 IMPORTANT: The collateral withdrawal is subject to a delay period.")
 			fmt.Printf("Your funds will be available after %s seconds from transaction confirmation.\n", config.CollateralWithdrawalDelaySeconds.String())
-			fmt.Printf("The withdrawing amount will be sent to your validator's withdrawal recipient address: %s\n", validatorInfo.WithdrawalRecipient.Hex())
+			fmt.Printf("The withdrawing amount will be sent to the specified receiver address: %s\n", receiverAddr.Hex())
 
 			// Ask for confirmation
 			if !ConfirmAction("Do you want to withdraw this collateral?") {
@@ -77,7 +81,7 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 			}
 
 			// Execute the transaction
-			tx, err := contract.WithdrawCollateral(TransactOpts(fee), valAddr, amountInWei)
+			tx, err := contract.WithdrawCollateral(TransactOpts(fee), valAddr, receiverAddr, amountInWei)
 			if err != nil {
 				log.Fatalf("Error withdrawing collateral: %v", err)
 			}
@@ -95,10 +99,12 @@ func NewWithdrawCollateralCmd() *cobra.Command {
 
 	// Command-specific flags
 	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
+	cmd.Flags().StringVar(&receiver, "receiver", "", "Address to receive the withdrawn collateral")
 	cmd.Flags().StringVar(&amount, "amount", "", "Amount to withdraw in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
 	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "receiver")
 	mustMarkFlagRequired(cmd, "amount")
 
 	return cmd

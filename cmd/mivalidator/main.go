@@ -22,12 +22,13 @@ This tool allows operators to create validators, manage collateral, and update v
 	rootCmd.AddCommand(cmd.NewCreateValidatorCmd())
 	rootCmd.AddCommand(cmd.NewDepositCollateralCmd())
 	rootCmd.AddCommand(cmd.NewWithdrawCollateralCmd())
+	rootCmd.AddCommand(cmd.NewTransferCollateralOwnershipCmd())
 	rootCmd.AddCommand(cmd.NewUnjailValidatorCmd())
 	rootCmd.AddCommand(cmd.NewUpdateOperatorCmd())
-	rootCmd.AddCommand(cmd.NewUpdateWithdrawalRecipientCmd())
 	rootCmd.AddCommand(cmd.NewUpdateRewardManagerCmd())
 	rootCmd.AddCommand(cmd.NewUpdateRewardConfigCmd())
 	rootCmd.AddCommand(cmd.NewUpdateMetadataCmd())
+	rootCmd.AddCommand(cmd.NewSetPermittedCollateralOwnerCmd())
 
 	// Execute the root command
 	if err := rootCmd.Execute(); err != nil {
