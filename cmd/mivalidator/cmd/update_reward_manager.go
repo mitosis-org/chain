@@ -83,8 +83,8 @@ func NewUpdateRewardManagerCmd() *cobra.Command {
 	cmd.Flags().StringVar(&rewardManager, "reward-manager", "", "New reward manager address")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
-	cmd.MarkFlagRequired("reward-manager")
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "reward-manager")
 
 	return cmd
 }

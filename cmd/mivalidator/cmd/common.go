@@ -33,6 +33,13 @@ var (
 	contract *bindings.IValidatorManager
 )
 
+// mustMarkFlagRequired marks a flag as required and panics if it fails
+func mustMarkFlagRequired(cmd *cobra.Command, flag string) {
+	if err := cmd.MarkFlagRequired(flag); err != nil {
+		log.Fatalf("Failed to mark flag '%s' as required: %v", flag, err)
+	}
+}
+
 // AddCommonFlags adds common flags to a command
 func AddCommonFlags(cmd *cobra.Command, readonly bool) {
 	cmd.Flags().StringVar(&rpcURL, "rpc-url", "http://localhost:8545", "Ethereum RPC URL")
@@ -43,9 +50,9 @@ func AddCommonFlags(cmd *cobra.Command, readonly bool) {
 
 	// Mark required flags
 	if !readonly {
-		cmd.MarkFlagRequired("private-key")
+		mustMarkFlagRequired(cmd, "private-key")
 	}
-	cmd.MarkFlagRequired("contract")
+	mustMarkFlagRequired(cmd, "contract")
 
 	// Preserve any existing PreRun function
 	existingPreRun := cmd.PreRun

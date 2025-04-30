@@ -101,8 +101,8 @@ func NewUpdateRewardConfigCmd() *cobra.Command {
 	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "New commission rate in percentage (e.g., \"5%\")")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
-	cmd.MarkFlagRequired("commission-rate")
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "commission-rate")
 
 	return cmd
 }

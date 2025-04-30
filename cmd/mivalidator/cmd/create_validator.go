@@ -144,13 +144,13 @@ func NewCreateValidatorCmd() *cobra.Command {
 	cmd.Flags().StringVar(&initialCollateral, "initial-collateral", "", "Initial collateral amount in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("pubkey")
-	cmd.MarkFlagRequired("operator")
-	cmd.MarkFlagRequired("reward-manager")
-	cmd.MarkFlagRequired("withdrawal-recipient")
-	cmd.MarkFlagRequired("commission-rate")
-	cmd.MarkFlagRequired("metadata")
-	cmd.MarkFlagRequired("initial-collateral")
+	mustMarkFlagRequired(cmd, "pubkey")
+	mustMarkFlagRequired(cmd, "operator")
+	mustMarkFlagRequired(cmd, "reward-manager")
+	mustMarkFlagRequired(cmd, "withdrawal-recipient")
+	mustMarkFlagRequired(cmd, "commission-rate")
+	mustMarkFlagRequired(cmd, "metadata")
+	mustMarkFlagRequired(cmd, "initial-collateral")
 
 	return cmd
 }

@@ -68,8 +68,8 @@ func NewUpdateMetadataCmd() *cobra.Command {
 	cmd.Flags().StringVar(&metadata, "metadata", "", "New metadata (JSON string)")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
-	cmd.MarkFlagRequired("metadata")
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "metadata")
 
 	return cmd
 }

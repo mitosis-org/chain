@@ -45,7 +45,7 @@ func NewValidatorInfoCmd() *cobra.Command {
 			var validatorInfo bindings.IValidatorManagerValidatorInfoResponse
 			if epoch > 0 {
 				// Get validator info at a specific epoch
-				validatorInfo, err = contract.ValidatorInfoAt(nil, big.NewInt(int64(epoch)), valAddr)
+				validatorInfo, err = contract.ValidatorInfoAt(nil, new(big.Int).SetUint64(epoch), valAddr)
 			} else {
 				// Get current validator info
 				validatorInfo, err = contract.ValidatorInfo(nil, valAddr)
@@ -66,7 +66,7 @@ func NewValidatorInfoCmd() *cobra.Command {
 	// Command-specific flags
 	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
 	cmd.Flags().Uint64Var(&epoch, "epoch", 0, "Epoch number (0 for current epoch)")
-	cmd.MarkFlagRequired("validator")
+	mustMarkFlagRequired(cmd, "validator")
 
 	return cmd
 }

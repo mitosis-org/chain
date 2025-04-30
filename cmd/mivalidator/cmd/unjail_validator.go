@@ -10,9 +10,7 @@ import (
 
 // NewUnjailValidatorCmd creates a new command to unjail a validator
 func NewUnjailValidatorCmd() *cobra.Command {
-	var (
-		validator string
-	)
+	var validator string
 
 	cmd := &cobra.Command{
 		Use:   "unjail-validator",
@@ -65,7 +63,7 @@ func NewUnjailValidatorCmd() *cobra.Command {
 	cmd.Flags().StringVar(&validator, "validator", "", "Address of the validator to unjail")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
+	mustMarkFlagRequired(cmd, "validator")
 
 	return cmd
 }

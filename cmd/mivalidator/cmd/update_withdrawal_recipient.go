@@ -82,8 +82,8 @@ exits the system.`,
 	cmd.Flags().StringVar(&recipient, "recipient", "", "New withdrawal recipient address")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
-	cmd.MarkFlagRequired("recipient")
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "recipient")
 
 	return cmd
 }

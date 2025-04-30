@@ -83,8 +83,8 @@ func NewDepositCollateralCmd() *cobra.Command {
 	cmd.Flags().StringVar(&amount, "amount", "", "Amount of collateral to deposit in MITO (e.g., \"1.5\")")
 
 	// Mark required flags
-	cmd.MarkFlagRequired("validator")
-	cmd.MarkFlagRequired("amount")
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "amount")
 
 	return cmd
 }
