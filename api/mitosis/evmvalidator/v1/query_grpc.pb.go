@@ -27,6 +27,9 @@ const (
 	Query_Withdrawal_FullMethodName                      = "/mitosis.evmvalidator.v1.Query/Withdrawal"
 	Query_Withdrawals_FullMethodName                     = "/mitosis.evmvalidator.v1.Query/Withdrawals"
 	Query_WithdrawalsByValidator_FullMethodName          = "/mitosis.evmvalidator.v1.Query/WithdrawalsByValidator"
+	Query_CollateralOwnerships_FullMethodName            = "/mitosis.evmvalidator.v1.Query/CollateralOwnerships"
+	Query_CollateralOwnershipsByValidator_FullMethodName = "/mitosis.evmvalidator.v1.Query/CollateralOwnershipsByValidator"
+	Query_CollateralOwnership_FullMethodName             = "/mitosis.evmvalidator.v1.Query/CollateralOwnership"
 )
 
 // QueryClient is the client API for Query service.
@@ -50,6 +53,14 @@ type QueryClient interface {
 	Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error)
 	// WithdrawalsByValidator returns withdrawals for a specific validator
 	WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error)
+	// CollateralOwnerships returns all collateral ownerships
+	CollateralOwnerships(ctx context.Context, in *QueryCollateralOwnershipsRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsResponse, error)
+	// CollateralOwnershipsByValidator returns all collateral ownerships for a
+	// specific validator
+	CollateralOwnershipsByValidator(ctx context.Context, in *QueryCollateralOwnershipsByValidatorRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsByValidatorResponse, error)
+	// CollateralOwnership returns the collateral ownership for a specific
+	// validator and owner
+	CollateralOwnership(ctx context.Context, in *QueryCollateralOwnershipRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipResponse, error)
 }
 
 type queryClient struct {
@@ -132,6 +143,33 @@ func (c *queryClient) WithdrawalsByValidator(ctx context.Context, in *QueryWithd
 	return out, nil
 }
 
+func (c *queryClient) CollateralOwnerships(ctx context.Context, in *QueryCollateralOwnershipsRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsResponse, error) {
+	out := new(QueryCollateralOwnershipsResponse)
+	err := c.cc.Invoke(ctx, Query_CollateralOwnerships_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) CollateralOwnershipsByValidator(ctx context.Context, in *QueryCollateralOwnershipsByValidatorRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsByValidatorResponse, error) {
+	out := new(QueryCollateralOwnershipsByValidatorResponse)
+	err := c.cc.Invoke(ctx, Query_CollateralOwnershipsByValidator_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) CollateralOwnership(ctx context.Context, in *QueryCollateralOwnershipRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipResponse, error) {
+	out := new(QueryCollateralOwnershipResponse)
+	err := c.cc.Invoke(ctx, Query_CollateralOwnership_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
@@ -153,6 +191,14 @@ type QueryServer interface {
 	Withdrawals(context.Context, *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error)
 	// WithdrawalsByValidator returns withdrawals for a specific validator
 	WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error)
+	// CollateralOwnerships returns all collateral ownerships
+	CollateralOwnerships(context.Context, *QueryCollateralOwnershipsRequest) (*QueryCollateralOwnershipsResponse, error)
+	// CollateralOwnershipsByValidator returns all collateral ownerships for a
+	// specific validator
+	CollateralOwnershipsByValidator(context.Context, *QueryCollateralOwnershipsByValidatorRequest) (*QueryCollateralOwnershipsByValidatorResponse, error)
+	// CollateralOwnership returns the collateral ownership for a specific
+	// validator and owner
+	CollateralOwnership(context.Context, *QueryCollateralOwnershipRequest) (*QueryCollateralOwnershipResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -183,6 +229,15 @@ func (UnimplementedQueryServer) Withdrawals(context.Context, *QueryWithdrawalsRe
 }
 func (UnimplementedQueryServer) WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WithdrawalsByValidator not implemented")
+}
+func (UnimplementedQueryServer) CollateralOwnerships(context.Context, *QueryCollateralOwnershipsRequest) (*QueryCollateralOwnershipsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnerships not implemented")
+}
+func (UnimplementedQueryServer) CollateralOwnershipsByValidator(context.Context, *QueryCollateralOwnershipsByValidatorRequest) (*QueryCollateralOwnershipsByValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnershipsByValidator not implemented")
+}
+func (UnimplementedQueryServer) CollateralOwnership(context.Context, *QueryCollateralOwnershipRequest) (*QueryCollateralOwnershipResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnership not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -341,6 +396,60 @@ func _Query_WithdrawalsByValidator_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_CollateralOwnerships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnerships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_CollateralOwnerships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnerships(ctx, req.(*QueryCollateralOwnershipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_CollateralOwnershipsByValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipsByValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnershipsByValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_CollateralOwnershipsByValidator_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnershipsByValidator(ctx, req.(*QueryCollateralOwnershipsByValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_CollateralOwnership_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnership(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_CollateralOwnership_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnership(ctx, req.(*QueryCollateralOwnershipRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -379,6 +488,18 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WithdrawalsByValidator",
 			Handler:    _Query_WithdrawalsByValidator_Handler,
+		},
+		{
+			MethodName: "CollateralOwnerships",
+			Handler:    _Query_CollateralOwnerships_Handler,
+		},
+		{
+			MethodName: "CollateralOwnershipsByValidator",
+			Handler:    _Query_CollateralOwnershipsByValidator_Handler,
+		},
+		{
+			MethodName: "CollateralOwnership",
+			Handler:    _Query_CollateralOwnership_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

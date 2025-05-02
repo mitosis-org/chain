@@ -53,3 +53,33 @@ func CalculateCollateralSharesForWithdrawal(
 	}
 	return product.Quo(totalCollateral).Add(math.NewUint(1))
 }
+
+// CalculateCollateralAmount calculates how much collateral amount can be withdrawn
+// for a given number of shares. Uses floor division to ensure the system doesn't give out
+// more than available.
+func CalculateCollateralAmount(
+	totalCollateral math.Uint,
+	totalShares math.Uint,
+	shares math.Uint,
+) math.Uint {
+	// If shares is zero, return zero amount
+	if shares.IsZero() {
+		return math.ZeroUint()
+	}
+
+	// If there is no collateral, return zero
+	if totalCollateral.IsZero() {
+		return math.ZeroUint()
+	}
+
+	// If there are no total shares but there is collateral,
+	// the full collateral amount is assigned to the shares
+	if totalShares.IsZero() {
+		return totalCollateral
+	}
+
+	// Calculate amount based on the current exchange rate
+	// amount = (shares * totalCollateral) / totalShares
+	// Using floor division to be conservative
+	return shares.Mul(totalCollateral).Quo(totalShares)
+}

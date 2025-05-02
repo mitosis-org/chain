@@ -193,3 +193,101 @@ func TestCalculateCollateralSharesForWithdrawal(t *testing.T) {
 		})
 	}
 }
+
+func TestCalculateCollateralAmount(t *testing.T) {
+	tests := []struct {
+		name            string
+		totalCollateral math.Uint
+		totalShares     math.Uint
+		shares          math.Uint
+		expected        math.Uint
+	}{
+		{
+			name:            "zero shares",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.NewUint(1000),
+			shares:          math.ZeroUint(),
+			expected:        math.ZeroUint(),
+		},
+		{
+			// not possible case in practice - amount is zero
+			name:            "zero collateral and shares",
+			totalCollateral: math.ZeroUint(),
+			totalShares:     math.ZeroUint(),
+			shares:          math.NewUint(500),
+			expected:        math.ZeroUint(),
+		},
+		{
+			// not possible case in practice - amount is zero
+			name:            "zero collateral with shares",
+			totalCollateral: math.ZeroUint(),
+			totalShares:     math.NewUint(1000),
+			shares:          math.NewUint(500),
+			expected:        math.ZeroUint(),
+		},
+		{
+			// not possible case in practice - shares has all existingcollateral
+			name:            "zero shares with collateral",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.ZeroUint(),
+			shares:          math.NewUint(500),
+			expected:        math.NewUint(1000),
+		},
+		{
+			name:            "1:1 ratio",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.NewUint(1000),
+			shares:          math.NewUint(500),
+			expected:        math.NewUint(500),
+		},
+		{
+			name:            "2:1 shares to collateral ratio",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.NewUint(2000),
+			shares:          math.NewUint(1000),
+			expected:        math.NewUint(500),
+		},
+		{
+			name:            "1:2 shares to collateral ratio",
+			totalCollateral: math.NewUint(2000),
+			totalShares:     math.NewUint(1000),
+			shares:          math.NewUint(250),
+			expected:        math.NewUint(500),
+		},
+		{
+			name:            "exact division",
+			totalCollateral: math.NewUint(10),
+			totalShares:     math.NewUint(20),
+			shares:          math.NewUint(10),
+			expected:        math.NewUint(5),
+		},
+		{
+			name:            "non-divisible result",
+			totalCollateral: math.NewUint(10),
+			totalShares:     math.NewUint(3),
+			shares:          math.NewUint(1),
+			expected:        math.NewUint(3),
+		},
+		{
+			name:            "large numbers",
+			totalCollateral: math.NewUintFromString("1000000000000000000"),
+			totalShares:     math.NewUintFromString("3000000000000000000"),
+			shares:          math.NewUintFromString("1500000000000000000"),
+			expected:        math.NewUintFromString("500000000000000000"),
+		},
+		{
+			name:            "large numbers with remainder",
+			totalCollateral: math.NewUintFromString("1000000000000000003"),
+			totalShares:     math.NewUintFromString("3000000000000000000"),
+			shares:          math.NewUintFromString("1500000000000000000"),
+			expected:        math.NewUintFromString("500000000000000001"),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := CalculateCollateralAmount(tc.totalCollateral, tc.totalShares, tc.shares)
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}

@@ -7227,6 +7227,3510 @@ func (x *fastReflection_QueryWithdrawalsByValidatorResponse) ProtoMethods() *pro
 	}
 }
 
+var (
+	md_CollateralOwnershipWithAmount           protoreflect.MessageDescriptor
+	fd_CollateralOwnershipWithAmount_ownership protoreflect.FieldDescriptor
+	fd_CollateralOwnershipWithAmount_amount    protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_CollateralOwnershipWithAmount = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("CollateralOwnershipWithAmount")
+	fd_CollateralOwnershipWithAmount_ownership = md_CollateralOwnershipWithAmount.Fields().ByName("ownership")
+	fd_CollateralOwnershipWithAmount_amount = md_CollateralOwnershipWithAmount.Fields().ByName("amount")
+}
+
+var _ protoreflect.Message = (*fastReflection_CollateralOwnershipWithAmount)(nil)
+
+type fastReflection_CollateralOwnershipWithAmount CollateralOwnershipWithAmount
+
+func (x *CollateralOwnershipWithAmount) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_CollateralOwnershipWithAmount)(x)
+}
+
+func (x *CollateralOwnershipWithAmount) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_CollateralOwnershipWithAmount_messageType fastReflection_CollateralOwnershipWithAmount_messageType
+var _ protoreflect.MessageType = fastReflection_CollateralOwnershipWithAmount_messageType{}
+
+type fastReflection_CollateralOwnershipWithAmount_messageType struct{}
+
+func (x fastReflection_CollateralOwnershipWithAmount_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_CollateralOwnershipWithAmount)(nil)
+}
+func (x fastReflection_CollateralOwnershipWithAmount_messageType) New() protoreflect.Message {
+	return new(fastReflection_CollateralOwnershipWithAmount)
+}
+func (x fastReflection_CollateralOwnershipWithAmount_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_CollateralOwnershipWithAmount
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_CollateralOwnershipWithAmount) Descriptor() protoreflect.MessageDescriptor {
+	return md_CollateralOwnershipWithAmount
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_CollateralOwnershipWithAmount) Type() protoreflect.MessageType {
+	return _fastReflection_CollateralOwnershipWithAmount_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_CollateralOwnershipWithAmount) New() protoreflect.Message {
+	return new(fastReflection_CollateralOwnershipWithAmount)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_CollateralOwnershipWithAmount) Interface() protoreflect.ProtoMessage {
+	return (*CollateralOwnershipWithAmount)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_CollateralOwnershipWithAmount) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Ownership != nil {
+		value := protoreflect.ValueOfMessage(x.Ownership.ProtoReflect())
+		if !f(fd_CollateralOwnershipWithAmount_ownership, value) {
+			return
+		}
+	}
+	if x.Amount != "" {
+		value := protoreflect.ValueOfString(x.Amount)
+		if !f(fd_CollateralOwnershipWithAmount_amount, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_CollateralOwnershipWithAmount) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		return x.Ownership != nil
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		return x.Amount != ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CollateralOwnershipWithAmount) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		x.Ownership = nil
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		x.Amount = ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_CollateralOwnershipWithAmount) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		value := x.Ownership
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		value := x.Amount
+		return protoreflect.ValueOfString(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CollateralOwnershipWithAmount) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		x.Ownership = value.Message().Interface().(*CollateralOwnership)
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		x.Amount = value.Interface().(string)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CollateralOwnershipWithAmount) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		if x.Ownership == nil {
+			x.Ownership = new(CollateralOwnership)
+		}
+		return protoreflect.ValueOfMessage(x.Ownership.ProtoReflect())
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		panic(fmt.Errorf("field amount of message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_CollateralOwnershipWithAmount) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership":
+		m := new(CollateralOwnership)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	case "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.amount":
+		return protoreflect.ValueOfString("")
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.CollateralOwnershipWithAmount does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_CollateralOwnershipWithAmount) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.CollateralOwnershipWithAmount", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_CollateralOwnershipWithAmount) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CollateralOwnershipWithAmount) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_CollateralOwnershipWithAmount) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_CollateralOwnershipWithAmount) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*CollateralOwnershipWithAmount)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Ownership != nil {
+			l = options.Size(x.Ownership)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.Amount)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*CollateralOwnershipWithAmount)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.Amount) > 0 {
+			i -= len(x.Amount)
+			copy(dAtA[i:], x.Amount)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Amount)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if x.Ownership != nil {
+			encoded, err := options.Marshal(x.Ownership)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*CollateralOwnershipWithAmount)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CollateralOwnershipWithAmount: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CollateralOwnershipWithAmount: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Ownership", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Ownership == nil {
+					x.Ownership = &CollateralOwnership{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Ownership); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Amount = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryCollateralOwnershipsRequest            protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipsRequest_pagination protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipsRequest = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipsRequest")
+	fd_QueryCollateralOwnershipsRequest_pagination = md_QueryCollateralOwnershipsRequest.Fields().ByName("pagination")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipsRequest)(nil)
+
+type fastReflection_QueryCollateralOwnershipsRequest QueryCollateralOwnershipsRequest
+
+func (x *QueryCollateralOwnershipsRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsRequest)(x)
+}
+
+func (x *QueryCollateralOwnershipsRequest) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipsRequest_messageType fastReflection_QueryCollateralOwnershipsRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipsRequest_messageType{}
+
+type fastReflection_QueryCollateralOwnershipsRequest_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipsRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsRequest)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipsRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsRequest)
+}
+func (x fastReflection_QueryCollateralOwnershipsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsRequest
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsRequest
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipsRequest_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsRequest)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipsRequest)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Pagination != nil {
+		value := protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+		if !f(fd_QueryCollateralOwnershipsRequest_pagination, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		return x.Pagination != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		x.Pagination = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		value := x.Pagination
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		if x.Pagination == nil {
+			x.Pagination = new(v1beta1.PageRequest)
+		}
+		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination":
+		m := new(v1beta1.PageRequest)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipsRequest) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsRequest)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Pagination != nil {
+			l = options.Size(x.Pagination)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsRequest)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Pagination != nil {
+			encoded, err := options.Marshal(x.Pagination)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsRequest)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsRequest: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Pagination == nil {
+					x.Pagination = &v1beta1.PageRequest{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Pagination); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var _ protoreflect.List = (*_QueryCollateralOwnershipsResponse_1_list)(nil)
+
+type _QueryCollateralOwnershipsResponse_1_list struct {
+	list *[]*CollateralOwnershipWithAmount
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnershipWithAmount)
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnershipWithAmount)
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) AppendMutable() protoreflect.Value {
+	v := new(CollateralOwnershipWithAmount)
+	*x.list = append(*x.list, v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) Truncate(n int) {
+	for i := n; i < len(*x.list); i++ {
+		(*x.list)[i] = nil
+	}
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) NewElement() protoreflect.Value {
+	v := new(CollateralOwnershipWithAmount)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsResponse_1_list) IsValid() bool {
+	return x.list != nil
+}
+
+var (
+	md_QueryCollateralOwnershipsResponse                       protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipsResponse_collateral_ownerships protoreflect.FieldDescriptor
+	fd_QueryCollateralOwnershipsResponse_pagination            protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipsResponse = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipsResponse")
+	fd_QueryCollateralOwnershipsResponse_collateral_ownerships = md_QueryCollateralOwnershipsResponse.Fields().ByName("collateral_ownerships")
+	fd_QueryCollateralOwnershipsResponse_pagination = md_QueryCollateralOwnershipsResponse.Fields().ByName("pagination")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipsResponse)(nil)
+
+type fastReflection_QueryCollateralOwnershipsResponse QueryCollateralOwnershipsResponse
+
+func (x *QueryCollateralOwnershipsResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsResponse)(x)
+}
+
+func (x *QueryCollateralOwnershipsResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipsResponse_messageType fastReflection_QueryCollateralOwnershipsResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipsResponse_messageType{}
+
+type fastReflection_QueryCollateralOwnershipsResponse_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipsResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsResponse)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipsResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsResponse)
+}
+func (x fastReflection_QueryCollateralOwnershipsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipsResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipsResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.CollateralOwnerships) != 0 {
+		value := protoreflect.ValueOfList(&_QueryCollateralOwnershipsResponse_1_list{list: &x.CollateralOwnerships})
+		if !f(fd_QueryCollateralOwnershipsResponse_collateral_ownerships, value) {
+			return
+		}
+	}
+	if x.Pagination != nil {
+		value := protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+		if !f(fd_QueryCollateralOwnershipsResponse_pagination, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		return len(x.CollateralOwnerships) != 0
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		return x.Pagination != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		x.CollateralOwnerships = nil
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		x.Pagination = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		if len(x.CollateralOwnerships) == 0 {
+			return protoreflect.ValueOfList(&_QueryCollateralOwnershipsResponse_1_list{})
+		}
+		listValue := &_QueryCollateralOwnershipsResponse_1_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(listValue)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		value := x.Pagination
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		lv := value.List()
+		clv := lv.(*_QueryCollateralOwnershipsResponse_1_list)
+		x.CollateralOwnerships = *clv.list
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		if x.CollateralOwnerships == nil {
+			x.CollateralOwnerships = []*CollateralOwnershipWithAmount{}
+		}
+		value := &_QueryCollateralOwnershipsResponse_1_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(value)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		if x.Pagination == nil {
+			x.Pagination = new(v1beta1.PageResponse)
+		}
+		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships":
+		list := []*CollateralOwnershipWithAmount{}
+		return protoreflect.ValueOfList(&_QueryCollateralOwnershipsResponse_1_list{list: &list})
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination":
+		m := new(v1beta1.PageResponse)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipsResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if len(x.CollateralOwnerships) > 0 {
+			for _, e := range x.CollateralOwnerships {
+				l = options.Size(e)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if x.Pagination != nil {
+			l = options.Size(x.Pagination)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Pagination != nil {
+			encoded, err := options.Marshal(x.Pagination)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.CollateralOwnerships) > 0 {
+			for iNdEx := len(x.CollateralOwnerships) - 1; iNdEx >= 0; iNdEx-- {
+				encoded, err := options.Marshal(x.CollateralOwnerships[iNdEx])
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0xa
+			}
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnerships", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.CollateralOwnerships = append(x.CollateralOwnerships, &CollateralOwnershipWithAmount{})
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CollateralOwnerships[len(x.CollateralOwnerships)-1]); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Pagination == nil {
+					x.Pagination = &v1beta1.PageResponse{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Pagination); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryCollateralOwnershipsByValidatorRequest            protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipsByValidatorRequest_val_addr   protoreflect.FieldDescriptor
+	fd_QueryCollateralOwnershipsByValidatorRequest_pagination protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipsByValidatorRequest = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipsByValidatorRequest")
+	fd_QueryCollateralOwnershipsByValidatorRequest_val_addr = md_QueryCollateralOwnershipsByValidatorRequest.Fields().ByName("val_addr")
+	fd_QueryCollateralOwnershipsByValidatorRequest_pagination = md_QueryCollateralOwnershipsByValidatorRequest.Fields().ByName("pagination")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipsByValidatorRequest)(nil)
+
+type fastReflection_QueryCollateralOwnershipsByValidatorRequest QueryCollateralOwnershipsByValidatorRequest
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsByValidatorRequest)(x)
+}
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType{}
+
+type fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsByValidatorRequest)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsByValidatorRequest)
+}
+func (x fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsByValidatorRequest
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsByValidatorRequest
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipsByValidatorRequest_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsByValidatorRequest)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipsByValidatorRequest)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.ValAddr) != 0 {
+		value := protoreflect.ValueOfBytes(x.ValAddr)
+		if !f(fd_QueryCollateralOwnershipsByValidatorRequest_val_addr, value) {
+			return
+		}
+	}
+	if x.Pagination != nil {
+		value := protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+		if !f(fd_QueryCollateralOwnershipsByValidatorRequest_pagination, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		return len(x.ValAddr) != 0
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		return x.Pagination != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		x.ValAddr = nil
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		x.Pagination = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		value := x.ValAddr
+		return protoreflect.ValueOfBytes(value)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		value := x.Pagination
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		x.ValAddr = value.Bytes()
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		if x.Pagination == nil {
+			x.Pagination = new(v1beta1.PageRequest)
+		}
+		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		panic(fmt.Errorf("field val_addr of message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.val_addr":
+		return protoreflect.ValueOfBytes(nil)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination":
+		m := new(v1beta1.PageRequest)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorRequest) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorRequest)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.ValAddr)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.Pagination != nil {
+			l = options.Size(x.Pagination)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorRequest)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Pagination != nil {
+			encoded, err := options.Marshal(x.Pagination)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.ValAddr) > 0 {
+			i -= len(x.ValAddr)
+			copy(dAtA[i:], x.ValAddr)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ValAddr)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorRequest)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorRequest: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ValAddr = append(x.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+				if x.ValAddr == nil {
+					x.ValAddr = []byte{}
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Pagination == nil {
+					x.Pagination = &v1beta1.PageRequest{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Pagination); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var _ protoreflect.List = (*_QueryCollateralOwnershipsByValidatorResponse_1_list)(nil)
+
+type _QueryCollateralOwnershipsByValidatorResponse_1_list struct {
+	list *[]*CollateralOwnershipWithAmount
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnershipWithAmount)
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*CollateralOwnershipWithAmount)
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) AppendMutable() protoreflect.Value {
+	v := new(CollateralOwnershipWithAmount)
+	*x.list = append(*x.list, v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) Truncate(n int) {
+	for i := n; i < len(*x.list); i++ {
+		(*x.list)[i] = nil
+	}
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) NewElement() protoreflect.Value {
+	v := new(CollateralOwnershipWithAmount)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_QueryCollateralOwnershipsByValidatorResponse_1_list) IsValid() bool {
+	return x.list != nil
+}
+
+var (
+	md_QueryCollateralOwnershipsByValidatorResponse                       protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipsByValidatorResponse_collateral_ownerships protoreflect.FieldDescriptor
+	fd_QueryCollateralOwnershipsByValidatorResponse_pagination            protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipsByValidatorResponse = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipsByValidatorResponse")
+	fd_QueryCollateralOwnershipsByValidatorResponse_collateral_ownerships = md_QueryCollateralOwnershipsByValidatorResponse.Fields().ByName("collateral_ownerships")
+	fd_QueryCollateralOwnershipsByValidatorResponse_pagination = md_QueryCollateralOwnershipsByValidatorResponse.Fields().ByName("pagination")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipsByValidatorResponse)(nil)
+
+type fastReflection_QueryCollateralOwnershipsByValidatorResponse QueryCollateralOwnershipsByValidatorResponse
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsByValidatorResponse)(x)
+}
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType{}
+
+type fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipsByValidatorResponse)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsByValidatorResponse)
+}
+func (x fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsByValidatorResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipsByValidatorResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipsByValidatorResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipsByValidatorResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipsByValidatorResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.CollateralOwnerships) != 0 {
+		value := protoreflect.ValueOfList(&_QueryCollateralOwnershipsByValidatorResponse_1_list{list: &x.CollateralOwnerships})
+		if !f(fd_QueryCollateralOwnershipsByValidatorResponse_collateral_ownerships, value) {
+			return
+		}
+	}
+	if x.Pagination != nil {
+		value := protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+		if !f(fd_QueryCollateralOwnershipsByValidatorResponse_pagination, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		return len(x.CollateralOwnerships) != 0
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		return x.Pagination != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		x.CollateralOwnerships = nil
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		x.Pagination = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		if len(x.CollateralOwnerships) == 0 {
+			return protoreflect.ValueOfList(&_QueryCollateralOwnershipsByValidatorResponse_1_list{})
+		}
+		listValue := &_QueryCollateralOwnershipsByValidatorResponse_1_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(listValue)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		value := x.Pagination
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		lv := value.List()
+		clv := lv.(*_QueryCollateralOwnershipsByValidatorResponse_1_list)
+		x.CollateralOwnerships = *clv.list
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		if x.CollateralOwnerships == nil {
+			x.CollateralOwnerships = []*CollateralOwnershipWithAmount{}
+		}
+		value := &_QueryCollateralOwnershipsByValidatorResponse_1_list{list: &x.CollateralOwnerships}
+		return protoreflect.ValueOfList(value)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		if x.Pagination == nil {
+			x.Pagination = new(v1beta1.PageResponse)
+		}
+		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships":
+		list := []*CollateralOwnershipWithAmount{}
+		return protoreflect.ValueOfList(&_QueryCollateralOwnershipsByValidatorResponse_1_list{list: &list})
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination":
+		m := new(v1beta1.PageResponse)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipsByValidatorResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if len(x.CollateralOwnerships) > 0 {
+			for _, e := range x.CollateralOwnerships {
+				l = options.Size(e)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if x.Pagination != nil {
+			l = options.Size(x.Pagination)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Pagination != nil {
+			encoded, err := options.Marshal(x.Pagination)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.CollateralOwnerships) > 0 {
+			for iNdEx := len(x.CollateralOwnerships) - 1; iNdEx >= 0; iNdEx-- {
+				encoded, err := options.Marshal(x.CollateralOwnerships[iNdEx])
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0xa
+			}
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipsByValidatorResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnerships", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.CollateralOwnerships = append(x.CollateralOwnerships, &CollateralOwnershipWithAmount{})
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CollateralOwnerships[len(x.CollateralOwnerships)-1]); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Pagination == nil {
+					x.Pagination = &v1beta1.PageResponse{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Pagination); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryCollateralOwnershipRequest          protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipRequest_val_addr protoreflect.FieldDescriptor
+	fd_QueryCollateralOwnershipRequest_owner    protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipRequest = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipRequest")
+	fd_QueryCollateralOwnershipRequest_val_addr = md_QueryCollateralOwnershipRequest.Fields().ByName("val_addr")
+	fd_QueryCollateralOwnershipRequest_owner = md_QueryCollateralOwnershipRequest.Fields().ByName("owner")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipRequest)(nil)
+
+type fastReflection_QueryCollateralOwnershipRequest QueryCollateralOwnershipRequest
+
+func (x *QueryCollateralOwnershipRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipRequest)(x)
+}
+
+func (x *QueryCollateralOwnershipRequest) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipRequest_messageType fastReflection_QueryCollateralOwnershipRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipRequest_messageType{}
+
+type fastReflection_QueryCollateralOwnershipRequest_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipRequest)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipRequest)
+}
+func (x fastReflection_QueryCollateralOwnershipRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipRequest
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipRequest
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipRequest_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipRequest)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipRequest)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.ValAddr) != 0 {
+		value := protoreflect.ValueOfBytes(x.ValAddr)
+		if !f(fd_QueryCollateralOwnershipRequest_val_addr, value) {
+			return
+		}
+	}
+	if len(x.Owner) != 0 {
+		value := protoreflect.ValueOfBytes(x.Owner)
+		if !f(fd_QueryCollateralOwnershipRequest_owner, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		return len(x.ValAddr) != 0
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		return len(x.Owner) != 0
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		x.ValAddr = nil
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		x.Owner = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		value := x.ValAddr
+		return protoreflect.ValueOfBytes(value)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		value := x.Owner
+		return protoreflect.ValueOfBytes(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		x.ValAddr = value.Bytes()
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		x.Owner = value.Bytes()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		panic(fmt.Errorf("field val_addr of message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest is not mutable"))
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		panic(fmt.Errorf("field owner of message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.val_addr":
+		return protoreflect.ValueOfBytes(nil)
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest.owner":
+		return protoreflect.ValueOfBytes(nil)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipRequest) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipRequest) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipRequest) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipRequest) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipRequest)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.ValAddr)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.Owner)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipRequest)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.Owner) > 0 {
+			i -= len(x.Owner)
+			copy(dAtA[i:], x.Owner)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Owner)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.ValAddr) > 0 {
+			i -= len(x.ValAddr)
+			copy(dAtA[i:], x.ValAddr)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ValAddr)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipRequest)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipRequest: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ValAddr = append(x.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+				if x.ValAddr == nil {
+					x.ValAddr = []byte{}
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Owner = append(x.Owner[:0], dAtA[iNdEx:postIndex]...)
+				if x.Owner == nil {
+					x.Owner = []byte{}
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryCollateralOwnershipResponse                      protoreflect.MessageDescriptor
+	fd_QueryCollateralOwnershipResponse_collateral_ownership protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_mitosis_evmvalidator_v1_query_proto_init()
+	md_QueryCollateralOwnershipResponse = File_mitosis_evmvalidator_v1_query_proto.Messages().ByName("QueryCollateralOwnershipResponse")
+	fd_QueryCollateralOwnershipResponse_collateral_ownership = md_QueryCollateralOwnershipResponse.Fields().ByName("collateral_ownership")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryCollateralOwnershipResponse)(nil)
+
+type fastReflection_QueryCollateralOwnershipResponse QueryCollateralOwnershipResponse
+
+func (x *QueryCollateralOwnershipResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipResponse)(x)
+}
+
+func (x *QueryCollateralOwnershipResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryCollateralOwnershipResponse_messageType fastReflection_QueryCollateralOwnershipResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryCollateralOwnershipResponse_messageType{}
+
+type fastReflection_QueryCollateralOwnershipResponse_messageType struct{}
+
+func (x fastReflection_QueryCollateralOwnershipResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryCollateralOwnershipResponse)(nil)
+}
+func (x fastReflection_QueryCollateralOwnershipResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipResponse)
+}
+func (x fastReflection_QueryCollateralOwnershipResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryCollateralOwnershipResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryCollateralOwnershipResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryCollateralOwnershipResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryCollateralOwnershipResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryCollateralOwnershipResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.CollateralOwnership != nil {
+		value := protoreflect.ValueOfMessage(x.CollateralOwnership.ProtoReflect())
+		if !f(fd_QueryCollateralOwnershipResponse_collateral_ownership, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		return x.CollateralOwnership != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		x.CollateralOwnership = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		value := x.CollateralOwnership
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		x.CollateralOwnership = value.Message().Interface().(*CollateralOwnershipWithAmount)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		if x.CollateralOwnership == nil {
+			x.CollateralOwnership = new(CollateralOwnershipWithAmount)
+		}
+		return protoreflect.ValueOfMessage(x.CollateralOwnership.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryCollateralOwnershipResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership":
+		m := new(CollateralOwnershipWithAmount)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse"))
+		}
+		panic(fmt.Errorf("message mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryCollateralOwnershipResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryCollateralOwnershipResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryCollateralOwnershipResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryCollateralOwnershipResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryCollateralOwnershipResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryCollateralOwnershipResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.CollateralOwnership != nil {
+			l = options.Size(x.CollateralOwnership)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.CollateralOwnership != nil {
+			encoded, err := options.Marshal(x.CollateralOwnership)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryCollateralOwnershipResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryCollateralOwnershipResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnership", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.CollateralOwnership == nil {
+					x.CollateralOwnership = &CollateralOwnershipWithAmount{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CollateralOwnership); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
@@ -7846,6 +11350,307 @@ func (x *QueryWithdrawalsByValidatorResponse) GetPagination() *v1beta1.PageRespo
 	return nil
 }
 
+// CollateralOwnershipWithAmount extends CollateralOwnership to include the
+// withdrawable amount
+type CollateralOwnershipWithAmount struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ownership *CollateralOwnership `protobuf:"bytes,1,opt,name=ownership,proto3" json:"ownership,omitempty"`
+	Amount    string               `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *CollateralOwnershipWithAmount) Reset() {
+	*x = CollateralOwnershipWithAmount{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CollateralOwnershipWithAmount) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CollateralOwnershipWithAmount) ProtoMessage() {}
+
+// Deprecated: Use CollateralOwnershipWithAmount.ProtoReflect.Descriptor instead.
+func (*CollateralOwnershipWithAmount) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CollateralOwnershipWithAmount) GetOwnership() *CollateralOwnership {
+	if x != nil {
+		return x.Ownership
+	}
+	return nil
+}
+
+func (x *CollateralOwnershipWithAmount) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+// QueryCollateralOwnershipsRequest is the request type for the
+// Query/CollateralOwnerships RPC method
+type QueryCollateralOwnershipsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// pagination defines an optional pagination for the request
+	Pagination *v1beta1.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipsRequest) Reset() {
+	*x = QueryCollateralOwnershipsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipsRequest) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipsRequest.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipsRequest) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *QueryCollateralOwnershipsRequest) GetPagination() *v1beta1.PageRequest {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsResponse is the response type for the
+// Query/CollateralOwnerships RPC method
+type QueryCollateralOwnershipsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CollateralOwnerships []*CollateralOwnershipWithAmount `protobuf:"bytes,1,rep,name=collateral_ownerships,json=collateralOwnerships,proto3" json:"collateral_ownerships,omitempty"`
+	Pagination           *v1beta1.PageResponse            `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipsResponse) Reset() {
+	*x = QueryCollateralOwnershipsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipsResponse) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipsResponse.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipsResponse) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *QueryCollateralOwnershipsResponse) GetCollateralOwnerships() []*CollateralOwnershipWithAmount {
+	if x != nil {
+		return x.CollateralOwnerships
+	}
+	return nil
+}
+
+func (x *QueryCollateralOwnershipsResponse) GetPagination() *v1beta1.PageResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsByValidatorRequest is the request type for the
+// Query/CollateralOwnershipsByValidator RPC method
+type QueryCollateralOwnershipsByValidatorRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+	// pagination defines an optional pagination for the request
+	Pagination *v1beta1.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) Reset() {
+	*x = QueryCollateralOwnershipsByValidatorRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipsByValidatorRequest) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipsByValidatorRequest.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipsByValidatorRequest) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) GetValAddr() []byte {
+	if x != nil {
+		return x.ValAddr
+	}
+	return nil
+}
+
+func (x *QueryCollateralOwnershipsByValidatorRequest) GetPagination() *v1beta1.PageRequest {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsByValidatorResponse is the response type for the
+// Query/CollateralOwnershipsByValidator RPC method
+type QueryCollateralOwnershipsByValidatorResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CollateralOwnerships []*CollateralOwnershipWithAmount `protobuf:"bytes,1,rep,name=collateral_ownerships,json=collateralOwnerships,proto3" json:"collateral_ownerships,omitempty"`
+	Pagination           *v1beta1.PageResponse            `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) Reset() {
+	*x = QueryCollateralOwnershipsByValidatorResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipsByValidatorResponse) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipsByValidatorResponse.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipsByValidatorResponse) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) GetCollateralOwnerships() []*CollateralOwnershipWithAmount {
+	if x != nil {
+		return x.CollateralOwnerships
+	}
+	return nil
+}
+
+func (x *QueryCollateralOwnershipsByValidatorResponse) GetPagination() *v1beta1.PageResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipRequest is the request type for the
+// Query/CollateralOwnership RPC method
+type QueryCollateralOwnershipRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+	Owner   []byte `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipRequest) Reset() {
+	*x = QueryCollateralOwnershipRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipRequest) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipRequest.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipRequest) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *QueryCollateralOwnershipRequest) GetValAddr() []byte {
+	if x != nil {
+		return x.ValAddr
+	}
+	return nil
+}
+
+func (x *QueryCollateralOwnershipRequest) GetOwner() []byte {
+	if x != nil {
+		return x.Owner
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipResponse is the response type for the
+// Query/CollateralOwnership RPC method
+type QueryCollateralOwnershipResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CollateralOwnership *CollateralOwnershipWithAmount `protobuf:"bytes,1,opt,name=collateral_ownership,json=collateralOwnership,proto3" json:"collateral_ownership,omitempty"`
+}
+
+func (x *QueryCollateralOwnershipResponse) Reset() {
+	*x = QueryCollateralOwnershipResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mitosis_evmvalidator_v1_query_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryCollateralOwnershipResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryCollateralOwnershipResponse) ProtoMessage() {}
+
+// Deprecated: Use QueryCollateralOwnershipResponse.ProtoReflect.Descriptor instead.
+func (*QueryCollateralOwnershipResponse) Descriptor() ([]byte, []int) {
+	return file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *QueryCollateralOwnershipResponse) GetCollateralOwnership() *CollateralOwnershipWithAmount {
+	if x != nil {
+		return x.CollateralOwnership
+	}
+	return nil
+}
+
 var File_mitosis_evmvalidator_v1_query_proto protoreflect.FileDescriptor
 
 var file_mitosis_evmvalidator_v1_query_proto_rawDesc = []byte{
@@ -7972,114 +11777,229 @@ var file_mitosis_evmvalidator_v1_query_proto_rawDesc = []byte{
 	0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
 	0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
 	0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61,
-	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x32, 0xc7, 0x0b, 0x0a, 0x05, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x12, 0x8c, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x2b, 0x2e,
+	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xbd, 0x01, 0x0a, 0x1d, 0x43, 0x6f, 0x6c,
+	0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x57, 0x69, 0x74, 0x68, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x55, 0x0a, 0x09, 0x6f, 0x77,
+	0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2c, 0x2e,
 	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e, 0x6d, 0x69, 0x74,
-	0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x21,
-	0x12, 0x1f, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x12, 0xf3, 0x01, 0x0a, 0x1f, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45,
-	0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63,
-	0x74, 0x41, 0x64, 0x64, 0x72, 0x12, 0x44, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
-	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e,
-	0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74,
-	0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x45, 0x2e, 0x6d, 0x69,
-	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f,
-	0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x43, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3d, 0x12, 0x3b, 0x2f, 0x6d, 0x69, 0x74,
-	0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f, 0x65,
-	0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61,
-	0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x12, 0xa4, 0x01, 0x0a, 0x09, 0x56, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x2e, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
-	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
-	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x36, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x30, 0x12, 0x2e,
-	0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x73, 0x2f, 0x7b, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x7d, 0x12, 0xd0,
-	0x01, 0x0a, 0x13, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f,
-	0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x12, 0x38, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
-	0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31,
-	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42,
-	0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x39, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41,
-	0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x44, 0x82, 0xd3, 0xe4,
-	0x93, 0x02, 0x3e, 0x12, 0x3c, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x5f, 0x62, 0x79, 0x5f, 0x63, 0x6f, 0x6e, 0x73,
-	0x5f, 0x61, 0x64, 0x64, 0x72, 0x2f, 0x7b, 0x63, 0x6f, 0x6e, 0x73, 0x5f, 0x61, 0x64, 0x64, 0x72,
-	0x7d, 0x12, 0x9c, 0x01, 0x0a, 0x0a, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73,
-	0x12, 0x2f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x30, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72,
+	0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x42, 0x09, 0xc8, 0xde, 0x1f,
+	0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x12, 0x45, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x2d, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x16, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x55, 0x69, 0x6e,
+	0x74, 0xd2, 0xb4, 0x2d, 0x0b, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x55, 0x69, 0x6e, 0x74,
+	0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x6a, 0x0a, 0x20, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72,
+	0x73, 0x68, 0x69, 0x70, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x46, 0x0a, 0x0a,
+	0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71,
+	0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x22, 0xe4, 0x01, 0x0a, 0x21, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f,
+	0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x76, 0x0a, 0x15, 0x63, 0x6f,
+	0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68,
+	0x69, 0x70, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x36, 0x2e, 0x6d, 0x69, 0x74, 0x6f,
+	0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77,
+	0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x57, 0x69, 0x74, 0x68, 0x41, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x14, 0x63, 0x6f,
+	0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
+	0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52,
+	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x90, 0x01, 0x0a, 0x2b,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f,
+	0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x76,
+	0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x76,
+	0x61, 0x6c, 0x41, 0x64, 0x64, 0x72, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xef,
+	0x01, 0x0a, 0x2c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72,
+	0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x42, 0x79, 0x56, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x76, 0x0a, 0x15, 0x63, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77,
+	0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x36,
+	0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65,
+	0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x57, 0x69, 0x74, 0x68,
+	0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a,
+	0x01, 0x52, 0x14, 0x63, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e,
+	0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x22, 0x52, 0x0a, 0x1f, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65,
+	0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x76, 0x61, 0x6c, 0x41, 0x64, 0x64, 0x72, 0x12, 0x14,
+	0x0a, 0x05, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x6f,
+	0x77, 0x6e, 0x65, 0x72, 0x22, 0x98, 0x01, 0x0a, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f,
+	0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x74, 0x0a, 0x14, 0x63, 0x6f, 0x6c,
+	0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x36, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65,
+	0x72, 0x73, 0x68, 0x69, 0x70, 0x57, 0x69, 0x74, 0x68, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x42,
+	0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x13, 0x63, 0x6f, 0x6c, 0x6c,
+	0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x32,
+	0xf1, 0x10, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x8c, 0x01, 0x0a, 0x06, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x12, 0x2b, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65,
+	0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x2c, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76,
 	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x2b, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x25, 0x12, 0x23, 0x2f, 0x6d, 0x69,
-	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73,
-	0x12, 0xa2, 0x01, 0x0a, 0x0a, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x12,
-	0x2f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57,
-	0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x30, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2b, 0x12, 0x29, 0x2f, 0x6d, 0x69, 0x74,
+	0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x27, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x21, 0x12, 0x1f, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76,
+	0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0xf3, 0x01, 0x0a, 0x1f, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x12, 0x44, 0x2e, 0x6d,
+	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43,
+	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x45, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x6e, 0x74, 0x72, 0x79,
+	0x70, 0x6f, 0x69, 0x6e, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64,
+	0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x43, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x3d, 0x12, 0x3b, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f, 0x65, 0x6e, 0x74, 0x72, 0x79, 0x70, 0x6f, 0x69, 0x6e, 0x74,
+	0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x12, 0xa4,
+	0x01, 0x0a, 0x09, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x2e, 0x2e, 0x6d,
+	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2f, 0x2e, 0x6d,
+	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x36, 0x82,
+	0xd3, 0xe4, 0x93, 0x02, 0x30, 0x12, 0x2e, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f,
+	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x2f, 0x7b, 0x76, 0x61, 0x6c, 0x5f,
+	0x61, 0x64, 0x64, 0x72, 0x7d, 0x12, 0xd0, 0x01, 0x0a, 0x13, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x12, 0x38, 0x2e,
+	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x39, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x42, 0x79, 0x43, 0x6f, 0x6e, 0x73, 0x41, 0x64, 0x64, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x44, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3e, 0x12, 0x3c, 0x2f, 0x6d, 0x69, 0x74,
 	0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x2f, 0x76, 0x31, 0x2f, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73,
-	0x2f, 0x7b, 0x69, 0x64, 0x7d, 0x12, 0xa0, 0x01, 0x0a, 0x0b, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0x30, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
-	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x31, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x5f,
+	0x62, 0x79, 0x5f, 0x63, 0x6f, 0x6e, 0x73, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x2f, 0x7b, 0x63, 0x6f,
+	0x6e, 0x73, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x7d, 0x12, 0x9c, 0x01, 0x0a, 0x0a, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0x2f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x30, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73,
+	0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
+	0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2b, 0x82, 0xd3, 0xe4, 0x93,
+	0x02, 0x25, 0x12, 0x23, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0xa2, 0x01, 0x0a, 0x0a, 0x57, 0x69, 0x74, 0x68,
+	0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x12, 0x2f, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
+	0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31,
+	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x30, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
 	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
 	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61,
-	0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2c, 0x82, 0xd3, 0xe4, 0x93,
-	0x02, 0x26, 0x12, 0x24, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x77, 0x69, 0x74,
-	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0xd7, 0x01, 0x0a, 0x16, 0x57, 0x69, 0x74,
-	0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
-	0x74, 0x6f, 0x72, 0x12, 0x3b, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x3c, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x42,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3c, 0x12, 0x3a, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73,
-	0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31,
-	0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x2f, 0x7b, 0x76, 0x61, 0x6c,
-	0x5f, 0x61, 0x64, 0x64, 0x72, 0x7d, 0x2f, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61,
-	0x6c, 0x73, 0x42, 0xe0, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73,
+	0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x2b, 0x12, 0x29, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x77, 0x69, 0x74, 0x68,
+	0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x2f, 0x7b, 0x69, 0x64, 0x7d, 0x12, 0xa0, 0x01, 0x0a,
+	0x0b, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0x30, 0x2e, 0x6d,
+	0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68,
+	0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x31,
+	0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x2c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x26, 0x12, 0x24, 0x2f, 0x6d, 0x69, 0x74, 0x6f,
+	0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x2f, 0x76, 0x31, 0x2f, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12,
+	0xd7, 0x01, 0x0a, 0x16, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x42,
+	0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x3b, 0x2e, 0x6d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72,
+	0x61, 0x77, 0x61, 0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x3c, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69,
+	0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76,
+	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61,
+	0x6c, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x42, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3c, 0x12, 0x3a, 0x2f,
+	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x73, 0x2f, 0x7b, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x7d, 0x2f, 0x77, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x61, 0x6c, 0x73, 0x12, 0xc5, 0x01, 0x0a, 0x14, 0x43, 0x6f,
+	0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x73, 0x12, 0x39, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65,
+	0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x3a, 0x2e,
+	0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c,
+	0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x36, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x30, 0x12, 0x2e, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6f, 0x6c, 0x6c,
+	0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x73, 0x12, 0xfc, 0x01, 0x0a, 0x1f, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c,
+	0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x44, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e,
+	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f,
+	0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x42, 0x79, 0x56, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x45, 0x2e, 0x6d, 0x69,
+	0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61,
+	0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x42,
+	0x79, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x4c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x46, 0x12, 0x44, 0x2f, 0x6d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x2f, 0x76, 0x31, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x2f,
+	0x7b, 0x76, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x7d, 0x2f, 0x63, 0x6f, 0x6c, 0x6c, 0x61,
+	0x74, 0x65, 0x72, 0x61, 0x6c, 0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73,
+	0x12, 0xe0, 0x01, 0x0a, 0x13, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f,
+	0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x12, 0x38, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73,
 	0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e,
-	0x76, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
-	0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61,
-	0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4d, 0x45, 0x58, 0xaa,
-	0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f,
-	0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76,
-	0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50,
-	0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x19, 0x4d, 0x69, 0x74, 0x6f,
-	0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72,
+	0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x39, 0x2e, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x43, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c, 0x4f, 0x77, 0x6e, 0x65,
+	0x72, 0x73, 0x68, 0x69, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x54, 0x82,
+	0xd3, 0xe4, 0x93, 0x02, 0x4e, 0x12, 0x4c, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f,
+	0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x2f,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x2f, 0x7b, 0x76, 0x61, 0x6c, 0x5f,
+	0x61, 0x64, 0x64, 0x72, 0x7d, 0x2f, 0x63, 0x6f, 0x6c, 0x6c, 0x61, 0x74, 0x65, 0x72, 0x61, 0x6c,
+	0x5f, 0x6f, 0x77, 0x6e, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x73, 0x2f, 0x7b, 0x6f, 0x77, 0x6e,
+	0x65, 0x72, 0x7d, 0x42, 0xe0, 0x01, 0x0a, 0x1b, 0x63, 0x6f, 0x6d, 0x2e, 0x6d, 0x69, 0x74, 0x6f,
+	0x73, 0x69, 0x73, 0x2e, 0x65, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x2e, 0x76, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
+	0x01, 0x5a, 0x37, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x6d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2f, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x65, 0x76, 0x6d, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4d, 0x45, 0x58,
+	0xaa, 0x02, 0x17, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x2e, 0x45, 0x76, 0x6d, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x17, 0x4d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
+	0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x23, 0x4d, 0x69, 0x74, 0x6f, 0x73, 0x69, 0x73, 0x5c, 0x45,
+	0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47,
+	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x19, 0x4d, 0x69, 0x74,
+	0x6f, 0x73, 0x69, 0x73, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -8094,7 +12014,7 @@ func file_mitosis_evmvalidator_v1_query_proto_rawDescGZIP() []byte {
 	return file_mitosis_evmvalidator_v1_query_proto_rawDescData
 }
 
-var file_mitosis_evmvalidator_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_mitosis_evmvalidator_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_mitosis_evmvalidator_v1_query_proto_goTypes = []interface{}{
 	(*QueryParamsRequest)(nil),                           // 0: mitosis.evmvalidator.v1.QueryParamsRequest
 	(*QueryParamsResponse)(nil),                          // 1: mitosis.evmvalidator.v1.QueryParamsResponse
@@ -8112,47 +12032,69 @@ var file_mitosis_evmvalidator_v1_query_proto_goTypes = []interface{}{
 	(*QueryWithdrawalsResponse)(nil),                     // 13: mitosis.evmvalidator.v1.QueryWithdrawalsResponse
 	(*QueryWithdrawalsByValidatorRequest)(nil),           // 14: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
 	(*QueryWithdrawalsByValidatorResponse)(nil),          // 15: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
-	(*Params)(nil),                                       // 16: mitosis.evmvalidator.v1.Params
-	(*Validator)(nil),                                    // 17: mitosis.evmvalidator.v1.Validator
-	(*v1beta1.PageRequest)(nil),                          // 18: cosmos.base.query.v1beta1.PageRequest
-	(*v1beta1.PageResponse)(nil),                         // 19: cosmos.base.query.v1beta1.PageResponse
-	(*Withdrawal)(nil),                                   // 20: mitosis.evmvalidator.v1.Withdrawal
+	(*CollateralOwnershipWithAmount)(nil),                // 16: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount
+	(*QueryCollateralOwnershipsRequest)(nil),             // 17: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest
+	(*QueryCollateralOwnershipsResponse)(nil),            // 18: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse
+	(*QueryCollateralOwnershipsByValidatorRequest)(nil),  // 19: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest
+	(*QueryCollateralOwnershipsByValidatorResponse)(nil), // 20: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse
+	(*QueryCollateralOwnershipRequest)(nil),              // 21: mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest
+	(*QueryCollateralOwnershipResponse)(nil),             // 22: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse
+	(*Params)(nil),                                       // 23: mitosis.evmvalidator.v1.Params
+	(*Validator)(nil),                                    // 24: mitosis.evmvalidator.v1.Validator
+	(*v1beta1.PageRequest)(nil),                          // 25: cosmos.base.query.v1beta1.PageRequest
+	(*v1beta1.PageResponse)(nil),                         // 26: cosmos.base.query.v1beta1.PageResponse
+	(*Withdrawal)(nil),                                   // 27: mitosis.evmvalidator.v1.Withdrawal
+	(*CollateralOwnership)(nil),                          // 28: mitosis.evmvalidator.v1.CollateralOwnership
 }
 var file_mitosis_evmvalidator_v1_query_proto_depIdxs = []int32{
-	16, // 0: mitosis.evmvalidator.v1.QueryParamsResponse.params:type_name -> mitosis.evmvalidator.v1.Params
-	17, // 1: mitosis.evmvalidator.v1.QueryValidatorResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
-	17, // 2: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
-	18, // 3: mitosis.evmvalidator.v1.QueryValidatorsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	17, // 4: mitosis.evmvalidator.v1.QueryValidatorsResponse.validators:type_name -> mitosis.evmvalidator.v1.Validator
-	19, // 5: mitosis.evmvalidator.v1.QueryValidatorsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	20, // 6: mitosis.evmvalidator.v1.QueryWithdrawalResponse.withdrawal:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	18, // 7: mitosis.evmvalidator.v1.QueryWithdrawalsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	20, // 8: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	19, // 9: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	18, // 10: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	20, // 11: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
-	19, // 12: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	0,  // 13: mitosis.evmvalidator.v1.Query.Params:input_type -> mitosis.evmvalidator.v1.QueryParamsRequest
-	2,  // 14: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest
-	4,  // 15: mitosis.evmvalidator.v1.Query.Validator:input_type -> mitosis.evmvalidator.v1.QueryValidatorRequest
-	6,  // 16: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
-	8,  // 17: mitosis.evmvalidator.v1.Query.Validators:input_type -> mitosis.evmvalidator.v1.QueryValidatorsRequest
-	10, // 18: mitosis.evmvalidator.v1.Query.Withdrawal:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalRequest
-	12, // 19: mitosis.evmvalidator.v1.Query.Withdrawals:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsRequest
-	14, // 20: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
-	1,  // 21: mitosis.evmvalidator.v1.Query.Params:output_type -> mitosis.evmvalidator.v1.QueryParamsResponse
-	3,  // 22: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse
-	5,  // 23: mitosis.evmvalidator.v1.Query.Validator:output_type -> mitosis.evmvalidator.v1.QueryValidatorResponse
-	7,  // 24: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
-	9,  // 25: mitosis.evmvalidator.v1.Query.Validators:output_type -> mitosis.evmvalidator.v1.QueryValidatorsResponse
-	11, // 26: mitosis.evmvalidator.v1.Query.Withdrawal:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalResponse
-	13, // 27: mitosis.evmvalidator.v1.Query.Withdrawals:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsResponse
-	15, // 28: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
-	21, // [21:29] is the sub-list for method output_type
-	13, // [13:21] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	23, // 0: mitosis.evmvalidator.v1.QueryParamsResponse.params:type_name -> mitosis.evmvalidator.v1.Params
+	24, // 1: mitosis.evmvalidator.v1.QueryValidatorResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
+	24, // 2: mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse.validator:type_name -> mitosis.evmvalidator.v1.Validator
+	25, // 3: mitosis.evmvalidator.v1.QueryValidatorsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	24, // 4: mitosis.evmvalidator.v1.QueryValidatorsResponse.validators:type_name -> mitosis.evmvalidator.v1.Validator
+	26, // 5: mitosis.evmvalidator.v1.QueryValidatorsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	27, // 6: mitosis.evmvalidator.v1.QueryWithdrawalResponse.withdrawal:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	25, // 7: mitosis.evmvalidator.v1.QueryWithdrawalsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	27, // 8: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	26, // 9: mitosis.evmvalidator.v1.QueryWithdrawalsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	25, // 10: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	27, // 11: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.withdrawals:type_name -> mitosis.evmvalidator.v1.Withdrawal
+	26, // 12: mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	28, // 13: mitosis.evmvalidator.v1.CollateralOwnershipWithAmount.ownership:type_name -> mitosis.evmvalidator.v1.CollateralOwnership
+	25, // 14: mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	16, // 15: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.collateral_ownerships:type_name -> mitosis.evmvalidator.v1.CollateralOwnershipWithAmount
+	26, // 16: mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	25, // 17: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	16, // 18: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.collateral_ownerships:type_name -> mitosis.evmvalidator.v1.CollateralOwnershipWithAmount
+	26, // 19: mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	16, // 20: mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse.collateral_ownership:type_name -> mitosis.evmvalidator.v1.CollateralOwnershipWithAmount
+	0,  // 21: mitosis.evmvalidator.v1.Query.Params:input_type -> mitosis.evmvalidator.v1.QueryParamsRequest
+	2,  // 22: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrRequest
+	4,  // 23: mitosis.evmvalidator.v1.Query.Validator:input_type -> mitosis.evmvalidator.v1.QueryValidatorRequest
+	6,  // 24: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:input_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrRequest
+	8,  // 25: mitosis.evmvalidator.v1.Query.Validators:input_type -> mitosis.evmvalidator.v1.QueryValidatorsRequest
+	10, // 26: mitosis.evmvalidator.v1.Query.Withdrawal:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalRequest
+	12, // 27: mitosis.evmvalidator.v1.Query.Withdrawals:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsRequest
+	14, // 28: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:input_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest
+	17, // 29: mitosis.evmvalidator.v1.Query.CollateralOwnerships:input_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest
+	19, // 30: mitosis.evmvalidator.v1.Query.CollateralOwnershipsByValidator:input_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest
+	21, // 31: mitosis.evmvalidator.v1.Query.CollateralOwnership:input_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest
+	1,  // 32: mitosis.evmvalidator.v1.Query.Params:output_type -> mitosis.evmvalidator.v1.QueryParamsResponse
+	3,  // 33: mitosis.evmvalidator.v1.Query.ValidatorEntrypointContractAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorEntrypointContractAddrResponse
+	5,  // 34: mitosis.evmvalidator.v1.Query.Validator:output_type -> mitosis.evmvalidator.v1.QueryValidatorResponse
+	7,  // 35: mitosis.evmvalidator.v1.Query.ValidatorByConsAddr:output_type -> mitosis.evmvalidator.v1.QueryValidatorByConsAddrResponse
+	9,  // 36: mitosis.evmvalidator.v1.Query.Validators:output_type -> mitosis.evmvalidator.v1.QueryValidatorsResponse
+	11, // 37: mitosis.evmvalidator.v1.Query.Withdrawal:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalResponse
+	13, // 38: mitosis.evmvalidator.v1.Query.Withdrawals:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsResponse
+	15, // 39: mitosis.evmvalidator.v1.Query.WithdrawalsByValidator:output_type -> mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse
+	18, // 40: mitosis.evmvalidator.v1.Query.CollateralOwnerships:output_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse
+	20, // 41: mitosis.evmvalidator.v1.Query.CollateralOwnershipsByValidator:output_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse
+	22, // 42: mitosis.evmvalidator.v1.Query.CollateralOwnership:output_type -> mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse
+	32, // [32:43] is the sub-list for method output_type
+	21, // [21:32] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_mitosis_evmvalidator_v1_query_proto_init() }
@@ -8355,6 +12297,90 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 				return nil
 			}
 		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CollateralOwnershipWithAmount); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipsByValidatorRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipsByValidatorResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mitosis_evmvalidator_v1_query_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryCollateralOwnershipResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -8362,7 +12388,7 @@ func file_mitosis_evmvalidator_v1_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_mitosis_evmvalidator_v1_query_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

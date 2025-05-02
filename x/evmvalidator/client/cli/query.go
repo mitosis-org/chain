@@ -30,6 +30,9 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryWithdrawal(),
 		GetCmdQueryWithdrawals(),
 		GetCmdQueryWithdrawalsByValidator(),
+		GetCmdQueryCollateralOwnership(),
+		GetCmdQueryCollateralOwnerships(),
+		GetCmdQueryCollateralOwnershipsByValidator(),
 	)
 
 	return cmd
@@ -293,6 +296,131 @@ func GetCmdQueryWithdrawalsByValidator() *cobra.Command {
 
 	flags.AddQueryFlagsToCmd(cmd)
 	flags.AddPaginationFlagsToCmd(cmd, "withdrawals")
+
+	return cmd
+}
+
+// GetCmdQueryCollateralOwnership implements querying collateral ownership for a specific validator and owner.
+func GetCmdQueryCollateralOwnership() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "collateral-ownership [validator-address] [owner-address]",
+		Short: "Query collateral ownership for a specific validator and owner",
+		Long:  `Query collateral ownership record for a specific validator and owner with the amount that can be withdrawn.`,
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			// Parse validator address
+			valAddrStr := args[0]
+			if !common.IsHexAddress(valAddrStr) {
+				return fmt.Errorf("invalid validator address format: %s", valAddrStr)
+			}
+			valAddr := mitotypes.EthAddress(common.HexToAddress(valAddrStr))
+
+			// Parse owner address
+			ownerAddrStr := args[1]
+			if !common.IsHexAddress(ownerAddrStr) {
+				return fmt.Errorf("invalid owner address format: %s", ownerAddrStr)
+			}
+			ownerAddr := mitotypes.EthAddress(common.HexToAddress(ownerAddrStr))
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.CollateralOwnership(cmd.Context(), &types.QueryCollateralOwnershipRequest{
+				ValAddr: valAddr.Bytes(),
+				Owner:   ownerAddr.Bytes(),
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryCollateralOwnerships implements querying all collateral ownerships.
+func GetCmdQueryCollateralOwnerships() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "collateral-ownerships",
+		Short: "Query all collateral ownerships",
+		Long:  `Query all collateral ownership records with the amounts that can be withdrawn.`,
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.CollateralOwnerships(cmd.Context(), &types.QueryCollateralOwnershipsRequest{
+				Pagination: pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "collateral-ownerships")
+
+	return cmd
+}
+
+// GetCmdQueryCollateralOwnershipsByValidator implements querying collateral ownerships for a specific validator.
+func GetCmdQueryCollateralOwnershipsByValidator() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "collateral-ownerships-by-validator [validator-address]",
+		Short: "Query collateral ownerships for a specific validator",
+		Long:  `Query all collateral ownership records for a specific validator with the amounts that can be withdrawn.`,
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			// Parse validator address
+			valAddrStr := args[0]
+			if !common.IsHexAddress(valAddrStr) {
+				return fmt.Errorf("invalid validator address format: %s", valAddrStr)
+			}
+			valAddr := mitotypes.EthAddress(common.HexToAddress(valAddrStr))
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.CollateralOwnershipsByValidator(cmd.Context(), &types.QueryCollateralOwnershipsByValidatorRequest{
+				ValAddr:    valAddr.Bytes(),
+				Pagination: pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "collateral-ownerships")
 
 	return cmd
 }
