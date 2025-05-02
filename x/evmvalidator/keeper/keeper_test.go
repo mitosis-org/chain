@@ -1138,7 +1138,7 @@ func (s *KeeperTestSuite) Test_IterateCollateralOwnerships() {
 	s.Require().Len(collectedOwnerships, 1)
 }
 
-func (s *KeeperTestSuite) Test_IterateCollateralByValidator() {
+func (s *KeeperTestSuite) Test_IterateCollateralOwnershipsByValidator() {
 	// Generate validator addresses
 	_, _, valAddr1 := testutil.GenerateSecp256k1Key()
 	_, _, valAddr2 := testutil.GenerateSecp256k1Key()
@@ -1160,7 +1160,7 @@ func (s *KeeperTestSuite) Test_IterateCollateralByValidator() {
 
 	// Collect ownerships for validator 1
 	var collectedOwnerships []types.CollateralOwnership
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
 		collectedOwnerships = append(collectedOwnerships, ownership)
 		return false // continue iteration
 	})
@@ -1173,7 +1173,7 @@ func (s *KeeperTestSuite) Test_IterateCollateralByValidator() {
 
 	// Collect ownerships for validator 2
 	collectedOwnerships = nil
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr2, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr2, func(ownership types.CollateralOwnership) bool {
 		collectedOwnerships = append(collectedOwnerships, ownership)
 		return false // continue iteration
 	})
@@ -1184,7 +1184,7 @@ func (s *KeeperTestSuite) Test_IterateCollateralByValidator() {
 
 	// Test early termination
 	collectedOwnerships = nil
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr1, func(ownership types.CollateralOwnership) bool {
 		collectedOwnerships = append(collectedOwnerships, ownership)
 		return true // stop iteration after first item
 	})

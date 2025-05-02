@@ -58,7 +58,7 @@ func (s *ValidatorTestSuite) Test_RegisterValidator() {
 
 	// Verify there's exactly one ownership record for this validator with the correct owner
 	var ownerships []types.CollateralOwnership
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
 		ownerships = append(ownerships, ownership)
 		return false
 	})
@@ -121,7 +121,7 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_ZeroCollateral() {
 
 	// Verify ownership record with iterate method
 	var ownerships []types.CollateralOwnership
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
 		ownerships = append(ownerships, ownership)
 		return false
 	})
@@ -249,7 +249,7 @@ func (s *ValidatorTestSuite) Test_DepositCollateral_ZeroAmount() {
 
 	// Check initial ownership
 	var initialOwnerships []types.CollateralOwnership
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
 		initialOwnerships = append(initialOwnerships, ownership)
 		return false
 	})
@@ -271,7 +271,7 @@ func (s *ValidatorTestSuite) Test_DepositCollateral_ZeroAmount() {
 
 	// Verify no new ownership record is created for zero deposit
 	var ownershipsAfterAnotherZeroDeposit []types.CollateralOwnership
-	s.tk.Keeper.IterateCollateralByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
 		ownershipsAfterAnotherZeroDeposit = append(ownershipsAfterAnotherZeroDeposit, ownership)
 		return false
 	})

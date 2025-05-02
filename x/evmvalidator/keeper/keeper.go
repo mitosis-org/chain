@@ -463,8 +463,8 @@ func (k Keeper) IterateCollateralOwnerships(
 	}
 }
 
-// IterateCollateralByValidator iterates over all collateral ownerships for a validator
-func (k Keeper) IterateCollateralByValidator(
+// IterateCollateralOwnershipsByValidator iterates over all collateral ownerships for a validator
+func (k Keeper) IterateCollateralOwnershipsByValidator(
 	ctx sdk.Context,
 	valAddr mitotypes.EthAddress,
 	cb func(ownership types.CollateralOwnership) (stop bool),
