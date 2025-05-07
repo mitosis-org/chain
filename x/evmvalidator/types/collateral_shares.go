@@ -5,7 +5,7 @@ import (
 )
 
 // SharePrecision defines the precision factor for share calculations
-var SharePrecision = math.NewUint(1e18)
+var SharePrecision = math.NewUint(1e9)
 
 // CalculateCollateralSharesForDeposit calculates how much shares correspond to a collateral amount
 // Uses floor division (truncate) for deposits - system favorable
