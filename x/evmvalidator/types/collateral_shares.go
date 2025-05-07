@@ -41,9 +41,11 @@ func CalculateCollateralSharesForWithdrawal(
 		return math.ZeroUint()
 	}
 
-	// If there are no shares yet, or no collateral, initialize 1:1 with precision
-	if totalShares.IsZero() || totalCollateral.IsZero() {
-		return amount.Mul(SharePrecision)
+	// If there is no collateral or shares, return zero shares:
+	// - If there is no collateral, you can't withdraw anything (zero shares needed)
+	// - If there are no shares, zero shares are required for any withdrawal amount
+	if totalCollateral.IsZero() || totalShares.IsZero() {
+		return math.ZeroUint()
 	}
 
 	// Calculate using ceiling division to prevent rounding errors during withdrawals
@@ -67,7 +69,7 @@ func CalculateCollateralAmount(
 		return math.ZeroUint()
 	}
 
-	// If there is no collateral, return zero
+	// If there is no collateral, return zero amount
 	if totalCollateral.IsZero() {
 		return math.ZeroUint()
 	}

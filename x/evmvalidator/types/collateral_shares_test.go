@@ -30,7 +30,7 @@ func TestCalculateCollateralSharesForDeposit(t *testing.T) {
 			expected:        math.NewUint(500).Mul(SharePrecision),
 		},
 		{
-			// not possible case in practice - existing shares are respected.
+			// not possible case in practice - existing shares are ignored. new amount of collateral will be distributed together across existing shares.
 			name:            "zero collateral with shares",
 			totalCollateral: math.ZeroUint(),
 			totalShares:     math.NewUint(1000),
@@ -106,27 +106,28 @@ func TestCalculateCollateralSharesForWithdrawal(t *testing.T) {
 			expected:        math.ZeroUint(),
 		},
 		{
+			// not possible case in practice - zero shares returned. anyway withdrawal is not possible because of zero total collateral.
 			name:            "zero collateral and shares",
 			totalCollateral: math.ZeroUint(),
 			totalShares:     math.ZeroUint(),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.ZeroUint(),
 		},
 		{
-			// not possible case in practice - existing shares are respected.
+			// not possible case in practice - zero shares returned. anyway withdrawal is not possible because of zero total collateral.
 			name:            "zero collateral with shares",
 			totalCollateral: math.ZeroUint(),
 			totalShares:     math.NewUint(1000),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.ZeroUint(),
 		},
 		{
-			// not possible case in practice - new shares have all existing collateral
+			// not possible case in practice - zero shares returned. anyone can withdraw all collateral without shares because total shares are zero.
 			name:            "zero shares with collateral",
 			totalCollateral: math.NewUint(1000),
 			totalShares:     math.ZeroUint(),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.ZeroUint(),
 		},
 		{
 			name:            "1:1 ratio",
@@ -226,7 +227,7 @@ func TestCalculateCollateralAmount(t *testing.T) {
 			expected:        math.ZeroUint(),
 		},
 		{
-			// not possible case in practice - shares has all existingcollateral
+			// not possible case in practice - shares has all existing collateral
 			name:            "zero shares with collateral",
 			totalCollateral: math.NewUint(1000),
 			totalShares:     math.ZeroUint(),
@@ -286,8 +287,13 @@ func TestCalculateCollateralAmount(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := CalculateCollateralAmount(tc.totalCollateral, tc.totalShares, tc.shares)
-			require.Equal(t, tc.expected, result)
+			amount := CalculateCollateralAmount(tc.totalCollateral, tc.totalShares, tc.shares)
+			require.Equal(t, tc.expected, amount)
+
+			// When a user tries to withdraw the calculated amount, the shares needed for withdrawal
+			// should be less than or equal to the input shares used in `CalculateCollateralAmount`.
+			sharesToWithdraw := CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, amount)
+			require.True(t, sharesToWithdraw.LTE(tc.shares))
 		})
 	}
 }
