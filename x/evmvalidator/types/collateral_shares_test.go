@@ -283,6 +283,41 @@ func TestCalculateCollateralAmount(t *testing.T) {
 			shares:          math.NewUintFromString("1500000000000000000"),
 			expected:        math.NewUintFromString("500000000000000001"),
 		},
+		{
+			name:            "withdrawing total collateral",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.NewUint(1000),
+			shares:          math.NewUint(1000),
+			expected:        math.NewUint(1000),
+		},
+		{
+			name:            "minimal values",
+			totalCollateral: math.NewUint(1),
+			totalShares:     math.NewUint(1),
+			shares:          math.NewUint(1),
+			expected:        math.NewUint(1),
+		},
+		{
+			name:            "prime number ratio with floor rounding",
+			totalCollateral: math.NewUint(7),
+			totalShares:     math.NewUint(3),
+			shares:          math.NewUint(1),
+			expected:        math.NewUint(2), // 1 * 7 / 3 = 2.33... -> 2 (floor division)
+		},
+		{
+			name:            "extreme non-divisible with large ratio",
+			totalCollateral: math.NewUint(1000000),
+			totalShares:     math.NewUint(3),
+			shares:          math.NewUint(1),
+			expected:        math.NewUint(333333), // 1 * 1000000 / 3 = 333333.33... -> 333333 (floor division)
+		},
+		{
+			name:            "ceiling-floor division edge case",
+			totalCollateral: math.NewUint(1000),
+			totalShares:     math.NewUint(999), // Note: 999 instead of 1000
+			shares:          math.NewUint(999),
+			expected:        math.NewUint(1000), // 999 * 1000 / 999 = 1000
+		},
 	}
 
 	for _, tc := range tests {
@@ -293,7 +328,9 @@ func TestCalculateCollateralAmount(t *testing.T) {
 			// When a user tries to withdraw the calculated amount, the shares needed for withdrawal
 			// should be less than or equal to the input shares used in `CalculateCollateralAmount`.
 			sharesToWithdraw := CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, amount)
-			require.True(t, sharesToWithdraw.LTE(tc.shares))
+			require.True(t, sharesToWithdraw.LTE(tc.shares),
+				"For %s with shares %s, amount %s, sharesToWithdraw %s",
+				tc.name, tc.shares, amount, sharesToWithdraw)
 		})
 	}
 }
