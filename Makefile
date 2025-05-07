@@ -203,7 +203,7 @@ setup-geth: clean-geth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go:v1.15.5 init \
+		ethereum/client-go:v1.15.11 init \
 			--datadir /data \
 			--db.engine pebble \
 			--state.scheme=hash \
@@ -216,7 +216,7 @@ run-geth:
 		-p 8551:8551 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(GETH_DATA_DIR):/data \
-		ethereum/client-go:v1.15.5 \
+		ethereum/client-go:v1.15.11 \
 			--datadir /data \
 			--http \
 			--http.addr 0.0.0.0 \
@@ -238,7 +238,7 @@ setup-reth: clean-reth
 	docker run --rm \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.3.4 init \
+		ghcr.io/paradigmxyz/reth:v1.3.12 init \
 			--datadir /data \
 			--chain /infra/genesis.json
 
@@ -251,7 +251,7 @@ run-reth:
 		-p 9001:9001 \
 		-v $(EC_INFRA_DIR):/infra \
 		-v $(RETH_DATA_DIR):/data \
-		ghcr.io/paradigmxyz/reth:v1.3.4 node \
+		ghcr.io/paradigmxyz/reth:v1.3.12 node \
 			--datadir /data \
 			--chain /infra/genesis.json \
 			--http \

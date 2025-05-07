@@ -22,7 +22,7 @@ x-service-templates:
 
   _geth: &geth
     <<: *base
-    image: ethereum/client-go:v1.15.5
+    image: ethereum/client-go:v1.15.11
     entrypoint: /infra/devnet/ec/geth.sh
     environment: &geth-environment
       DATA_DIR: /data
@@ -32,7 +32,7 @@ x-service-templates:
 
   _reth: &reth
     <<: *base
-    image: ghcr.io/paradigmxyz/reth:v1.3.4
+    image: ghcr.io/paradigmxyz/reth:v1.3.12
     entrypoint: /infra/devnet/ec/reth.sh
     environment: &reth-environment
       DATA_DIR: /data
