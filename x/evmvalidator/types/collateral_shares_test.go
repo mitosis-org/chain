@@ -1,9 +1,10 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	"cosmossdk.io/math"
+	"github.com/mitosis-org/chain/x/evmvalidator/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +28,7 @@ func TestCalculateCollateralSharesForDeposit(t *testing.T) {
 			totalCollateral: math.ZeroUint(),
 			totalShares:     math.ZeroUint(),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.NewUint(500).Mul(types.SharePrecision),
 		},
 		{
 			// not possible case in practice - existing shares are ignored. new amount of collateral will be distributed together across existing shares.
@@ -35,7 +36,7 @@ func TestCalculateCollateralSharesForDeposit(t *testing.T) {
 			totalCollateral: math.ZeroUint(),
 			totalShares:     math.NewUint(1000),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.NewUint(500).Mul(types.SharePrecision),
 		},
 		{
 			// not possible case in practice - new shares have all existing collateral
@@ -43,7 +44,7 @@ func TestCalculateCollateralSharesForDeposit(t *testing.T) {
 			totalCollateral: math.NewUint(1000),
 			totalShares:     math.ZeroUint(),
 			amount:          math.NewUint(500),
-			expected:        math.NewUint(500).Mul(SharePrecision),
+			expected:        math.NewUint(500).Mul(types.SharePrecision),
 		},
 		{
 			name:            "1:1 ratio",
@@ -84,7 +85,7 @@ func TestCalculateCollateralSharesForDeposit(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := CalculateCollateralSharesForDeposit(tc.totalCollateral, tc.totalShares, tc.amount)
+			result := types.CalculateCollateralSharesForDeposit(tc.totalCollateral, tc.totalShares, tc.amount)
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -189,7 +190,7 @@ func TestCalculateCollateralSharesForWithdrawal(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, tc.amount)
+			result := types.CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, tc.amount)
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -322,12 +323,12 @@ func TestCalculateCollateralAmount(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			amount := CalculateCollateralAmount(tc.totalCollateral, tc.totalShares, tc.shares)
+			amount := types.CalculateCollateralAmount(tc.totalCollateral, tc.totalShares, tc.shares)
 			require.Equal(t, tc.expected, amount)
 
 			// When a user tries to withdraw the calculated amount, the shares needed for withdrawal
 			// should be less than or equal to the input shares used in `CalculateCollateralAmount`.
-			sharesToWithdraw := CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, amount)
+			sharesToWithdraw := types.CalculateCollateralSharesForWithdrawal(tc.totalCollateral, tc.totalShares, amount)
 			require.True(t, sharesToWithdraw.LTE(tc.shares),
 				"For %s with shares %s, amount %s, sharesToWithdraw %s",
 				tc.name, tc.shares, amount, sharesToWithdraw)
