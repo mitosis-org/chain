@@ -256,6 +256,11 @@ func (k Keeper) TransferCollateralOwnership(
 	prevOwnership types.CollateralOwnership,
 	newOwner mitotypes.EthAddress,
 ) {
+	// If the previous owner is the same as the new owner, do nothing
+	if prevOwnership.Owner.Equal(newOwner) {
+		return
+	}
+
 	// Transfer all shares from the previous owner to the new owner
 	sharesToTransfer := prevOwnership.Shares
 

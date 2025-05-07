@@ -522,6 +522,50 @@ func (s *ValidatorTestSuite) Test_TransferCollateralOwnership() {
 	s.Require().Equal(initialCollateral, validatorAfter.Collateral)
 }
 
+func (s *ValidatorTestSuite) Test_TransferCollateralOwnership_SameOwner() {
+	// Set up test parameters
+	s.tk.SetupDefaultTestParams()
+
+	// Register a validator with an owner
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, ownerAddr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(2000000000) // 2 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, ownerAddr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+
+	// Get the original ownership record
+	originOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+
+	// Store the original ownership details for comparison
+	originalShares := originOwnership.Shares
+	originalHeight := originOwnership.CreationHeight
+
+	// Attempt to transfer ownership to the same owner
+	s.tk.Keeper.TransferCollateralOwnership(
+		s.tk.Ctx,
+		&validator,
+		originOwnership,
+		ownerAddr,
+	)
+
+	// Verify ownership record still exists and is unchanged
+	ownershipAfter, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found, "Ownership record should still exist for the same owner")
+	s.Require().Equal(originalShares, ownershipAfter.Shares, "Shares should remain unchanged")
+	s.Require().Equal(originalHeight, ownershipAfter.CreationHeight, "Creation height should remain unchanged")
+	s.Require().Equal(originOwnership, ownershipAfter, "Entire ownership record should be unchanged")
+
+	// Validator collateral should remain unchanged
+	validatorAfter, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+	s.Require().Equal(initialCollateral, validatorAfter.Collateral)
+}
+
 // ==================== Slash_ Tests ====================
 
 func (s *ValidatorTestSuite) Test_Slash_() {
