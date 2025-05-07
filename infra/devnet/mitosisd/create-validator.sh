@@ -41,7 +41,7 @@ $MIDEVTOOL governance execute \
   --entrypoint "$GOV_ENTRYPOINT" \
   --private-key "$FUNDER_PRIVKEY" \
   --msg '[{"@type":"/mitosis.evmvalidator.v1.MsgUpdateValidatorEntrypointContractAddr","authority":"mito1g86pactsvfrcglkvqzvdwkxhjshafu280q95p7","addr":"'"$VAL_ENTRYPOINT"'"}]' \
-  --rpc "$EC_RPC_URL"
+  --rpc-url "$EC_RPC_URL"
 
 sleep 2
 
