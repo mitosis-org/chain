@@ -34,11 +34,12 @@ func TestValidatorTestSuite(t *testing.T) {
 func (s *ValidatorTestSuite) Test_RegisterValidator() {
 	// Generate validator data
 	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	collateral := math.NewUint(1000000000)       // 1 MITO in gwei
-	extraVotingPower := math.NewUint(1000000000) // 1 MITO in gwei
+	_, _, ownerAddr := testutil.GenerateSecp256k1Key() // Different owner address
+	collateral := math.NewUint(1000000000)             // 1 MITO in gwei
+	extraVotingPower := math.NewUint(1000000000)       // 1 MITO in gwei
 
 	// Register validator
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, false)
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, ownerAddr, collateral, extraVotingPower, false)
 	s.Require().NoError(err)
 
 	// Check if validator exists
@@ -48,11 +49,27 @@ func (s *ValidatorTestSuite) Test_RegisterValidator() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       collateral,
+		CollateralShares: types.CalculateCollateralSharesForDeposit(math.ZeroUint(), math.ZeroUint(), collateral),
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      2,
 		Jailed:           false,
 		Bonded:           false,
 	}, validator)
+
+	// Verify there's exactly one ownership record for this validator with the correct owner
+	var ownerships []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+		ownerships = append(ownerships, ownership)
+		return false
+	})
+
+	s.Require().Equal(1, len(ownerships), "There should be exactly one ownership record")
+	s.Require().Equal(types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          ownerAddr,
+		Shares:         validator.CollateralShares,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}, ownerships[0], "The ownership record should match")
 
 	// Check if consensus address mapping exists
 	valFromConsAddr, found := s.tk.Keeper.GetValidatorByConsAddr(s.tk.Ctx, validator.MustConsAddr())
@@ -74,7 +91,7 @@ func (s *ValidatorTestSuite) Test_RegisterValidator() {
 	s.Require().True(found, "validator should be indexed by power")
 
 	// Try registering the same validator again (should fail)
-	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, false)
+	err = s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, ownerAddr, collateral, extraVotingPower, false)
 	s.Require().Error(err)
 	s.Require().ErrorIs(err, types.ErrValidatorAlreadyExists)
 }
@@ -85,7 +102,7 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_ZeroCollateral() {
 	extraVotingPower := math.NewUint(0)
 
 	// Try registering with zero collateral (should still work but voting power will be zero)
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, zeroCollateral, extraVotingPower, false)
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, valAddr, zeroCollateral, extraVotingPower, false)
 	s.Require().NoError(err)
 
 	// Check if validator exists
@@ -95,11 +112,27 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_ZeroCollateral() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       zeroCollateral,
+		CollateralShares: types.CalculateCollateralSharesForDeposit(zeroCollateral, math.ZeroUint(), zeroCollateral),
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      0,
 		Jailed:           true,
 		Bonded:           false,
 	}, validator)
+
+	// Verify ownership record with iterate method
+	var ownerships []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+		ownerships = append(ownerships, ownership)
+		return false
+	})
+
+	s.Require().Equal(1, len(ownerships), "There should be exactly one ownership record")
+	s.Require().Equal(types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          valAddr,
+		Shares:         validator.CollateralShares,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}, ownerships[0], "The ownership record should match")
 }
 
 func (s *ValidatorTestSuite) Test_RegisterValidator_InvalidPubkey() {
@@ -109,7 +142,7 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_InvalidPubkey() {
 	extraVotingPower := math.NewUint(0)
 
 	// Try registering with invalid pubkey format
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, validEthAddr, invalidPubkey, collateral, extraVotingPower, false)
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, validEthAddr, invalidPubkey, validEthAddr, collateral, extraVotingPower, false)
 	s.Require().Error(err)
 }
 
@@ -120,52 +153,130 @@ func (s *ValidatorTestSuite) Test_RegisterValidator_NotMatchedPubkey() {
 
 	// Try registering with pubkey not matched to address
 	_, notMatchedPubkey, _ := testutil.GenerateSecp256k1Key()
-	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, notMatchedPubkey, collateral, extraVotingPower, false)
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, notMatchedPubkey, valAddr, collateral, extraVotingPower, false)
 	s.Require().Error(err)
 }
 
 // ==================== DepositCollateral Tests ====================
 
 func (s *ValidatorTestSuite) Test_DepositCollateral() {
-	// Use helper functions
+	// Set up test parameters
 	s.tk.SetupDefaultTestParams()
-	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+
+	// Register a validator with a separate owner initially
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, initialOwnerAddr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(1000000000) // 1 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, initialOwnerAddr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
 	initialValidator := validator
 
-	// Initial voting power should be 1
+	// Create another owner who will deposit collateral
+	_, _, secondOwnerAddr := testutil.GenerateSecp256k1Key()
+
+	// Initial state check
 	s.Require().Equal(int64(1), validator.VotingPower)
+	s.Require().Equal(initialCollateral, validator.Collateral)
 
-	// Deposit additional collateral
+	// Initial ownership check
+	initialOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, initialOwnerAddr)
+	s.Require().True(found)
+
+	// Deposit additional collateral from second owner
 	additionalCollateral := math.NewUint(500000000) // 0.5 MITO in gwei
-	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, additionalCollateral)
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, secondOwnerAddr, additionalCollateral)
 
+	// Check validator state after deposit
 	expectedValidator := initialValidator
-	expectedValidator.Collateral = expectedValidator.Collateral.Add(additionalCollateral)
-	expectedValidator.VotingPower = 1
+	expectedValidator.Collateral = initialValidator.Collateral.Add(additionalCollateral)
+	expectedValidator.CollateralShares = initialValidator.CollateralShares.Add(types.CalculateCollateralSharesForDeposit(initialValidator.Collateral, initialValidator.CollateralShares, additionalCollateral))
+	expectedValidator.VotingPower = int64(1) // Still 1 since 1.5 MITO rounds down to 1
 	s.Require().Equal(expectedValidator, validator)
 
-	// Expected voting power should increase from 1 to 1.5, which gets truncated to 1
-	// For a more noticeable change, let's add another 0.5 MITO
-	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, additionalCollateral)
+	// Check ownership records
+	initialOwnershipAfter, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, initialOwnerAddr)
+	s.Require().True(found)
+	s.Require().Equal(initialOwnership.Shares, initialOwnershipAfter.Shares, "Initial owner's shares should remain unchanged")
+
+	secondOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, secondOwnerAddr)
+	s.Require().True(found)
+	s.Require().Equal(types.CalculateCollateralSharesForWithdrawal(
+		validator.Collateral,
+		validator.CollateralShares,
+		additionalCollateral), secondOwnership.Shares)
+
+	s.Require().Equal(initialOwnershipAfter.Shares.Add(secondOwnership.Shares), validator.CollateralShares)
+
+	// For a more noticeable change, let's add another 0.5 MITO from the second owner
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, secondOwnerAddr, additionalCollateral)
 
 	// Now we should have 2 MITO total, which should give 2 voting power
 	finalExpectedValidator := expectedValidator
-	finalExpectedValidator.Collateral = finalExpectedValidator.Collateral.Add(additionalCollateral)
-	finalExpectedValidator.VotingPower = 2
+	finalExpectedValidator.Collateral = expectedValidator.Collateral.Add(additionalCollateral)
+	finalExpectedValidator.CollateralShares = expectedValidator.CollateralShares.Add(types.CalculateCollateralSharesForDeposit(expectedValidator.Collateral, expectedValidator.CollateralShares, additionalCollateral))
+	finalExpectedValidator.VotingPower = int64(2)
 	s.Require().Equal(finalExpectedValidator, validator)
+
+	// Check updated shares for second owner
+	secondOwnershipUpdated, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, secondOwnerAddr)
+	s.Require().True(found)
+	s.Require().Equal(secondOwnership.Shares.Add(types.CalculateCollateralSharesForDeposit(
+		validator.Collateral,
+		validator.CollateralShares,
+		additionalCollateral)), secondOwnershipUpdated.Shares)
+	s.Require().Equal(initialOwnershipAfter.Shares.Add(secondOwnershipUpdated.Shares), validator.CollateralShares)
 }
 
 func (s *ValidatorTestSuite) Test_DepositCollateral_ZeroAmount() {
-	// Use helper function to register a validator
-	validator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false)
+	// Set up test parameters
+	s.tk.SetupDefaultTestParams()
+
+	// Register a validator with separate owner
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, ownerAddr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(1000000000) // 1 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, ownerAddr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
 	initialValidator := validator
 
-	// Deposit zero collateral
+	// Check initial ownership
+	var initialOwnerships []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+		initialOwnerships = append(initialOwnerships, ownership)
+		return false
+	})
+	s.Require().Equal(1, len(initialOwnerships), "Should initially have one ownership record")
+	s.Require().Equal(types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          ownerAddr,
+		Shares:         validator.CollateralShares,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}, initialOwnerships[0], "The ownership record should match")
+
+	// Create another owner to deposit zero collateral
+	_, _, anotherOwnerAddr := testutil.GenerateSecp256k1Key()
 	zeroCollateral := math.ZeroUint()
-	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, zeroCollateral)
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, anotherOwnerAddr, zeroCollateral)
 
 	// Check validator state is unchanged
 	s.Require().Equal(initialValidator, validator)
+
+	// Verify no new ownership record is created for zero deposit
+	var ownershipsAfterAnotherZeroDeposit []types.CollateralOwnership
+	s.tk.Keeper.IterateCollateralOwnershipsByValidator(s.tk.Ctx, valAddr, func(ownership types.CollateralOwnership) bool {
+		ownershipsAfterAnotherZeroDeposit = append(ownershipsAfterAnotherZeroDeposit, ownership)
+		return false
+	})
+	s.Require().Equal(1, len(ownershipsAfterAnotherZeroDeposit), "Should still have only one ownership record after zero deposit from new owner")
+	s.Require().Equal(initialOwnerships[0], ownershipsAfterAnotherZeroDeposit[0], "Original ownership should still be unchanged")
 }
 
 // ==================== WithdrawCollateral Tests ====================
@@ -190,10 +301,13 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral() {
 
 	expectedValidator := initialValidator
 	expectedValidator.Collateral = expectedValidator.Collateral.Sub(math.NewUint(withdrawalAmount))
+	expectedValidator.CollateralShares = expectedValidator.CollateralShares.Sub(
+		types.CalculateCollateralSharesForWithdrawal(initialValidator.Collateral, initialValidator.CollateralShares, math.NewUint(withdrawalAmount)),
+	)
 	expectedValidator.VotingPower = int64(1)
 
 	// Withdraw collateral
-	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, &withdrawal)
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, &withdrawal)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedValidator, validator)
 }
@@ -215,7 +329,7 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral_InsufficientCollateral() {
 		CreationHeight: s.tk.Ctx.BlockHeight(),
 	}
 
-	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, excessWithdrawal)
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, excessWithdrawal)
 	s.Require().Error(err)
 	s.Require().ErrorIs(err, types.ErrInsufficientCollateral)
 
@@ -227,13 +341,14 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral_InsufficientCollateral() {
 		CreationHeight: s.tk.Ctx.BlockHeight(),
 	}
 
-	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, fullWithdrawal)
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, fullWithdrawal)
 	s.Require().NoError(err)
 	s.Require().Equal(math.ZeroUint(), validator.Collateral)
 	s.Require().Equal(types.Validator{
 		Addr:             initialValidator.Addr,
 		Pubkey:           initialValidator.Pubkey,
 		Collateral:       math.ZeroUint(),
+		CollateralShares: math.ZeroUint(),
 		ExtraVotingPower: initialValidator.ExtraVotingPower,
 		VotingPower:      0,
 		Jailed:           true,
@@ -267,9 +382,188 @@ func (s *ValidatorTestSuite) Test_WithdrawCollateral_ZeroAmount() {
 	}
 
 	// Withdraw collateral
-	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, &withdrawal)
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, &withdrawal)
 	s.Require().NoError(err)
 	s.Require().Equal(initialValidator, validator)
+}
+
+// ==================== Enhanced withdraw test with multiple owners ====================
+
+func (s *ValidatorTestSuite) Test_WithdrawCollateral_MultipleOwners() {
+	// Set parameters for test
+	s.tk.SetupDefaultTestParams()
+
+	// Register a validator with the first owner
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, owner1Addr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(2000000000) // 2 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, owner1Addr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+
+	// Get the initial ownership record
+	owner1Ownership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, owner1Addr)
+	s.Require().True(found)
+	initialShares := owner1Ownership.Shares
+
+	// Add a second owner with additional collateral
+	_, _, owner2Addr := testutil.GenerateSecp256k1Key()
+	additionalCollateral := math.NewUint(1000000000) // 1 MITO
+
+	s.tk.Keeper.DepositCollateral(s.tk.Ctx, &validator, owner2Addr, additionalCollateral)
+
+	// Get the updated validator and ownership records
+	validator, found = s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+
+	owner2Ownership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, owner2Addr)
+	s.Require().True(found)
+
+	// Create withdrawal request for owner1 (half of their collateral)
+	withdrawalAmount := uint64(1000000000) // 1 MITO
+	withdrawal := types.Withdrawal{
+		ValAddr:        valAddr,
+		Amount:         withdrawalAmount,
+		Receiver:       owner1Addr,
+		MaturesAt:      time.Now().Unix() + 86400, // 1 day from now
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+
+	// Calculate shares to withdraw
+	sharesToWithdraw := types.CalculateCollateralSharesForWithdrawal(
+		validator.Collateral,
+		validator.CollateralShares,
+		math.NewUint(withdrawalAmount))
+
+	// Withdraw collateral for owner1
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, owner1Addr, &withdrawal)
+	s.Require().NoError(err)
+
+	// Check validator state (total collateral should be reduced)
+	expectedCollateral := initialCollateral.Add(additionalCollateral).Sub(math.NewUint(withdrawalAmount))
+	s.Require().Equal(expectedCollateral, validator.Collateral)
+
+	// Check ownership records after withdrawal
+	owner1OwnershipAfter, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, owner1Addr)
+	s.Require().True(found)
+	s.Require().Equal(initialShares.Sub(sharesToWithdraw), owner1OwnershipAfter.Shares)
+
+	// Owner2's shares should remain unchanged
+	owner2OwnershipAfter, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, owner2Addr)
+	s.Require().True(found)
+	s.Require().Equal(owner2Ownership.Shares, owner2OwnershipAfter.Shares)
+
+	// Try withdrawing more than available from owner2 (should fail)
+	excessWithdrawal := types.Withdrawal{
+		ValAddr:        valAddr,
+		Amount:         additionalCollateral.Uint64() + 1, // More than owner2 has
+		Receiver:       owner2Addr,
+		MaturesAt:      time.Now().Unix() + 86400,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}
+
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, owner2Addr, &excessWithdrawal)
+	s.Require().Error(err)
+	s.Require().ErrorIs(err, types.ErrInsufficientCollateral)
+}
+
+// ==================== Test for transferring collateral ownership ====================
+
+func (s *ValidatorTestSuite) Test_TransferCollateralOwnership() {
+	// Set up test parameters
+	s.tk.SetupDefaultTestParams()
+
+	// Register a validator with an owner
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, originOwnerAddr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(2000000000) // 2 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, originOwnerAddr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+
+	// Get the original ownership record
+	originOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, originOwnerAddr)
+	s.Require().True(found)
+
+	// Create a new owner to transfer to
+	_, _, newOwnerAddr := testutil.GenerateSecp256k1Key()
+
+	// Transfer ownership from original owner to new owner
+	s.tk.Keeper.TransferCollateralOwnership(
+		s.tk.Ctx,
+		&validator,
+		originOwnership,
+		newOwnerAddr,
+	)
+
+	// Verify original ownership record was deleted
+	_, found = s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, originOwnerAddr)
+	s.Require().False(found, "Original ownership record should be deleted")
+
+	// Verify new ownership record was created with same shares
+	newOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, newOwnerAddr)
+	s.Require().True(found, "New ownership record should be created")
+	s.Require().Equal(types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          newOwnerAddr,
+		Shares:         originOwnership.Shares,
+		CreationHeight: s.tk.Ctx.BlockHeight(),
+	}, newOwnership)
+
+	// Validator collateral should remain unchanged throughout transfers
+	validatorAfter, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+	s.Require().Equal(initialCollateral, validatorAfter.Collateral)
+}
+
+func (s *ValidatorTestSuite) Test_TransferCollateralOwnership_SameOwner() {
+	// Set up test parameters
+	s.tk.SetupDefaultTestParams()
+
+	// Register a validator with an owner
+	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
+	_, _, ownerAddr := testutil.GenerateSecp256k1Key()
+	initialCollateral := math.NewUint(2000000000) // 2 MITO
+
+	err := s.tk.Keeper.RegisterValidator(s.tk.Ctx, valAddr, pubkey, ownerAddr, initialCollateral, math.ZeroUint(), false)
+	s.Require().NoError(err)
+
+	validator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+
+	// Get the original ownership record
+	originOwnership, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found)
+
+	// Store the original ownership details for comparison
+	originalShares := originOwnership.Shares
+	originalHeight := originOwnership.CreationHeight
+
+	// Attempt to transfer ownership to the same owner
+	s.tk.Keeper.TransferCollateralOwnership(
+		s.tk.Ctx,
+		&validator,
+		originOwnership,
+		ownerAddr,
+	)
+
+	// Verify ownership record still exists and is unchanged
+	ownershipAfter, found := s.tk.Keeper.GetCollateralOwnership(s.tk.Ctx, valAddr, ownerAddr)
+	s.Require().True(found, "Ownership record should still exist for the same owner")
+	s.Require().Equal(originalShares, ownershipAfter.Shares, "Shares should remain unchanged")
+	s.Require().Equal(originalHeight, ownershipAfter.CreationHeight, "Creation height should remain unchanged")
+	s.Require().Equal(originOwnership, ownershipAfter, "Entire ownership record should be unchanged")
+
+	// Validator collateral should remain unchanged
+	validatorAfter, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
+	s.Require().True(found)
+	s.Require().Equal(initialCollateral, validatorAfter.Collateral)
 }
 
 // ==================== Slash_ Tests ====================
@@ -385,11 +679,11 @@ func (s *ValidatorTestSuite) Test_Slash_Withdrawals() {
 	}
 
 	// Process the withdrawals
-	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, &futureWithdrawal1)
+	err := s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, &futureWithdrawal1)
 	s.Require().NoError(err)
-	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, &futureWithdrawal2)
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, &futureWithdrawal2)
 	s.Require().NoError(err)
-	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, &maturedWithdrawal)
+	err = s.tk.Keeper.WithdrawCollateral(s.tk.Ctx, &validator, validator.Addr, &maturedWithdrawal)
 	s.Require().NoError(err)
 
 	// Get updated validator with 1.6 MITO (5 - 0.6 - 0.8 - 2) of collateral

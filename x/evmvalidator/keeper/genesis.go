@@ -5,7 +5,9 @@ import (
 	cmttypes "github.com/cometbft/cometbft/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	mitotypes "github.com/mitosis-org/chain/types"
 	"github.com/mitosis-org/chain/x/evmvalidator/types"
+	"github.com/omni-network/omni/lib/errors"
 )
 
 // InitGenesis initializes the evmvalidator module's state from a provided genesis state
@@ -19,10 +21,24 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) ([]abci.V
 	// Set ConsensusValidatorEntrypoint contract address
 	k.SetValidatorEntrypointContractAddr(ctx, data.ValidatorEntrypointContractAddr)
 
+	// Validate that each validator has only one collateral owner
+	initialCollateralOwnersByValidator := make(map[mitotypes.EthAddress]mitotypes.EthAddress)
+	for _, ownership := range data.CollateralOwnerships {
+		if _, ok := initialCollateralOwnersByValidator[ownership.ValAddr]; ok {
+			return []abci.ValidatorUpdate{}, errors.New("only one collateral owner per validator is allowed in genesis")
+		}
+		initialCollateralOwnersByValidator[ownership.ValAddr] = ownership.Owner
+	}
+
 	// Set validators
 	for _, validator := range data.Validators {
-		// voting power will be recalculated
-		if err = k.RegisterValidator(ctx, validator.Addr, validator.Pubkey, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
+		initialCollateralOwner, ok := initialCollateralOwnersByValidator[validator.Addr]
+		if !ok {
+			return []abci.ValidatorUpdate{}, errors.New("validator has no initial collateral owner")
+		}
+
+		// NOTE: validator.CollateralShares is ignored.
+		if err = k.RegisterValidator(ctx, validator.Addr, validator.Pubkey, initialCollateralOwner, validator.Collateral, validator.ExtraVotingPower, validator.Jailed); err != nil {
 			return nil, err
 		}
 	}
@@ -48,6 +64,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		k.GetAllValidators(ctx),
 		k.GetAllWithdrawals(ctx),
 		k.GetLastValidatorPowers(ctx),
+		k.GetAllCollateralOwnerships(ctx),
 	)
 }
 

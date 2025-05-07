@@ -408,3 +408,88 @@ func (k Keeper) IterateWithdrawalsForValidator(
 		}
 	}
 }
+
+// GetCollateralOwnership gets collateral ownership by validator and owner
+func (k Keeper) GetCollateralOwnership(
+	ctx sdk.Context,
+	valAddr mitotypes.EthAddress,
+	owner mitotypes.EthAddress,
+) (ownership types.CollateralOwnership, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetCollateralOwnershipKey(valAddr, owner)
+	bz := store.Get(key)
+	if bz == nil {
+		return types.CollateralOwnership{}, false
+	}
+
+	k.cdc.MustUnmarshal(bz, &ownership)
+	return ownership, true
+}
+
+// SetCollateralOwnership sets collateral ownership for validator and owner
+func (k Keeper) SetCollateralOwnership(ctx sdk.Context, ownership types.CollateralOwnership) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetCollateralOwnershipKey(ownership.ValAddr, ownership.Owner)
+	bz := k.cdc.MustMarshal(&ownership)
+	store.Set(key, bz)
+}
+
+// DeleteCollateralOwnership deletes collateral ownership
+func (k Keeper) DeleteCollateralOwnership(
+	ctx sdk.Context,
+	valAddr mitotypes.EthAddress,
+	owner mitotypes.EthAddress,
+) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetCollateralOwnershipKey(valAddr, owner)
+	store.Delete(key)
+}
+
+// IterateCollateralOwnerships iterates over all collateral ownerships
+func (k Keeper) IterateCollateralOwnerships(
+	ctx sdk.Context,
+	cb func(ownership types.CollateralOwnership) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := storetypes.KVStorePrefixIterator(store, types.CollateralOwnershipKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var ownership types.CollateralOwnership
+		k.cdc.MustUnmarshal(iterator.Value(), &ownership)
+		if cb(ownership) {
+			break
+		}
+	}
+}
+
+// IterateCollateralOwnershipsByValidator iterates over all collateral ownerships for a validator
+func (k Keeper) IterateCollateralOwnershipsByValidator(
+	ctx sdk.Context,
+	valAddr mitotypes.EthAddress,
+	cb func(ownership types.CollateralOwnership) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	prefix := prefix.NewStore(store, types.GetCollateralOwnershipByValidatorIterationKey(valAddr))
+
+	iterator := prefix.Iterator(nil, nil)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var ownership types.CollateralOwnership
+		k.cdc.MustUnmarshal(iterator.Value(), &ownership)
+		if cb(ownership) {
+			break
+		}
+	}
+}
+
+// GetAllCollateralOwnerships gets all collateral ownerships
+func (k Keeper) GetAllCollateralOwnerships(ctx sdk.Context) []types.CollateralOwnership {
+	var ownerships []types.CollateralOwnership
+	k.IterateCollateralOwnerships(ctx, func(ownership types.CollateralOwnership) bool {
+		ownerships = append(ownerships, ownership)
+		return false
+	})
+	return ownerships
+}

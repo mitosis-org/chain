@@ -38,14 +38,14 @@ func (s *EventProcessingTestSuite) Test_ProcessRegisterValidator() {
 
 	// Generate validator data
 	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	_, _, refundAddr := testutil.GenerateSecp256k1Key()
+	_, _, collateralOwnerAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the register validator event
 	event := &bindings.ConsensusValidatorEntrypointMsgRegisterValidator{
 		ValAddr:                     common.BytesToAddress(valAddr.Bytes()),
 		PubKey:                      pubkey,
+		InitialCollateralOwner:      common.BytesToAddress(collateralOwnerAddr.Bytes()),
 		InitialCollateralAmountGwei: big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr:        common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Process the register validator event
@@ -60,23 +60,25 @@ func (s *EventProcessingTestSuite) Test_ProcessRegisterValidator() {
 		Addr:             valAddr,
 		Pubkey:           pubkey,
 		Collateral:       math.NewUintFromBigInt(event.InitialCollateralAmountGwei),
+		CollateralShares: types.CalculateCollateralSharesForDeposit(math.ZeroUint(), math.ZeroUint(), math.NewUintFromBigInt(event.InitialCollateralAmountGwei)),
 		ExtraVotingPower: math.ZeroUint(),
 		VotingPower:      1,
 		Jailed:           false,
+		Bonded:           false,
 	}, validator)
 }
 
 func (s *EventProcessingTestSuite) Test_FallbackRegisterValidator() {
 	// Generate validator data
 	_, pubkey, valAddr := testutil.GenerateSecp256k1Key()
-	_, _, refundAddr := testutil.GenerateSecp256k1Key()
+	_, _, collateralOwnerAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the register validator event
 	event := &bindings.ConsensusValidatorEntrypointMsgRegisterValidator{
 		ValAddr:                     common.BytesToAddress(valAddr.Bytes()),
 		PubKey:                      pubkey,
+		InitialCollateralOwner:      common.BytesToAddress(collateralOwnerAddr.Bytes()),
 		InitialCollateralAmountGwei: big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr:        common.BytesToAddress(refundAddr.Bytes()),
 	}
 
 	// Track inserted withdrawals
@@ -93,7 +95,7 @@ func (s *EventProcessingTestSuite) Test_FallbackRegisterValidator() {
 	s.Require().NoError(err)
 
 	// Verify withdrawal was inserted
-	s.Require().Equal(event.CollateralRefundAddr, insertedWithdrawalAddr)
+	s.Require().Equal(event.InitialCollateralOwner, insertedWithdrawalAddr)
 	s.Require().Equal(event.InitialCollateralAmountGwei.Uint64(), insertedWithdrawalAmount)
 }
 
@@ -101,13 +103,13 @@ func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
 	s.tk.SetupDefaultTestParams()
 
 	initialValidator := s.tk.RegisterTestValidator(math.NewUint(1000000000), math.ZeroUint(), false) // 1 MITO
-	_, _, refundAddr := testutil.GenerateSecp256k1Key()
+	_, _, collateralOwnerAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the deposit collateral event
 	event := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
-		ValAddr:              common.BytesToAddress(initialValidator.Addr.Bytes()),
-		AmountGwei:           big.NewInt(1000000000), // 1 MITO more
-		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
+		ValAddr:         common.BytesToAddress(initialValidator.Addr.Bytes()),
+		CollateralOwner: common.BytesToAddress(collateralOwnerAddr.Bytes()),
+		AmountGwei:      big.NewInt(1000000000), // 1 MITO more
 	}
 
 	// Process the deposit collateral event
@@ -118,17 +120,16 @@ func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
 	// Verify validator's collateral was increased
 	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, initialValidator.Addr)
 	s.Require().True(found)
-	expectedValidator := initialValidator
-	expectedValidator.Collateral = expectedValidator.Collateral.Add(math.NewUintFromBigInt(event.AmountGwei))
-	expectedValidator.VotingPower = 2
-	s.Require().Equal(expectedValidator, updatedValidator)
+	expectedCollateral := initialValidator.Collateral.Add(math.NewUintFromBigInt(event.AmountGwei))
+	s.Require().Equal(expectedCollateral, updatedValidator.Collateral)
+	s.Require().Equal(int64(2), updatedValidator.VotingPower)
 
 	// Try depositing to a non-existent validator (should return error with ignore=true)
 	_, _, nonExistentAddr := testutil.GenerateSecp256k1Key()
 	invalidEvent := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
-		ValAddr:              common.BytesToAddress(nonExistentAddr.Bytes()),
-		AmountGwei:           big.NewInt(1000000000),
-		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
+		ValAddr:         common.BytesToAddress(nonExistentAddr.Bytes()),
+		CollateralOwner: common.BytesToAddress(collateralOwnerAddr.Bytes()),
+		AmountGwei:      big.NewInt(1000000000),
 	}
 
 	err, ignore = s.tk.Keeper.ProcessDepositCollateral(s.tk.Ctx, invalidEvent)
@@ -140,13 +141,13 @@ func (s *EventProcessingTestSuite) Test_ProcessDepositCollateral() {
 func (s *EventProcessingTestSuite) Test_FallbackDepositCollateral() {
 	// Generate validator data
 	_, _, valAddr := testutil.GenerateSecp256k1Key()
-	_, _, refundAddr := testutil.GenerateSecp256k1Key()
+	_, _, collateralOwnerAddr := testutil.GenerateSecp256k1Key()
 
 	// Create the deposit collateral event
 	event := &bindings.ConsensusValidatorEntrypointMsgDepositCollateral{
-		ValAddr:              common.BytesToAddress(valAddr.Bytes()),
-		AmountGwei:           big.NewInt(1000000000), // 1 MITO
-		CollateralRefundAddr: common.BytesToAddress(refundAddr.Bytes()),
+		ValAddr:         common.BytesToAddress(valAddr.Bytes()),
+		CollateralOwner: common.BytesToAddress(collateralOwnerAddr.Bytes()),
+		AmountGwei:      big.NewInt(1000000000), // 1 MITO
 	}
 
 	// Track inserted withdrawals
@@ -163,7 +164,7 @@ func (s *EventProcessingTestSuite) Test_FallbackDepositCollateral() {
 	s.Require().NoError(err)
 
 	// Verify withdrawal was inserted
-	s.Require().Equal(event.CollateralRefundAddr, insertedWithdrawalAddr)
+	s.Require().Equal(event.CollateralOwner, insertedWithdrawalAddr)
 	s.Require().Equal(event.AmountGwei.Uint64(), insertedWithdrawalAmount)
 }
 
@@ -179,10 +180,11 @@ func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 	// Create withdraw collateral event
 	now := time.Now().Unix()
 	event := &bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral{
-		ValAddr:    common.BytesToAddress(valAddr.Bytes()),
-		AmountGwei: big.NewInt(1000000000), // 1 MITO
-		Receiver:   common.BytesToAddress(receiverAddr.Bytes()),
-		MaturesAt:  big.NewInt(now + 86400), // 1 day from now
+		ValAddr:         common.BytesToAddress(valAddr.Bytes()),
+		CollateralOwner: common.BytesToAddress(valAddr.Bytes()), // Using validator as owner since RegisterTestValidator uses the validator as owner
+		AmountGwei:      big.NewInt(1000000000),                 // 1 MITO
+		Receiver:        common.BytesToAddress(receiverAddr.Bytes()),
+		MaturesAt:       big.NewInt(now + 86400), // 1 day from now
 	}
 
 	// Process the withdraw collateral event
@@ -194,8 +196,9 @@ func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 	updatedValidator, found := s.tk.Keeper.GetValidator(s.tk.Ctx, valAddr)
 	s.Require().True(found)
 	expectedValidator := initialValidator
-	expectedValidator.Collateral = expectedValidator.Collateral.Sub(math.NewUintFromBigInt(event.AmountGwei))
-	expectedValidator.VotingPower = 2
+	expectedValidator.Collateral = initialValidator.Collateral.Sub(math.NewUintFromBigInt(event.AmountGwei))
+	expectedValidator.CollateralShares = initialValidator.CollateralShares.Sub(types.CalculateCollateralSharesForWithdrawal(initialValidator.Collateral, initialValidator.CollateralShares, math.NewUintFromBigInt(event.AmountGwei)))
+	expectedValidator.VotingPower = int64(2)
 	s.Require().Equal(expectedValidator, updatedValidator)
 
 	// Verify withdrawal was created
@@ -219,10 +222,11 @@ func (s *EventProcessingTestSuite) Test_ProcessWithdrawCollateral() {
 
 	// Try withdrawing more than available collateral (should fail with ignore=true)
 	invalidEvent := &bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral{
-		ValAddr:    common.BytesToAddress(valAddr.Bytes()),
-		AmountGwei: big.NewInt(3000000000), // 3 MITO (more than remaining collateral)
-		Receiver:   common.BytesToAddress(receiverAddr.Bytes()),
-		MaturesAt:  big.NewInt(now + 86400),
+		ValAddr:         common.BytesToAddress(valAddr.Bytes()),
+		CollateralOwner: common.BytesToAddress(valAddr.Bytes()),
+		AmountGwei:      big.NewInt(3000000000), // 3 MITO (more than remaining collateral)
+		Receiver:        common.BytesToAddress(receiverAddr.Bytes()),
+		MaturesAt:       big.NewInt(now + 86400),
 	}
 
 	err, ignore = s.tk.Keeper.ProcessWithdrawCollateral(s.tk.Ctx, invalidEvent)

@@ -62,6 +62,30 @@ service Query {
     option (google.api.http).get =
         "/mitosis/evmvalidator/v1/validators/{val_addr}/withdrawals";
   }
+
+  // CollateralOwnerships returns all collateral ownerships
+  rpc CollateralOwnerships(QueryCollateralOwnershipsRequest)
+      returns (QueryCollateralOwnershipsResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/collateral_ownerships";
+  }
+
+  // CollateralOwnershipsByValidator returns all collateral ownerships for a
+  // specific validator
+  rpc CollateralOwnershipsByValidator(
+      QueryCollateralOwnershipsByValidatorRequest)
+      returns (QueryCollateralOwnershipsByValidatorResponse) {
+    option (google.api.http).get =
+        "/mitosis/evmvalidator/v1/validators/{val_addr}/collateral_ownerships";
+  }
+
+  // CollateralOwnership returns the collateral ownership for a specific
+  // validator and owner
+  rpc CollateralOwnership(QueryCollateralOwnershipRequest)
+      returns (QueryCollateralOwnershipResponse) {
+    option (google.api.http).get = "/mitosis/evmvalidator/v1/validators/"
+                                   "{val_addr}/collateral_ownerships/{owner}";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method
@@ -165,4 +189,61 @@ message QueryWithdrawalsByValidatorResponse {
   repeated Withdrawal withdrawals = 1
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// CollateralOwnershipWithAmount extends CollateralOwnership to include the
+// withdrawable amount
+message CollateralOwnershipWithAmount {
+  CollateralOwnership ownership = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  string amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryCollateralOwnershipsRequest is the request type for the
+// Query/CollateralOwnerships RPC method
+message QueryCollateralOwnershipsRequest {
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryCollateralOwnershipsResponse is the response type for the
+// Query/CollateralOwnerships RPC method
+message QueryCollateralOwnershipsResponse {
+  repeated CollateralOwnershipWithAmount collateral_ownerships = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryCollateralOwnershipsByValidatorRequest is the request type for the
+// Query/CollateralOwnershipsByValidator RPC method
+message QueryCollateralOwnershipsByValidatorRequest {
+  bytes val_addr = 1;
+  // pagination defines an optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryCollateralOwnershipsByValidatorResponse is the response type for the
+// Query/CollateralOwnershipsByValidator RPC method
+message QueryCollateralOwnershipsByValidatorResponse {
+  repeated CollateralOwnershipWithAmount collateral_ownerships = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryCollateralOwnershipRequest is the request type for the
+// Query/CollateralOwnership RPC method
+message QueryCollateralOwnershipRequest {
+  bytes val_addr = 1;
+  bytes owner = 2;
+}
+
+// QueryCollateralOwnershipResponse is the response type for the
+// Query/CollateralOwnership RPC method
+message QueryCollateralOwnershipResponse {
+  CollateralOwnershipWithAmount collateral_ownership = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }

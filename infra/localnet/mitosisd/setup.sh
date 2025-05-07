@@ -42,10 +42,11 @@ sed -i.bak'' 's/timeout_commit = "5s"/timeout_commit = "1s"/' "$MITOSISD_HOME"/c
 # Get validator pubkey in compressed format for a genesis validator
 VAL_PRIVKEY_FILE="$MITOSISD_HOME/config/priv_validator_key.json"
 COMPRESSED_PUBKEY=$(jq -r ".pub_key.value" "$VAL_PRIVKEY_FILE" | base64 -d | xxd -p -c 1000 | tr '[:lower:]' '[:upper:]')
+VAL_ADDR="0x$(echo -n "$COMPRESSED_PUBKEY" | xxd -r -p | sha256sum | head -c 40)"
 
 # Add validator to evmvalidator genesis state
-# Parameters: pubkey, collateral (gwei), extra_voting_power, jailed
-$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
+# Parameters: pubkey, collateral_owner, collateral (gwei), extra_voting_power, jailed
+$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" "$VAL_ADDR" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
 
 # Comment out if you need to collect gentxs
 #$MITOSISD genesis collect-gentxs --home "$MITOSISD_HOME"

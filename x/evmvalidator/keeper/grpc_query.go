@@ -212,3 +212,137 @@ func (q QueryServer) WithdrawalsByValidator(ctx context.Context, req *types.Quer
 		Pagination:  pageRes,
 	}, nil
 }
+
+// CollateralOwnerships returns all collateral ownerships with withdrawable amounts
+func (q QueryServer) CollateralOwnerships(ctx context.Context, req *types.QueryCollateralOwnershipsRequest) (*types.QueryCollateralOwnershipsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	store := sdkCtx.KVStore(q.k.storeKey)
+	ownershipStore := prefix.NewStore(store, types.CollateralOwnershipKeyPrefix)
+
+	var collateralOwnerships []types.CollateralOwnershipWithAmount
+	pageRes, err := query.Paginate(ownershipStore, req.Pagination, func(key []byte, value []byte) error {
+		var ownership types.CollateralOwnership
+		q.k.cdc.MustUnmarshal(value, &ownership)
+
+		// Get validator to calculate amount
+		validator, found := q.k.GetValidator(sdkCtx, ownership.ValAddr)
+		if !found {
+			// Skip if validator not found (shouldn't happen in normal operation)
+			return nil
+		}
+
+		// Calculate amount from shares
+		amount := types.CalculateCollateralAmount(validator.Collateral, validator.CollateralShares, ownership.Shares)
+
+		// Create response with ownership and amount
+		collateralOwnerships = append(collateralOwnerships, types.CollateralOwnershipWithAmount{
+			Ownership: ownership,
+			Amount:    amount,
+		})
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryCollateralOwnershipsResponse{
+		CollateralOwnerships: collateralOwnerships,
+		Pagination:           pageRes,
+	}, nil
+}
+
+// CollateralOwnershipsByValidator returns all collateral ownerships for a specific validator
+func (q QueryServer) CollateralOwnershipsByValidator(ctx context.Context, req *types.QueryCollateralOwnershipsByValidatorRequest) (*types.QueryCollateralOwnershipsByValidatorResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.ValAddr == nil {
+		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	valAddr := mitotypes.BytesToEthAddress(req.ValAddr)
+
+	// Check if validator exists
+	validator, found := q.k.GetValidator(sdkCtx, valAddr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "validator %s not found", valAddr.String())
+	}
+
+	store := sdkCtx.KVStore(q.k.storeKey)
+	prefixKey := types.GetCollateralOwnershipByValidatorIterationKey(valAddr)
+	ownershipStore := prefix.NewStore(store, prefixKey)
+
+	var collateralOwnerships []types.CollateralOwnershipWithAmount
+	pageRes, err := query.Paginate(ownershipStore, req.Pagination, func(key []byte, value []byte) error {
+		var ownership types.CollateralOwnership
+		q.k.cdc.MustUnmarshal(value, &ownership)
+
+		// Calculate amount from shares
+		amount := types.CalculateCollateralAmount(validator.Collateral, validator.CollateralShares, ownership.Shares)
+
+		// Create response with ownership and amount
+		collateralOwnerships = append(collateralOwnerships, types.CollateralOwnershipWithAmount{
+			Ownership: ownership,
+			Amount:    amount,
+		})
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryCollateralOwnershipsByValidatorResponse{
+		CollateralOwnerships: collateralOwnerships,
+		Pagination:           pageRes,
+	}, nil
+}
+
+// CollateralOwnership returns the collateral ownership for a specific validator and owner
+func (q QueryServer) CollateralOwnership(ctx context.Context, req *types.QueryCollateralOwnershipRequest) (*types.QueryCollateralOwnershipResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.ValAddr == nil {
+		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
+	}
+
+	if req.Owner == nil {
+		return nil, status.Error(codes.InvalidArgument, "owner address cannot be empty")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	valAddr := mitotypes.BytesToEthAddress(req.ValAddr)
+	ownerAddr := mitotypes.BytesToEthAddress(req.Owner)
+
+	// Get validator to calculate withdrawable amount
+	validator, found := q.k.GetValidator(sdkCtx, valAddr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "validator %s not found", valAddr.String())
+	}
+
+	// Get ownership record
+	ownership, found := q.k.GetCollateralOwnership(sdkCtx, valAddr, ownerAddr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound,
+			"collateral ownership for validator %s and owner %s not found",
+			valAddr.String(), ownerAddr.String())
+	}
+
+	// Calculate amount from shares
+	amount := types.CalculateCollateralAmount(validator.Collateral, validator.CollateralShares, ownership.Shares)
+
+	return &types.QueryCollateralOwnershipResponse{
+		CollateralOwnership: types.CollateralOwnershipWithAmount{
+			Ownership: ownership,
+			Amount:    amount,
+		},
+	}, nil
+}

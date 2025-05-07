@@ -13,13 +13,12 @@ import (
 // NewCreateValidatorCmd creates a new command to create a validator
 func NewCreateValidatorCmd() *cobra.Command {
 	var (
-		pubKey              string
-		operator            string
-		rewardManager       string
-		withdrawalRecipient string
-		commissionRate      string
-		metadata            string
-		initialCollateral   string
+		pubKey            string
+		operator          string
+		rewardManager     string
+		commissionRate    string
+		metadata          string
+		initialCollateral string
 	)
 
 	cmd := &cobra.Command{
@@ -65,11 +64,6 @@ func NewCreateValidatorCmd() *cobra.Command {
 				log.Fatalf("Error in reward manager address: %v", err)
 			}
 
-			withdrawalRecipientAddr, err := utils.ValidateAddress(withdrawalRecipient)
-			if err != nil {
-				log.Fatalf("Error in withdrawal recipient address: %v", err)
-			}
-
 			// Parse commission rate
 			commissionRateInt, err := utils.ParsePercentageToBasisPoints(commissionRate)
 			if err != nil {
@@ -94,11 +88,10 @@ func NewCreateValidatorCmd() *cobra.Command {
 
 			// Create the request
 			request := bindings.IValidatorManagerCreateValidatorRequest{
-				Operator:            operatorAddr,
-				RewardManager:       rewardManagerAddr,
-				WithdrawalRecipient: withdrawalRecipientAddr,
-				CommissionRate:      commissionRateInt,
-				Metadata:            []byte(metadata),
+				Operator:       operatorAddr,
+				RewardManager:  rewardManagerAddr,
+				CommissionRate: commissionRateInt,
+				Metadata:       []byte(metadata),
 			}
 
 			// Show summary
@@ -106,7 +99,6 @@ func NewCreateValidatorCmd() *cobra.Command {
 			fmt.Printf("Public Key                 : %s\n", pubKey)
 			fmt.Printf("Operator                   : %s\n", operatorAddr.Hex())
 			fmt.Printf("Reward Manager             : %s\n", rewardManagerAddr.Hex())
-			fmt.Printf("Withdrawal Recipient       : %s\n", withdrawalRecipientAddr.Hex())
 			fmt.Printf("Commission Rate            : %s\n", utils.FormatBasisPointsToPercent(commissionRateInt))
 			fmt.Printf("Metadata                   : %s\n", metadata)
 			fmt.Printf("Initial Collateral         : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
@@ -138,7 +130,6 @@ func NewCreateValidatorCmd() *cobra.Command {
 	cmd.Flags().StringVar(&pubKey, "pubkey", "", "Validator's public key (hex with 0x prefix)")
 	cmd.Flags().StringVar(&operator, "operator", "", "Operator address")
 	cmd.Flags().StringVar(&rewardManager, "reward-manager", "", "Reward manager address")
-	cmd.Flags().StringVar(&withdrawalRecipient, "withdrawal-recipient", "", "Withdrawal recipient address")
 	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "Commission rate in percentage (e.g., \"5%\")")
 	cmd.Flags().StringVar(&metadata, "metadata", "", "Validator metadata (JSON string)")
 	cmd.Flags().StringVar(&initialCollateral, "initial-collateral", "", "Initial collateral amount in MITO (e.g., \"1.5\")")
@@ -147,7 +138,6 @@ func NewCreateValidatorCmd() *cobra.Command {
 	mustMarkFlagRequired(cmd, "pubkey")
 	mustMarkFlagRequired(cmd, "operator")
 	mustMarkFlagRequired(cmd, "reward-manager")
-	mustMarkFlagRequired(cmd, "withdrawal-recipient")
 	mustMarkFlagRequired(cmd, "commission-rate")
 	mustMarkFlagRequired(cmd, "metadata")
 	mustMarkFlagRequired(cmd, "initial-collateral")

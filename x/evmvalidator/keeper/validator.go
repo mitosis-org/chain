@@ -18,7 +18,8 @@ func (k Keeper) RegisterValidator(
 	ctx sdk.Context,
 	valAddr mitotypes.EthAddress,
 	pubkey []byte,
-	collateral sdkmath.Uint,
+	initialCollateralOwner mitotypes.EthAddress,
+	initialCollateral sdkmath.Uint,
 	extraVotingPower sdkmath.Uint,
 	jailed bool,
 ) error {
@@ -33,11 +34,15 @@ func (k Keeper) RegisterValidator(
 		return errors.Wrap(types.ErrValidatorAlreadyExists, valAddr.String())
 	}
 
+	// Calculate initial shares
+	initialCollateralShares := types.CalculateCollateralSharesForDeposit(initialCollateral, sdkmath.ZeroUint(), initialCollateral)
+
 	// Create a new validator
 	validator := types.Validator{
 		Addr:             valAddr,
 		Pubkey:           pubkey,
-		Collateral:       collateral,
+		Collateral:       initialCollateral,
+		CollateralShares: initialCollateralShares,
 		ExtraVotingPower: extraVotingPower,
 		VotingPower:      0, // will be calculated later
 		Jailed:           jailed,
@@ -59,13 +64,26 @@ func (k Keeper) RegisterValidator(
 		return errors.Wrap(err, "failed to call AfterValidatorCreated hook")
 	}
 
+	// Create a new ownership record
+	ownership := types.CollateralOwnership{
+		ValAddr:        valAddr,
+		Owner:          initialCollateralOwner,
+		Shares:         initialCollateralShares,
+		CreationHeight: ctx.BlockHeight(),
+	}
+
+	// Set the ownership record
+	k.SetCollateralOwnership(ctx, ownership)
+
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRegisterValidator,
 			sdk.NewAttribute(types.AttributeKeyValAddr, valAddr.String()),
 			sdk.NewAttribute(types.AttributeKeyPubkey, hex.EncodeToString(validator.Pubkey)),
+			sdk.NewAttribute(types.AttributeKeyCollateralOwner, initialCollateralOwner.String()),
 			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
+			sdk.NewAttribute(types.AttributeKeyCollateralShares, validator.CollateralShares.String()),
 			sdk.NewAttribute(types.AttributeKeyExtraVotingPower, validator.ExtraVotingPower.String()),
 			sdk.NewAttribute(types.AttributeKeyJailed, strconv.FormatBool(validator.Jailed)),
 		),
@@ -76,7 +94,9 @@ func (k Keeper) RegisterValidator(
 		"addr", valAddr.String(),
 		"consAddr", consAddr.String(),
 		"pubkey", hex.EncodeToString(validator.Pubkey),
+		"collateralOwner", initialCollateralOwner.String(),
 		"collateral", validator.Collateral,
+		"collateralShares", validator.CollateralShares,
 		"extraVotingPower", validator.ExtraVotingPower,
 		"jailed", validator.Jailed,
 	)
@@ -87,16 +107,42 @@ func (k Keeper) RegisterValidator(
 	return nil
 }
 
-func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, amount sdkmath.Uint) {
-	// Update validator's collateral
+func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, owner mitotypes.EthAddress, amount sdkmath.Uint) {
+	if amount.IsZero() {
+		return // nothing to deposit
+	}
+
+	// Calculate shares for this deposit
+	shares := types.CalculateCollateralSharesForDeposit(validator.Collateral, validator.CollateralShares, amount)
+
+	// Update validator's collateral and shares
 	validator.Collateral = validator.Collateral.Add(amount)
+	validator.CollateralShares = validator.CollateralShares.Add(shares)
+
+	// Update or create the ownership record
+	ownership, found := k.GetCollateralOwnership(ctx, validator.Addr, owner)
+	if !found {
+		ownership = types.CollateralOwnership{
+			ValAddr:        validator.Addr,
+			Owner:          owner,
+			Shares:         shares,
+			CreationHeight: ctx.BlockHeight(),
+		}
+	} else {
+		ownership.Shares = ownership.Shares.Add(shares)
+	}
+
+	// Save the ownership record
+	k.SetCollateralOwnership(ctx, ownership)
 
 	// Emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeDepositCollateral,
 			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
+			sdk.NewAttribute(types.AttributeKeyCollateralOwner, owner.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(types.AttributeKeyShares, shares.String()),
 			sdk.NewAttribute(types.AttributeKeyCollateral, validator.Collateral.String()),
 		),
 	)
@@ -104,7 +150,9 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 	k.Logger(ctx).Debug("💵 Validator Collateral Deposited",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
+		"collateralOwner", owner.String(),
 		"amount", amount.String(),
+		"shares", shares.String(),
 		"collateral", validator.Collateral.String(),
 	)
 
@@ -112,14 +160,40 @@ func (k Keeper) DepositCollateral(ctx sdk.Context, validator *types.Validator, a
 	k.UpdateValidatorState(ctx, validator, "deposit collateral")
 }
 
-func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, withdrawal *types.Withdrawal) error {
+func (k Keeper) WithdrawCollateral(
+	ctx sdk.Context,
+	validator *types.Validator,
+	owner mitotypes.EthAddress,
+	withdrawal *types.Withdrawal,
+) error {
 	amount := sdkmath.NewUint(withdrawal.Amount)
 
 	if amount.IsZero() {
 		return nil // nothing to withdraw
 	}
 
-	// Ensure validator has enough collateral
+	// Get the ownership record
+	ownership, found := k.GetCollateralOwnership(ctx, validator.Addr, owner)
+	if !found {
+		return errors.Wrap(types.ErrInsufficientCollateral,
+			"collateral owner does not have collateral for this validator",
+			"validator", validator.Addr.String(), "collateralOwner", owner.String(),
+		)
+	}
+
+	// Calculate how many shares to withdraw
+	sharesToWithdraw := types.CalculateCollateralSharesForWithdrawal(validator.Collateral, validator.CollateralShares, amount)
+
+	// Ensure owner has enough shares
+	if ownership.Shares.LT(sharesToWithdraw) {
+		return errors.Wrap(types.ErrInsufficientCollateral,
+			"collateral owner does not have enough collateral to withdraw",
+			"validator", validator.Addr.String(), "collateralOwner", owner.String(),
+			"shares", ownership.Shares.String(), "requiredShares", sharesToWithdraw.String(),
+		)
+	}
+
+	// Ensure validator has enough total collateral
 	if validator.Collateral.LT(amount) {
 		return errors.Wrap(types.ErrInsufficientCollateral,
 			"validator does not have enough collateral to withdraw",
@@ -127,8 +201,19 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 		)
 	}
 
-	// Update validator's collateral
+	// Update validator's collateral and shares
 	validator.Collateral = validator.Collateral.Sub(amount)
+	validator.CollateralShares = validator.CollateralShares.Sub(sharesToWithdraw)
+
+	// Update ownership record
+	ownership.Shares = ownership.Shares.Sub(sharesToWithdraw)
+
+	// If no shares left, delete the ownership record, otherwise update it
+	if ownership.Shares.IsZero() {
+		k.DeleteCollateralOwnership(ctx, validator.Addr, owner)
+	} else {
+		k.SetCollateralOwnership(ctx, ownership)
+	}
 
 	// Add a new withdrawal
 	k.AddNewWithdrawalWithNextID(ctx, withdrawal)
@@ -139,7 +224,9 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 			types.EventTypeWithdrawCollateral,
 			sdk.NewAttribute(types.AttributeKeyWithdrawalID, fmt.Sprintf("%d", withdrawal.ID)),
 			sdk.NewAttribute(types.AttributeKeyValAddr, withdrawal.ValAddr.String()),
+			sdk.NewAttribute(types.AttributeKeyCollateralOwner, owner.String()),
 			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+			sdk.NewAttribute(types.AttributeKeyShares, sharesToWithdraw.String()),
 			sdk.NewAttribute(types.AttributeKeyReceiver, withdrawal.Receiver.String()),
 			sdk.NewAttribute(types.AttributeKeyMaturesAt, time.Unix(withdrawal.MaturesAt, 0).String()),
 		),
@@ -148,8 +235,10 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	k.Logger(ctx).Debug("💸 Validator Collateral Withdrawal Requested",
 		"height", ctx.BlockHeight(),
 		"validator", validator.Addr.String(),
+		"collateralOwner", owner.String(),
 		"withdrawalID", withdrawal.ID,
 		"amount", amount.String(),
+		"shares", sharesToWithdraw.String(),
 		"receiver", withdrawal.Receiver.String(),
 		"maturesAt", time.Unix(withdrawal.MaturesAt, 0),
 	)
@@ -158,6 +247,60 @@ func (k Keeper) WithdrawCollateral(ctx sdk.Context, validator *types.Validator, 
 	k.UpdateValidatorState(ctx, validator, "withdraw collateral")
 
 	return nil
+}
+
+// TransferCollateralOwnership transfers collateral ownership from one owner to another
+func (k Keeper) TransferCollateralOwnership(
+	ctx sdk.Context,
+	validator *types.Validator,
+	prevOwnership types.CollateralOwnership,
+	newOwner mitotypes.EthAddress,
+) {
+	// If the previous owner is the same as the new owner, do nothing
+	if prevOwnership.Owner.Equal(newOwner) {
+		return
+	}
+
+	// Transfer all shares from the previous owner to the new owner
+	sharesToTransfer := prevOwnership.Shares
+
+	// Get or create ownership record for the new owner
+	newOwnership, found := k.GetCollateralOwnership(ctx, validator.Addr, newOwner)
+	if !found {
+		newOwnership = types.CollateralOwnership{
+			ValAddr:        validator.Addr,
+			Owner:          newOwner,
+			Shares:         sharesToTransfer,
+			CreationHeight: ctx.BlockHeight(),
+		}
+	} else {
+		newOwnership.Shares = newOwnership.Shares.Add(sharesToTransfer)
+	}
+
+	// Save the new ownership record
+	k.SetCollateralOwnership(ctx, newOwnership)
+
+	// Remove the previous owner's record
+	k.DeleteCollateralOwnership(ctx, validator.Addr, prevOwnership.Owner)
+
+	// Emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeTransferCollateralOwnership,
+			sdk.NewAttribute(types.AttributeKeyValAddr, validator.Addr.String()),
+			sdk.NewAttribute(types.AttributeKeyCollateralOwner, prevOwnership.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyCollateralNewOwner, newOwner.String()),
+			sdk.NewAttribute(types.AttributeKeyShares, sharesToTransfer.String()),
+		),
+	)
+
+	k.Logger(ctx).Debug("🔄 Validator Collateral Ownership Transferred",
+		"height", ctx.BlockHeight(),
+		"validator", validator.Addr.String(),
+		"prevOwner", prevOwnership.Owner.String(),
+		"newOwner", newOwner.String(),
+		"shares", sharesToTransfer.String(),
+	)
 }
 
 // Slash_ slashes a validator's collateral by a fraction

@@ -27,6 +27,14 @@ message Validator {
     (gogoproto.nullable) = false
   ];
 
+  // collateral_shares is the total number of shares issued for this validator's
+  // collateral
+  string collateral_shares = 8 [
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
+    (gogoproto.nullable) = false
+  ];
+
   // extra_voting_power is additional voting power assigned to the validator
   // (gwei unit)
   string extra_voting_power = 4 [
@@ -83,4 +91,29 @@ message LastValidatorPower {
 
   // power is the last voting power
   int64 power = 2;
+}
+
+// CollateralOwnership defines ownership record for collateral
+message CollateralOwnership {
+  // val_addr is the Ethereum address of the validator
+  bytes val_addr = 1 [
+    (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
+    (gogoproto.nullable) = false
+  ];
+
+  // owner is the Ethereum address of the collateral owner
+  bytes owner = 2 [
+    (gogoproto.customtype) = "github.com/mitosis-org/chain/types.EthAddress",
+    (gogoproto.nullable) = false
+  ];
+
+  // shares is the number of shares this owner has in the validator's collateral
+  string shares = 3 [
+    (cosmos_proto.scalar) = "cosmos.Uint",
+    (gogoproto.customtype) = "cosmossdk.io/math.Uint",
+    (gogoproto.nullable) = false
+  ];
+
+  // creation_height is the height at which this ownership record was created
+  int64 creation_height = 4;
 }

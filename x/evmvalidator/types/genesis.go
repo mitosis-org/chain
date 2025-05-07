@@ -15,6 +15,7 @@ func NewGenesisState(
 	validators []Validator,
 	withdrawals []Withdrawal,
 	lastValidatorPowers []LastValidatorPower,
+	collateralOwnerships []CollateralOwnership,
 ) *GenesisState {
 	return &GenesisState{
 		Params:                          params,
@@ -22,6 +23,7 @@ func NewGenesisState(
 		Validators:                      validators,
 		Withdrawals:                     withdrawals,
 		LastValidatorPowers:             lastValidatorPowers,
+		CollateralOwnerships:            collateralOwnerships,
 	}
 }
 
@@ -33,6 +35,7 @@ func DefaultGenesisState() *GenesisState {
 		Validators:                      []Validator{},
 		Withdrawals:                     []Withdrawal{},
 		LastValidatorPowers:             []LastValidatorPower{},
+		CollateralOwnerships:            []CollateralOwnership{},
 	}
 }
 
@@ -49,6 +52,9 @@ func (gs GenesisState) Validate() error {
 		}
 		if validator.Collateral.IsNil() {
 			return fmt.Errorf("validator %d has invalid collateral: %s", i, validator.Collateral)
+		}
+		if validator.CollateralShares.IsNil() {
+			return fmt.Errorf("validator %d has invalid collateral shares: %s", i, validator.CollateralShares)
 		}
 		if validator.ExtraVotingPower.IsNil() {
 			return fmt.Errorf("validator %d has invalid extra voting power: %s", i, validator.ExtraVotingPower)
@@ -74,6 +80,13 @@ func (gs GenesisState) Validate() error {
 	for i, lastPower := range gs.LastValidatorPowers {
 		if lastPower.Power < 0 {
 			return fmt.Errorf("last validator power %d has negative power: %d", i, lastPower.Power)
+		}
+	}
+
+	// Validate collateral ownerships
+	for i, ownership := range gs.CollateralOwnerships {
+		if ownership.Shares.IsNil() {
+			return fmt.Errorf("collateral ownership %d has invalid shares: %s", i, ownership.Shares)
 		}
 	}
 

@@ -132,7 +132,7 @@ func (tk TestKeeper) SetupTestParams(params types.Params) types.Params {
 // RegisterTestValidator is a helper function to register a validator for testing
 func (tk TestKeeper) RegisterTestValidator(collateral math.Uint, extraVotingPower math.Uint, jailed bool) types.Validator {
 	_, pubkey, valAddr := GenerateSecp256k1Key()
-	err := tk.Keeper.RegisterValidator(tk.Ctx, valAddr, pubkey, collateral, extraVotingPower, jailed)
+	err := tk.Keeper.RegisterValidator(tk.Ctx, valAddr, pubkey, valAddr, collateral, extraVotingPower, jailed)
 	if err != nil {
 		panic(err)
 	}

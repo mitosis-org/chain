@@ -23,19 +23,21 @@ import (
 var (
 	_ evmengtypes.EvmEventProcessor = &Keeper{}
 
-	ABI                            = mustGetABI(bindings.ConsensusValidatorEntrypointMetaData)
-	EventMsgRegisterValidator      = mustGetEvent(ABI, "MsgRegisterValidator")
-	EventMsgDepositCollateral      = mustGetEvent(ABI, "MsgDepositCollateral")
-	EventMsgWithdrawCollateral     = mustGetEvent(ABI, "MsgWithdrawCollateral")
-	EventMsgUnjail                 = mustGetEvent(ABI, "MsgUnjail")
-	EventMsgUpdateExtraVotingPower = mustGetEvent(ABI, "MsgUpdateExtraVotingPower")
+	ABI                                 = mustGetABI(bindings.ConsensusValidatorEntrypointMetaData)
+	EventMsgRegisterValidator           = mustGetEvent(ABI, "MsgRegisterValidator")
+	EventMsgDepositCollateral           = mustGetEvent(ABI, "MsgDepositCollateral")
+	EventMsgWithdrawCollateral          = mustGetEvent(ABI, "MsgWithdrawCollateral")
+	EventMsgTransferCollateralOwnership = mustGetEvent(ABI, "MsgTransferCollateralOwnership")
+	EventMsgUnjail                      = mustGetEvent(ABI, "MsgUnjail")
+	EventMsgUpdateExtraVotingPower      = mustGetEvent(ABI, "MsgUpdateExtraVotingPower")
 
 	EventsByID = map[common.Hash]abi.Event{
-		EventMsgRegisterValidator.ID:      EventMsgRegisterValidator,
-		EventMsgDepositCollateral.ID:      EventMsgDepositCollateral,
-		EventMsgWithdrawCollateral.ID:     EventMsgWithdrawCollateral,
-		EventMsgUnjail.ID:                 EventMsgUnjail,
-		EventMsgUpdateExtraVotingPower.ID: EventMsgUpdateExtraVotingPower,
+		EventMsgRegisterValidator.ID:           EventMsgRegisterValidator,
+		EventMsgDepositCollateral.ID:           EventMsgDepositCollateral,
+		EventMsgWithdrawCollateral.ID:          EventMsgWithdrawCollateral,
+		EventMsgTransferCollateralOwnership.ID: EventMsgTransferCollateralOwnership,
+		EventMsgUnjail.ID:                      EventMsgUnjail,
+		EventMsgUpdateExtraVotingPower.ID:      EventMsgUpdateExtraVotingPower,
 	}
 
 	contractCache sync.Map
@@ -56,6 +58,7 @@ func (k *Keeper) FilterParams(ctx context.Context) ([]common.Address, [][]common
 				EventMsgRegisterValidator.ID,
 				EventMsgDepositCollateral.ID,
 				EventMsgWithdrawCollateral.ID,
+				EventMsgTransferCollateralOwnership.ID,
 				EventMsgUnjail.ID,
 				EventMsgUpdateExtraVotingPower.ID,
 			},
@@ -127,8 +130,8 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
 			"_pubKey", fmt.Sprintf("%X", event.PubKey),
+			"_initialCollateralOwner", event.InitialCollateralOwner.String(),
 			"_initialCollateralAmountGwei", event.InitialCollateralAmountGwei,
-			"_collateralRefundAddr", event.CollateralRefundAddr.String(),
 		)
 
 		if err, ignore := k.ProcessRegisterValidator(ctx, event); err != nil {
@@ -169,8 +172,8 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
+			"_collateralOwner", event.CollateralOwner.String(),
 			"_amountGwei", event.AmountGwei,
-			"_collateralRefundAddr", event.CollateralRefundAddr.String(),
 		)
 
 		if err, ignore := k.ProcessDepositCollateral(ctx, event); err != nil {
@@ -211,13 +214,37 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 			"height", ctx.BlockHeight(),
 			"evmBlockHash", blockHash.Hex(),
 			"_valAddr", event.ValAddr.String(),
-			"_amountGwei", event.AmountGwei,
+			"_collateralOwner", event.CollateralOwner.String(),
 			"_receiver", event.Receiver.String(),
+			"_amountGwei", event.AmountGwei,
 			"_maturesAt", time.Unix(event.MaturesAt.Int64(), 0).String(),
 		)
 
 		if err, ignore := k.ProcessWithdrawCollateral(ctx, event); err != nil {
 			return errors.Wrap(err, "process MsgWithdrawCollateral"), ignore
+		}
+
+	// Potential failure cases are:
+	// - The validator does not exist (might be verified at the EVM contract level)
+	// - The previous owner's collateral ownership record does not exist (could be not verified at the EVM contract level)
+	// Fortunately, this logic is not critical. Even if it fails, users won't lose money
+	// and the state won't become corrupted. Therefore, we simply ignore errors when they occur.
+	case EventMsgTransferCollateralOwnership.ID:
+		event, err := contract.ParseMsgTransferCollateralOwnership(ethlog)
+		if err != nil {
+			return errors.Wrap(err, "parse MsgTransferCollateralOwnership"), false
+		}
+
+		k.Logger(ctx).Debug("📣 Process MsgTransferCollateralOwnership",
+			"height", ctx.BlockHeight(),
+			"evmBlockHash", blockHash.Hex(),
+			"_valAddr", event.ValAddr.String(),
+			"_prevOwner", event.PrevOwner.String(),
+			"_newOwner", event.NewOwner.String(),
+		)
+
+		if err, ignore := k.ProcessTransferCollateralOwnership(ctx, event); err != nil {
+			return errors.Wrap(err, "process MsgTransferCollateralOwnership"), ignore
 		}
 
 	// Potential failure cases are:
@@ -275,10 +302,11 @@ func (k *Keeper) ProcessEvent(originCtx sdk.Context, blockHash common.Hash, elog
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) ProcessRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
-	collateral := sdkmath.NewUintFromBigInt(event.InitialCollateralAmountGwei)
+	initialCollateralOwner := mitotypes.EthAddress(event.InitialCollateralOwner)
+	initialCollateral := sdkmath.NewUintFromBigInt(event.InitialCollateralAmountGwei)
 
 	// Register the validator
-	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, collateral, sdkmath.ZeroUint(), false); err != nil {
+	if err := k.RegisterValidator(ctx, valAddr, event.PubKey, initialCollateralOwner, initialCollateral, sdkmath.ZeroUint(), false); err != nil {
 		ignore := errors.Is(err, types.ErrValidatorAlreadyExists) ||
 			errors.Is(err, types.ErrInvalidPubKey)
 		return errors.Wrap(err, "failed to register validator"), ignore
@@ -289,13 +317,14 @@ func (k *Keeper) ProcessRegisterValidator(ctx sdk.Context, event *bindings.Conse
 
 // FallbackRegisterValidator handles the case when the MsgRegisterValidator event fails to process
 func (k *Keeper) FallbackRegisterValidator(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgRegisterValidator) error {
-	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralRefundAddr, event.InitialCollateralAmountGwei.Uint64())
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.InitialCollateralOwner, event.InitialCollateralAmountGwei.Uint64())
 }
 
 // ProcessDepositCollateral processes MsgDepositCollateral event
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) ProcessDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	collateralOwner := mitotypes.EthAddress(event.CollateralOwner)
 	amount := sdkmath.NewUintFromBigInt(event.AmountGwei)
 
 	// Check if validator exists
@@ -305,20 +334,21 @@ func (k *Keeper) ProcessDepositCollateral(ctx sdk.Context, event *bindings.Conse
 	}
 
 	// Deposit collateral
-	k.DepositCollateral(ctx, &validator, amount)
+	k.DepositCollateral(ctx, &validator, collateralOwner, amount)
 
 	return nil, false
 }
 
 // FallbackDepositCollateral handles the case when the MsgDepositCollateral event fails to process
 func (k *Keeper) FallbackDepositCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgDepositCollateral) error {
-	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralRefundAddr, event.AmountGwei.Uint64())
+	return k.evmEngKeeper.InsertWithdrawal(ctx, event.CollateralOwner, event.AmountGwei.Uint64())
 }
 
 // ProcessWithdrawCollateral processes MsgWithdrawCollateral event
 // The second return value indicates whether it is okay to ignore the error
 func (k *Keeper) ProcessWithdrawCollateral(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgWithdrawCollateral) (error, bool) {
 	valAddr := mitotypes.EthAddress(event.ValAddr)
+	collateralOwner := mitotypes.EthAddress(event.CollateralOwner)
 
 	// Check if the amount is too large
 	if !event.AmountGwei.IsUint64() {
@@ -343,10 +373,35 @@ func (k *Keeper) ProcessWithdrawCollateral(ctx sdk.Context, event *bindings.Cons
 	}
 
 	// Request withdrawal
-	if err := k.WithdrawCollateral(ctx, &validator, &withdrawal); err != nil {
+	if err := k.WithdrawCollateral(ctx, &validator, collateralOwner, &withdrawal); err != nil {
 		ignore := errors.Is(err, types.ErrInsufficientCollateral)
 		return errors.Wrap(err, "failed to withdraw collateral"), ignore
 	}
+
+	return nil, false
+}
+
+// ProcessTransferCollateralOwnership processes MsgTransferCollateralOwnership event
+// The second return value indicates whether it is okay to ignore the error
+func (k *Keeper) ProcessTransferCollateralOwnership(ctx sdk.Context, event *bindings.ConsensusValidatorEntrypointMsgTransferCollateralOwnership) (error, bool) {
+	valAddr := mitotypes.EthAddress(event.ValAddr)
+	prevOwner := mitotypes.EthAddress(event.PrevOwner)
+	newOwner := mitotypes.EthAddress(event.NewOwner)
+
+	// Check if validator exists
+	validator, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return types.ErrValidatorNotFound, true
+	}
+
+	// Get the ownership record for the previous owner
+	prevOwnership, found := k.GetCollateralOwnership(ctx, validator.Addr, prevOwner)
+	if !found {
+		return errors.New("previous collateral ownership not found"), true
+	}
+
+	// Transfer collateral ownership
+	k.TransferCollateralOwnership(ctx, &validator, prevOwnership, newOwner)
 
 	return nil, false
 }

@@ -57,7 +57,7 @@ mivalidator validator-info --validator <validator-address> --rpc-url <rpc-url> -
 
 Register a new validator in the ValidatorManager contract.
 
-**Required flags:** `--pubkey`, `--operator`, `--reward-manager`, `--withdrawal-recipient`, `--initial-collateral`, `--commission-rate`, `--metadata`, `--rpc-url`, `--contract`, `--private-key`
+**Required flags:** `--pubkey`, `--operator`, `--reward-manager`, `--initial-collateral`, `--commission-rate`, `--metadata`, `--rpc-url`, `--contract`, `--private-key`
 
 ```bash
 mivalidator create-validator \
@@ -67,7 +67,6 @@ mivalidator create-validator \
   --pubkey <public-key-hex> \
   --operator <operator-address> \
   --reward-manager <reward-manager-address> \
-  --withdrawal-recipient <withdrawal-recipient-address> \
   --commission-rate <percentage> \
   --initial-collateral <amount-in-MITO> \
   --metadata <json-string>
@@ -88,21 +87,6 @@ mivalidator update-operator \
   --private-key <your-private-key> \
   --validator <validator-address> \
   --operator <new-operator-address>
-```
-
-#### update-withdrawal-recipient
-
-Update the withdrawal recipient for an existing validator. The withdrawal recipient is the address that receives the withdrawal of any ETH and validator rewards when a validator exits the system.
-
-**Required flags:** `--validator`, `--recipient`, `--rpc-url`, `--contract`, `--private-key`
-
-```bash
-mivalidator update-withdrawal-recipient \
-  --rpc-url <rpc-url> \
-  --contract <contract-address> \
-  --private-key <your-private-key> \
-  --validator <validator-address> \
-  --recipient <new-recipient-address>
 ```
 
 #### update-reward-manager
@@ -169,9 +153,9 @@ mivalidator deposit-collateral \
 
 #### withdraw-collateral
 
-Withdraw collateral from an existing validator. The withdrawn amount will be sent to the validator's withdrawal recipient address after a delay period.
+Withdraw collateral from an existing validator.
 
-**Required flags:** `--validator`, `--amount`, `--rpc-url`, `--contract`, `--private-key`
+**Required flags:** `--validator`, `--receiver`, `--amount`, `--rpc-url`, `--contract`, `--private-key`
 
 ```bash
 mivalidator withdraw-collateral \
@@ -179,7 +163,39 @@ mivalidator withdraw-collateral \
   --contract <contract-address> \
   --private-key <your-private-key> \
   --validator <validator-address> \
+  --receiver <receiver-address> \
   --amount <amount-in-MITO>
+```
+
+#### transfer-collateral-ownership
+
+Transfer ownership of a validator's collateral to a new address.
+
+**Required flags:** `--validator`, `--new-owner`, `--rpc-url`, `--contract`, `--private-key`
+
+```bash
+mivalidator transfer-collateral-ownership \
+  --rpc-url <rpc-url> \
+  --contract <contract-address> \
+  --private-key <your-private-key> \
+  --validator <validator-address> \
+  --new-owner <new-owner-address>
+```
+
+#### set-permitted-collateral-owner
+
+Allow or disallow an address to deposit collateral for a validator.
+
+**Required flags:** `--validator`, `--collateral-owner`, `--permitted`, `--rpc-url`, `--contract`, `--private-key`
+
+```bash
+mivalidator set-permitted-collateral-owner \
+  --rpc-url <rpc-url> \
+  --contract <contract-address> \
+  --private-key <your-private-key> \
+  --validator <validator-address> \
+  --collateral-owner <collateral-owner-address> \
+  --permitted true|false
 ```
 
 ### Unjailing

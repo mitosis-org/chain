@@ -5,6 +5,7 @@ package types
 
 import (
 	context "context"
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	query "github.com/cosmos/cosmos-sdk/types/query"
@@ -786,6 +787,371 @@ func (m *QueryWithdrawalsByValidatorResponse) GetPagination() *query.PageRespons
 	return nil
 }
 
+// CollateralOwnershipWithAmount extends CollateralOwnership to include the
+// withdrawable amount
+type CollateralOwnershipWithAmount struct {
+	Ownership CollateralOwnership    `protobuf:"bytes,1,opt,name=ownership,proto3" json:"ownership"`
+	Amount    cosmossdk_io_math.Uint `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Uint" json:"amount"`
+}
+
+func (m *CollateralOwnershipWithAmount) Reset()         { *m = CollateralOwnershipWithAmount{} }
+func (m *CollateralOwnershipWithAmount) String() string { return proto.CompactTextString(m) }
+func (*CollateralOwnershipWithAmount) ProtoMessage()    {}
+func (*CollateralOwnershipWithAmount) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{16}
+}
+func (m *CollateralOwnershipWithAmount) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CollateralOwnershipWithAmount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CollateralOwnershipWithAmount.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CollateralOwnershipWithAmount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CollateralOwnershipWithAmount.Merge(m, src)
+}
+func (m *CollateralOwnershipWithAmount) XXX_Size() int {
+	return m.Size()
+}
+func (m *CollateralOwnershipWithAmount) XXX_DiscardUnknown() {
+	xxx_messageInfo_CollateralOwnershipWithAmount.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CollateralOwnershipWithAmount proto.InternalMessageInfo
+
+func (m *CollateralOwnershipWithAmount) GetOwnership() CollateralOwnership {
+	if m != nil {
+		return m.Ownership
+	}
+	return CollateralOwnership{}
+}
+
+// QueryCollateralOwnershipsRequest is the request type for the
+// Query/CollateralOwnerships RPC method
+type QueryCollateralOwnershipsRequest struct {
+	// pagination defines an optional pagination for the request
+	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryCollateralOwnershipsRequest) Reset()         { *m = QueryCollateralOwnershipsRequest{} }
+func (m *QueryCollateralOwnershipsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryCollateralOwnershipsRequest) ProtoMessage()    {}
+func (*QueryCollateralOwnershipsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{17}
+}
+func (m *QueryCollateralOwnershipsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipsRequest.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipsRequest proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsResponse is the response type for the
+// Query/CollateralOwnerships RPC method
+type QueryCollateralOwnershipsResponse struct {
+	CollateralOwnerships []CollateralOwnershipWithAmount `protobuf:"bytes,1,rep,name=collateral_ownerships,json=collateralOwnerships,proto3" json:"collateral_ownerships"`
+	Pagination           *query.PageResponse             `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryCollateralOwnershipsResponse) Reset()         { *m = QueryCollateralOwnershipsResponse{} }
+func (m *QueryCollateralOwnershipsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryCollateralOwnershipsResponse) ProtoMessage()    {}
+func (*QueryCollateralOwnershipsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{18}
+}
+func (m *QueryCollateralOwnershipsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipsResponse.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipsResponse proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipsResponse) GetCollateralOwnerships() []CollateralOwnershipWithAmount {
+	if m != nil {
+		return m.CollateralOwnerships
+	}
+	return nil
+}
+
+func (m *QueryCollateralOwnershipsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsByValidatorRequest is the request type for the
+// Query/CollateralOwnershipsByValidator RPC method
+type QueryCollateralOwnershipsByValidatorRequest struct {
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+	// pagination defines an optional pagination for the request
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) Reset() {
+	*m = QueryCollateralOwnershipsByValidatorRequest{}
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryCollateralOwnershipsByValidatorRequest) ProtoMessage() {}
+func (*QueryCollateralOwnershipsByValidatorRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{19}
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipsByValidatorRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipsByValidatorRequest.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipsByValidatorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipsByValidatorRequest proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) GetValAddr() []byte {
+	if m != nil {
+		return m.ValAddr
+	}
+	return nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipsByValidatorResponse is the response type for the
+// Query/CollateralOwnershipsByValidator RPC method
+type QueryCollateralOwnershipsByValidatorResponse struct {
+	CollateralOwnerships []CollateralOwnershipWithAmount `protobuf:"bytes,1,rep,name=collateral_ownerships,json=collateralOwnerships,proto3" json:"collateral_ownerships"`
+	Pagination           *query.PageResponse             `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) Reset() {
+	*m = QueryCollateralOwnershipsByValidatorResponse{}
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryCollateralOwnershipsByValidatorResponse) ProtoMessage() {}
+func (*QueryCollateralOwnershipsByValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{20}
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipsByValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipsByValidatorResponse.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipsByValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipsByValidatorResponse proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) GetCollateralOwnerships() []CollateralOwnershipWithAmount {
+	if m != nil {
+		return m.CollateralOwnerships
+	}
+	return nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipRequest is the request type for the
+// Query/CollateralOwnership RPC method
+type QueryCollateralOwnershipRequest struct {
+	ValAddr []byte `protobuf:"bytes,1,opt,name=val_addr,json=valAddr,proto3" json:"val_addr,omitempty"`
+	Owner   []byte `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+}
+
+func (m *QueryCollateralOwnershipRequest) Reset()         { *m = QueryCollateralOwnershipRequest{} }
+func (m *QueryCollateralOwnershipRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryCollateralOwnershipRequest) ProtoMessage()    {}
+func (*QueryCollateralOwnershipRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{21}
+}
+func (m *QueryCollateralOwnershipRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipRequest.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipRequest proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipRequest) GetValAddr() []byte {
+	if m != nil {
+		return m.ValAddr
+	}
+	return nil
+}
+
+func (m *QueryCollateralOwnershipRequest) GetOwner() []byte {
+	if m != nil {
+		return m.Owner
+	}
+	return nil
+}
+
+// QueryCollateralOwnershipResponse is the response type for the
+// Query/CollateralOwnership RPC method
+type QueryCollateralOwnershipResponse struct {
+	CollateralOwnership CollateralOwnershipWithAmount `protobuf:"bytes,1,opt,name=collateral_ownership,json=collateralOwnership,proto3" json:"collateral_ownership"`
+}
+
+func (m *QueryCollateralOwnershipResponse) Reset()         { *m = QueryCollateralOwnershipResponse{} }
+func (m *QueryCollateralOwnershipResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryCollateralOwnershipResponse) ProtoMessage()    {}
+func (*QueryCollateralOwnershipResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_14eb3edd860cda8c, []int{22}
+}
+func (m *QueryCollateralOwnershipResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCollateralOwnershipResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCollateralOwnershipResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCollateralOwnershipResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCollateralOwnershipResponse.Merge(m, src)
+}
+func (m *QueryCollateralOwnershipResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCollateralOwnershipResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCollateralOwnershipResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCollateralOwnershipResponse proto.InternalMessageInfo
+
+func (m *QueryCollateralOwnershipResponse) GetCollateralOwnership() CollateralOwnershipWithAmount {
+	if m != nil {
+		return m.CollateralOwnership
+	}
+	return CollateralOwnershipWithAmount{}
+}
+
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "mitosis.evmvalidator.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "mitosis.evmvalidator.v1.QueryParamsResponse")
@@ -803,6 +1169,13 @@ func init() {
 	proto.RegisterType((*QueryWithdrawalsResponse)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsResponse")
 	proto.RegisterType((*QueryWithdrawalsByValidatorRequest)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorRequest")
 	proto.RegisterType((*QueryWithdrawalsByValidatorResponse)(nil), "mitosis.evmvalidator.v1.QueryWithdrawalsByValidatorResponse")
+	proto.RegisterType((*CollateralOwnershipWithAmount)(nil), "mitosis.evmvalidator.v1.CollateralOwnershipWithAmount")
+	proto.RegisterType((*QueryCollateralOwnershipsRequest)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipsRequest")
+	proto.RegisterType((*QueryCollateralOwnershipsResponse)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipsResponse")
+	proto.RegisterType((*QueryCollateralOwnershipsByValidatorRequest)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorRequest")
+	proto.RegisterType((*QueryCollateralOwnershipsByValidatorResponse)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipsByValidatorResponse")
+	proto.RegisterType((*QueryCollateralOwnershipRequest)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipRequest")
+	proto.RegisterType((*QueryCollateralOwnershipResponse)(nil), "mitosis.evmvalidator.v1.QueryCollateralOwnershipResponse")
 }
 
 func init() {
@@ -810,66 +1183,83 @@ func init() {
 }
 
 var fileDescriptor_14eb3edd860cda8c = []byte{
-	// 939 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x97, 0x4d, 0x6f, 0x1b, 0x45,
-	0x18, 0xc7, 0x33, 0xa6, 0x84, 0xfa, 0x09, 0x42, 0x62, 0x5a, 0xfa, 0x62, 0x81, 0xdd, 0x6e, 0x4a,
-	0x53, 0x9a, 0x78, 0xa7, 0x0e, 0x02, 0x01, 0x0d, 0x95, 0xd8, 0x34, 0x20, 0x54, 0x81, 0x82, 0x91,
-	0x40, 0x70, 0x31, 0x63, 0xef, 0x6a, 0x3d, 0x92, 0xbd, 0xe3, 0xee, 0x8c, 0x5d, 0xac, 0x28, 0x17,
-	0x2e, 0x5c, 0x38, 0x20, 0x71, 0xe5, 0x80, 0x10, 0x07, 0x8e, 0x20, 0xc1, 0x9d, 0x1b, 0x3d, 0x46,
-	0x70, 0x00, 0x71, 0xa8, 0x50, 0x82, 0xc4, 0x07, 0xe0, 0x0b, 0xa0, 0x9d, 0x9d, 0x7d, 0xb1, 0xb7,
-	0x6b, 0xaf, 0x43, 0x91, 0x7a, 0x89, 0xec, 0xc9, 0xf3, 0xf2, 0xfb, 0xff, 0x77, 0x66, 0x9e, 0x35,
-	0xac, 0xf6, 0x99, 0xe4, 0x82, 0x09, 0xe2, 0x8c, 0xfa, 0x23, 0xda, 0x63, 0x36, 0x95, 0xdc, 0x27,
-	0xa3, 0x06, 0xb9, 0x3d, 0x74, 0xfc, 0xb1, 0x39, 0xf0, 0xb9, 0xe4, 0xf8, 0xac, 0x0e, 0x32, 0xd3,
-	0x41, 0xe6, 0xa8, 0x51, 0x79, 0xda, 0xe5, 0xdc, 0xed, 0x39, 0x84, 0x0e, 0x18, 0xa1, 0x9e, 0xc7,
-	0x25, 0x95, 0x8c, 0x7b, 0x22, 0x4c, 0xab, 0x5c, 0xed, 0x70, 0xd1, 0xe7, 0x82, 0xb4, 0xa9, 0x70,
-	0xc2, 0x7a, 0x64, 0xd4, 0x68, 0x3b, 0x92, 0x36, 0xc8, 0x80, 0xba, 0xcc, 0x53, 0xc1, 0x3a, 0xf6,
-	0x7c, 0x18, 0xdb, 0x52, 0xdf, 0x48, 0xf8, 0x45, 0xff, 0xeb, 0xb4, 0xcb, 0x5d, 0x1e, 0xae, 0x07,
-	0x9f, 0xf4, 0xea, 0x93, 0xb4, 0xcf, 0x3c, 0x4e, 0xd4, 0x5f, 0xbd, 0x74, 0x29, 0x4f, 0xcb, 0x80,
-	0xfa, 0xb4, 0x1f, 0x95, 0x5b, 0xcb, 0x8b, 0x4a, 0x94, 0xa9, 0x40, 0xe3, 0x34, 0xe0, 0x77, 0x02,
-	0xe8, 0x5d, 0x95, 0xdd, 0x74, 0x6e, 0x0f, 0x1d, 0x21, 0x8d, 0x0f, 0xe0, 0xd4, 0xc4, 0xaa, 0x18,
-	0x70, 0x4f, 0x38, 0xd8, 0x82, 0xe5, 0xb0, 0xcb, 0x39, 0x74, 0x01, 0x5d, 0x59, 0xd9, 0xac, 0x99,
-	0x39, 0x9e, 0x99, 0x61, 0xa2, 0x55, 0xbe, 0x7b, 0xaf, 0xb6, 0xf4, 0xed, 0xdf, 0xdf, 0x5d, 0x45,
-	0x4d, 0x9d, 0x69, 0xd4, 0x61, 0x5d, 0x95, 0x7e, 0x2f, 0x0a, 0xdf, 0xf1, 0xa4, 0x3f, 0x1e, 0x70,
-	0xe6, 0xc9, 0x6d, 0xee, 0x49, 0x9f, 0x76, 0xe4, 0x6b, 0xb6, 0xed, 0x47, 0x24, 0x63, 0xd8, 0x28,
-	0x16, 0xae, 0x11, 0xdf, 0x84, 0x13, 0xd4, 0xb6, 0x7d, 0x05, 0xf8, 0xb8, 0xf5, 0x42, 0xd0, 0xff,
-	0x8f, 0x7b, 0xb5, 0xba, 0xcb, 0x64, 0x77, 0xd8, 0x36, 0x3b, 0xbc, 0x4f, 0x34, 0x72, 0x9d, 0xfb,
-	0x2e, 0xe9, 0x74, 0x29, 0xf3, 0x88, 0x1c, 0x0f, 0x1c, 0x61, 0xee, 0xc8, 0x6e, 0x50, 0xc9, 0x11,
-	0xa2, 0xa9, 0x4a, 0x18, 0x9b, 0xf0, 0xd4, 0x64, 0x6b, 0xcd, 0x84, 0xcf, 0xc3, 0xc9, 0x11, 0xed,
-	0xb5, 0x92, 0x3e, 0xcd, 0xc7, 0x46, 0xb4, 0x17, 0x24, 0x1b, 0x0e, 0x9c, 0x99, 0xce, 0xd1, 0x60,
-	0xb7, 0xa0, 0x1c, 0x3b, 0xa4, 0xed, 0x33, 0x72, 0xed, 0x8b, 0xd3, 0xd3, 0x0e, 0x26, 0xf9, 0x06,
-	0x85, 0xda, 0x64, 0x1b, 0x6b, 0xbc, 0xcd, 0x3d, 0x91, 0x32, 0x0e, 0xdf, 0x80, 0x72, 0x87, 0x7b,
-	0x22, 0xa1, 0x2c, 0x5b, 0x17, 0x7f, 0xf9, 0xa1, 0xfe, 0x8c, 0xde, 0x75, 0x41, 0xb8, 0xe3, 0x89,
-	0xa1, 0xd0, 0x9a, 0xdf, 0x95, 0x3e, 0xf3, 0xdc, 0xe6, 0xc9, 0x8e, 0x2e, 0x63, 0x70, 0xb8, 0x90,
-	0xdf, 0xe2, 0xff, 0xd0, 0xf4, 0xd1, 0xb4, 0x75, 0xd1, 0x6e, 0xc4, 0xaf, 0x03, 0x24, 0x47, 0x49,
-	0xf7, 0xb9, 0x6c, 0x6a, 0x21, 0xc1, 0xb9, 0x33, 0xc3, 0x73, 0xac, 0xcf, 0x9d, 0xb9, 0x4b, 0x5d,
-	0x47, 0xe7, 0x36, 0x53, 0x99, 0xc6, 0xf7, 0x08, 0xce, 0x66, 0x5a, 0x68, 0x29, 0x6f, 0x01, 0xc4,
-	0x28, 0xc1, 0xf6, 0x7e, 0x64, 0x71, 0x2d, 0xa9, 0x02, 0xf8, 0x8d, 0x09, 0xe4, 0x92, 0x42, 0x5e,
-	0x9b, 0x8b, 0x1c, 0xb2, 0x4c, 0x30, 0x5f, 0xd1, 0xae, 0xbc, 0xcf, 0x64, 0xd7, 0xf6, 0xe9, 0x1d,
-	0xda, 0x8b, 0x5c, 0x79, 0x02, 0x4a, 0xcc, 0x56, 0x6e, 0x9c, 0x68, 0x96, 0x98, 0x6d, 0x30, 0x2d,
-	0x2e, 0x1d, 0xa9, 0xc5, 0xbd, 0x0d, 0x70, 0x27, 0x5e, 0xd5, 0x06, 0xae, 0xe6, 0x8a, 0x4b, 0x0a,
-	0x4c, 0xa8, 0x4b, 0x2a, 0x18, 0x34, 0xd3, 0xea, 0x81, 0x3f, 0xab, 0x1f, 0x11, 0x9c, 0xcb, 0xf6,
-	0xd0, 0x7a, 0x76, 0x61, 0x25, 0xa1, 0x89, 0x9e, 0xd6, 0xa2, 0x82, 0xd2, 0x25, 0x1e, 0xdc, 0xf3,
-	0xfa, 0x14, 0x81, 0x31, 0xcd, 0x6d, 0x2d, 0x72, 0x85, 0x4c, 0x39, 0x58, 0x3a, 0xb6, 0x83, 0x3f,
-	0x21, 0x58, 0x9d, 0x49, 0xf2, 0xd0, 0x9b, 0xb9, 0xf9, 0xf3, 0x0a, 0x3c, 0xaa, 0x24, 0xe0, 0xcf,
-	0x10, 0x2c, 0x87, 0x33, 0x05, 0xaf, 0xe7, 0xa2, 0x65, 0x07, 0x59, 0x65, 0xa3, 0x58, 0x70, 0xd8,
-	0xdb, 0x58, 0xfb, 0xe4, 0xd7, 0xbf, 0xbe, 0x28, 0x5d, 0xc4, 0x35, 0x32, 0x7b, 0xc8, 0xe2, 0x7f,
-	0x10, 0xd4, 0xe6, 0x4c, 0x24, 0x7c, 0x73, 0x76, 0xeb, 0x62, 0xf3, 0xaf, 0xb2, 0xf3, 0x1f, 0xab,
-	0x68, 0x65, 0xdb, 0x4a, 0xd9, 0xab, 0xf8, 0x3a, 0x99, 0xfb, 0x62, 0xd0, 0x72, 0xe2, 0x52, 0xad,
-	0x8e, 0xae, 0xa5, 0x36, 0x2a, 0xfe, 0x06, 0x41, 0x39, 0x6e, 0x88, 0xcd, 0x82, 0x64, 0x91, 0x12,
-	0x52, 0x38, 0x5e, 0x33, 0xbf, 0xa8, 0x98, 0xaf, 0x61, 0x73, 0x3e, 0xb3, 0x20, 0x7b, 0xd1, 0x71,
-	0xda, 0xc7, 0x07, 0x08, 0x4e, 0xdd, 0x67, 0x6a, 0xe1, 0x97, 0x0a, 0x02, 0x64, 0x66, 0x69, 0xe5,
-	0xe5, 0x63, 0x64, 0x6a, 0x11, 0x37, 0x95, 0x88, 0x1b, 0x78, 0xab, 0x80, 0x88, 0x56, 0x7b, 0xdc,
-	0x8a, 0x67, 0x36, 0xd9, 0x8b, 0x3f, 0xee, 0xe3, 0x2f, 0x11, 0x40, 0x32, 0xb4, 0x70, 0x51, 0x2b,
-	0xe3, 0x63, 0x70, 0xad, 0x78, 0x82, 0xe6, 0x5e, 0x57, 0xdc, 0xcf, 0xe2, 0xd5, 0x02, 0xdc, 0xf8,
-	0x6b, 0x04, 0x90, 0xdc, 0x0b, 0xf3, 0xf0, 0x32, 0xa3, 0x6c, 0x1e, 0x5e, 0x76, 0xa2, 0x19, 0x0d,
-	0x85, 0xb7, 0x8e, 0x9f, 0xcb, 0xc5, 0x4b, 0x5d, 0x48, 0x64, 0x8f, 0xd9, 0xfb, 0xf8, 0x2b, 0x04,
-	0x2b, 0xa9, 0xab, 0x10, 0x17, 0x6e, 0x1a, 0xbb, 0xd8, 0x58, 0x20, 0x43, 0x73, 0x6e, 0x28, 0xce,
-	0xcb, 0xf8, 0x52, 0x11, 0x4e, 0xfc, 0x1b, 0x82, 0x33, 0xf7, 0xbf, 0xad, 0xf1, 0xf5, 0xc2, 0xbd,
-	0xb3, 0xd3, 0xa6, 0xb2, 0x75, 0xbc, 0x64, 0xad, 0xc1, 0x52, 0x1a, 0xb6, 0xf0, 0x2b, 0x8b, 0x9d,
-	0xc3, 0xb4, 0x32, 0xeb, 0xd6, 0xdd, 0xc3, 0x2a, 0x3a, 0x38, 0xac, 0xa2, 0x3f, 0x0f, 0xab, 0xe8,
-	0xf3, 0xa3, 0xea, 0xd2, 0xc1, 0x51, 0x75, 0xe9, 0xf7, 0xa3, 0xea, 0xd2, 0x87, 0x8d, 0x99, 0xaf,
-	0xe6, 0x1f, 0x4f, 0xf6, 0x52, 0x6f, 0xea, 0xed, 0x65, 0xf5, 0xd3, 0xe5, 0xf9, 0x7f, 0x03, 0x00,
-	0x00, 0xff, 0xff, 0xd0, 0x8c, 0x8b, 0x63, 0xd7, 0x0d, 0x00, 0x00,
+	// 1211 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x58, 0x4d, 0x6c, 0x1b, 0x45,
+	0x14, 0xce, 0x84, 0x36, 0xd4, 0x2f, 0x15, 0x82, 0x89, 0xfb, 0x67, 0x51, 0xbb, 0xd9, 0x94, 0xa6,
+	0x34, 0xf1, 0x4e, 0x1d, 0x44, 0x45, 0xdb, 0x50, 0xa9, 0x4e, 0x52, 0x84, 0x5a, 0x4a, 0x30, 0x14,
+	0x04, 0x17, 0x33, 0xb1, 0x57, 0xf6, 0x82, 0xbd, 0xe3, 0xee, 0x4e, 0x1c, 0xac, 0x28, 0x17, 0x2e,
+	0x5c, 0x38, 0x54, 0xe2, 0xc2, 0x81, 0x03, 0x42, 0x1c, 0x38, 0x82, 0x54, 0x8e, 0x48, 0x5c, 0x90,
+	0x7a, 0x8c, 0xca, 0x01, 0xc4, 0xa1, 0xaa, 0x92, 0x4a, 0x1c, 0x11, 0xe2, 0xca, 0x01, 0x79, 0xf6,
+	0x79, 0xd7, 0x8e, 0x77, 0xbd, 0xeb, 0x60, 0x04, 0xe2, 0x12, 0x79, 0x27, 0xef, 0xe7, 0xfb, 0xbe,
+	0x99, 0x37, 0xfe, 0xbc, 0x30, 0x53, 0x37, 0xa5, 0x70, 0x4c, 0x87, 0x19, 0xcd, 0x7a, 0x93, 0xd7,
+	0xcc, 0x32, 0x97, 0xc2, 0x66, 0xcd, 0x1c, 0xbb, 0xbd, 0x6e, 0xd8, 0x2d, 0xbd, 0x61, 0x0b, 0x29,
+	0xe8, 0x31, 0x0c, 0xd2, 0xbb, 0x83, 0xf4, 0x66, 0x2e, 0xf5, 0x74, 0x45, 0x88, 0x4a, 0xcd, 0x60,
+	0xbc, 0x61, 0x32, 0x6e, 0x59, 0x42, 0x72, 0x69, 0x0a, 0xcb, 0x71, 0xd3, 0x52, 0xe7, 0x4a, 0xc2,
+	0xa9, 0x0b, 0x87, 0xad, 0x71, 0xc7, 0x70, 0xeb, 0xb1, 0x66, 0x6e, 0xcd, 0x90, 0x3c, 0xc7, 0x1a,
+	0xbc, 0x62, 0x5a, 0x2a, 0x18, 0x63, 0x4f, 0xb8, 0xb1, 0x45, 0xf5, 0xc4, 0xdc, 0x07, 0xfc, 0x57,
+	0xb2, 0x22, 0x2a, 0xc2, 0x5d, 0x6f, 0x7f, 0xc2, 0xd5, 0xa7, 0x78, 0xdd, 0xb4, 0x04, 0x53, 0x7f,
+	0x71, 0xe9, 0x74, 0x18, 0x97, 0x06, 0xb7, 0x79, 0xbd, 0x53, 0x6e, 0x36, 0x2c, 0xca, 0x67, 0xa6,
+	0x02, 0xb5, 0x24, 0xd0, 0xd7, 0xda, 0xa0, 0x57, 0x55, 0x76, 0xc1, 0xb8, 0xbd, 0x6e, 0x38, 0x52,
+	0x7b, 0x1b, 0xa6, 0x7a, 0x56, 0x9d, 0x86, 0xb0, 0x1c, 0x83, 0xe6, 0x61, 0xc2, 0xed, 0x72, 0x9c,
+	0x9c, 0x22, 0x67, 0x27, 0x17, 0x32, 0x7a, 0x88, 0x66, 0xba, 0x9b, 0x98, 0x4f, 0xdc, 0x7b, 0x90,
+	0x19, 0xfb, 0xea, 0xd7, 0xaf, 0xcf, 0x91, 0x02, 0x66, 0x6a, 0x59, 0x98, 0x53, 0xa5, 0xdf, 0xec,
+	0x84, 0xaf, 0x58, 0xd2, 0x6e, 0x35, 0x84, 0x69, 0xc9, 0x25, 0x61, 0x49, 0x9b, 0x97, 0xe4, 0xd5,
+	0x72, 0xd9, 0xee, 0x20, 0x69, 0xc1, 0x7c, 0xbc, 0x70, 0x84, 0xf8, 0x32, 0x1c, 0xe0, 0xe5, 0xb2,
+	0xad, 0x00, 0x1e, 0xce, 0x3f, 0xdf, 0xee, 0xff, 0xcb, 0x83, 0x4c, 0xb6, 0x62, 0xca, 0xea, 0xfa,
+	0x9a, 0x5e, 0x12, 0x75, 0x86, 0x90, 0xb3, 0xc2, 0xae, 0xb0, 0x52, 0x95, 0x9b, 0x16, 0x93, 0xad,
+	0x86, 0xe1, 0xe8, 0x2b, 0xb2, 0xda, 0xae, 0x64, 0x38, 0x4e, 0x41, 0x95, 0xd0, 0x16, 0xe0, 0x48,
+	0x6f, 0x6b, 0xc4, 0x44, 0x4f, 0xc0, 0xa1, 0x26, 0xaf, 0x15, 0xfd, 0x3e, 0x85, 0xc7, 0x9b, 0xbc,
+	0xd6, 0x4e, 0xd6, 0x0c, 0x38, 0xba, 0x37, 0x07, 0x81, 0x5d, 0x87, 0x84, 0xa7, 0x10, 0xca, 0xa7,
+	0x85, 0xca, 0xe7, 0xa5, 0x77, 0x2b, 0xe8, 0xe7, 0x6b, 0x1c, 0x32, 0xbd, 0x6d, 0xf2, 0xad, 0x25,
+	0x61, 0x39, 0x5d, 0xc2, 0xd1, 0x2b, 0x90, 0x28, 0x09, 0xcb, 0xf1, 0x51, 0x26, 0xf2, 0xd3, 0xf7,
+	0xef, 0x66, 0x4f, 0xe2, 0xa9, 0x6b, 0x87, 0x1b, 0x96, 0xb3, 0xee, 0x20, 0xe7, 0xd7, 0xa5, 0x6d,
+	0x5a, 0x95, 0xc2, 0xa1, 0x12, 0x96, 0xd1, 0x04, 0x9c, 0x0a, 0x6f, 0xf1, 0x4f, 0x70, 0x7a, 0x77,
+	0xaf, 0x74, 0x9d, 0xd3, 0x48, 0xaf, 0x01, 0xf8, 0xa3, 0x84, 0x7d, 0xce, 0xe8, 0x48, 0xa4, 0x3d,
+	0x77, 0xba, 0x3b, 0xc7, 0x38, 0x77, 0xfa, 0x2a, 0xaf, 0x18, 0x98, 0x5b, 0xe8, 0xca, 0xd4, 0xbe,
+	0x21, 0x70, 0xac, 0xaf, 0x05, 0x52, 0x79, 0x05, 0xc0, 0x83, 0xd2, 0x3e, 0xde, 0x8f, 0x0d, 0xcf,
+	0xa5, 0xab, 0x00, 0x7d, 0xa9, 0x07, 0xf2, 0xb8, 0x82, 0x3c, 0x1b, 0x09, 0xd9, 0xc5, 0xd2, 0x83,
+	0xf9, 0x2c, 0xaa, 0xf2, 0x96, 0x29, 0xab, 0x65, 0x9b, 0x6f, 0xf0, 0x5a, 0x47, 0x95, 0x27, 0x60,
+	0xdc, 0x2c, 0x2b, 0x35, 0x0e, 0x14, 0xc6, 0xcd, 0xb2, 0x66, 0x22, 0xb9, 0xee, 0x48, 0x24, 0x77,
+	0x13, 0x60, 0xc3, 0x5b, 0x45, 0x01, 0x67, 0x42, 0xc9, 0xf9, 0x05, 0x7a, 0xd8, 0xf9, 0x15, 0x34,
+	0xde, 0xd7, 0x6a, 0xe4, 0x7b, 0xf5, 0x2d, 0x81, 0xe3, 0xfd, 0x3d, 0x90, 0xcf, 0x2a, 0x4c, 0xfa,
+	0x68, 0x3a, 0xbb, 0x35, 0x2c, 0xa1, 0xee, 0x12, 0xa3, 0xdb, 0xaf, 0x8f, 0x08, 0x68, 0x7b, 0x71,
+	0xe7, 0x87, 0xb9, 0x42, 0xf6, 0x28, 0x38, 0xbe, 0x6f, 0x05, 0xbf, 0x27, 0x30, 0x33, 0x10, 0xc9,
+	0x7f, 0x5f, 0xcc, 0xef, 0x08, 0x9c, 0x5c, 0x12, 0xb5, 0x1a, 0x97, 0x86, 0xcd, 0x6b, 0xaf, 0x6e,
+	0x58, 0x86, 0xed, 0x54, 0xcd, 0x46, 0x1b, 0xc2, 0xd5, 0xba, 0x58, 0xb7, 0x24, 0xbd, 0x05, 0x09,
+	0xd1, 0x59, 0xc6, 0xd3, 0x36, 0x1f, 0x0a, 0x3d, 0xa0, 0x54, 0xcf, 0x5d, 0xe4, 0x55, 0xa2, 0x2b,
+	0x30, 0xc1, 0x55, 0x03, 0x85, 0x3e, 0x91, 0xcf, 0xe2, 0xf7, 0xc8, 0x51, 0x97, 0x84, 0x53, 0x7e,
+	0x5f, 0x37, 0x05, 0xab, 0x73, 0x59, 0xd5, 0x6f, 0x99, 0x96, 0xbc, 0x7f, 0x37, 0x3b, 0x89, 0xf4,
+	0xda, 0x8f, 0x05, 0x4c, 0xd6, 0xde, 0xc3, 0x3b, 0x34, 0xa0, 0xf1, 0xc8, 0x07, 0xe6, 0x11, 0x81,
+	0xe9, 0x01, 0xcd, 0x70, 0xb3, 0x9b, 0x70, 0xa4, 0xe4, 0xfd, 0xbf, 0xe8, 0x11, 0xee, 0x6c, 0xfb,
+	0x85, 0x61, 0xb4, 0xf3, 0xb7, 0xa1, 0x5b, 0xc5, 0x64, 0x29, 0xa0, 0xff, 0xe8, 0x8e, 0xc4, 0x1d,
+	0x82, 0xfe, 0x21, 0x88, 0xe6, 0xbf, 0x33, 0x68, 0xbf, 0x11, 0xf4, 0x28, 0x91, 0x90, 0xfe, 0x2f,
+	0x9b, 0x50, 0x40, 0xfb, 0x11, 0x80, 0x27, 0x86, 0xee, 0x49, 0x38, 0xa8, 0x38, 0x2b, 0x04, 0x87,
+	0x0b, 0xee, 0x83, 0xf6, 0x29, 0x09, 0x1f, 0x16, 0x4f, 0x39, 0x09, 0xc9, 0x20, 0xe5, 0x70, 0x6c,
+	0x46, 0x20, 0xdc, 0x54, 0x80, 0x70, 0x0b, 0xbf, 0x3f, 0x09, 0x07, 0x15, 0x34, 0xfa, 0x31, 0x81,
+	0x09, 0xd7, 0xda, 0xd2, 0xb9, 0xd0, 0x66, 0xfd, 0x7e, 0x3a, 0x35, 0x1f, 0x2f, 0xd8, 0x65, 0xa9,
+	0xcd, 0x7e, 0xf8, 0xe3, 0xa3, 0x4f, 0xc6, 0xa7, 0x69, 0x86, 0x0d, 0xf6, 0xfa, 0xf4, 0x0f, 0x02,
+	0x99, 0x08, 0x63, 0x4c, 0x97, 0x07, 0xb7, 0x8e, 0x67, 0xc3, 0x53, 0x2b, 0x7f, 0xb3, 0x0a, 0x32,
+	0x5b, 0x52, 0xcc, 0x5e, 0xa4, 0x97, 0x59, 0xe4, 0xef, 0x93, 0xa2, 0xe1, 0x95, 0x2a, 0x96, 0xb0,
+	0x96, 0x3a, 0x4e, 0xf4, 0x4b, 0x02, 0x09, 0xaf, 0x21, 0xd5, 0x63, 0x22, 0xeb, 0x30, 0x61, 0xb1,
+	0xe3, 0x11, 0xf3, 0x05, 0x85, 0xf9, 0x3c, 0xd5, 0xa3, 0x31, 0x3b, 0x6c, 0xb3, 0x73, 0xe8, 0xb7,
+	0xe8, 0x36, 0x81, 0xa9, 0x00, 0xf3, 0x4c, 0x5f, 0x88, 0x09, 0xa0, 0xcf, 0xd2, 0xa7, 0x2e, 0xee,
+	0x23, 0x13, 0x49, 0x2c, 0x2b, 0x12, 0x57, 0xe8, 0x62, 0x0c, 0x12, 0xc5, 0xb5, 0x56, 0xd1, 0xfb,
+	0xe9, 0xc0, 0x36, 0xbd, 0x8f, 0x5b, 0xf4, 0x33, 0x02, 0xe0, 0x7b, 0x67, 0x1a, 0x57, 0x4a, 0x6f,
+	0x0c, 0xce, 0xc7, 0x4f, 0x40, 0xdc, 0x73, 0x0a, 0xf7, 0x33, 0x74, 0x26, 0x06, 0x6e, 0xfa, 0x05,
+	0x01, 0xf0, 0xed, 0x49, 0x14, 0xbc, 0x3e, 0x47, 0x1d, 0x05, 0xaf, 0xdf, 0x58, 0x6b, 0x39, 0x05,
+	0x6f, 0x8e, 0x3e, 0x1b, 0x0a, 0xaf, 0xcb, 0x17, 0xb1, 0x4d, 0xb3, 0xbc, 0x45, 0x3f, 0x27, 0x30,
+	0xd9, 0xe5, 0xc8, 0x68, 0xec, 0xa6, 0x9e, 0x8a, 0xb9, 0x21, 0x32, 0x10, 0xe7, 0xbc, 0xc2, 0x79,
+	0x86, 0x9e, 0x8e, 0x83, 0x93, 0xfe, 0x44, 0xe0, 0x68, 0xb0, 0x69, 0xa4, 0x97, 0x63, 0xf7, 0xee,
+	0xff, 0x2e, 0x4e, 0x2d, 0xee, 0x2f, 0x19, 0x39, 0xe4, 0x15, 0x87, 0x45, 0x7a, 0x69, 0xb8, 0x39,
+	0xec, 0x61, 0xf6, 0x03, 0x81, 0x64, 0xd0, 0xb7, 0x34, 0x8d, 0x18, 0xad, 0x01, 0x06, 0x2e, 0x75,
+	0x69, 0x3f, 0xa9, 0xb1, 0xef, 0x96, 0x40, 0xa3, 0x40, 0xff, 0x24, 0x90, 0x89, 0x70, 0x1b, 0x51,
+	0x17, 0x7f, 0x3c, 0xff, 0x14, 0x75, 0xf1, 0xc7, 0xb4, 0x3c, 0xda, 0x0d, 0x45, 0xf4, 0x1a, 0x5d,
+	0x1e, 0x72, 0xf3, 0x82, 0xe9, 0x3f, 0x24, 0x30, 0x15, 0xd0, 0x39, 0xea, 0x6a, 0x0d, 0xb7, 0x2b,
+	0xa9, 0x8b, 0xfb, 0xc8, 0x44, 0x6a, 0x6f, 0x28, 0x6a, 0x37, 0xe9, 0x8d, 0x51, 0x50, 0x63, 0x9b,
+	0xea, 0xf3, 0x56, 0xfe, 0xfa, 0xbd, 0x9d, 0x34, 0xd9, 0xde, 0x49, 0x93, 0x87, 0x3b, 0x69, 0x72,
+	0x67, 0x37, 0x3d, 0xb6, 0xbd, 0x9b, 0x1e, 0xfb, 0x79, 0x37, 0x3d, 0xf6, 0x4e, 0x6e, 0xe0, 0xbb,
+	0xac, 0x0f, 0x7a, 0xbb, 0xab, 0x57, 0x5b, 0x6b, 0x13, 0xea, 0x5d, 0xdf, 0x73, 0x7f, 0x05, 0x00,
+	0x00, 0xff, 0xff, 0xe4, 0x81, 0xda, 0x60, 0x08, 0x15, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -901,6 +1291,14 @@ type QueryClient interface {
 	Withdrawals(ctx context.Context, in *QueryWithdrawalsRequest, opts ...grpc.CallOption) (*QueryWithdrawalsResponse, error)
 	// WithdrawalsByValidator returns withdrawals for a specific validator
 	WithdrawalsByValidator(ctx context.Context, in *QueryWithdrawalsByValidatorRequest, opts ...grpc.CallOption) (*QueryWithdrawalsByValidatorResponse, error)
+	// CollateralOwnerships returns all collateral ownerships
+	CollateralOwnerships(ctx context.Context, in *QueryCollateralOwnershipsRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsResponse, error)
+	// CollateralOwnershipsByValidator returns all collateral ownerships for a
+	// specific validator
+	CollateralOwnershipsByValidator(ctx context.Context, in *QueryCollateralOwnershipsByValidatorRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsByValidatorResponse, error)
+	// CollateralOwnership returns the collateral ownership for a specific
+	// validator and owner
+	CollateralOwnership(ctx context.Context, in *QueryCollateralOwnershipRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipResponse, error)
 }
 
 type queryClient struct {
@@ -983,6 +1381,33 @@ func (c *queryClient) WithdrawalsByValidator(ctx context.Context, in *QueryWithd
 	return out, nil
 }
 
+func (c *queryClient) CollateralOwnerships(ctx context.Context, in *QueryCollateralOwnershipsRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsResponse, error) {
+	out := new(QueryCollateralOwnershipsResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/CollateralOwnerships", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) CollateralOwnershipsByValidator(ctx context.Context, in *QueryCollateralOwnershipsByValidatorRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipsByValidatorResponse, error) {
+	out := new(QueryCollateralOwnershipsByValidatorResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/CollateralOwnershipsByValidator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) CollateralOwnership(ctx context.Context, in *QueryCollateralOwnershipRequest, opts ...grpc.CallOption) (*QueryCollateralOwnershipResponse, error) {
+	out := new(QueryCollateralOwnershipResponse)
+	err := c.cc.Invoke(ctx, "/mitosis.evmvalidator.v1.Query/CollateralOwnership", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Params returns the parameters of the x/evmvalidator module
@@ -1002,6 +1427,14 @@ type QueryServer interface {
 	Withdrawals(context.Context, *QueryWithdrawalsRequest) (*QueryWithdrawalsResponse, error)
 	// WithdrawalsByValidator returns withdrawals for a specific validator
 	WithdrawalsByValidator(context.Context, *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error)
+	// CollateralOwnerships returns all collateral ownerships
+	CollateralOwnerships(context.Context, *QueryCollateralOwnershipsRequest) (*QueryCollateralOwnershipsResponse, error)
+	// CollateralOwnershipsByValidator returns all collateral ownerships for a
+	// specific validator
+	CollateralOwnershipsByValidator(context.Context, *QueryCollateralOwnershipsByValidatorRequest) (*QueryCollateralOwnershipsByValidatorResponse, error)
+	// CollateralOwnership returns the collateral ownership for a specific
+	// validator and owner
+	CollateralOwnership(context.Context, *QueryCollateralOwnershipRequest) (*QueryCollateralOwnershipResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -1031,6 +1464,15 @@ func (*UnimplementedQueryServer) Withdrawals(ctx context.Context, req *QueryWith
 }
 func (*UnimplementedQueryServer) WithdrawalsByValidator(ctx context.Context, req *QueryWithdrawalsByValidatorRequest) (*QueryWithdrawalsByValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WithdrawalsByValidator not implemented")
+}
+func (*UnimplementedQueryServer) CollateralOwnerships(ctx context.Context, req *QueryCollateralOwnershipsRequest) (*QueryCollateralOwnershipsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnerships not implemented")
+}
+func (*UnimplementedQueryServer) CollateralOwnershipsByValidator(ctx context.Context, req *QueryCollateralOwnershipsByValidatorRequest) (*QueryCollateralOwnershipsByValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnershipsByValidator not implemented")
+}
+func (*UnimplementedQueryServer) CollateralOwnership(ctx context.Context, req *QueryCollateralOwnershipRequest) (*QueryCollateralOwnershipResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollateralOwnership not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -1181,6 +1623,60 @@ func _Query_WithdrawalsByValidator_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_CollateralOwnerships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnerships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/CollateralOwnerships",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnerships(ctx, req.(*QueryCollateralOwnershipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_CollateralOwnershipsByValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipsByValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnershipsByValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/CollateralOwnershipsByValidator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnershipsByValidator(ctx, req.(*QueryCollateralOwnershipsByValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_CollateralOwnership_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCollateralOwnershipRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CollateralOwnership(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mitosis.evmvalidator.v1.Query/CollateralOwnership",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CollateralOwnership(ctx, req.(*QueryCollateralOwnershipRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mitosis.evmvalidator.v1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -1216,6 +1712,18 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WithdrawalsByValidator",
 			Handler:    _Query_WithdrawalsByValidator_Handler,
+		},
+		{
+			MethodName: "CollateralOwnerships",
+			Handler:    _Query_CollateralOwnerships_Handler,
+		},
+		{
+			MethodName: "CollateralOwnershipsByValidator",
+			Handler:    _Query_CollateralOwnershipsByValidator_Handler,
+		},
+		{
+			MethodName: "CollateralOwnership",
+			Handler:    _Query_CollateralOwnership_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1780,6 +2288,294 @@ func (m *QueryWithdrawalsByValidatorResponse) MarshalToSizedBuffer(dAtA []byte) 
 	return len(dAtA) - i, nil
 }
 
+func (m *CollateralOwnershipWithAmount) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CollateralOwnershipWithAmount) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CollateralOwnershipWithAmount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Ownership.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.CollateralOwnerships) > 0 {
+		for iNdEx := len(m.CollateralOwnerships) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.CollateralOwnerships[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValAddr) > 0 {
+		i -= len(m.ValAddr)
+		copy(dAtA[i:], m.ValAddr)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.CollateralOwnerships) > 0 {
+		for iNdEx := len(m.CollateralOwnerships) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.CollateralOwnerships[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Owner)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValAddr) > 0 {
+		i -= len(m.ValAddr)
+		copy(dAtA[i:], m.ValAddr)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValAddr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCollateralOwnershipResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCollateralOwnershipResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCollateralOwnershipResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.CollateralOwnership.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -1999,6 +2795,115 @@ func (m *QueryWithdrawalsByValidatorResponse) Size() (n int) {
 		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
+	return n
+}
+
+func (m *CollateralOwnershipWithAmount) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Ownership.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.Amount.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryCollateralOwnershipsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryCollateralOwnershipsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.CollateralOwnerships) > 0 {
+		for _, e := range m.CollateralOwnerships {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryCollateralOwnershipsByValidatorRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValAddr)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryCollateralOwnershipsByValidatorResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.CollateralOwnerships) > 0 {
+		for _, e := range m.CollateralOwnerships {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryCollateralOwnershipRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ValAddr)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryCollateralOwnershipResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.CollateralOwnership.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -3386,6 +4291,770 @@ func (m *QueryWithdrawalsByValidatorResponse) Unmarshal(dAtA []byte) error {
 				m.Pagination = &query.PageResponse{}
 			}
 			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CollateralOwnershipWithAmount) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CollateralOwnershipWithAmount: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CollateralOwnershipWithAmount: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ownership", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Ownership.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnerships", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CollateralOwnerships = append(m.CollateralOwnerships, CollateralOwnershipWithAmount{})
+			if err := m.CollateralOwnerships[len(m.CollateralOwnerships)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipsByValidatorRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValAddr = append(m.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValAddr == nil {
+				m.ValAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipsByValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipsByValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnerships", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CollateralOwnerships = append(m.CollateralOwnerships, CollateralOwnershipWithAmount{})
+			if err := m.CollateralOwnerships[len(m.CollateralOwnerships)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValAddr", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValAddr = append(m.ValAddr[:0], dAtA[iNdEx:postIndex]...)
+			if m.ValAddr == nil {
+				m.ValAddr = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Owner = append(m.Owner[:0], dAtA[iNdEx:postIndex]...)
+			if m.Owner == nil {
+				m.Owner = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCollateralOwnershipResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCollateralOwnershipResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CollateralOwnership", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.CollateralOwnership.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
