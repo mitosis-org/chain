@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/mivalidator/utils"
 	"github.com/spf13/cobra"
@@ -57,6 +58,9 @@ func NewValidatorInfoCmd() *cobra.Command {
 
 			// Display validator info
 			displayValidatorInfo(validatorInfo)
+
+			// Display permitted collateral owners
+			displayPermittedCollateralOwners(valAddr)
 		},
 	}
 
@@ -80,4 +84,40 @@ func displayValidatorInfo(validatorInfo bindings.IValidatorManagerValidatorInfoR
 	fmt.Printf("Reward Manager           : %s\n", validatorInfo.RewardManager.Hex())
 	fmt.Printf("Commission Rate          : %s\n", utils.FormatBasisPointsToPercent(validatorInfo.CommissionRate))
 	fmt.Printf("Metadata                 : %s\n", string(validatorInfo.Metadata))
+}
+
+// displayPermittedCollateralOwners retrieves and displays all permitted collateral owners for a validator
+func displayPermittedCollateralOwners(valAddr common.Address) {
+	// Get the total count of permitted collateral owners
+	size, err := contract.PermittedCollateralOwnerSize(nil, valAddr)
+	if err != nil {
+		log.Printf("Error getting permitted collateral owner size: %v", err)
+		return
+	}
+
+	fmt.Println("\n===== Permitted Collateral Owners =====")
+	fmt.Println("Permitted collateral owners are addresses that are allowed to:")
+	fmt.Println("1. Deposit collateral for this validator")
+	fmt.Println("2. Transfer collateral ownership to another address")
+	fmt.Println("Only these addresses can perform these operations for this validator.")
+
+	// If there are no permitted collateral owners, display a message
+	if size.Cmp(big.NewInt(0)) == 0 {
+		fmt.Println("\nNo permitted collateral owners found")
+		return
+	}
+
+	fmt.Println("\nList of permitted collateral owners:")
+
+	// Iterate through all permitted collateral owners
+	for i := int64(0); i < size.Int64(); i++ {
+		index := big.NewInt(i)
+		collateralOwner, err := contract.PermittedCollateralOwnerAt(nil, valAddr, index)
+		if err != nil {
+			log.Printf("Error getting permitted collateral owner at index %d: %v", i, err)
+			continue
+		}
+
+		fmt.Printf("%d. %s\n", i+1, collateralOwner.Hex())
+	}
 }

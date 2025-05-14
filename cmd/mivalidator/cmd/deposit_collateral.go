@@ -56,6 +56,10 @@ func NewDepositCollateralCmd() *cobra.Command {
 			fmt.Printf("Collateral Amount        : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
 			fmt.Printf("Fee                      : %s MITO\n", utils.FormatWeiToEther(fee))
 
+			fmt.Println("\n🚨 IMPORTANT: Only permitted collateral owners can deposit collateral for a validator.")
+			fmt.Println("If your address is not a permitted collateral owner for this validator, the transaction will fail.")
+			fmt.Println("To check all permitted collateral owners, use 'validator-info --validator <validator-address>'")
+
 			// Ask for confirmation
 			if !ConfirmAction("Do you want to deposit this collateral?") {
 				log.Fatal("Operation cancelled by user")

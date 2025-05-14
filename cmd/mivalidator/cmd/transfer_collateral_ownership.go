@@ -50,6 +50,10 @@ func NewTransferCollateralOwnershipCmd() *cobra.Command {
 			fmt.Printf("New Collateral Owner     : %s\n", newOwnerAddr.Hex())
 			fmt.Printf("Fee                      : %s MITO\n", utils.FormatWeiToEther(fee))
 
+			fmt.Println("\n🚨 IMPORTANT: Only permitted collateral owners can transfer collateral ownership.")
+			fmt.Println("If your address is not a permitted collateral owner for this validator, the transaction will fail.")
+			fmt.Println("To check all permitted collateral owners, use 'validator-info --validator <validator-address>'")
+
 			fmt.Println("\n🚨 IMPORTANT: This action will transfer ownership of the validator's collateral.")
 			fmt.Println("The new owner will have full control over the collateral, including the ability to withdraw it.")
 			fmt.Println("Make sure you trust the new owner or it is an address you control.")
