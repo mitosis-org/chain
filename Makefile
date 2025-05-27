@@ -119,6 +119,9 @@ build-mivalidator:
 build-midevtool:
 	BINARY_NAME=midevtool $(MAKE) build
 
+build-mito:
+	BINARY_NAME=mito $(MAKE) build
+
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
