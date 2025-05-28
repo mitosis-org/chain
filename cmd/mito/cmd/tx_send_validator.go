@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"math/big"
+	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +25,7 @@ func newTxSendValidatorCreateCmd() *cobra.Command {
 		Use:   "create",
 		Short: "Create, sign and send a validator creation transaction",
 		Long: `Create, sign and immediately send a transaction to register a new validator in the ValidatorManager contract.
-This command requires signing credentials (private key or keystore).`,
+This command requires signing credentials (private key or keyfile).`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSendValidatorTx(cmd, pubKey, operator, rewardManager, commissionRate, metadata, initialCollateral)
 		},
@@ -171,7 +173,7 @@ func newTxSendValidatorUpdateOperatorCmd() *cobra.Command {
 		Use:   "update-operator",
 		Short: "Create, sign and send a validator operator update transaction",
 		Long: `Create, sign and immediately send a transaction to update the operator address for an existing validator.
-This command requires signing credentials (private key or keystore).`,
+This command requires signing credentials (private key or keyfile).`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSendUpdateOperatorTx(cmd, validator, operator)
 		},
@@ -270,7 +272,7 @@ func newTxSendValidatorUpdateMetadataCmd() *cobra.Command {
 		Use:   "update-metadata",
 		Short: "Create, sign and send a validator metadata update transaction",
 		Long: `Create, sign and immediately send a transaction to update the metadata for an existing validator.
-This command requires signing credentials (private key or keystore).`,
+This command requires signing credentials (private key or keyfile).`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSendUpdateMetadataTx(cmd, validator, metadata)
 		},
@@ -346,7 +348,7 @@ func newTxSendValidatorUnjailCmd() *cobra.Command {
 		Use:   "unjail",
 		Short: "Create, sign and send a validator unjail transaction",
 		Long: `Create, sign and immediately send a transaction to unjail a validator that has been jailed.
-This command requires signing credentials (private key or keystore).`,
+This command requires signing credentials (private key or keyfile).`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSendUnjailValidatorTx(cmd, validator)
 		},
@@ -408,5 +410,286 @@ func runSendUnjailValidatorTx(cmd *cobra.Command, validator string) error {
 	}
 
 	fmt.Println("✅ Validator unjailed successfully!")
+	return nil
+}
+
+// newTxSendValidatorUpdateRewardConfigCmd creates the validator reward config update command for tx send
+func newTxSendValidatorUpdateRewardConfigCmd() *cobra.Command {
+	var (
+		validator      string
+		commissionRate string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "update-reward-config",
+		Short: "Send a validator reward config update transaction",
+		Long: `Create, sign, and send a transaction to update the reward configuration for an existing validator.
+Only the validator operator can update the reward configuration.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSendUpdateRewardConfigTx(cmd, validator, commissionRate)
+		},
+	}
+
+	// Add common flags for contract interaction
+	cmd.Flags().StringVar(&rpcURL, "rpc-url", "", "Ethereum RPC URL (if not set, uses config)")
+	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address (if not set, uses config)")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Skip confirmation prompt")
+	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Manually specify nonce for transaction (optional)")
+
+	// Add signing flags
+	AddSigningFlags(cmd)
+
+	// Command-specific flags
+	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
+	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "New commission rate in percentage (e.g., \"5%\")")
+
+	// Mark required flags
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "commission-rate")
+
+	// Add PreRun to load config and validate
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if rpcURL == "" {
+			fmt.Println("Error: RPC URL is required. Set it with --rpc-url flag or use 'mito config set-rpc <url>'")
+			os.Exit(1)
+		}
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+	}
+
+	return cmd
+}
+
+func runSendUpdateRewardConfigTx(cmd *cobra.Command, validator, commissionRate string) error {
+	// Validate validator address
+	valAddr, err := ValidateAddress(validator)
+	if err != nil {
+		return fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	// Parse commission rate
+	commissionRateInt, err := ParsePercentageToBasisPoints(commissionRate)
+	if err != nil {
+		return fmt.Errorf("failed to parse commission rate: %w", err)
+	}
+
+	// Get signing configuration
+	signingConfig, err := GetSigningConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get signing configuration: %w", err)
+	}
+
+	// Connect to Ethereum client
+	ethClient, err := ConnectToEthereum(rpcURL)
+	if err != nil {
+		return fmt.Errorf("failed to connect to Ethereum: %w", err)
+	}
+	defer ethClient.Close()
+
+	// Create contract instance
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+	contract, err := bindings.NewIValidatorManager(contractAddr, ethClient)
+	if err != nil {
+		return fmt.Errorf("failed to create contract instance: %w", err)
+	}
+
+	// Get validator info to show current values
+	validatorInfo, err := contract.ValidatorInfo(nil, valAddr)
+	if err != nil {
+		return fmt.Errorf("failed to get validator info: %w", err)
+	}
+
+	// Create the request
+	request := bindings.IValidatorManagerUpdateRewardConfigRequest{
+		CommissionRate: commissionRateInt,
+	}
+
+	// Show summary
+	fmt.Println("===== Update Reward Config Transaction =====")
+	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
+	fmt.Printf("Current Commission Rate  : %s\n", FormatBasisPointsToPercent(validatorInfo.CommissionRate))
+	fmt.Printf("New Commission Rate      : %s\n", FormatBasisPointsToPercent(commissionRateInt))
+	fmt.Println()
+
+	fmt.Println("🚨 IMPORTANT: Commission rate changes may be subject to a delay period.")
+	fmt.Println("The new commission rate will take effect after the delay period specified in the global config.")
+	fmt.Println()
+
+	// Ask for confirmation
+	if !ConfirmAction("Do you want to update the reward configuration?") {
+		return fmt.Errorf("operation cancelled by user")
+	}
+
+	// Create transaction options (no value needed for reward config update)
+	transactOpts, err := CreateTransactOpts(ethClient, signingConfig, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create transaction options: %w", err)
+	}
+
+	// Execute the transaction
+	tx, err := contract.UpdateRewardConfig(transactOpts, valAddr, request)
+	if err != nil {
+		return fmt.Errorf("failed to update reward config: %w", err)
+	}
+
+	fmt.Printf("Transaction sent! Hash: %s\n", tx.Hash().Hex())
+
+	// Wait for transaction confirmation
+	err = WaitForTxConfirmation(ethClient, tx.Hash())
+	if err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+
+	fmt.Println("✅ Reward configuration updated successfully!")
+	return nil
+}
+
+// newTxSendValidatorUpdateRewardManagerCmd creates the validator reward manager update command for tx send
+func newTxSendValidatorUpdateRewardManagerCmd() *cobra.Command {
+	var (
+		validator     string
+		rewardManager string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "update-reward-manager",
+		Short: "Send a validator reward manager update transaction",
+		Long: `Create, sign, and send a transaction to update the reward manager for an existing validator.
+Only the validator operator can update the reward manager.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSendUpdateRewardManagerTx(cmd, validator, rewardManager)
+		},
+	}
+
+	// Add common flags for contract interaction
+	cmd.Flags().StringVar(&rpcURL, "rpc-url", "", "Ethereum RPC URL (if not set, uses config)")
+	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address (if not set, uses config)")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Skip confirmation prompt")
+	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Manually specify nonce for transaction (optional)")
+
+	// Add signing flags
+	AddSigningFlags(cmd)
+
+	// Command-specific flags
+	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
+	cmd.Flags().StringVar(&rewardManager, "reward-manager", "", "New reward manager address")
+
+	// Mark required flags
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "reward-manager")
+
+	// Add PreRun to load config and validate
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if rpcURL == "" {
+			fmt.Println("Error: RPC URL is required. Set it with --rpc-url flag or use 'mito config set-rpc <url>'")
+			os.Exit(1)
+		}
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+	}
+
+	return cmd
+}
+
+func runSendUpdateRewardManagerTx(cmd *cobra.Command, validator, rewardManager string) error {
+	// Validate validator address
+	valAddr, err := ValidateAddress(validator)
+	if err != nil {
+		return fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	// Validate reward manager address
+	rewardManagerAddr, err := ValidateAddress(rewardManager)
+	if err != nil {
+		return fmt.Errorf("invalid reward manager address: %w", err)
+	}
+
+	// Get signing configuration
+	signingConfig, err := GetSigningConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get signing configuration: %w", err)
+	}
+
+	// Connect to Ethereum client
+	ethClient, err := ConnectToEthereum(rpcURL)
+	if err != nil {
+		return fmt.Errorf("failed to connect to Ethereum: %w", err)
+	}
+	defer ethClient.Close()
+
+	// Create contract instance
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+	contract, err := bindings.NewIValidatorManager(contractAddr, ethClient)
+	if err != nil {
+		return fmt.Errorf("failed to create contract instance: %w", err)
+	}
+
+	// Get validator info to show current values
+	validatorInfo, err := contract.ValidatorInfo(nil, valAddr)
+	if err != nil {
+		return fmt.Errorf("failed to get validator info: %w", err)
+	}
+
+	// Show summary
+	fmt.Println("===== Update Reward Manager Transaction =====")
+	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
+	fmt.Printf("Current Reward Manager   : %s\n", validatorInfo.RewardManager.Hex())
+	fmt.Printf("New Reward Manager       : %s\n", rewardManagerAddr.Hex())
+	fmt.Println()
+
+	fmt.Println("🚨 IMPORTANT: The reward manager will be responsible for:")
+	fmt.Println("1. Managing validator rewards")
+	fmt.Println("2. Setting commission rates")
+	fmt.Println("Make sure this address is secure and under your control.")
+	fmt.Println()
+
+	// Ask for confirmation
+	if !ConfirmAction("Do you want to update the reward manager address?") {
+		return fmt.Errorf("operation cancelled by user")
+	}
+
+	// Create transaction options (no value needed for reward manager update)
+	transactOpts, err := CreateTransactOpts(ethClient, signingConfig, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create transaction options: %w", err)
+	}
+
+	// Execute the transaction
+	tx, err := contract.UpdateRewardManager(transactOpts, valAddr, rewardManagerAddr)
+	if err != nil {
+		return fmt.Errorf("failed to update reward manager: %w", err)
+	}
+
+	fmt.Printf("Transaction sent! Hash: %s\n", tx.Hash().Hex())
+
+	// Wait for transaction confirmation
+	err = WaitForTxConfirmation(ethClient, tx.Hash())
+	if err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+
+	fmt.Println("✅ Reward manager updated successfully!")
 	return nil
 }

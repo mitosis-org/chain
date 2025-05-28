@@ -54,7 +54,8 @@ func newTxCreateValidatorCreateCmd() *cobra.Command {
 		Short: "Create a validator creation transaction",
 		Long: `Create a transaction to register a new validator in the ValidatorManager contract.
 This command can create either signed or unsigned transactions based on the flags provided.
-When creating offline transactions, you need to provide fee, gas parameters manually.`,
+Network information (chain-id, gas-price, fee) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCreateValidatorTx(cmd, pubKey, operator, rewardManager, commissionRate, metadata, initialCollateral)
 		},
@@ -63,13 +64,8 @@ When creating offline transactions, you need to provide fee, gas parameters manu
 	// Add common flags for contract interaction
 	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
 
-	// Add offline mode flags
-	cmd.Flags().BoolVar(&offlineMode, "offline", false, "Create transaction offline without RPC connection")
-	cmd.Flags().StringVar(&chainID, "chain-id", "1337", "Chain ID for the transaction")
-	cmd.Flags().Uint64Var(&gasLimit, "gas-limit", 500000, "Gas limit for the transaction")
-	cmd.Flags().StringVar(&gasPrice, "gas-price", "20000000000", "Gas price in wei")
-	cmd.Flags().Uint64Var(&txNonce, "nonce", 0, "Nonce for the transaction (required for signed transactions)")
-	cmd.Flags().StringVar(&contractFee, "fee", "0.001", "Contract fee in MITO (for offline mode)")
+	// Add network information flags
+	AddTxCreateNetworkFlags(cmd, true) // true because this command requires fee
 
 	// Add tx create specific flags
 	AddTxCreateFlags(cmd)
@@ -90,8 +86,14 @@ When creating offline transactions, you need to provide fee, gas parameters manu
 	mustMarkFlagRequired(cmd, "metadata")
 	mustMarkFlagRequired(cmd, "initial-collateral")
 
-	// Add PreRun to load config
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
 		// Load global config
 		if err := loadGlobalConfig(); err != nil {
 			fmt.Printf("Warning: failed to load config: %v\n", err)
@@ -103,6 +105,18 @@ When creating offline transactions, you need to provide fee, gas parameters manu
 		// Validate that required values are set
 		if validatorManagerContractAddr == "" {
 			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
 			os.Exit(1)
 		}
 	}
@@ -301,7 +315,9 @@ func newTxCreateValidatorUpdateOperatorCmd() *cobra.Command {
 		Use:   "update-operator",
 		Short: "Create a validator operator update transaction",
 		Long: `Create a transaction to update the operator address for an existing validator.
-This command can create either signed or unsigned transactions based on the flags provided.`,
+This command can create either signed or unsigned transactions based on the flags provided.
+Network information (chain-id, gas-price) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runUpdateOperatorTx(cmd, validator, operator)
 		},
@@ -309,14 +325,9 @@ This command can create either signed or unsigned transactions based on the flag
 
 	// Add common flags for contract interaction
 	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
-	mustMarkFlagRequired(cmd, "contract")
 
-	// Add offline mode flags
-	cmd.Flags().BoolVar(&offlineMode, "offline", false, "Create transaction offline without RPC connection")
-	cmd.Flags().StringVar(&chainID, "chain-id", "1337", "Chain ID for the transaction")
-	cmd.Flags().Uint64Var(&gasLimit, "gas-limit", 500000, "Gas limit for the transaction")
-	cmd.Flags().StringVar(&gasPrice, "gas-price", "20000000000", "Gas price in wei")
-	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Nonce for the transaction (required for signed transactions)")
+	// Add network information flags (no fee required for operator update)
+	AddTxCreateNetworkFlags(cmd, false)
 
 	// Add tx create specific flags
 	AddTxCreateFlags(cmd)
@@ -328,6 +339,41 @@ This command can create either signed or unsigned transactions based on the flag
 	// Mark required flags
 	mustMarkFlagRequired(cmd, "validator")
 	mustMarkFlagRequired(cmd, "operator")
+
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
 
 	return cmd
 }
@@ -490,7 +536,9 @@ func newTxCreateValidatorUpdateMetadataCmd() *cobra.Command {
 		Use:   "update-metadata",
 		Short: "Create a validator metadata update transaction",
 		Long: `Create a transaction to update the metadata for an existing validator.
-This command can create either signed or unsigned transactions based on the flags provided.`,
+This command can create either signed or unsigned transactions based on the flags provided.
+Network information (chain-id, gas-price) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runUpdateMetadataTx(cmd, validator, metadata)
 		},
@@ -498,14 +546,9 @@ This command can create either signed or unsigned transactions based on the flag
 
 	// Add common flags for contract interaction
 	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
-	mustMarkFlagRequired(cmd, "contract")
 
-	// Add offline mode flags
-	cmd.Flags().BoolVar(&offlineMode, "offline", false, "Create transaction offline without RPC connection")
-	cmd.Flags().StringVar(&chainID, "chain-id", "1337", "Chain ID for the transaction")
-	cmd.Flags().Uint64Var(&gasLimit, "gas-limit", 500000, "Gas limit for the transaction")
-	cmd.Flags().StringVar(&gasPrice, "gas-price", "20000000000", "Gas price in wei")
-	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Nonce for the transaction (required for signed transactions)")
+	// Add network information flags (no fee required for operator update)
+	AddTxCreateNetworkFlags(cmd, false)
 
 	// Add tx create specific flags
 	AddTxCreateFlags(cmd)
@@ -517,6 +560,41 @@ This command can create either signed or unsigned transactions based on the flag
 	// Mark required flags
 	mustMarkFlagRequired(cmd, "validator")
 	mustMarkFlagRequired(cmd, "metadata")
+
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
 
 	return cmd
 }
@@ -662,7 +740,9 @@ func newTxCreateValidatorUnjailCmd() *cobra.Command {
 		Use:   "unjail",
 		Short: "Create a validator unjail transaction",
 		Long: `Create a transaction to unjail a validator that has been jailed.
-This command can create either signed or unsigned transactions based on the flags provided.`,
+This command can create either signed or unsigned transactions based on the flags provided.
+Network information (chain-id, gas-price) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runUnjailValidatorTx(cmd, validator)
 		},
@@ -670,14 +750,9 @@ This command can create either signed or unsigned transactions based on the flag
 
 	// Add common flags for contract interaction
 	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
-	mustMarkFlagRequired(cmd, "contract")
 
-	// Add offline mode flags
-	cmd.Flags().BoolVar(&offlineMode, "offline", false, "Create transaction offline without RPC connection")
-	cmd.Flags().StringVar(&chainID, "chain-id", "1337", "Chain ID for the transaction")
-	cmd.Flags().Uint64Var(&gasLimit, "gas-limit", 500000, "Gas limit for the transaction")
-	cmd.Flags().StringVar(&gasPrice, "gas-price", "20000000000", "Gas price in wei")
-	cmd.Flags().Uint64Var(&nonce, "nonce", 0, "Nonce for the transaction (required for signed transactions)")
+	// Add network information flags (no fee required for operator update)
+	AddTxCreateNetworkFlags(cmd, false)
 
 	// Add tx create specific flags
 	AddTxCreateFlags(cmd)
@@ -687,6 +762,41 @@ This command can create either signed or unsigned transactions based on the flag
 
 	// Mark required flags
 	mustMarkFlagRequired(cmd, "validator")
+
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
 
 	return cmd
 }
@@ -818,6 +928,498 @@ func createUnsignedUnjailValidatorTransaction(ethClient *ethclient.Client, contr
 	// Get suggested gas price
 	if gasPrice, err := ethClient.SuggestGasPrice(context.Background()); err == nil {
 		unsignedTxData.GasPrice = gasPrice.String()
+	}
+
+	// Output the transaction
+	return outputTransaction(unsignedTxData, "Unsigned")
+}
+
+// newTxCreateValidatorUpdateRewardConfigCmd creates the validator reward config update command for tx create
+func newTxCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
+	var (
+		validator      string
+		commissionRate string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "update-reward-config",
+		Short: "Create a validator reward config update transaction",
+		Long: `Create a transaction to update the reward configuration for an existing validator.
+This command can create either signed or unsigned transactions based on the flags provided.
+Network information (chain-id, gas-price) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runUpdateRewardConfigTx(cmd, validator, commissionRate)
+		},
+	}
+
+	// Add common flags for contract interaction
+	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
+
+	// Add network information flags (no fee required for reward config update)
+	AddTxCreateNetworkFlags(cmd, false)
+
+	// Add tx create specific flags
+	AddTxCreateFlags(cmd)
+
+	// Command-specific flags
+	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
+	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "New commission rate in percentage (e.g., \"5%\")")
+
+	// Mark required flags
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "commission-rate")
+
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	return cmd
+}
+
+func runUpdateRewardConfigTx(cmd *cobra.Command, validator, commissionRate string) error {
+	// Validate validator address
+	valAddr, err := ValidateAddress(validator)
+	if err != nil {
+		return fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	// Parse commission rate
+	commissionRateInt, err := ParsePercentageToBasisPoints(commissionRate)
+	if err != nil {
+		return fmt.Errorf("failed to parse commission rate: %w", err)
+	}
+
+	// Setup client and contract (if RPC is available)
+	var validatorInfo bindings.IValidatorManagerValidatorInfoResponse
+	var hasValidatorInfo bool
+
+	if rpcURL != "" {
+		ethClient, err := GetEthClient(rpcURL)
+		if err != nil {
+			fmt.Printf("Warning: Could not connect to RPC: %v\n", err)
+		} else {
+			contract, err := GetValidatorManagerContract(ethClient)
+			if err != nil {
+				fmt.Printf("Warning: Could not initialize contract: %v\n", err)
+			} else {
+				// Get validator info to show current values
+				validatorInfo, err = contract.ValidatorInfo(nil, valAddr)
+				if err != nil {
+					fmt.Printf("Warning: Could not get current validator info: %v\n", err)
+				} else {
+					hasValidatorInfo = true
+				}
+			}
+		}
+	}
+
+	// Show summary
+	fmt.Println("===== Update Reward Config Transaction =====")
+	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
+	if hasValidatorInfo {
+		fmt.Printf("Current Commission Rate  : %s\n", FormatBasisPointsToPercent(validatorInfo.CommissionRate))
+	}
+	fmt.Printf("New Commission Rate      : %s\n", FormatBasisPointsToPercent(commissionRateInt))
+	fmt.Printf("Chain ID                 : %s\n", chainID)
+	fmt.Printf("Gas Limit                : %d\n", gasLimit)
+	fmt.Printf("Gas Price                : %s wei\n", gasPrice)
+	if signed {
+		fmt.Printf("Nonce                    : %d\n", txNonce)
+	}
+	fmt.Println()
+
+	// Check if we should create signed or unsigned transaction
+	if signed {
+		return createSignedUpdateRewardConfigTransaction(valAddr, commissionRateInt)
+	} else {
+		return createUnsignedUpdateRewardConfigTransaction(valAddr, commissionRateInt)
+	}
+}
+
+func createSignedUpdateRewardConfigTransaction(valAddr common.Address, commissionRateInt *big.Int) error {
+	if !signed {
+		return fmt.Errorf("signed transaction creation requires --signed flag")
+	}
+
+	// Get signing configuration
+	signingConfig, err := GetSigningConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get signing configuration: %w", err)
+	}
+	privateKey := signingConfig.PrivateKey
+
+	// Get contract address
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+
+	// Create the request
+	request := bindings.IValidatorManagerUpdateRewardConfigRequest{
+		CommissionRate: commissionRateInt,
+	}
+
+	// Encode the function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardConfig", valAddr, request)
+	if err != nil {
+		return fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Parse gas price
+	gasPriceBig, ok := new(big.Int).SetString(gasPrice, 10)
+	if !ok {
+		return fmt.Errorf("invalid gas price: %s", gasPrice)
+	}
+
+	// Parse chain ID
+	chainIDBig, ok := new(big.Int).SetString(chainID, 10)
+	if !ok {
+		return fmt.Errorf("invalid chain ID: %s", chainID)
+	}
+
+	// Create and sign transaction (no value needed for reward config update)
+	tx := types.NewTransaction(txNonce, contractAddr, big.NewInt(0), gasLimit, gasPriceBig, data)
+
+	// Sign the transaction
+	signer := types.NewEIP155Signer(chainIDBig)
+	signedTx, err := types.SignTx(tx, signer, privateKey)
+	if err != nil {
+		return fmt.Errorf("failed to sign transaction: %w", err)
+	}
+
+	// Create signed transaction data
+	signedTxData := SignedTransactionData{
+		TransactionData: TransactionData{
+			To:       signedTx.To().Hex(),
+			Value:    signedTx.Value().String(),
+			Data:     fmt.Sprintf("0x%x", signedTx.Data()),
+			GasLimit: signedTx.Gas(),
+			GasPrice: signedTx.GasPrice().String(),
+			Nonce:    signedTx.Nonce(),
+			ChainID:  chainID,
+		},
+		Hash: signedTx.Hash().Hex(),
+	}
+
+	// Get signature components
+	v, r, s := signedTx.RawSignatureValues()
+	signedTxData.Signature.V = v.String()
+	signedTxData.Signature.R = r.String()
+	signedTxData.Signature.S = s.String()
+
+	// Get raw transaction data
+	rawTxData, err := signedTx.MarshalBinary()
+	if err == nil {
+		signedTxData.Raw = fmt.Sprintf("0x%x", rawTxData)
+	}
+
+	// Output the transaction
+	return outputTransaction(signedTxData, "Signed")
+}
+
+func createUnsignedUpdateRewardConfigTransaction(valAddr common.Address, commissionRateInt *big.Int) error {
+	// Get contract address
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+
+	// Create the request
+	request := bindings.IValidatorManagerUpdateRewardConfigRequest{
+		CommissionRate: commissionRateInt,
+	}
+
+	// Encode the function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardConfig", valAddr, request)
+	if err != nil {
+		return fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Create unsigned transaction data (no value needed for reward config update)
+	unsignedTxData := TransactionData{
+		To:       contractAddr.Hex(),
+		Value:    "0",
+		Data:     fmt.Sprintf("0x%x", data),
+		ChainID:  chainID,
+		GasLimit: gasLimit,
+		GasPrice: gasPrice,
+	}
+
+	// Output the transaction
+	return outputTransaction(unsignedTxData, "Unsigned")
+}
+
+// newTxCreateValidatorUpdateRewardManagerCmd creates the validator reward manager update command for tx create
+func newTxCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
+	var (
+		validator     string
+		rewardManager string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "update-reward-manager",
+		Short: "Create a validator reward manager update transaction",
+		Long: `Create a transaction to update the reward manager for an existing validator.
+This command can create either signed or unsigned transactions based on the flags provided.
+Network information (chain-id, gas-price) will be automatically fetched if RPC is configured,
+otherwise you must provide them manually.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runUpdateRewardManagerTx(cmd, validator, rewardManager)
+		},
+	}
+
+	// Add common flags for contract interaction
+	cmd.Flags().StringVar(&validatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
+
+	// Add network information flags (no fee required for reward manager update)
+	AddTxCreateNetworkFlags(cmd, false)
+
+	// Add tx create specific flags
+	AddTxCreateFlags(cmd)
+
+	// Command-specific flags
+	cmd.Flags().StringVar(&validator, "validator", "", "Validator address")
+	cmd.Flags().StringVar(&rewardManager, "reward-manager", "", "New reward manager address")
+
+	// Mark required flags
+	mustMarkFlagRequired(cmd, "validator")
+	mustMarkFlagRequired(cmd, "reward-manager")
+
+	// Add PreRun to load config and validate network info
+	existingPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		// Call existing PreRun first (from AddTxCreateFlags)
+		if existingPreRun != nil {
+			existingPreRun(cmd, args)
+		}
+
+		// Load global config
+		if err := loadGlobalConfig(); err != nil {
+			fmt.Printf("Warning: failed to load config: %v\n", err)
+		}
+
+		// Resolve config values
+		resolveConfigValues()
+
+		// Validate that required values are set
+		if validatorManagerContractAddr == "" {
+			fmt.Println("Error: ValidatorManager contract address is required. Set it with --contract flag or use 'mito config set-contract <address>'")
+			os.Exit(1)
+		}
+
+		// Validate network information requirements
+		if err := ValidateNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Setup network information (fetch from RPC if available)
+		if err := SetupNetworkInfo(cmd); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	return cmd
+}
+
+func runUpdateRewardManagerTx(cmd *cobra.Command, validator, rewardManager string) error {
+	// Validate validator address
+	valAddr, err := ValidateAddress(validator)
+	if err != nil {
+		return fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	// Validate reward manager address
+	rewardManagerAddr, err := ValidateAddress(rewardManager)
+	if err != nil {
+		return fmt.Errorf("invalid reward manager address: %w", err)
+	}
+
+	// Setup client and contract (if RPC is available)
+	var validatorInfo bindings.IValidatorManagerValidatorInfoResponse
+	var hasValidatorInfo bool
+
+	if rpcURL != "" {
+		ethClient, err := GetEthClient(rpcURL)
+		if err != nil {
+			fmt.Printf("Warning: Could not connect to RPC: %v\n", err)
+		} else {
+			contract, err := GetValidatorManagerContract(ethClient)
+			if err != nil {
+				fmt.Printf("Warning: Could not initialize contract: %v\n", err)
+			} else {
+				// Get validator info to show current values
+				validatorInfo, err = contract.ValidatorInfo(nil, valAddr)
+				if err != nil {
+					fmt.Printf("Warning: Could not get current validator info: %v\n", err)
+				} else {
+					hasValidatorInfo = true
+				}
+			}
+		}
+	}
+
+	// Show summary
+	fmt.Println("===== Update Reward Manager Transaction =====")
+	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
+	if hasValidatorInfo {
+		fmt.Printf("Current Reward Manager   : %s\n", validatorInfo.RewardManager.Hex())
+	}
+	fmt.Printf("New Reward Manager       : %s\n", rewardManagerAddr.Hex())
+	fmt.Printf("Chain ID                 : %s\n", chainID)
+	fmt.Printf("Gas Limit                : %d\n", gasLimit)
+	fmt.Printf("Gas Price                : %s wei\n", gasPrice)
+	if signed {
+		fmt.Printf("Nonce                    : %d\n", nonce)
+	}
+	fmt.Println()
+
+	// Check if we should create signed or unsigned transaction
+	if signed {
+		return createSignedUpdateRewardManagerTransaction(valAddr, rewardManagerAddr)
+	} else {
+		return createUnsignedUpdateRewardManagerTransaction(valAddr, rewardManagerAddr)
+	}
+}
+
+func createSignedUpdateRewardManagerTransaction(valAddr, rewardManagerAddr common.Address) error {
+	if !signed {
+		return fmt.Errorf("signed transaction creation requires --signed flag")
+	}
+
+	// Get signing configuration
+	signingConfig, err := GetSigningConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get signing configuration: %w", err)
+	}
+	privateKey := signingConfig.PrivateKey
+
+	// Get contract address
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+
+	// Encode the function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardManager", valAddr, rewardManagerAddr)
+	if err != nil {
+		return fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Parse gas price
+	gasPriceBig, ok := new(big.Int).SetString(gasPrice, 10)
+	if !ok {
+		return fmt.Errorf("invalid gas price: %s", gasPrice)
+	}
+
+	// Parse chain ID
+	chainIDBig, ok := new(big.Int).SetString(chainID, 10)
+	if !ok {
+		return fmt.Errorf("invalid chain ID: %s", chainID)
+	}
+
+	// Create and sign transaction (no value needed for reward manager update)
+	tx := types.NewTransaction(txNonce, contractAddr, big.NewInt(0), gasLimit, gasPriceBig, data)
+
+	// Sign the transaction
+	signer := types.NewEIP155Signer(chainIDBig)
+	signedTx, err := types.SignTx(tx, signer, privateKey)
+	if err != nil {
+		return fmt.Errorf("failed to sign transaction: %w", err)
+	}
+
+	// Create signed transaction data
+	signedTxData := SignedTransactionData{
+		TransactionData: TransactionData{
+			To:       signedTx.To().Hex(),
+			Value:    signedTx.Value().String(),
+			Data:     fmt.Sprintf("0x%x", signedTx.Data()),
+			GasLimit: signedTx.Gas(),
+			GasPrice: signedTx.GasPrice().String(),
+			Nonce:    signedTx.Nonce(),
+			ChainID:  chainID,
+		},
+		Hash: signedTx.Hash().Hex(),
+	}
+
+	// Get signature components
+	v, r, s := signedTx.RawSignatureValues()
+	signedTxData.Signature.V = v.String()
+	signedTxData.Signature.R = r.String()
+	signedTxData.Signature.S = s.String()
+
+	// Get raw transaction data
+	rawTxData, err := signedTx.MarshalBinary()
+	if err == nil {
+		signedTxData.Raw = fmt.Sprintf("0x%x", rawTxData)
+	}
+
+	// Output the transaction
+	return outputTransaction(signedTxData, "Signed")
+}
+
+func createUnsignedUpdateRewardManagerTransaction(valAddr, rewardManagerAddr common.Address) error {
+	// Get contract address
+	contractAddr := common.HexToAddress(validatorManagerContractAddr)
+
+	// Encode the function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardManager", valAddr, rewardManagerAddr)
+	if err != nil {
+		return fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Create unsigned transaction data (no value needed for reward manager update)
+	unsignedTxData := TransactionData{
+		To:       contractAddr.Hex(),
+		Value:    "0",
+		Data:     fmt.Sprintf("0x%x", data),
+		ChainID:  chainID,
+		GasLimit: gasLimit,
+		GasPrice: gasPrice,
 	}
 
 	// Output the transaction
