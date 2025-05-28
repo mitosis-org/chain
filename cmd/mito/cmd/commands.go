@@ -94,6 +94,8 @@ func newTxSendValidatorCmd() *cobra.Command {
 		newTxSendValidatorCreateCmd(),
 		newTxSendValidatorUpdateOperatorCmd(),
 		newTxSendValidatorUpdateMetadataCmd(),
+		newTxSendValidatorUpdateRewardConfigCmd(),
+		newTxSendValidatorUpdateRewardManagerCmd(),
 		newTxSendValidatorUnjailCmd(),
 	)
 
@@ -111,6 +113,8 @@ func newTxSendCollateralCmd() *cobra.Command {
 	cmd.AddCommand(
 		newTxSendCollateralDepositCmd(),
 		newTxSendCollateralWithdrawCmd(),
+		newTxSendCollateralSetPermittedOwnerCmd(),
+		newTxSendCollateralTransferOwnershipCmd(),
 	)
 
 	return cmd
@@ -128,6 +132,8 @@ func newTxCreateValidatorCmd() *cobra.Command {
 		newTxCreateValidatorCreateCmd(),
 		newTxCreateValidatorUpdateOperatorCmd(),
 		newTxCreateValidatorUpdateMetadataCmd(),
+		newTxCreateValidatorUpdateRewardConfigCmd(),
+		newTxCreateValidatorUpdateRewardManagerCmd(),
 		newTxCreateValidatorUnjailCmd(),
 	)
 
@@ -145,6 +151,8 @@ func newTxCreateCollateralCmd() *cobra.Command {
 	cmd.AddCommand(
 		newTxCreateCollateralDepositCmd(),
 		newTxCreateCollateralWithdrawCmd(),
+		newTxCreateCollateralSetPermittedOwnerCmd(),
+		newTxCreateCollateralTransferOwnershipCmd(),
 	)
 
 	return cmd
