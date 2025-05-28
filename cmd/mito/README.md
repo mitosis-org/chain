@@ -8,7 +8,7 @@ Mito is a command-line tool for interacting with the Mitosis blockchain, providi
 - **Validator Operations**: Create, update, and manage validators
 - **Collateral Management**: Deposit and withdraw collateral for validators
 - **Configuration Management**: Store and manage RPC URLs and contract addresses
-- **Security**: Support for both private keys and geth keystore files with mutual exclusivity validation
+- **Security**: Support for both private keys and geth keyfiles with mutual exclusivity validation
 - **Offline Mode**: Create transactions without RPC connection
 
 ## Installation
@@ -78,7 +78,7 @@ Configuration is stored in `~/.mito/config.json`.
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"my-validator"}' \
-  --keystore /path/to/keystore
+  --keyfile /path/to/keyfile
 ```
 
 ### Validator Commands
@@ -86,6 +86,41 @@ Configuration is stored in `~/.mito/config.json`.
 ```bash
 # Get validator information
 ./mito validator info --validator-address 0x1111...
+
+# Update validator commission rate
+./mito tx send validator update-reward-config \
+  --validator 0x1111... \
+  --commission-rate 5% \
+  --keyfile /path/to/keyfile
+
+# Update validator reward manager
+./mito tx send validator update-reward-manager \
+  --validator 0x1111... \
+  --reward-manager 0x2222... \
+  --keyfile /path/to/keyfile
+```
+
+### Collateral Management Commands
+
+```bash
+# Set permitted collateral owner
+./mito tx send collateral set-permitted-owner \
+  --validator 0x1111... \
+  --collateral-owner 0x2222... \
+  --permitted \
+  --keyfile /path/to/keyfile
+
+# Revoke collateral owner permission
+./mito tx send collateral set-permitted-owner \
+  --validator 0x1111... \
+  --collateral-owner 0x2222... \
+  --keyfile /path/to/keyfile
+
+# Transfer collateral ownership
+./mito tx send collateral transfer-ownership \
+  --validator 0x1111... \
+  --new-owner 0x3333... \
+  --keyfile /path/to/keyfile
 ```
 
 ### Security Features
@@ -95,23 +130,23 @@ Configuration is stored in `~/.mito/config.json`.
 Choose one of the following signing methods:
 
 - `--private-key`: Provide private key directly (hex format)
-- `--keystore`: Use geth keystore file (more secure)
+- `--keyfile`: Use geth keyfile (more secure)
 
 ```bash
 # Using private key
 ./mito tx send collateral deposit --private-key 0x1234...
 
-# Using keystore (will prompt for password)
-./mito tx send collateral deposit --keystore /path/to/keystore
+# Using keyfile (will prompt for password)
+./mito tx send collateral deposit --keyfile /path/to/keyfile
 
-# Using keystore with password file
+# Using keyfile with password file
 ./mito tx send collateral deposit \
-  --keystore /path/to/keystore \
-  --keystore-password-file /path/to/password.txt
+  --keyfile /path/to/keyfile \
+  --keyfile-password-file /path/to/password.txt
 
 # ERROR: Cannot use both
-./mito tx send collateral deposit --private-key 0x1234... --keystore /path/to/keystore
-# Error: flags [private-key keystore] are mutually exclusive
+./mito tx send collateral deposit --private-key 0x1234... --keyfile /path/to/keyfile
+# Error: flags [private-key keyfile] are mutually exclusive
 ```
 
 ## Command Structure
@@ -120,11 +155,11 @@ Choose one of the following signing methods:
 mito
 ├── tx
 │   ├── send
-│   │   ├── validator (create, update-operator, update-metadata, unjail)
-│   │   └── collateral (deposit, withdraw)
+│   │   ├── validator (create, update-operator, update-metadata, update-reward-config, update-reward-manager, unjail)
+│   │   └── collateral (deposit, withdraw, set-permitted-owner, transfer-ownership)
 │   └── create
-│       ├── validator (create, update-operator, update-metadata, unjail)
-│       └── collateral (deposit, withdraw)
+│       ├── validator (create, update-operator, update-metadata, update-reward-config, update-reward-manager, unjail)
+│       └── collateral (deposit, withdraw, set-permitted-owner, transfer-ownership)
 ├── validator
 │   └── info
 └── config
@@ -150,7 +185,7 @@ mito
   --commission-rate 5% \
   --initial-collateral 10.0 \
   --metadata '{"name":"MyValidator","description":"My awesome validator"}' \
-  --keystore /path/to/keystore
+  --keyfile /path/to/keyfile
 
 # 3. Check validator info
 ./mito validator info --validator-address 0x1111111111111111111111111111111111111111
@@ -159,7 +194,20 @@ mito
 ./mito tx send collateral deposit \
   --validator 0x1111111111111111111111111111111111111111 \
   --amount 5.0 \
-  --keystore /path/to/keystore
+  --keyfile /path/to/keyfile
+
+# 5. Update commission rate
+./mito tx send validator update-reward-config \
+  --validator 0x1111111111111111111111111111111111111111 \
+  --commission-rate 3% \
+  --keyfile /path/to/keyfile
+
+# 6. Set permitted collateral owner
+./mito tx send collateral set-permitted-owner \
+  --validator 0x1111111111111111111111111111111111111111 \
+  --collateral-owner 0x4444444444444444444444444444444444444444 \
+  --permitted \
+  --keyfile /path/to/keyfile
 ```
 
 ### Offline Transaction Creation
