@@ -28,9 +28,9 @@ import (
 var (
 	rpcURL                       string
 	privateKey                   string
-	keystorePath                 string
-	keystorePassword             string
-	keystorePasswordFile         string
+	keyfilePath                  string
+	keyfilePassword              string
+	keyfilePasswordFile          string
 	validatorManagerContractAddr string
 	yes                          bool
 	nonce                        uint64
@@ -39,8 +39,7 @@ var (
 	signed                       bool
 	unsigned                     bool
 
-	// Offline mode flags
-	offlineMode bool
+	// Network information flags
 	chainID     string
 	gasLimit    uint64
 	gasPrice    string
@@ -58,17 +57,18 @@ var (
 // SigningMethod represents the method used for signing transactions
 type SigningMethod int
 
+// Signing method types
 const (
 	SigningMethodPrivateKey SigningMethod = iota
-	SigningMethodKeystore
+	SigningMethodKeyfile
 )
 
-// SigningConfig holds the configuration for transaction signing
+// SigningConfig holds the signing configuration
 type SigningConfig struct {
-	Method           SigningMethod
-	PrivateKey       *ecdsa.PrivateKey
-	KeystorePath     string
-	KeystorePassword string
+	Method          SigningMethod
+	PrivateKey      *ecdsa.PrivateKey
+	KeyfilePath     string
+	KeyfilePassword string
 }
 
 // MutuallyExclusiveGroup represents a group of mutually exclusive flags
@@ -127,7 +127,7 @@ var (
 	SigningMethodGroup = MutuallyExclusiveGroup{
 		Name:        "signing-method",
 		Description: "Method for signing transactions",
-		Flags:       []string{"private-key", "keystore"},
+		Flags:       []string{"private-key", "keyfile"},
 		Required:    false, // Will be set to true for commands that require signing
 	}
 
@@ -145,6 +145,14 @@ var (
 		Description: "Output format for transaction data",
 		Flags:       []string{"json", "raw", "hex"},
 		Required:    false,
+	}
+
+	// Network information group for offline mode
+	NetworkInfoGroup = MutuallyExclusiveGroup{
+		Name:        "network-info",
+		Description: "Network information for offline transaction creation",
+		Flags:       []string{"rpc-url", "chain-id"},
+		Required:    false, // Will be validated conditionally
 	}
 )
 
@@ -165,9 +173,9 @@ func AddCommonFlags(cmd *cobra.Command, requireSigning bool) {
 	if requireSigning {
 		// Signing options
 		cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions (hex format)")
-		cmd.Flags().StringVar(&keystorePath, "keystore", "", "Path to geth keystore file")
-		cmd.Flags().StringVar(&keystorePassword, "keystore-password", "", "Password for keystore file")
-		cmd.Flags().StringVar(&keystorePasswordFile, "keystore-password-file", "", "Path to file containing keystore password")
+		cmd.Flags().StringVar(&keyfilePath, "keyfile", "", "Path to geth keyfile")
+		cmd.Flags().StringVar(&keyfilePassword, "keyfile-password", "", "Password for keyfile")
+		cmd.Flags().StringVar(&keyfilePasswordFile, "keyfile-password-file", "", "Path to file containing keyfile password")
 	}
 
 	// Preserve any existing PreRun function
@@ -222,44 +230,36 @@ func AddTxCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&outputFile, "output", "", "Output file for the transaction (default: stdout)")
 
 	// Add signing flags when --signed is used
-	cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions (hex format) [mutually exclusive with --keystore]")
-	cmd.Flags().StringVar(&keystorePath, "keystore", "", "Path to geth keystore file [mutually exclusive with --private-key]")
-	cmd.Flags().StringVar(&keystorePassword, "keystore-password", "", "Password for keystore file")
-	cmd.Flags().StringVar(&keystorePasswordFile, "keystore-password-file", "", "Path to file containing keystore password")
-
-	// Create flag validator for this command
-	validator := NewFlagValidator()
-
-	// Add signing method group (not required by default, only when --signed is used)
-	validator.AddMutuallyExclusiveGroup(SigningMethodGroup)
+	cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions (hex format) [mutually exclusive with --keyfile]")
+	cmd.Flags().StringVar(&keyfilePath, "keyfile", "", "Path to geth keyfile [mutually exclusive with --private-key]")
+	cmd.Flags().StringVar(&keyfilePassword, "keyfile-password", "", "Password for keyfile")
+	cmd.Flags().StringVar(&keyfilePasswordFile, "keyfile-password-file", "", "Path to file containing keyfile password")
 
 	// Add PreRun to load config and validate flags
 	existingPreRun := cmd.PreRun
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		// Check if signing is required
-		if signed {
-			// Update the signing group to be required
-			for i, group := range validator.groups {
-				if group.Name == "signing-method" {
-					validator.groups[i].Required = true
-					break
-				}
-			}
+		// Validate mutually exclusive flags
+		privateKeySet := cmd.Flags().Changed("private-key")
+		keyfileSet := cmd.Flags().Changed("keyfile")
+
+		if privateKeySet && keyfileSet {
+			fmt.Println("Error: flags --private-key and --keyfile are mutually exclusive")
+			fmt.Println("\nUsage:")
+			fmt.Println("  Use either --private-key OR --keyfile, not both")
+			fmt.Println("  --private-key: Provide private key directly (hex format)")
+			fmt.Println("  --keyfile: Use geth keyfile (more secure)")
+			os.Exit(1)
 		}
 
-		// Validate mutually exclusive flags
-		if err := validator.ValidateFlags(cmd); err != nil {
-			fmt.Printf("Error: %v\n", err)
-			if signed {
+		// Check if signing is required
+		if signed {
+			if !privateKeySet && !keyfileSet {
+				fmt.Println("Error: When using --signed, you must provide either --private-key OR --keyfile")
 				fmt.Println("\nUsage:")
-				fmt.Println("  When using --signed, you must provide either --private-key OR --keystore")
 				fmt.Println("  --private-key: Provide private key directly (hex format)")
-				fmt.Println("  --keystore: Use geth keystore file (more secure)")
-			} else {
-				fmt.Println("\nUsage:")
-				fmt.Println("  Use either --private-key OR --keystore, not both")
+				fmt.Println("  --keyfile: Use geth keyfile (more secure)")
+				os.Exit(1)
 			}
-			os.Exit(1)
 		}
 
 		// Load global config
@@ -279,29 +279,33 @@ func AddTxCreateFlags(cmd *cobra.Command) {
 
 // AddSigningFlags adds signing-related flags to a command with mutual exclusivity validation
 func AddSigningFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions (hex format) [mutually exclusive with --keystore]")
-	cmd.Flags().StringVar(&keystorePath, "keystore", "", "Path to geth keystore file [mutually exclusive with --private-key]")
-	cmd.Flags().StringVar(&keystorePassword, "keystore-password", "", "Password for keystore file")
-	cmd.Flags().StringVar(&keystorePasswordFile, "keystore-password-file", "", "Path to file containing keystore password")
-
-	// Create flag validator for this command
-	validator := NewFlagValidator()
-
-	// Add signing method group as required for signing commands
-	signingGroup := SigningMethodGroup
-	signingGroup.Required = true
-	validator.AddMutuallyExclusiveGroup(signingGroup)
+	cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key for signing transactions (hex format) [mutually exclusive with --keyfile]")
+	cmd.Flags().StringVar(&keyfilePath, "keyfile", "", "Path to geth keyfile [mutually exclusive with --private-key]")
+	cmd.Flags().StringVar(&keyfilePassword, "keyfile-password", "", "Password for keyfile")
+	cmd.Flags().StringVar(&keyfilePasswordFile, "keyfile-password-file", "", "Path to file containing keyfile password")
 
 	// Add PreRun to load config and validate flags
 	existingPreRun := cmd.PreRun
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
 		// Validate mutually exclusive flags first
-		if err := validator.ValidateFlags(cmd); err != nil {
-			fmt.Printf("Error: %v\n", err)
+		privateKeySet := cmd.Flags().Changed("private-key")
+		keyfileSet := cmd.Flags().Changed("keyfile")
+
+		if privateKeySet && keyfileSet {
+			fmt.Println("Error: flags --private-key and --keyfile are mutually exclusive")
 			fmt.Println("\nUsage:")
-			fmt.Println("  Use either --private-key OR --keystore, not both")
+			fmt.Println("  Use either --private-key OR --keyfile, not both")
 			fmt.Println("  --private-key: Provide private key directly (hex format)")
-			fmt.Println("  --keystore: Use geth keystore file (more secure)")
+			fmt.Println("  --keyfile: Use geth keyfile (more secure)")
+			os.Exit(1)
+		}
+
+		if !privateKeySet && !keyfileSet {
+			fmt.Println("Error: one of the following flags is required: --private-key, --keyfile")
+			fmt.Println("\nUsage:")
+			fmt.Println("  Use either --private-key OR --keyfile")
+			fmt.Println("  --private-key: Provide private key directly (hex format)")
+			fmt.Println("  --keyfile: Use geth keyfile (more secure)")
 			os.Exit(1)
 		}
 
@@ -360,26 +364,26 @@ func GetSigningConfig() (*SigningConfig, error) {
 		return config, nil
 	}
 
-	// Check if keystore is provided
-	if keystorePath != "" {
-		password, err := getKeystorePassword()
+	// Check if keyfile is provided
+	if keyfilePath != "" {
+		password, err := getKeyfilePassword()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get keystore password: %w", err)
+			return nil, fmt.Errorf("failed to get keyfile password: %w", err)
 		}
 
-		privKey, err := loadPrivateKeyFromKeystore(keystorePath, password)
+		privKey, err := loadPrivateKeyFromKeyfile(keyfilePath, password)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load private key from keystore: %w", err)
+			return nil, fmt.Errorf("failed to load private key from keyfile: %w", err)
 		}
 
-		config.Method = SigningMethodKeystore
+		config.Method = SigningMethodKeyfile
 		config.PrivateKey = privKey
-		config.KeystorePath = keystorePath
-		config.KeystorePassword = password
+		config.KeyfilePath = keyfilePath
+		config.KeyfilePassword = password
 		return config, nil
 	}
 
-	return nil, fmt.Errorf("no signing method provided: use --private-key or --keystore")
+	return nil, fmt.Errorf("no signing method provided: use --private-key or --keyfile")
 }
 
 // parsePrivateKey converts a hex string to an ECDSA private key
@@ -395,16 +399,16 @@ func parsePrivateKey(key string) (*ecdsa.PrivateKey, error) {
 	return privKey, nil
 }
 
-// getKeystorePassword gets the keystore password from various sources
-func getKeystorePassword() (string, error) {
+// getKeyfilePassword gets the keyfile password from various sources
+func getKeyfilePassword() (string, error) {
 	// Check if password is provided directly
-	if keystorePassword != "" {
-		return keystorePassword, nil
+	if keyfilePassword != "" {
+		return keyfilePassword, nil
 	}
 
 	// Check if password file is provided
-	if keystorePasswordFile != "" {
-		passwordBytes, err := ioutil.ReadFile(keystorePasswordFile)
+	if keyfilePasswordFile != "" {
+		passwordBytes, err := ioutil.ReadFile(keyfilePasswordFile)
 		if err != nil {
 			return "", fmt.Errorf("failed to read password file: %w", err)
 		}
@@ -412,7 +416,7 @@ func getKeystorePassword() (string, error) {
 	}
 
 	// Prompt for password
-	fmt.Print("Enter keystore password: ")
+	fmt.Print("Enter keyfile password: ")
 	passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return "", fmt.Errorf("failed to read password: %w", err)
@@ -422,35 +426,35 @@ func getKeystorePassword() (string, error) {
 	return string(passwordBytes), nil
 }
 
-// loadPrivateKeyFromKeystore loads a private key from a geth keystore file
-func loadPrivateKeyFromKeystore(keystorePath, password string) (*ecdsa.PrivateKey, error) {
-	// Read keystore file
-	keystoreData, err := ioutil.ReadFile(keystorePath)
+// loadPrivateKeyFromKeyfile loads a private key from a geth keyfile
+func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey, error) {
+	// Read keyfile
+	keyfileData, err := ioutil.ReadFile(keyfilePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read keystore file: %w", err)
+		return nil, fmt.Errorf("failed to read keyfile: %w", err)
 	}
 
-	// Create a temporary keystore directory
-	tempDir, err := ioutil.TempDir("", "temp_keystore")
+	// Create a temporary keyfile directory
+	tempDir, err := ioutil.TempDir("", "temp_keyfile")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp directory: %w", err)
 	}
 	defer os.RemoveAll(tempDir)
 
-	// Copy keystore file to temp directory
-	tempKeystorePath := filepath.Join(tempDir, filepath.Base(keystorePath))
-	err = ioutil.WriteFile(tempKeystorePath, keystoreData, 0600)
+	// Copy keyfile to temp directory
+	tempKeyfilePath := filepath.Join(tempDir, filepath.Base(keyfilePath))
+	err = ioutil.WriteFile(tempKeyfilePath, keyfileData, 0600)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write temp keystore file: %w", err)
+		return nil, fmt.Errorf("failed to write temp keyfile: %w", err)
 	}
 
-	// Create keystore instance
+	// Create keyfile instance
 	ks := keystore.NewKeyStore(tempDir, keystore.StandardScryptN, keystore.StandardScryptP)
 
 	// Get accounts
 	accounts := ks.Accounts()
 	if len(accounts) == 0 {
-		return nil, fmt.Errorf("no accounts found in keystore")
+		return nil, fmt.Errorf("no accounts found in keyfile")
 	}
 
 	// Use the first account
@@ -459,7 +463,7 @@ func loadPrivateKeyFromKeystore(keystorePath, password string) (*ecdsa.PrivateKe
 	// Unlock the account
 	err = ks.Unlock(account, password)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unlock keystore: %w", err)
+		return nil, fmt.Errorf("failed to unlock keyfile: %w", err)
 	}
 
 	// Export the private key
@@ -660,4 +664,111 @@ func containsAnyFlag(errorMsg string, flags []string) bool {
 		}
 	}
 	return false
+}
+
+// ValidateNetworkInfo validates network information requirements for tx create commands
+func ValidateNetworkInfo(cmd *cobra.Command) error {
+	// Check if RPC URL is available (from config or flag)
+	hasRPC := rpcURL != ""
+
+	// Check if required network info flags are provided
+	hasChainID := cmd.Flags().Changed("chain-id")
+	hasGasPrice := cmd.Flags().Changed("gas-price")
+	hasGasLimit := cmd.Flags().Changed("gas-limit")
+	hasFee := cmd.Flags().Changed("fee")
+
+	// If RPC is available, we can fetch network info automatically
+	if hasRPC {
+		return nil
+	}
+
+	// If no RPC, check if all required network info is provided
+	missingFlags := []string{}
+
+	if !hasChainID {
+		missingFlags = append(missingFlags, "--chain-id")
+	}
+	if !hasGasPrice {
+		missingFlags = append(missingFlags, "--gas-price")
+	}
+	if !hasGasLimit {
+		missingFlags = append(missingFlags, "--gas-limit")
+	}
+
+	// For commands that require fee, check if fee is provided
+	if cmd.Flags().Lookup("fee") != nil && !hasFee {
+		missingFlags = append(missingFlags, "--fee")
+	}
+
+	if len(missingFlags) > 0 {
+		return fmt.Errorf("no RPC URL configured and missing required network information: %v\n"+
+			"Either configure RPC URL with 'mito config set-rpc <url>' or provide the missing flags", missingFlags)
+	}
+
+	return nil
+}
+
+// SetupNetworkInfo sets up network information either from RPC or from provided flags
+func SetupNetworkInfo(cmd *cobra.Command) error {
+	// If RPC is available, fetch network info
+	if rpcURL != "" {
+		ethClient, err := GetEthClient(rpcURL)
+		if err != nil {
+			return fmt.Errorf("failed to connect to RPC: %w", err)
+		}
+
+		// Get chain ID if not provided
+		if !cmd.Flags().Changed("chain-id") {
+			chainIDBig, err := ethClient.ChainID(context.Background())
+			if err != nil {
+				return fmt.Errorf("failed to get chain ID from RPC: %w", err)
+			}
+			chainID = chainIDBig.String()
+		}
+
+		// Get gas price if not provided
+		if !cmd.Flags().Changed("gas-price") {
+			gasPriceBig, err := ethClient.SuggestGasPrice(context.Background())
+			if err != nil {
+				return fmt.Errorf("failed to get gas price from RPC: %w", err)
+			}
+			gasPrice = gasPriceBig.String()
+		}
+
+		// For commands with contract interaction, get fee if not provided
+		if cmd.Flags().Lookup("fee") != nil && !cmd.Flags().Changed("fee") {
+			contract, err := GetValidatorManagerContract(ethClient)
+			if err != nil {
+				return fmt.Errorf("failed to initialize contract: %w", err)
+			}
+
+			fee, err := contract.Fee(nil)
+			if err != nil {
+				return fmt.Errorf("failed to get contract fee from RPC: %w", err)
+			}
+			contractFee = FormatWeiToEther(fee)
+		}
+
+		fmt.Printf("Network info fetched from RPC:\n")
+		fmt.Printf("  Chain ID: %s\n", chainID)
+		fmt.Printf("  Gas Price: %s wei\n", gasPrice)
+		if cmd.Flags().Lookup("fee") != nil {
+			fmt.Printf("  Contract Fee: %s MITO\n", contractFee)
+		}
+		fmt.Println()
+	}
+
+	return nil
+}
+
+// AddTxCreateNetworkFlags adds network-related flags for tx create commands
+func AddTxCreateNetworkFlags(cmd *cobra.Command, requiresFee bool) {
+	cmd.Flags().StringVar(&chainID, "chain-id", "", "Chain ID for the transaction (auto-fetched if RPC available)")
+	cmd.Flags().Uint64Var(&gasLimit, "gas-limit", 500000, "Gas limit for the transaction")
+	cmd.Flags().StringVar(&gasPrice, "gas-price", "", "Gas price in wei (auto-fetched if RPC available)")
+	cmd.Flags().Uint64Var(&txNonce, "nonce", 0, "Nonce for the transaction (required for signed transactions)")
+
+	if requiresFee {
+		cmd.Flags().StringVar(&contractFee, "fee", "", "Contract fee in MITO (auto-fetched if RPC available)")
+	}
 }
