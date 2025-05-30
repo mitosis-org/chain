@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/mito/internal/client"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
@@ -39,29 +40,37 @@ type CreateValidatorRequest struct {
 	InitialCollateral string
 }
 
-// CreateValidator creates a new validator
-func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (common.Hash, error) {
+// TransactionData contains the data needed to build a transaction
+type TransactionData struct {
+	To       common.Address
+	Value    *big.Int
+	Data     []byte
+	GasLimit uint64
+}
+
+// CreateValidator creates an unsigned transaction for creating a validator
+func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (*types.Transaction, error) {
 	// Get the contract fee
 	fee, err := s.contract.Fee(nil)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get contract fee: %w", err)
+		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
 
 	// Get the config to check the initial deposit requirement
 	config, err := s.contract.GlobalValidatorConfig(nil)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get global validator config: %w", err)
+		return nil, fmt.Errorf("failed to get global validator config: %w", err)
 	}
 
 	// Parse collateral amount as decimal MITO and convert to wei
 	collateralAmount, err := utils.ParseValueAsWei(req.InitialCollateral)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to parse initial collateral: %w", err)
+		return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
 	}
 
 	// Ensure collateral is at least the initial deposit requirement
 	if collateralAmount.Cmp(config.InitialValidatorDeposit) < 0 {
-		return common.Hash{}, fmt.Errorf("initial collateral must be at least %s MITO",
+		return nil, fmt.Errorf("initial collateral must be at least %s MITO",
 			utils.FormatWeiToEther(config.InitialValidatorDeposit))
 	}
 
@@ -71,34 +80,34 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (common.
 	// Validate other parameters
 	operatorAddr, err := utils.ValidateAddress(req.Operator)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid operator address: %w", err)
+		return nil, fmt.Errorf("invalid operator address: %w", err)
 	}
 
 	rewardManagerAddr, err := utils.ValidateAddress(req.RewardManager)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid reward manager address: %w", err)
+		return nil, fmt.Errorf("invalid reward manager address: %w", err)
 	}
 
 	// Parse commission rate
 	commissionRateInt, err := utils.ParsePercentageToBasisPoints(req.CommissionRate)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to parse commission rate: %w", err)
+		return nil, fmt.Errorf("failed to parse commission rate: %w", err)
 	}
 
 	// Validate commission rate
 	maxRate, err := s.contract.MAXCOMMISSIONRATE(nil)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get max commission rate: %w", err)
+		return nil, fmt.Errorf("failed to get max commission rate: %w", err)
 	}
 
 	if commissionRateInt.Cmp(big.NewInt(0)) < 0 || commissionRateInt.Cmp(maxRate) > 0 {
-		return common.Hash{}, fmt.Errorf("commission rate must be between 0%% and %s", utils.FormatBasisPointsToPercent(maxRate))
+		return nil, fmt.Errorf("commission rate must be between 0%% and %s", utils.FormatBasisPointsToPercent(maxRate))
 	}
 
 	// Decode public key from hex
 	pubKeyBytes, err := utils.DecodeHexWithPrefix(req.PubKey)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to decode public key: %w", err)
+		return nil, fmt.Errorf("failed to decode public key: %w", err)
 	}
 
 	// Create the request
@@ -107,6 +116,23 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (common.
 		RewardManager:  rewardManagerAddr,
 		CommissionRate: commissionRateInt,
 		Metadata:       []byte(req.Metadata),
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("createValidator", pubKeyBytes, request)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000 // Default gas limit
 	}
 
 	// Show summary
@@ -121,37 +147,102 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (common.
 	fmt.Printf("Total Value                : %s MITO\n", utils.FormatWeiToEther(totalValue))
 	fmt.Println()
 
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(totalValue)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    totalValue,
+		Data:     data,
+		GasLimit: gasLimit,
 	}
 
-	tx, err := s.contract.CreateValidator(opts, pubKeyBytes, request)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create validator: %w", err)
-	}
-
-	return tx.Hash(), nil
+	// Create transaction
+	return s.builder.CreateTransactionFromData(txData)
 }
 
-// UpdateOperator updates the operator address for a validator
-func (s *ValidatorService) UpdateOperator(validatorAddr, newOperator string) (common.Hash, error) {
-	// Validate addresses
+// UpdateMetadata creates an unsigned transaction for updating metadata
+func (s *ValidatorService) UpdateMetadata(validatorAddr, metadata string) (*types.Transaction, error) {
+	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	operatorAddr, err := utils.ValidateAddress(newOperator)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid operator address: %w", err)
+		return nil, fmt.Errorf("invalid validator address: %w", err)
 	}
 
 	// Get validator info to show current values
 	validatorInfo, err := s.contract.ValidatorInfo(nil, valAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get validator info: %w", err)
+		return nil, fmt.Errorf("failed to get validator info: %w", err)
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateMetadata", valAddr, []byte(metadata))
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000
+	}
+
+	// Show summary
+	fmt.Println("===== Update Metadata Transaction =====")
+	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
+	fmt.Printf("Current Metadata         : %s\n", string(validatorInfo.Metadata))
+	fmt.Printf("New Metadata             : %s\n", metadata)
+	fmt.Println()
+
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    big.NewInt(0),
+		Data:     data,
+		GasLimit: gasLimit,
+	}
+
+	// Create transaction
+	return s.builder.CreateTransactionFromData(txData)
+}
+
+// UpdateOperator creates an unsigned transaction for updating operator
+func (s *ValidatorService) UpdateOperator(validatorAddr, newOperator string) (*types.Transaction, error) {
+	// Validate addresses
+	valAddr, err := utils.ValidateAddress(validatorAddr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	operatorAddr, err := utils.ValidateAddress(newOperator)
+	if err != nil {
+		return nil, fmt.Errorf("invalid operator address: %w", err)
+	}
+
+	// Get validator info to show current values
+	validatorInfo, err := s.contract.ValidatorInfo(nil, valAddr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get validator info: %w", err)
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateOperator", valAddr, operatorAddr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000
 	}
 
 	// Show summary
@@ -162,82 +253,62 @@ func (s *ValidatorService) UpdateOperator(validatorAddr, newOperator string) (co
 	fmt.Printf("Current Reward Manager       : %s\n", validatorInfo.RewardManager.Hex())
 	fmt.Println()
 
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(nil)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    big.NewInt(0),
+		Data:     data,
+		GasLimit: gasLimit,
 	}
 
-	tx, err := s.contract.UpdateOperator(opts, valAddr, operatorAddr)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to update operator: %w", err)
-	}
-
-	return tx.Hash(), nil
+	// Create transaction
+	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
 }
 
-// UpdateMetadata updates the metadata for a validator
-func (s *ValidatorService) UpdateMetadata(validatorAddr, metadata string) (common.Hash, error) {
+// UpdateRewardConfig creates an unsigned transaction for updating reward config
+func (s *ValidatorService) UpdateRewardConfig(validatorAddr, commissionRate string) (*types.Transaction, error) {
 	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	// Get validator info to show current values
-	validatorInfo, err := s.contract.ValidatorInfo(nil, valAddr)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get validator info: %w", err)
-	}
-
-	// Show summary
-	fmt.Println("===== Update Metadata Transaction =====")
-	fmt.Printf("Validator Address        : %s\n", valAddr.Hex())
-	fmt.Printf("Current Metadata         : %s\n", string(validatorInfo.Metadata))
-	fmt.Printf("New Metadata             : %s\n", metadata)
-	fmt.Println()
-
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(nil)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
-	}
-
-	tx, err := s.contract.UpdateMetadata(opts, valAddr, []byte(metadata))
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to update metadata: %w", err)
-	}
-
-	return tx.Hash(), nil
-}
-
-// UpdateRewardConfig updates the reward configuration for a validator
-func (s *ValidatorService) UpdateRewardConfig(validatorAddr, commissionRate string) (common.Hash, error) {
-	// Validate validator address
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid validator address: %w", err)
+		return nil, fmt.Errorf("invalid validator address: %w", err)
 	}
 
 	// Parse commission rate
 	commissionRateInt, err := utils.ParsePercentageToBasisPoints(commissionRate)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to parse commission rate: %w", err)
+		return nil, fmt.Errorf("failed to parse commission rate: %w", err)
 	}
 
 	// Validate commission rate
 	maxRate, err := s.contract.MAXCOMMISSIONRATE(nil)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get max commission rate: %w", err)
+		return nil, fmt.Errorf("failed to get max commission rate: %w", err)
 	}
 
 	if commissionRateInt.Cmp(big.NewInt(0)) < 0 || commissionRateInt.Cmp(maxRate) > 0 {
-		return common.Hash{}, fmt.Errorf("commission rate must be between 0%% and %s", utils.FormatBasisPointsToPercent(maxRate))
+		return nil, fmt.Errorf("commission rate must be between 0%% and %s", utils.FormatBasisPointsToPercent(maxRate))
 	}
 
 	// Create the request struct
 	request := bindings.IValidatorManagerUpdateRewardConfigRequest{
 		CommissionRate: commissionRateInt,
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardConfig", valAddr, request)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000
 	}
 
 	// Show summary
@@ -246,37 +317,52 @@ func (s *ValidatorService) UpdateRewardConfig(validatorAddr, commissionRate stri
 	fmt.Printf("New Commission Rate      : %s\n", utils.FormatBasisPointsToPercent(commissionRateInt))
 	fmt.Println()
 
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(nil)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    big.NewInt(0),
+		Data:     data,
+		GasLimit: gasLimit,
 	}
 
-	tx, err := s.contract.UpdateRewardConfig(opts, valAddr, request)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to update reward config: %w", err)
-	}
-
-	return tx.Hash(), nil
+	// Create transaction
+	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
 }
 
-// UpdateRewardManager updates the reward manager for a validator
-func (s *ValidatorService) UpdateRewardManager(validatorAddr, rewardManager string) (common.Hash, error) {
+// UpdateRewardManager creates an unsigned transaction for updating reward manager
+func (s *ValidatorService) UpdateRewardManager(validatorAddr, rewardManager string) (*types.Transaction, error) {
 	// Validate addresses
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid validator address: %w", err)
+		return nil, fmt.Errorf("invalid validator address: %w", err)
 	}
 
 	rewardManagerAddr, err := utils.ValidateAddress(rewardManager)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid reward manager address: %w", err)
+		return nil, fmt.Errorf("invalid reward manager address: %w", err)
 	}
 
 	// Get validator info to show current values
 	validatorInfo, err := s.contract.ValidatorInfo(nil, valAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get validator info: %w", err)
+		return nil, fmt.Errorf("failed to get validator info: %w", err)
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("updateRewardManager", valAddr, rewardManagerAddr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000
 	}
 
 	// Show summary
@@ -286,32 +372,47 @@ func (s *ValidatorService) UpdateRewardManager(validatorAddr, rewardManager stri
 	fmt.Printf("New Reward Manager           : %s\n", rewardManagerAddr.Hex())
 	fmt.Println()
 
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(nil)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    big.NewInt(0),
+		Data:     data,
+		GasLimit: gasLimit,
 	}
 
-	tx, err := s.contract.UpdateRewardManager(opts, valAddr, rewardManagerAddr)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to update reward manager: %w", err)
-	}
-
-	return tx.Hash(), nil
+	// Create transaction
+	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
 }
 
-// UnjailValidator unjails a validator
-func (s *ValidatorService) UnjailValidator(validatorAddr string) (common.Hash, error) {
+// UnjailValidator creates an unsigned transaction for unjailing a validator
+func (s *ValidatorService) UnjailValidator(validatorAddr string) (*types.Transaction, error) {
 	// Get the contract fee
 	fee, err := s.contract.Fee(nil)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to get contract fee: %w", err)
+		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
 
 	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("invalid validator address: %w", err)
+		return nil, fmt.Errorf("invalid validator address: %w", err)
+	}
+
+	// Get contract ABI and encode function call data
+	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
+	}
+
+	data, err := abi.Pack("unjailValidator", valAddr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack function call: %w", err)
+	}
+
+	// Set default gas limit if not provided
+	gasLimit := s.config.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 500000
 	}
 
 	// Show summary
@@ -320,16 +421,14 @@ func (s *ValidatorService) UnjailValidator(validatorAddr string) (common.Hash, e
 	fmt.Printf("Fee                      : %s MITO\n", utils.FormatWeiToEther(fee))
 	fmt.Println()
 
-	// Execute the transaction
-	opts, err := s.builder.CreateTransactOpts(fee)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to create transaction options: %w", err)
+	// Create transaction data
+	txData := &TransactionData{
+		To:       s.contract.GetAddress(),
+		Value:    fee,
+		Data:     data,
+		GasLimit: gasLimit,
 	}
 
-	tx, err := s.contract.UnjailValidator(opts, valAddr)
-	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to unjail validator: %w", err)
-	}
-
-	return tx.Hash(), nil
+	// Create transaction
+	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
 }

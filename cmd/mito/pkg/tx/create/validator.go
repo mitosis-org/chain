@@ -3,10 +3,8 @@ package create
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"os"
 
-	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
@@ -72,7 +70,7 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create validator request for validation
+			// Create request
 			req := &tx.CreateValidatorRequest{
 				PubKey:            validatorFlags.pubkey,
 				Operator:          validatorFlags.operator,
@@ -82,14 +80,32 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 				InitialCollateral: validatorFlags.initialCollateral,
 			}
 
-			// Validate and get transaction details (without executing)
-			txData, err := createValidatorTransaction(container, req, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.CreateValidator(req)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -143,14 +159,32 @@ func newCreateValidatorUpdateMetadataCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create transaction data
-			txData, err := createUpdateMetadataTransaction(container, validatorAddr, metadata, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.UpdateMetadata(validatorAddr, metadata)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -194,14 +228,32 @@ func newCreateValidatorUpdateOperatorCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create transaction data
-			txData, err := createUpdateOperatorTransaction(container, validatorAddr, operator, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.UpdateOperator(validatorAddr, operator)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -245,14 +297,32 @@ func newCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create transaction data
-			txData, err := createUpdateRewardConfigTransaction(container, validatorAddr, commissionRate, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.UpdateRewardConfig(validatorAddr, commissionRate)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -296,14 +366,32 @@ func newCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create transaction data
-			txData, err := createUpdateRewardManagerTransaction(container, validatorAddr, rewardManager, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.UpdateRewardManager(validatorAddr, rewardManager)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -347,14 +435,32 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Create transaction data
-			txData, err := createUnjailValidatorTransaction(container, validatorAddr, resolvedConfig)
+			// Create transaction directly (validation included)
+			tx, err := container.ValidatorService.UnjailValidator(validatorAddr)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Output transaction data
-			return outputTransactionData(txData, resolvedConfig)
+			// Sign if not unsigned
+			if !commonFlags.Unsigned {
+				tx, err = container.TxBuilder.SignTransaction(tx)
+				if err != nil {
+					return fmt.Errorf("failed to sign transaction: %w", err)
+				}
+			}
+
+			// Convert to JSON and output
+			txJSON, err := json.Marshal(tx)
+			if err != nil {
+				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			}
+
+			if commonFlags.OutputFile != "" {
+				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			}
+
+			fmt.Println(string(txJSON))
+			return nil
 		},
 	}
 
@@ -374,389 +480,6 @@ type TransactionData struct {
 	GasLimit uint64 `json:"gasLimit"`
 	GasPrice string `json:"gasPrice"`
 	ChainID  string `json:"chainId"`
-}
-
-// Helper functions for creating transaction data without sending
-func createValidatorTransaction(container *container.Container, req *tx.CreateValidatorRequest, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Get contract fee
-	var fee *big.Int
-	var err error
-
-	if config.ContractFee != "" {
-		// Use provided contract fee
-		fee, err = utils.ParseValueAsWei(config.ContractFee)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse contract fee: %w", err)
-		}
-	} else {
-		// Get contract fee from RPC
-		fee, err = container.Contract.Fee(nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get contract fee: %w", err)
-		}
-	}
-
-	// Parse collateral amount as decimal MITO and convert to wei
-	collateralAmount, err := utils.ParseValueAsWei(req.InitialCollateral)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
-	}
-
-	// Calculate total transaction value (collateral + fee)
-	totalValue := new(big.Int).Add(collateralAmount, fee)
-
-	// Validate addresses
-	operatorAddr, err := utils.ValidateAddress(req.Operator)
-	if err != nil {
-		return nil, fmt.Errorf("invalid operator address: %w", err)
-	}
-
-	rewardManagerAddr, err := utils.ValidateAddress(req.RewardManager)
-	if err != nil {
-		return nil, fmt.Errorf("invalid reward manager address: %w", err)
-	}
-
-	// Parse commission rate
-	commissionRateInt, err := utils.ParsePercentageToBasisPoints(req.CommissionRate)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse commission rate: %w", err)
-	}
-
-	// Decode public key from hex
-	pubKeyBytes, err := utils.DecodeHexWithPrefix(req.PubKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode public key: %w", err)
-	}
-
-	// Create the request struct
-	request := bindings.IValidatorManagerCreateValidatorRequest{
-		Operator:       operatorAddr,
-		RewardManager:  rewardManagerAddr,
-		CommissionRate: commissionRateInt,
-		Metadata:       []byte(req.Metadata),
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("createValidator", pubKeyBytes, request)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000 // Default gas limit like the original version
-	}
-
-	// Show summary (like the original version)
-	fmt.Println("===== Create Validator Transaction =====")
-	fmt.Printf("Public Key                 : %s\n", req.PubKey)
-	fmt.Printf("Operator                   : %s\n", operatorAddr.Hex())
-	fmt.Printf("Reward Manager             : %s\n", rewardManagerAddr.Hex())
-	fmt.Printf("Commission Rate            : %s\n", utils.FormatBasisPointsToPercent(commissionRateInt))
-	fmt.Printf("Metadata                   : %s\n", req.Metadata)
-	fmt.Printf("Initial Collateral         : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
-	fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
-	fmt.Printf("Total Value                : %s MITO\n", utils.FormatWeiToEther(totalValue))
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    totalValue.String(),
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func createUpdateMetadataTransaction(container *container.Container, validatorAddr, metadata string, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Validate validator address
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("updateMetadata", valAddr, []byte(metadata))
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
-	// Show summary
-	fmt.Println("===== Update Metadata Transaction =====")
-	fmt.Printf("Validator                  : %s\n", valAddr.Hex())
-	fmt.Printf("New Metadata               : %s\n", metadata)
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    "0",
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func createUpdateOperatorTransaction(container *container.Container, validatorAddr, operator string, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Validate addresses
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	operatorAddr, err := utils.ValidateAddress(operator)
-	if err != nil {
-		return nil, fmt.Errorf("invalid operator address: %w", err)
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("updateOperator", valAddr, operatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
-	// Show summary
-	fmt.Println("===== Update Operator Transaction =====")
-	fmt.Printf("Validator                  : %s\n", valAddr.Hex())
-	fmt.Printf("New Operator               : %s\n", operatorAddr.Hex())
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    "0",
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func createUpdateRewardConfigTransaction(container *container.Container, validatorAddr, commissionRate string, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Validate validator address
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	// Parse commission rate
-	commissionRateInt, err := utils.ParsePercentageToBasisPoints(commissionRate)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse commission rate: %w", err)
-	}
-
-	// Create the request struct
-	request := bindings.IValidatorManagerUpdateRewardConfigRequest{
-		CommissionRate: commissionRateInt,
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("updateRewardConfig", valAddr, request)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
-	// Show summary
-	fmt.Println("===== Update Reward Config Transaction =====")
-	fmt.Printf("Validator                  : %s\n", valAddr.Hex())
-	fmt.Printf("New Commission Rate        : %s\n", utils.FormatBasisPointsToPercent(commissionRateInt))
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    "0",
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func createUpdateRewardManagerTransaction(container *container.Container, validatorAddr, rewardManager string, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Validate addresses
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	rewardManagerAddr, err := utils.ValidateAddress(rewardManager)
-	if err != nil {
-		return nil, fmt.Errorf("invalid reward manager address: %w", err)
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("updateRewardManager", valAddr, rewardManagerAddr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
-	// Show summary
-	fmt.Println("===== Update Reward Manager Transaction =====")
-	fmt.Printf("Validator                  : %s\n", valAddr.Hex())
-	fmt.Printf("New Reward Manager         : %s\n", rewardManagerAddr.Hex())
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    "0",
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func createUnjailValidatorTransaction(container *container.Container, validatorAddr string, config *config.ResolvedConfig) (*TransactionData, error) {
-	// Validate validator address
-	valAddr, err := utils.ValidateAddress(validatorAddr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid validator address: %w", err)
-	}
-
-	// Get contract fee
-	var fee *big.Int
-
-	if config.ContractFee != "" {
-		// Use provided contract fee
-		fee, err = utils.ParseValueAsWei(config.ContractFee)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse contract fee: %w", err)
-		}
-	} else {
-		// Get contract fee from RPC
-		fee, err = container.Contract.Fee(nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get contract fee: %w", err)
-		}
-	}
-
-	// Get contract ABI and encode function call data
-	abi, err := bindings.IValidatorManagerMetaData.GetAbi()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get contract ABI: %w", err)
-	}
-
-	data, err := abi.Pack("unjailValidator", valAddr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack function call: %w", err)
-	}
-
-	// Set default gas limit if not provided
-	gasLimit := config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
-	// Show summary
-	fmt.Println("===== Unjail Validator Transaction =====")
-	fmt.Printf("Validator                  : %s\n", valAddr.Hex())
-	fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
-	fmt.Printf("Chain ID                   : %s\n", config.ChainID)
-	fmt.Printf("Gas Limit                  : %d\n", gasLimit)
-	fmt.Printf("Gas Price                  : %s wei\n", config.GasPrice)
-	fmt.Println()
-
-	return &TransactionData{
-		To:       config.ValidatorManagerContractAddr,
-		Value:    fee.String(),
-		Data:     fmt.Sprintf("0x%x", data),
-		GasLimit: gasLimit,
-		GasPrice: config.GasPrice,
-		ChainID:  config.ChainID,
-	}, nil
-}
-
-func outputTransactionData(txData *TransactionData, config *config.ResolvedConfig) error {
-	if config.OutputFile != "" {
-		// Write to file
-		data, err := json.MarshalIndent(txData, "", "  ")
-		if err != nil {
-			return fmt.Errorf("failed to marshal transaction data: %w", err)
-		}
-
-		err = os.WriteFile(config.OutputFile, data, 0644)
-		if err != nil {
-			return fmt.Errorf("failed to write transaction data to file: %w", err)
-		}
-
-		fmt.Printf("Transaction data written to: %s\n", config.OutputFile)
-	} else {
-		// Print to stdout
-		data, err := json.MarshalIndent(txData, "", "  ")
-		if err != nil {
-			return fmt.Errorf("failed to marshal transaction data: %w", err)
-		}
-
-		fmt.Println("===== Transaction Data =====")
-		fmt.Println(string(data))
-	}
-
-	return nil
 }
 
 func validateCreateValidatorCreateFields(config *config.ResolvedConfig, validatorFlags *struct {

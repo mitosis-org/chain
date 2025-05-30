@@ -69,18 +69,22 @@ func newSendCollateralDepositCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.CollateralService.DepositCollateral(collateralFlags.validator, collateralFlags.amount)
+			// Create unsigned transaction
+			tx, err := container.CollateralService.DepositCollateral(collateralFlags.validator, collateralFlags.amount)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(tx)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Collateral deposited successfully!")
@@ -145,18 +149,22 @@ func newSendCollateralWithdrawCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.CollateralService.WithdrawCollateral(collateralFlags.validator, collateralFlags.amount, collateralFlags.receiver)
+			// Create unsigned transaction
+			tx, err := container.CollateralService.WithdrawCollateral(collateralFlags.validator, collateralFlags.amount, collateralFlags.receiver)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(tx)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Collateral withdrawn successfully!")
@@ -228,18 +236,22 @@ func newSendCollateralSetPermittedOwnerCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.CollateralService.SetPermittedCollateralOwner(collateralFlags.validator, collateralFlags.collateralOwner, collateralFlags.isPermitted)
+			// Create unsigned transaction
+			tx, err := container.CollateralService.SetPermittedCollateralOwner(collateralFlags.validator, collateralFlags.collateralOwner, collateralFlags.isPermitted)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(tx)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Collateral owner permission updated successfully!")
@@ -304,18 +316,22 @@ func newSendCollateralTransferOwnershipCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.CollateralService.TransferCollateralOwnership(collateralFlags.validator, collateralFlags.newOwner)
+			// Create unsigned transaction
+			tx, err := container.CollateralService.TransferCollateralOwnership(collateralFlags.validator, collateralFlags.newOwner)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(tx)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Collateral ownership transferred successfully!")

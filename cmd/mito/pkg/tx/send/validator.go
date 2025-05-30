@@ -87,18 +87,22 @@ func newSendValidatorCreateCmd() *cobra.Command {
 				InitialCollateral: validatorFlags.initialCollateral,
 			}
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.CreateValidator(req)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.CreateValidator(req)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Validator created successfully!")
@@ -167,18 +171,22 @@ func newSendValidatorUpdateMetadataCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.UpdateMetadata(validatorAddr, metadata)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.UpdateMetadata(validatorAddr, metadata)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Metadata updated successfully!")
@@ -244,18 +252,22 @@ func newSendValidatorUpdateOperatorCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.UpdateOperator(validatorAddr, operator)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.UpdateOperator(validatorAddr, operator)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Operator updated successfully!")
@@ -314,18 +326,22 @@ func newSendValidatorUpdateRewardConfigCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.UpdateRewardConfig(validatorAddr, commissionRate)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.UpdateRewardConfig(validatorAddr, commissionRate)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Reward configuration updated successfully!")
@@ -384,18 +400,22 @@ func newSendValidatorUpdateRewardManagerCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.UpdateRewardManager(validatorAddr, rewardManager)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.UpdateRewardManager(validatorAddr, rewardManager)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Reward manager updated successfully!")
@@ -454,18 +474,22 @@ func newSendValidatorUnjailCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			// Execute transaction
-			txHash, err := container.ValidatorService.UnjailValidator(validatorAddr)
+			// Create unsigned transaction
+			transaction, err := container.ValidatorService.UnjailValidator(validatorAddr)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Transaction sent: %s\n", txHash.Hex())
-
-			// Wait for confirmation
-			err = container.EthClient.WaitForTxConfirmation(txHash)
+			// Sign transaction
+			signedTx, err := container.TxBuilder.SignTransaction(transaction)
 			if err != nil {
-				return fmt.Errorf("transaction failed: %w", err)
+				return fmt.Errorf("failed to sign transaction: %w", err)
+			}
+
+			// Send transaction and wait for confirmation
+			_, err = container.TxSender.SendAndWait(signedTx)
+			if err != nil {
+				return err
 			}
 
 			fmt.Println("✅ Validator unjailed successfully!")
