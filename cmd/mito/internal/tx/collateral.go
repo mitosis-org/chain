@@ -4,28 +4,24 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/bindings"
-	"github.com/mitosis-org/chain/cmd/mito/internal/client"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 )
 
 // CollateralService handles collateral-related transactions
 type CollateralService struct {
-	config    *config.ResolvedConfig
-	ethClient *client.EthereumClient
-	contract  *client.ValidatorManagerContract
-	builder   *Builder
+	config  *config.ResolvedConfig
+	builder *Builder
 }
 
 // NewCollateralService creates a new collateral service
-func NewCollateralService(config *config.ResolvedConfig, ethClient *client.EthereumClient, contract *client.ValidatorManagerContract, builder *Builder) *CollateralService {
+func NewCollateralService(config *config.ResolvedConfig, builder *Builder) *CollateralService {
 	return &CollateralService{
-		config:    config,
-		ethClient: ethClient,
-		contract:  contract,
-		builder:   builder,
+		config:  config,
+		builder: builder,
 	}
 }
 
@@ -43,7 +39,7 @@ func (s *CollateralService) DepositCollateral(validatorAddr, amount string) (*ty
 	}
 
 	// Get contract fee
-	fee, err := s.contract.Fee(nil)
+	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -87,7 +83,7 @@ func (s *CollateralService) DepositCollateral(validatorAddr, amount string) (*ty
 
 	// Create transaction data
 	txData := &TransactionData{
-		To:       s.contract.GetAddress(),
+		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    totalValue,
 		Data:     data,
 		GasLimit: gasLimit,
@@ -111,7 +107,7 @@ func (s *CollateralService) WithdrawCollateral(validatorAddr, amount, receiver s
 	}
 
 	// Get contract fee
-	fee, err := s.contract.Fee(nil)
+	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -156,7 +152,7 @@ func (s *CollateralService) WithdrawCollateral(validatorAddr, amount, receiver s
 
 	// Create transaction data (withdraw only sends fee, not collateral)
 	txData := &TransactionData{
-		To:       s.contract.GetAddress(),
+		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    fee,
 		Data:     data,
 		GasLimit: gasLimit,
@@ -210,7 +206,7 @@ func (s *CollateralService) SetPermittedCollateralOwner(validatorAddr, collatera
 
 	// Create transaction data (no value needed for permission update)
 	txData := &TransactionData{
-		To:       s.contract.GetAddress(),
+		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
 		GasLimit: gasLimit,
@@ -223,7 +219,7 @@ func (s *CollateralService) SetPermittedCollateralOwner(validatorAddr, collatera
 // TransferCollateralOwnership creates an unsigned transaction for transferring collateral ownership
 func (s *CollateralService) TransferCollateralOwnership(validatorAddr, newOwner string) (*types.Transaction, error) {
 	// Get contract fee
-	fee, err := s.contract.Fee(nil)
+	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -265,7 +261,7 @@ func (s *CollateralService) TransferCollateralOwnership(validatorAddr, newOwner 
 
 	// Create transaction data
 	txData := &TransactionData{
-		To:       s.contract.GetAddress(),
+		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    fee,
 		Data:     data,
 		GasLimit: gasLimit,

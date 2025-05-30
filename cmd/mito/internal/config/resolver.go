@@ -23,7 +23,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 	return &ResolvedConfig{
 		RpcURL:                       resolveValue(commonFlags.RpcURL, r.config.RpcURL),
 		ValidatorManagerContractAddr: resolveValue(commonFlags.ValidatorManagerContractAddr, r.config.ValidatorManagerContractAddr),
-		ChainID:                      commonFlags.ChainID,
+		ChainID:                      resolveValue(commonFlags.ChainID, r.config.ChainID),
 		PrivateKey:                   commonFlags.PrivateKey,
 		KeyfilePath:                  commonFlags.KeyfilePath,
 		KeyfilePassword:              commonFlags.KeyfilePassword,

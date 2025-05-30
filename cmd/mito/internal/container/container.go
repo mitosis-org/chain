@@ -21,14 +21,22 @@ type Container struct {
 func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
 	// Create Ethereum client
 	ethClient, err := client.NewEthereumClient(resolvedConfig.RpcURL)
-	if err != nil {
+	if err != nil && resolvedConfig.RpcURL != "" {
 		return nil, err
 	}
 
 	// Create contract instance
 	contract, err := client.NewValidatorManagerContract(resolvedConfig.ValidatorManagerContractAddr, ethClient)
-	if err != nil {
+	if err != nil && resolvedConfig.ValidatorManagerContractAddr != "" {
 		return nil, err
+	}
+
+	if contract != nil && resolvedConfig.ContractFee == "" {
+		contractFee, err := contract.Fee(nil)
+		if err != nil {
+			return nil, err
+		}
+		resolvedConfig.ContractFee = contractFee.String()
 	}
 
 	// Create transaction components
@@ -36,8 +44,8 @@ func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
 	txSender := tx.NewSender(ethClient)
 
 	// Create services
-	validatorService := tx.NewValidatorService(resolvedConfig, ethClient, contract, txBuilder)
-	collateralService := tx.NewCollateralService(resolvedConfig, ethClient, contract, txBuilder)
+	validatorService := tx.NewValidatorService(resolvedConfig, txBuilder)
+	collateralService := tx.NewCollateralService(resolvedConfig, txBuilder)
 
 	return &Container{
 		Config:            resolvedConfig,

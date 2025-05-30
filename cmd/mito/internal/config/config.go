@@ -12,6 +12,7 @@ import (
 type Config struct {
 	RpcURL                       string `json:"rpc_url"`
 	ValidatorManagerContractAddr string `json:"validator_manager_contract_addr"`
+	ChainID                      string `json:"chain_id"`
 }
 
 // getConfigPath returns the path to the config file

@@ -15,6 +15,10 @@ type ValidatorManagerContract struct {
 
 // NewValidatorManagerContract creates and returns a new ValidatorManager contract instance
 func NewValidatorManagerContract(contractAddr string, ethClient *EthereumClient) (*ValidatorManagerContract, error) {
+	if ethClient == nil {
+		return nil, fmt.Errorf("ethereum client is required")
+	}
+
 	if contractAddr == "" {
 		return nil, fmt.Errorf("ValidatorManager contract address is required")
 	}
