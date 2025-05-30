@@ -31,7 +31,23 @@ func (g DependentGroup) IsRequired() bool {
 }
 
 func (g DependentGroup) Validate(cmd *cobra.Command) error {
-	// Check if any primary flag is set
+	// If the group is required, all flags must be set
+	if g.Required {
+		for _, flag := range g.Flags {
+			if !flag.IsGroup() {
+				if !cmd.Flags().Changed(flag.name) {
+					return fmt.Errorf("required flag \"%s\" not set (group: %s)", flag.name, g.Name)
+				}
+			} else {
+				if err := flag.group.Validate(cmd); err != nil {
+					return fmt.Errorf("in group %s: %w", g.Name, err)
+				}
+			}
+		}
+		return nil
+	}
+
+	// If not required, check if any primary flag is set
 	primaryFlagSet := false
 	for _, flag := range g.Flags {
 		if !flag.IsGroup() && cmd.Flags().Changed(flag.name) {
@@ -40,15 +56,14 @@ func (g DependentGroup) Validate(cmd *cobra.Command) error {
 		}
 	}
 
-	// If no primary flag is set and the group is not required, skip validation
-	if !primaryFlagSet && !g.Required {
-		return nil
-	}
-
-	// If primary flag is set, validate all dependent groups
+	// If primary flag is set, validate all dependent flags
 	if primaryFlagSet {
 		for _, flag := range g.Flags {
-			if flag.IsGroup() {
+			if !flag.IsGroup() {
+				if !cmd.Flags().Changed(flag.name) {
+					return fmt.Errorf("dependent flag \"%s\" not set (group: %s)", flag.name, g.Name)
+				}
+			} else {
 				if err := flag.group.Validate(cmd); err != nil {
 					return fmt.Errorf("in group %s: %w", g.Name, err)
 				}

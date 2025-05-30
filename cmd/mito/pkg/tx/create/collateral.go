@@ -8,6 +8,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
+	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -40,6 +41,9 @@ func newCreateCollateralDepositCmd() *cobra.Command {
 		Use:   "deposit",
 		Short: "Create collateral deposit transaction",
 		Long:  "Create a transaction to deposit collateral (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validation.ValidateCreateTxFlagGroups(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -108,6 +112,9 @@ func newCreateCollateralWithdrawCmd() *cobra.Command {
 		Use:   "withdraw",
 		Short: "Create collateral withdraw transaction",
 		Long:  "Create a transaction to withdraw collateral (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validation.ValidateCreateTxFlagGroups(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -178,6 +185,9 @@ func newCreateCollateralSetPermittedOwnerCmd() *cobra.Command {
 		Use:   "set-permitted-owner",
 		Short: "Create set permitted owner transaction",
 		Long:  "Create a transaction to set permitted collateral owner (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validation.ValidateCreateTxFlagGroups(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -246,6 +256,9 @@ func newCreateCollateralTransferOwnershipCmd() *cobra.Command {
 		Use:   "transfer-ownership",
 		Short: "Create transfer ownership transaction",
 		Long:  "Create a transaction to transfer collateral ownership (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validation.ValidateCreateTxFlagGroups(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 

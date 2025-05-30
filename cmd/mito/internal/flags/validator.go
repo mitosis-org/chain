@@ -16,6 +16,16 @@ func NewFlagValidator() *FlagValidator {
 	}
 }
 
+func NewFlagValidatorWithGroups(groups []FlagGroup) *FlagValidator {
+	return &FlagValidator{
+		groups: groups,
+	}
+}
+
+func ValidateGroups(cmd *cobra.Command, groups []FlagGroup) error {
+	return NewFlagValidatorWithGroups(groups).ValidateFlags(cmd)
+}
+
 // AddGroup adds a flag group
 func (fv *FlagValidator) AddGroup(group FlagGroup) {
 	fv.groups = append(fv.groups, group)
@@ -31,9 +41,7 @@ func (fv *FlagValidator) ValidateFlags(cmd *cobra.Command) error {
 	return nil
 }
 
-// ValidateSigningFlags validates signing-related flags for commands that require signing
-func ValidateSigningFlags(cmd *cobra.Command) error {
-	validator := NewFlagValidator()
-	validator.AddGroup(SigningMethodGroup)
-	return validator.ValidateFlags(cmd)
+func (fv *FlagValidator) ValidateGroups(cmd *cobra.Command, groups []FlagGroup) error {
+	fv.groups = groups
+	return fv.ValidateFlags(cmd)
 }

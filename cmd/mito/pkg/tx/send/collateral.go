@@ -7,6 +7,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
+	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -40,7 +41,7 @@ func newSendCollateralDepositCmd() *cobra.Command {
 		Short: "Send collateral deposit transaction",
 		Long:  "Create, sign and send a transaction to deposit collateral",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -117,7 +118,7 @@ func newSendCollateralWithdrawCmd() *cobra.Command {
 		Short: "Send collateral withdraw transaction",
 		Long:  "Create, sign and send a transaction to withdraw collateral",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -196,7 +197,7 @@ func newSendCollateralSetPermittedOwnerCmd() *cobra.Command {
 		Short: "Send set permitted owner transaction",
 		Long:  "Create, sign and send a transaction to set permitted collateral owner",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -278,7 +279,7 @@ func newSendCollateralTransferOwnershipCmd() *cobra.Command {
 		Short: "Send transfer ownership transaction",
 		Long:  "Create, sign and send a transaction to transfer collateral ownership",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true

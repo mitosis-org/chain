@@ -8,6 +8,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/tx"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
+	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -48,7 +49,7 @@ func newSendValidatorCreateCmd() *cobra.Command {
 		Long:  "Create, sign and send a new validator transaction to the network",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			// Validate mutually exclusive flags
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateCreateTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -139,7 +140,7 @@ func newSendValidatorUpdateMetadataCmd() *cobra.Command {
 		Short: "Send validator metadata update transaction",
 		Long:  "Create, sign and send a transaction to update validator metadata",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -210,7 +211,7 @@ func newSendValidatorUpdateOperatorCmd() *cobra.Command {
 		Short: "Send validator operator update transaction",
 		Long:  "Create, sign and send a transaction to update validator operator",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -288,7 +289,7 @@ func newSendValidatorUpdateRewardConfigCmd() *cobra.Command {
 		Short: "Send validator reward config update transaction",
 		Long:  "Create, sign and send a transaction to update validator reward configuration",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -359,7 +360,7 @@ func newSendValidatorUpdateRewardManagerCmd() *cobra.Command {
 		Short: "Send validator reward manager update transaction",
 		Long:  "Create, sign and send a transaction to update validator reward manager",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -430,7 +431,7 @@ func newSendValidatorUnjailCmd() *cobra.Command {
 		Short: "Send validator unjail transaction",
 		Long:  "Create, sign and send a transaction to unjail a validator",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return flags.ValidateSigningFlags(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
