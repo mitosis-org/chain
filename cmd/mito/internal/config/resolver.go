@@ -31,7 +31,6 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 		GasLimit:                     commonFlags.GasLimit,
 		GasPrice:                     commonFlags.GasPrice,
 		Nonce:                        commonFlags.Nonce,
-		NonceSet:                     commonFlags.NonceSet,
 		ContractFee:                  commonFlags.ContractFee,
 		OutputFile:                   commonFlags.OutputFile,
 		Signed:                       commonFlags.Signed,
@@ -51,8 +50,7 @@ type ResolvedConfig struct {
 	KeyfilePasswordFile          string
 	GasLimit                     uint64
 	GasPrice                     string
-	Nonce                        uint64
-	NonceSet                     bool
+	Nonce                        string
 	ContractFee                  string
 	OutputFile                   string
 	Signed                       bool

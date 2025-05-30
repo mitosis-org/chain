@@ -20,8 +20,7 @@ type CommonFlags struct {
 	// Transaction flags
 	GasLimit    uint64
 	GasPrice    string
-	Nonce       uint64
-	NonceSet    bool
+	Nonce       string
 	ContractFee string
 
 	// Output flags
@@ -65,17 +64,8 @@ func AddNetworkFlags(cmd *cobra.Command, flags *CommonFlags) {
 func AddTransactionFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().Uint64Var(&flags.GasLimit, "gas-limit", 0, "Gas limit for transaction")
 	cmd.Flags().StringVar(&flags.GasPrice, "gas-price", "", "Gas price for transaction")
-	cmd.Flags().Uint64Var(&flags.Nonce, "nonce", 0, "Nonce for transaction")
+	cmd.Flags().StringVar(&flags.Nonce, "nonce", "", "Nonce for transaction")
 	cmd.Flags().StringVar(&flags.ContractFee, "contract-fee", "", "Contract fee")
-
-	// Set NonceSet when nonce flag is used
-	oldPreRun := cmd.PreRun
-	cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		flags.NonceSet = cmd.Flags().Changed("nonce")
-		if oldPreRun != nil {
-			oldPreRun(cmd, args)
-		}
-	}
 }
 
 // AddOutputFlags adds output-related flags

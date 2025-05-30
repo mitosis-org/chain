@@ -52,8 +52,15 @@ func (b *Builder) CreateTransactionFromData(txData *TransactionData) (*types.Tra
 func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, unsigned bool) (*types.Transaction, error) {
 	// Determine nonce - use specified nonce or get from client (if possible)
 	var nonce uint64
-	if b.config.NonceSet {
-		nonce = b.config.Nonce
+	if b.config.Nonce != "" {
+		nonceInt, ok := new(big.Int).SetString(b.config.Nonce, 10)
+		if ok {
+			nonce = nonceInt.Uint64()
+		}
+
+		if !ok {
+			return nil, fmt.Errorf("invalid nonce: %s", b.config.Nonce)
+		}
 	} else if unsigned {
 		// For unsigned transactions, use nonce 0 as default
 		nonce = 0
