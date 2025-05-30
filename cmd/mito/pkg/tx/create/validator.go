@@ -9,7 +9,6 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/tx"
-	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -48,6 +47,9 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 		Use:   "create",
 		Short: "Create a new validator transaction",
 		Long:  "Create a new validator transaction (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -57,11 +59,6 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 				return err
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
-
-			// Validate required fields
-			if err := validateCreateValidatorCreateFields(resolvedConfig, &validatorFlags); err != nil {
-				return err
-			}
 
 			// Create container (for validation and fee calculation)
 			container, err := container.NewContainer(resolvedConfig)
@@ -137,6 +134,9 @@ func newCreateValidatorUpdateMetadataCmd() *cobra.Command {
 		Use:   "update-metadata",
 		Short: "Create validator metadata update transaction",
 		Long:  "Create a transaction to update validator metadata (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -146,11 +146,6 @@ func newCreateValidatorUpdateMetadataCmd() *cobra.Command {
 				return err
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
-
-			// Validate required fields
-			if err := validateCreateValidatorBasicFields(resolvedConfig); err != nil {
-				return err
-			}
 
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
@@ -206,6 +201,9 @@ func newCreateValidatorUpdateOperatorCmd() *cobra.Command {
 		Use:   "update-operator",
 		Short: "Create validator operator update transaction",
 		Long:  "Create a transaction to update validator operator (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -217,10 +215,6 @@ func newCreateValidatorUpdateOperatorCmd() *cobra.Command {
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
 			// Validate required fields
-			if err := validateCreateValidatorBasicFields(resolvedConfig); err != nil {
-				return err
-			}
-
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -275,6 +269,9 @@ func newCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
 		Use:   "update-reward-config",
 		Short: "Create validator reward config update transaction",
 		Long:  "Create a transaction to update validator reward configuration (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -286,10 +283,6 @@ func newCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
 			// Validate required fields
-			if err := validateCreateValidatorBasicFields(resolvedConfig); err != nil {
-				return err
-			}
-
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -344,6 +337,9 @@ func newCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
 		Use:   "update-reward-manager",
 		Short: "Create validator reward manager update transaction",
 		Long:  "Create a transaction to update validator reward manager (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -355,10 +351,6 @@ func newCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
 			// Validate required fields
-			if err := validateCreateValidatorBasicFields(resolvedConfig); err != nil {
-				return err
-			}
-
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -413,6 +405,9 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 		Use:   "unjail",
 		Short: "Create validator unjail transaction",
 		Long:  "Create a transaction to unjail a validator (without sending)",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return flags.ValidateSigningFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -422,11 +417,6 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 				return err
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
-
-			// Validate required fields
-			if err := validateCreateValidatorBasicFields(resolvedConfig); err != nil {
-				return err
-			}
 
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
@@ -480,57 +470,4 @@ type TransactionData struct {
 	GasLimit uint64 `json:"gasLimit"`
 	GasPrice string `json:"gasPrice"`
 	ChainID  string `json:"chainId"`
-}
-
-func validateCreateValidatorCreateFields(config *config.ResolvedConfig, validatorFlags *struct {
-	pubkey            string
-	operator          string
-	rewardManager     string
-	commissionRate    string
-	metadata          string
-	initialCollateral string
-}) error {
-	if err := validateCreateValidatorBasicFields(config); err != nil {
-		return err
-	}
-
-	if validatorFlags.pubkey == "" {
-		return fmt.Errorf("public key is required (use --pubkey)")
-	}
-	if validatorFlags.operator == "" {
-		return fmt.Errorf("operator address is required (use --operator)")
-	}
-	if validatorFlags.rewardManager == "" {
-		return fmt.Errorf("reward manager address is required (use --reward-manager)")
-	}
-	if validatorFlags.commissionRate == "" {
-		return fmt.Errorf("commission rate is required (use --commission-rate)")
-	}
-	if validatorFlags.metadata == "" {
-		return fmt.Errorf("metadata is required (use --metadata)")
-	}
-	if validatorFlags.initialCollateral == "" {
-		return fmt.Errorf("initial collateral is required (use --initial-collateral)")
-	}
-
-	// Validate address formats
-	if _, err := utils.ValidateAddress(validatorFlags.operator); err != nil {
-		return fmt.Errorf("invalid operator address: %w", err)
-	}
-	if _, err := utils.ValidateAddress(validatorFlags.rewardManager); err != nil {
-		return fmt.Errorf("invalid reward manager address: %w", err)
-	}
-
-	return nil
-}
-
-func validateCreateValidatorBasicFields(config *config.ResolvedConfig) error {
-	if config.RpcURL == "" {
-		return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
-	}
-	if config.ValidatorManagerContractAddr == "" {
-		return fmt.Errorf("ValidatorManager contract address is required (use --contract or set with 'mito config set-contract')")
-	}
-
-	return nil
 }

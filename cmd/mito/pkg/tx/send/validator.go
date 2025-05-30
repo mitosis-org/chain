@@ -127,9 +127,6 @@ func newSendValidatorCreateCmd() *cobra.Command {
 	cmd.MarkFlagRequired("metadata")
 	cmd.MarkFlagRequired("initial-collateral")
 
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
-
 	return cmd
 }
 
@@ -200,9 +197,6 @@ func newSendValidatorUpdateMetadataCmd() *cobra.Command {
 	cmd.Flags().StringVar(&metadata, "metadata", "", "New validator metadata")
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("metadata")
-
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
 
 	return cmd
 }
@@ -282,9 +276,6 @@ func newSendValidatorUpdateOperatorCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("operator")
 
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
-
 	return cmd
 }
 
@@ -355,9 +346,6 @@ func newSendValidatorUpdateRewardConfigCmd() *cobra.Command {
 	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "New commission rate in percentage (e.g., \"5%\")")
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("commission-rate")
-
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
 
 	return cmd
 }
@@ -430,9 +418,6 @@ func newSendValidatorUpdateRewardManagerCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("reward-manager")
 
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
-
 	return cmd
 }
 
@@ -501,9 +486,6 @@ func newSendValidatorUnjailCmd() *cobra.Command {
 	flags.AddCommonFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorAddr, "validator", "", "Address of the validator to unjail")
 	cmd.MarkFlagRequired("validator")
-
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
 
 	return cmd
 }

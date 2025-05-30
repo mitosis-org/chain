@@ -19,6 +19,7 @@ func NewConfigCmd() *cobra.Command {
 	cmd.AddCommand(
 		newSetRpcCmd(),
 		newSetContractCmd(),
+		newSetChainIdCmd(),
 		newShowConfigCmd(),
 	)
 
@@ -88,6 +89,35 @@ func newSetContractCmd() *cobra.Command {
 	return cmd
 }
 
+// newSetChainIdCmd creates the set-chain-id command
+func newSetChainIdCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-chain-id <chain-id>",
+		Short: "Set the default Chain ID",
+		Long:  "Set the default Chain ID for the network",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			chainID := args[0]
+
+			cfg, err := config.Load()
+			if err != nil {
+				return fmt.Errorf("failed to load config: %w", err)
+			}
+
+			cfg.ChainID = chainID
+
+			if err := config.Save(cfg); err != nil {
+				return fmt.Errorf("failed to save config: %w", err)
+			}
+
+			fmt.Printf("✅ Chain ID set to: %s\n", chainID)
+			return nil
+		},
+	}
+
+	return cmd
+}
+
 // newShowConfigCmd creates the show command
 func newShowConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -111,6 +141,12 @@ func newShowConfigCmd() *cobra.Command {
 				fmt.Printf("ValidatorManager Contract    : %s\n", cfg.ValidatorManagerContractAddr)
 			} else {
 				fmt.Printf("ValidatorManager Contract    : (not set)\n")
+			}
+
+			if cfg.ChainID != "" {
+				fmt.Printf("Chain ID                     : %s\n", cfg.ChainID)
+			} else {
+				fmt.Printf("Chain ID                     : (not set)\n")
 			}
 
 			configPath, _ := config.GetPath()

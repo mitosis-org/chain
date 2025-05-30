@@ -101,9 +101,6 @@ func newSendCollateralDepositCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("amount")
 
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
-
 	return cmd
 }
 
@@ -182,9 +179,6 @@ func newSendCollateralWithdrawCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("amount")
 	cmd.MarkFlagRequired("receiver")
-
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
 
 	return cmd
 }
@@ -269,9 +263,6 @@ func newSendCollateralSetPermittedOwnerCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("collateral-owner")
 
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
-
 	return cmd
 }
 
@@ -347,9 +338,6 @@ func newSendCollateralTransferOwnershipCmd() *cobra.Command {
 	// Mark required flags
 	cmd.MarkFlagRequired("validator")
 	cmd.MarkFlagRequired("new-owner")
-
-	// Add validation for signing flags
-	flags.AddMutuallyExclusiveValidation(cmd, flags.SigningMethodGroup)
 
 	return cmd
 }
