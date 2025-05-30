@@ -34,27 +34,16 @@ type CommonFlags struct {
 // AddCommonFlags adds common flags to a command
 func AddCommonFlags(cmd *cobra.Command, flags *CommonFlags) {
 	// Network flags
-	cmd.Flags().StringVar(&flags.RpcURL, "rpc-url", "", "RPC URL for Ethereum node")
-	cmd.Flags().StringVar(&flags.ChainID, "chain-id", "", "Chain ID for the network")
-	cmd.Flags().StringVar(&flags.ValidatorManagerContractAddr, "contract", "", "ValidatorManager contract address")
+	AddNetworkFlags(cmd, flags)
 
 	// Signing flags
-	cmd.Flags().StringVar(&flags.PrivateKey, "private-key", "", "Private key for signing")
-	cmd.Flags().StringVar(&flags.KeyfilePath, "keyfile", "", "Path to keyfile")
-	cmd.Flags().StringVar(&flags.KeyfilePassword, "keyfile-password", "", "Password for keyfile")
-	cmd.Flags().StringVar(&flags.KeyfilePasswordFile, "keyfile-password-file", "", "File containing keyfile password")
+	AddSigningFlags(cmd, flags)
 
 	// Transaction flags
-	cmd.Flags().Uint64Var(&flags.GasLimit, "gas-limit", 0, "Gas limit for transaction")
-	cmd.Flags().StringVar(&flags.GasPrice, "gas-price", "", "Gas price for transaction")
-	cmd.Flags().Uint64Var(&flags.Nonce, "nonce", 0, "Nonce for transaction")
-	cmd.Flags().StringVar(&flags.ContractFee, "contract-fee", "", "Contract fee")
+	AddTransactionFlags(cmd, flags)
 
 	// Output flags
-	cmd.Flags().StringVar(&flags.OutputFile, "output", "", "Output file for transaction")
-	cmd.Flags().BoolVar(&flags.Signed, "signed", false, "Create signed transaction")
-	cmd.Flags().BoolVar(&flags.Unsigned, "unsigned", false, "Create unsigned transaction")
-	cmd.Flags().BoolVar(&flags.Yes, "yes", false, "Skip confirmation prompts")
+	AddOutputFlags(cmd, flags)
 }
 
 // AddSigningFlags adds only signing-related flags
@@ -78,6 +67,15 @@ func AddTransactionFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().StringVar(&flags.GasPrice, "gas-price", "", "Gas price for transaction")
 	cmd.Flags().Uint64Var(&flags.Nonce, "nonce", 0, "Nonce for transaction")
 	cmd.Flags().StringVar(&flags.ContractFee, "contract-fee", "", "Contract fee")
+
+	// Set NonceSet when nonce flag is used
+	oldPreRun := cmd.PreRun
+	cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		flags.NonceSet = cmd.Flags().Changed("nonce")
+		if oldPreRun != nil {
+			oldPreRun(cmd, args)
+		}
+	}
 }
 
 // AddOutputFlags adds output-related flags
