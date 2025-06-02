@@ -4,12 +4,14 @@ Mito is a command-line tool for interacting with the Mitosis blockchain, providi
 
 ## Features
 
+- **Unified Unit Handling**: Consistent support for wei, gwei, and MITO units across all commands
+- **Online/Offline Modes**: Create transactions with or without network connectivity
+- **Smart Configuration**: Automatic parameter resolution from config files and network
 - **Transaction Management**: Create and send transactions with support for both signed and unsigned modes
 - **Validator Operations**: Create, update, and manage validators
 - **Collateral Management**: Deposit and withdraw collateral for validators
-- **Configuration Management**: Store and manage RPC URLs and contract addresses
-- **Security**: Support for both private keys and geth keyfiles with mutual exclusivity validation
-- **Offline Mode**: Create transactions without RPC connection
+- **Advanced Security**: Support for private keys and geth keyfiles with comprehensive validation
+- **Intelligent Error Handling**: Clear error messages and automatic fallbacks
 
 ## Installation
 
@@ -18,37 +20,147 @@ cd cmd/mito
 go build -o mito .
 ```
 
-## Configuration
-
-Set up default RPC URL and contract address to avoid repeating them in every command:
+## Quick Start
 
 ```bash
-# Set RPC URL
-./mito config set-rpc http://localhost:8545
+# Configure defaults (one-time setup)
+./mito config set-rpc https://rpc.dognet.mitosis.org
+./mito config set-contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
-# Set ValidatorManager contract address
-./mito config set-contract 0x1234567890123456789012345678901234567890
+# Create a validator (online mode)
+./mito tx send validator create \
+  --pubkey 0x1234... \
+  --operator 0x5678... \
+  --reward-manager 0x9abc... \
+  --commission-rate 5% \
+  --initial-collateral 1.5 \
+  --metadata '{"name":"MyValidator"}' \
+  --keyfile ./keystore/keyfile
 
-# Show current configuration
+# Check validator info
+./mito validator info --validator-address 0x1234...
+```
+
+## Configuration Management
+
+Mito supports both explicit flags and configuration files for seamless usage:
+
+```bash
+# Set default RPC URL
+./mito config set-rpc https://rpc.dognet.mitosis.org
+
+# Set ValidatorManager contract address  
+./mito config set-contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+
+# View current configuration
 ./mito config show
 ```
 
-Configuration is stored in `~/.mito/config.json`.
+**Output Example:**
+```
+===== Current Configuration =====
+RPC URL                      : https://rpc.dognet.mitosis.org
+ValidatorManager Contract    : 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+Chain ID                     : (auto-detected from network)
+Config file location         : /Users/user/.mito/config.json
+```
 
-## Usage
+Configuration is stored in `~/.mito/config.json` and automatically loaded for all commands.
 
-### Transaction Commands
+## Unit Handling
 
-#### Create Transactions (Offline)
+Mito provides unified unit handling across all monetary values:
+
+### Supported Units
+- **wei**: Base unit (1 wei)
+- **gwei**: Giga-wei (10^9 wei) - **Default for gas prices and fees**
+- **mito**: Native token unit (10^18 wei) - **Default for collateral amounts**
+
+### Unit Examples
+```bash
+# Gas price examples (default: gwei)
+--gas-price 20          # 20 gwei
+--gas-price 20gwei      # 20 gwei  
+--gas-price 20000000000wei  # 20 gwei
+--gas-price 0.00000002mito   # 20 gwei
+
+# Contract fee examples (default: gwei)
+--contract-fee 100      # 100 gwei
+--contract-fee 100gwei  # 100 gwei
+--contract-fee 0.0000001mito # 100 gwei
+
+# Collateral examples (default: mito)
+--amount 1.5            # 1.5 MITO
+--initial-collateral 10 # 10 MITO
+```
+
+### Output Format
+All monetary values are displayed in both MITO and Gwei for clarity:
+
+```
+Fee                        : 0.000000123456789 MITO (123.456789 Gwei)
+Total Value                : 1.500000123456789 MITO (1500000123.456789 Gwei)
+Gas Price                  : 0.000000025 MITO (25 Gwei)
+```
+
+## Online vs Offline Modes
+
+### Online Mode (Default)
+Requires RPC connection and automatically detects:
+- Chain ID
+- Gas price
+- Nonce (for sending transactions)
+
+```bash
+# Online transaction (uses config defaults)
+./mito tx send validator create \
+  --pubkey 0x1234... \
+  --operator 0x5678... \
+  --commission-rate 5% \
+  --keyfile ./keystore/keyfile
+```
+
+### Offline Mode
+Create transactions without network connectivity:
+
+```bash
+# Offline unsigned transaction
+./mito tx create validator create \
+  --pubkey 0x1234... \
+  --operator 0x5678... \
+  --commission-rate 5% \
+  --unsigned \
+  --nonce 10 \
+  --gas-price 20gwei \
+  --chain-id 125883 \
+  --contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+
+# Offline signed transaction
+./mito tx create collateral deposit \
+  --validator 0x1234... \
+  --amount 1.5 \
+  --signed \
+  --private-key 0xabc... \
+  --nonce 15 \
+  --gas-price 25gwei \
+  --chain-id 125883 \
+  --contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+```
+
+## Transaction Commands
+
+### Create Transactions (tx create)
+Creates transactions without sending them to the network:
 
 ```bash
 # Create unsigned transaction
 ./mito tx create collateral deposit \
   --validator 0x1111... \
   --amount 1.5 \
-  --unsigned
+  --unsigned \
+  --nonce 10
 
-# Create signed transaction
+# Create signed transaction  
 ./mito tx create validator create \
   --pubkey 0x1111... \
   --operator 0x2222... \
@@ -58,19 +170,29 @@ Configuration is stored in `~/.mito/config.json`.
   --metadata '{"name":"my-validator"}' \
   --signed \
   --private-key 0x1234...
+
+# Save to file
+./mito tx create collateral withdraw \
+  --validator 0x1111... \
+  --amount 0.5 \
+  --receiver 0x4444... \
+  --unsigned \
+  --nonce 11 \
+  --output transaction.json
 ```
 
-#### Send Transactions (Online)
+### Send Transactions (tx send)
+Creates, signs, and broadcasts transactions to the network:
 
 ```bash
-# Send collateral deposit transaction
+# Send with keyfile
 ./mito tx send collateral deposit \
   --validator 0x1111... \
   --amount 1.5 \
-  --private-key 0x1234... \
-  --rpc http://localhost:8545
+  --keyfile ./keystore/keyfile \
+  --keyfile-password-file ./password.txt
 
-# Send validator creation transaction
+# Send with private key
 ./mito tx send validator create \
   --pubkey 0x1111... \
   --operator 0x2222... \
@@ -78,181 +200,290 @@ Configuration is stored in `~/.mito/config.json`.
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"my-validator"}' \
-  --keyfile /path/to/keyfile
+  --private-key 0x1234...
+
+# Skip confirmation prompt
+./mito tx send collateral withdraw \
+  --validator 0x1111... \
+  --amount 0.5 \
+  --receiver 0x4444... \
+  --keyfile ./keystore/keyfile \
+  --yes
 ```
 
-### Validator Commands
+## Validator Management
 
+### Create Validator
+```bash
+./mito tx send validator create \
+  --pubkey 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef \
+  --operator 0x1234567890123456789012345678901234567890 \
+  --reward-manager 0x2345678901234567890123456789012345678901 \
+  --commission-rate 5% \
+  --initial-collateral 10.0 \
+  --metadata '{"name":"MyValidator","description":"Professional validator"}' \
+  --keyfile ./keystore/keyfile
+```
+
+### Update Validator
+```bash
+# Update commission rate
+./mito tx send validator update-reward-config \
+  --validator 0x1111... \
+  --commission-rate 3% \
+  --keyfile ./keystore/keyfile
+
+# Update operator
+./mito tx send validator update-operator \
+  --validator 0x1111... \
+  --operator 0x2222... \
+  --keyfile ./keystore/keyfile
+
+# Update metadata
+./mito tx send validator update-metadata \
+  --validator 0x1111... \
+  --metadata '{"name":"UpdatedValidator","version":"2.0"}' \
+  --keyfile ./keystore/keyfile
+
+# Unjail validator
+./mito tx send validator unjail \
+  --validator 0x1111... \
+  --keyfile ./keystore/keyfile
+```
+
+### Query Validator
 ```bash
 # Get validator information
 ./mito validator info --validator-address 0x1111...
-
-# Update validator commission rate
-./mito tx send validator update-reward-config \
-  --validator 0x1111... \
-  --commission-rate 5% \
-  --keyfile /path/to/keyfile
-
-# Update validator reward manager
-./mito tx send validator update-reward-manager \
-  --validator 0x1111... \
-  --reward-manager 0x2222... \
-  --keyfile /path/to/keyfile
 ```
 
-### Collateral Management Commands
+## Collateral Management
 
+### Deposit Collateral
 ```bash
-# Set permitted collateral owner
+./mito tx send collateral deposit \
+  --validator 0x1111... \
+  --amount 5.0 \
+  --keyfile ./keystore/keyfile
+```
+
+### Withdraw Collateral
+```bash
+./mito tx send collateral withdraw \
+  --validator 0x1111... \
+  --amount 2.0 \
+  --receiver 0x2222... \
+  --keyfile ./keystore/keyfile
+```
+
+### Manage Collateral Permissions
+```bash
+# Grant permission
 ./mito tx send collateral set-permitted-owner \
   --validator 0x1111... \
   --collateral-owner 0x2222... \
   --permitted \
-  --keyfile /path/to/keyfile
+  --keyfile ./keystore/keyfile
 
-# Revoke collateral owner permission
+# Revoke permission
 ./mito tx send collateral set-permitted-owner \
   --validator 0x1111... \
   --collateral-owner 0x2222... \
-  --keyfile /path/to/keyfile
+  --keyfile ./keystore/keyfile
 
-# Transfer collateral ownership
+# Transfer ownership
 ./mito tx send collateral transfer-ownership \
   --validator 0x1111... \
   --new-owner 0x3333... \
-  --keyfile /path/to/keyfile
+  --keyfile ./keystore/keyfile
 ```
 
-### Security Features
+## Security Features
 
-#### Signing Methods (Mutually Exclusive)
-
-Choose one of the following signing methods:
-
-- `--private-key`: Provide private key directly (hex format)
-- `--keyfile`: Use geth keyfile (more secure)
+### Signing Methods (Mutually Exclusive)
+Choose exactly one signing method:
 
 ```bash
-# Using private key
-./mito tx send collateral deposit --private-key 0x1234...
-
-# Using keyfile (will prompt for password)
-./mito tx send collateral deposit --keyfile /path/to/keyfile
-
-# Using keyfile with password file
+# Method 1: Private key (direct)
 ./mito tx send collateral deposit \
-  --keyfile /path/to/keyfile \
-  --keyfile-password-file /path/to/password.txt
+  --validator 0x1111... \
+  --amount 1.5 \
+  --private-key 0x1234...
 
-# ERROR: Cannot use both
-./mito tx send collateral deposit --private-key 0x1234... --keyfile /path/to/keyfile
+# Method 2: Keyfile (secure)
+./mito tx send collateral deposit \
+  --validator 0x1111... \
+  --amount 1.5 \
+  --keyfile ./keystore/keyfile
+
+# Method 3: Keyfile with password file
+./mito tx send collateral deposit \
+  --validator 0x1111... \
+  --amount 1.5 \
+  --keyfile ./keystore/keyfile \
+  --keyfile-password-file ./password.txt
+
+# ERROR: Cannot combine signing methods
+./mito tx send collateral deposit \
+  --private-key 0x1234... \
+  --keyfile ./keystore/keyfile
 # Error: flags [private-key keyfile] are mutually exclusive
 ```
 
-## Command Structure
-
-```
-mito
-├── tx
-│   ├── send
-│   │   ├── validator (create, update-operator, update-metadata, update-reward-config, update-reward-manager, unjail)
-│   │   └── collateral (deposit, withdraw, set-permitted-owner, transfer-ownership)
-│   └── create
-│       ├── validator (create, update-operator, update-metadata, update-reward-config, update-reward-manager, unjail)
-│       └── collateral (deposit, withdraw, set-permitted-owner, transfer-ownership)
-├── validator
-│   └── info
-└── config
-    ├── set-rpc
-    ├── set-contract
-    └── show
-```
-
-## Examples
-
-### Complete Validator Setup
+### Transaction Modes (Mutually Exclusive)
+Choose exactly one transaction mode:
 
 ```bash
-# 1. Configure defaults
-./mito config set-rpc http://localhost:8545
-./mito config set-contract 0x1234567890123456789012345678901234567890
-
-# 2. Create validator
-./mito tx send validator create \
-  --pubkey 0x1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
-  --operator 0x2222222222222222222222222222222222222222 \
-  --reward-manager 0x3333333333333333333333333333333333333333 \
-  --commission-rate 5% \
-  --initial-collateral 10.0 \
-  --metadata '{"name":"MyValidator","description":"My awesome validator"}' \
-  --keyfile /path/to/keyfile
-
-# 3. Check validator info
-./mito validator info --validator-address 0x1111111111111111111111111111111111111111
-
-# 4. Deposit additional collateral
-./mito tx send collateral deposit \
-  --validator 0x1111111111111111111111111111111111111111 \
-  --amount 5.0 \
-  --keyfile /path/to/keyfile
-
-# 5. Update commission rate
-./mito tx send validator update-reward-config \
-  --validator 0x1111111111111111111111111111111111111111 \
-  --commission-rate 3% \
-  --keyfile /path/to/keyfile
-
-# 6. Set permitted collateral owner
-./mito tx send collateral set-permitted-owner \
-  --validator 0x1111111111111111111111111111111111111111 \
-  --collateral-owner 0x4444444444444444444444444444444444444444 \
-  --permitted \
-  --keyfile /path/to/keyfile
-```
-
-### Offline Transaction Creation
-
-```bash
-# Create unsigned transaction for later signing
+# Unsigned transaction (requires --nonce for offline mode)
 ./mito tx create validator create \
   --pubkey 0x1111... \
-  --operator 0x2222... \
-  --reward-manager 0x3333... \
-  --commission-rate 5% \
-  --initial-collateral 1.5 \
-  --metadata '{"name":"test"}' \
   --unsigned \
-  --output validator-create.json
+  --nonce 10
 
-# Create signed transaction offline
-./mito tx create collateral deposit \
+# Signed transaction (requires signing method)
+./mito tx create validator create \
+  --pubkey 0x1111... \
+  --signed \
+  --private-key 0x1234...
+
+# ERROR: Cannot combine modes
+./mito tx create validator create \
+  --unsigned \
+  --signed
+# Error: flags [unsigned signed] are mutually exclusive
+```
+
+## Advanced Usage
+
+### Custom Gas Settings
+```bash
+./mito tx send validator create \
+  --pubkey 0x1111... \
+  --operator 0x2222... \
+  --commission-rate 5% \
+  --gas-limit 750000 \
+  --gas-price 30gwei \
+  --keyfile ./keystore/keyfile
+```
+
+### Custom Contract Fee
+```bash
+./mito tx send collateral deposit \
   --validator 0x1111... \
   --amount 1.5 \
-  --signed \
-  --private-key 0x1234... \
-  --offline \
-  --chain-id 1337 \
-  --gas-limit 500000 \
-  --gas-price 20000000000 \
-  --nonce 42 \
-  --fee 0.1
+  --contract-fee 150gwei \
+  --keyfile ./keystore/keyfile
+```
+
+### Network Override
+```bash
+./mito tx send validator create \
+  --pubkey 0x1111... \
+  --operator 0x2222... \
+  --commission-rate 5% \
+  --rpc-url https://custom-rpc.example.com \
+  --contract 0xCustomContractAddress... \
+  --keyfile ./keystore/keyfile
+```
+
+## Output Examples
+
+### Transaction Creation
+```
+===== Deposit Collateral Transaction =====
+Validator Address          : 0x1234567890123456789012345678901234567890
+Collateral Amount          : 1.5 MITO
+Fee                        : 0.000000123456789 MITO (123.456789 Gwei)
+Total Value                : 1.500000123456789 MITO (1500000123.456789 Gwei)
+
+🚨 IMPORTANT: Only permitted collateral owners can deposit collateral for a validator.
+If your address is not a permitted collateral owner for this validator, the transaction will fail.
+
+{"chainId":"0x7fff...","gas":"0x7a120","gasPrice":"0x4a817c800",...}
+```
+
+### Configuration Display
+```
+===== Current Configuration =====
+RPC URL                      : https://rpc.dognet.mitosis.org
+ValidatorManager Contract    : 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+Chain ID                     : (not set)
+Config file location         : /Users/user/.mito/config.json
 ```
 
 ## Error Handling
 
-The tool provides clear error messages and usage instructions:
+Mito provides comprehensive error handling and validation:
 
-- **Missing required flags**: Shows which flags are required
-- **Mutually exclusive flags**: Explains which flags cannot be used together
-- **Invalid addresses**: Validates Ethereum address format
-- **Configuration issues**: Guides users to set up missing configuration
+### Missing Configuration
+```bash
+$ ./mito tx create validator create --pubkey 0x1111... --unsigned
+Error: RPC connection required to get chain ID automatically. 
+Please provide --chain-id manually or set RPC URL with --rpc-url or 'mito config set-rpc'
+```
+
+### Flag Validation
+```bash
+$ ./mito tx create validator create --unsigned
+Error: when using --unsigned, --nonce must be provided
+
+$ ./mito tx send validator create --private-key 0x123... --keyfile ./key
+Error: flags [private-key keyfile] are mutually exclusive
+```
+
+### Invalid Values
+```bash
+$ ./mito tx create collateral deposit --amount invalid
+Error: invalid decimal format: invalid
+
+$ ./mito tx create validator create --commission-rate 150%
+Error: commission rate must be between 0% and 100%
+```
+
+## Command Reference
+
+```
+mito
+├── tx
+│   ├── create (offline transaction creation)
+│   │   ├── validator
+│   │   │   ├── create
+│   │   │   ├── update-operator
+│   │   │   ├── update-metadata  
+│   │   │   ├── update-reward-config
+│   │   │   ├── update-reward-manager
+│   │   │   └── unjail
+│   │   └── collateral
+│   │       ├── deposit
+│   │       ├── withdraw
+│   │       ├── set-permitted-owner
+│   │       └── transfer-ownership
+│   └── send (online transaction broadcasting)
+│       ├── validator (same subcommands as create)
+│       └── collateral (same subcommands as create)
+├── validator
+│   └── info
+├── config
+│   ├── set-rpc
+│   ├── set-contract
+│   └── show
+└── version
+```
 
 ## Development
 
-To add new commands or modify existing ones, see the source code in the `cmd/` directory. The tool uses a modular structure with:
+The tool uses a modular architecture with:
 
-- `commands.go`: Command hierarchy definition
-- `common.go`: Shared utilities and flag validation
-- `config.go`: Configuration management
-- `tx_*.go`: Transaction-specific implementations
-- `validator_*.go`: Validator-specific implementations 
+- **Configuration Management**: `internal/config/`
+- **Transaction Building**: `internal/tx/`
+- **Output Formatting**: `internal/output/`
+- **Unit Conversion**: `internal/units/`
+- **Validation**: `internal/validation/`
+- **Command Structure**: `pkg/tx/`, `pkg/validator/`, `pkg/config/`
+
+### Adding New Commands
+1. Create command file in appropriate `pkg/` directory
+2. Add validation logic in `internal/validation/`
+3. Add transaction logic in `internal/tx/`
+4. Add output formatting in `internal/output/`
+5. Register command in root command structure 
