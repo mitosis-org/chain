@@ -8,7 +8,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/tx"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
+	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +49,7 @@ func newSendValidatorCreateCmd() *cobra.Command {
 		Long:  "Create, sign and send a new validator transaction to the network",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			// Validate mutually exclusive flags
-			return validation.ValidateCreateTxFlagGroups(cmd)
+			return validation.ValidateSendTxFlagGroups(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -61,8 +61,24 @@ func newSendValidatorCreateCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorCreateFields(resolvedConfig, &validatorFlags); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorCreateFields{
+				PubKey:            validatorFlags.pubkey,
+				Operator:          validatorFlags.operator,
+				RewardManager:     validatorFlags.rewardManager,
+				CommissionRate:    validatorFlags.commissionRate,
+				Metadata:          validatorFlags.metadata,
+				InitialCollateral: validatorFlags.initialCollateral,
+			}
+			if err := validation.ValidateValidatorCreateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -152,8 +168,21 @@ func newSendValidatorUpdateMetadataCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorFields(resolvedConfig); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Metadata",
+				NewValue:         metadata,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -223,8 +252,21 @@ func newSendValidatorUpdateOperatorCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorFields(resolvedConfig); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Operator",
+				NewValue:         operator,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -301,8 +343,21 @@ func newSendValidatorUpdateRewardConfigCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorFields(resolvedConfig); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Config",
+				NewValue:         commissionRate,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -372,8 +427,21 @@ func newSendValidatorUpdateRewardManagerCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorFields(resolvedConfig); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Manager",
+				NewValue:         rewardManager,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -443,8 +511,21 @@ func newSendValidatorUnjailCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
-			if err := validateSendValidatorFields(resolvedConfig); err != nil {
+			// Validate fields using new validation module
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Unjail",
+				NewValue:         "unjail",
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
+			// Validate network and signing requirements for send
+			if err := validation.ValidateNetworkFields(resolvedConfig, true); err != nil {
+				return err
+			}
+			if err := validation.ValidateSigningFields(resolvedConfig, true); err != nil {
 				return err
 			}
 
@@ -489,62 +570,4 @@ func newSendValidatorUnjailCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 
 	return cmd
-}
-
-func validateSendValidatorCreateFields(config *config.ResolvedConfig, validatorFlags *struct {
-	pubkey            string
-	operator          string
-	rewardManager     string
-	commissionRate    string
-	metadata          string
-	initialCollateral string
-}) error {
-	if err := validateSendValidatorFields(config); err != nil {
-		return err
-	}
-
-	if validatorFlags.pubkey == "" {
-		return fmt.Errorf("public key is required (use --pubkey)")
-	}
-	if validatorFlags.operator == "" {
-		return fmt.Errorf("operator address is required (use --operator)")
-	}
-	if validatorFlags.rewardManager == "" {
-		return fmt.Errorf("reward manager address is required (use --reward-manager)")
-	}
-	if validatorFlags.commissionRate == "" {
-		return fmt.Errorf("commission rate is required (use --commission-rate)")
-	}
-	if validatorFlags.metadata == "" {
-		return fmt.Errorf("metadata is required (use --metadata)")
-	}
-	if validatorFlags.initialCollateral == "" {
-		return fmt.Errorf("initial collateral is required (use --initial-collateral)")
-	}
-
-	// Validate address formats
-	if _, err := utils.ValidateAddress(validatorFlags.operator); err != nil {
-		return fmt.Errorf("invalid operator address: %w", err)
-	}
-	if _, err := utils.ValidateAddress(validatorFlags.rewardManager); err != nil {
-		return fmt.Errorf("invalid reward manager address: %w", err)
-	}
-
-	return nil
-}
-
-func validateSendValidatorFields(config *config.ResolvedConfig) error {
-	if config.RpcURL == "" {
-		return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
-	}
-	if config.ValidatorManagerContractAddr == "" {
-		return fmt.Errorf("ValidatorManager contract address is required (use --contract or set with 'mito config set-contract')")
-	}
-
-	// Validate signing method is provided
-	if !config.HasSigningMethod() {
-		return fmt.Errorf("signing method is required (use --private-key or --keyfile)")
-	}
-
-	return nil
 }

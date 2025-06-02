@@ -7,7 +7,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
+	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
 

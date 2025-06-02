@@ -1,6 +1,8 @@
 package container
 
 import (
+	"fmt"
+
 	"github.com/mitosis-org/chain/cmd/mito/internal/client"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/tx"
@@ -19,27 +21,37 @@ type Container struct {
 
 // NewContainer creates a new dependency container
 func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
-	// Create Ethereum client
-	ethClient, err := client.NewEthereumClient(resolvedConfig.RpcURL)
-	if err != nil && resolvedConfig.RpcURL != "" {
-		return nil, err
-	}
-
-	// Create contract instance
-	contract, err := client.NewValidatorManagerContract(resolvedConfig.ValidatorManagerContractAddr, ethClient)
-	if err != nil && resolvedConfig.ValidatorManagerContractAddr != "" {
-		return nil, err
-	}
-
-	if contract != nil && resolvedConfig.ContractFee == "" {
-		contractFee, err := contract.Fee(nil)
+	// Create Ethereum client - allow nil for offline mode
+	var ethClient *client.EthereumClient
+	var err error
+	if resolvedConfig.RpcURL != "" {
+		ethClient, err = client.NewEthereumClient(resolvedConfig.RpcURL)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to create ethereum client: %w", err)
 		}
-		resolvedConfig.ContractFee = contractFee.String()
 	}
 
-	// Create transaction components
+	// Create contract instance - allow nil for offline mode
+	var contract *client.ValidatorManagerContract
+	if resolvedConfig.ValidatorManagerContractAddr != "" && ethClient != nil {
+		contract, err = client.NewValidatorManagerContract(resolvedConfig.ValidatorManagerContractAddr, ethClient)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create contract instance: %w", err)
+		}
+
+		// Try to get contract fee if not specified
+		if resolvedConfig.ContractFee == "" {
+			contractFee, err := contract.Fee(nil)
+			if err != nil {
+				// Don't fail if we can't get contract fee - use default
+				resolvedConfig.ContractFee = "0"
+			} else {
+				resolvedConfig.ContractFee = contractFee.String()
+			}
+		}
+	}
+
+	// Create transaction components - allow nil ethClient for offline mode
 	txBuilder := tx.NewBuilder(resolvedConfig, ethClient)
 	txSender := tx.NewSender(ethClient)
 

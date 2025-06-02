@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
+	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 )
 
@@ -43,68 +44,14 @@ type TransactionData struct {
 	GasLimit uint64
 }
 
-// CreateValidator creates an unsigned transaction for creating a validator
+// CreateValidator creates a transaction for creating a validator
 func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (*types.Transaction, error) {
-	// // Get the contract fee
-	// fee, err := s.contract.Fee(nil)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to get contract fee: %w", err)
-	// }
+	return s.CreateValidatorWithOptions(req, false)
+}
 
-	// // Get the config to check the initial deposit requirement
-	// config, err := s.contract.GlobalValidatorConfig(nil)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to get global validator config: %w", err)
-	// }
-
-	// // Parse collateral amount as decimal MITO and convert to wei
-	// collateralAmount, err := utils.ParseValueAsWei(req.InitialCollateral)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
-	// }
-
-	// // Ensure collateral is at least the initial deposit requirement
-	// if collateralAmount.Cmp(config.InitialValidatorDeposit) < 0 {
-	// 	return nil, fmt.Errorf("initial collateral must be at least %s MITO",
-	// 		utils.FormatWeiToEther(config.InitialValidatorDeposit))
-	// }
-
-	// // Calculate total transaction value (collateral + fee)
-	// totalValue := new(big.Int).Add(collateralAmount, fee)
-
-	// // Validate other parameters
-	// operatorAddr, err := utils.ValidateAddress(req.Operator)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid operator address: %w", err)
-	// }
-
-	// rewardManagerAddr, err := utils.ValidateAddress(req.RewardManager)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid reward manager address: %w", err)
-	// }
-
-	// // Parse commission rate
-	// commissionRateInt, err := utils.ParsePercentageToBasisPoints(req.CommissionRate)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to parse commission rate: %w", err)
-	// }
-
-	// // Validate commission rate
-	// maxRate, err := s.contract.MAXCOMMISSIONRATE(nil)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to get max commission rate: %w", err)
-	// }
-
-	// if commissionRateInt.Cmp(big.NewInt(0)) < 0 || commissionRateInt.Cmp(maxRate) > 0 {
-	// 	return nil, fmt.Errorf("commission rate must be between 0%% and %s", utils.FormatBasisPointsToPercent(maxRate))
-	// }
-
-	// // Decode public key from hex
-	// pubKeyBytes, err := utils.DecodeHexWithPrefix(req.PubKey)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to decode public key: %w", err)
-	// }
-
+// CreateValidatorWithOptions creates a transaction for creating a validator with options
+func (s *ValidatorService) CreateValidatorWithOptions(req *CreateValidatorRequest, unsigned bool) (*types.Transaction, error) {
+	// Validate and parse inputs
 	pubKeyBytes, err := utils.DecodeHexWithPrefix(req.PubKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode public key: %w", err)
@@ -123,6 +70,12 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (*types.
 	commissionRateInt, err := utils.ParsePercentageToBasisPoints(req.CommissionRate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse commission rate: %w", err)
+	}
+
+	// Parse initial collateral using new units module
+	collateralAmount, err := units.ParseMitoToWei(req.InitialCollateral)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
 	}
 
 	// Create the request
@@ -150,21 +103,6 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (*types.
 		gasLimit = 500000 // Default gas limit
 	}
 
-	collateralAmount, err := utils.ParseValueAsWei(req.InitialCollateral)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
-	}
-
-	// // Show summary
-	// fmt.Println("===== Create Validator Transaction =====")
-	// fmt.Printf("Public Key                 : %s\n", req.PubKey)
-	// fmt.Printf("Operator                   : %s\n", operatorAddr.Hex())
-	// fmt.Printf("Reward Manager             : %s\n", rewardManagerAddr.Hex())
-	// fmt.Printf("Commission Rate            : %s\n", utils.FormatBasisPointsToPercent(commissionRateInt))
-	// fmt.Printf("Metadata                   : %s\n", req.Metadata)
-	// fmt.Printf("Initial Collateral         : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
-	// fmt.Println()
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
@@ -174,11 +112,16 @@ func (s *ValidatorService) CreateValidator(req *CreateValidatorRequest) (*types.
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromData(txData)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }
 
-// UpdateMetadata creates an unsigned transaction for updating metadata
+// UpdateMetadata creates a transaction for updating metadata
 func (s *ValidatorService) UpdateMetadata(validatorAddr, metadata string) (*types.Transaction, error) {
+	return s.UpdateMetadataWithOptions(validatorAddr, metadata, false)
+}
+
+// UpdateMetadataWithOptions creates a transaction for updating metadata with options
+func (s *ValidatorService) UpdateMetadataWithOptions(validatorAddr, metadata string, unsigned bool) (*types.Transaction, error) {
 	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
@@ -211,11 +154,16 @@ func (s *ValidatorService) UpdateMetadata(validatorAddr, metadata string) (*type
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromData(txData)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }
 
-// UpdateOperator creates an unsigned transaction for updating operator
+// UpdateOperator creates a transaction for updating operator
 func (s *ValidatorService) UpdateOperator(validatorAddr, newOperator string) (*types.Transaction, error) {
+	return s.UpdateOperatorWithOptions(validatorAddr, newOperator, false)
+}
+
+// UpdateOperatorWithOptions creates a transaction for updating operator with options
+func (s *ValidatorService) UpdateOperatorWithOptions(validatorAddr, newOperator string, unsigned bool) (*types.Transaction, error) {
 	// Validate addresses
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
@@ -253,11 +201,16 @@ func (s *ValidatorService) UpdateOperator(validatorAddr, newOperator string) (*t
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }
 
-// UpdateRewardConfig creates an unsigned transaction for updating reward config
+// UpdateRewardConfig creates a transaction for updating reward config
 func (s *ValidatorService) UpdateRewardConfig(validatorAddr, commissionRate string) (*types.Transaction, error) {
+	return s.UpdateRewardConfigWithOptions(validatorAddr, commissionRate, false)
+}
+
+// UpdateRewardConfigWithOptions creates a transaction for updating reward config with options
+func (s *ValidatorService) UpdateRewardConfigWithOptions(validatorAddr, commissionRate string, unsigned bool) (*types.Transaction, error) {
 	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
@@ -301,11 +254,16 @@ func (s *ValidatorService) UpdateRewardConfig(validatorAddr, commissionRate stri
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }
 
-// UpdateRewardManager creates an unsigned transaction for updating reward manager
+// UpdateRewardManager creates a transaction for updating reward manager
 func (s *ValidatorService) UpdateRewardManager(validatorAddr, rewardManager string) (*types.Transaction, error) {
+	return s.UpdateRewardManagerWithOptions(validatorAddr, rewardManager, false)
+}
+
+// UpdateRewardManagerWithOptions creates a transaction for updating reward manager with options
+func (s *ValidatorService) UpdateRewardManagerWithOptions(validatorAddr, rewardManager string, unsigned bool) (*types.Transaction, error) {
 	// Validate addresses
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
@@ -343,11 +301,16 @@ func (s *ValidatorService) UpdateRewardManager(validatorAddr, rewardManager stri
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }
 
-// UnjailValidator creates an unsigned transaction for unjailing a validator
+// UnjailValidator creates a transaction for unjailing a validator
 func (s *ValidatorService) UnjailValidator(validatorAddr string) (*types.Transaction, error) {
+	return s.UnjailValidatorWithOptions(validatorAddr, false)
+}
+
+// UnjailValidatorWithOptions creates a transaction for unjailing a validator with options
+func (s *ValidatorService) UnjailValidatorWithOptions(validatorAddr string, unsigned bool) (*types.Transaction, error) {
 	// Validate validator address
 	valAddr, err := utils.ValidateAddress(validatorAddr)
 	if err != nil {
@@ -380,5 +343,5 @@ func (s *ValidatorService) UnjailValidator(validatorAddr string) (*types.Transac
 	}
 
 	// Create transaction
-	return s.builder.CreateTransactionFromDataWithOptions(txData, true)
+	return s.builder.CreateTransactionFromDataWithOptions(txData, unsigned)
 }

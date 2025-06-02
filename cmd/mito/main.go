@@ -1,14 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
+
+	"github.com/mitosis-org/chain/cmd/mito/internal/commands"
 )
 
 func main() {
-	rootCmd := NewRootCmd()
+	rootCmd := commands.NewRootCmd()
+
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		log.Printf("Error: %v", err)
 		os.Exit(1)
 	}
 }

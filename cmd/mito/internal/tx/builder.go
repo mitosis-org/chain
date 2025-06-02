@@ -9,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/cmd/mito/internal/client"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
+	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 )
 
 // Builder handles transaction building
@@ -70,9 +71,15 @@ func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, 
 		if err != nil {
 			return nil, fmt.Errorf("failed to get signer address: %w", err)
 		}
+
+		// Check if network is available for nonce lookup
+		if b.ethClient == nil {
+			return nil, fmt.Errorf("RPC connection required to get nonce automatically. Please provide --nonce manually or set RPC URL with --rpc-url or 'mito config set-rpc'")
+		}
+
 		nonce, err = b.ethClient.PendingNonceAt(context.Background(), signerAddr)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get nonce: %w", err)
+			return nil, fmt.Errorf("failed to get nonce from network: %w", err)
 		}
 	}
 
@@ -88,19 +95,36 @@ func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, 
 	// Determine gas price - use specified gas price or get from client
 	var gasPrice *big.Int
 	if b.config.GasPrice != "" {
-		gasPrice, _ = new(big.Int).SetString(b.config.GasPrice, 10)
+		// Parse gas price using new units module (defaults to gwei)
+		var err error
+		gasPrice, err = units.ParseGasPriceInput(b.config.GasPrice)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse gas price: %w", err)
+		}
 	}
 	if gasPrice == nil {
+		// Check if network is available for gas price lookup
+		if b.ethClient == nil {
+			return nil, fmt.Errorf("RPC connection required to get gas price automatically. Please provide --gas-price manually or set RPC URL with --rpc-url or 'mito config set-rpc'")
+		}
+
 		var err error
 		gasPrice, err = b.ethClient.SuggestGasPrice(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to get gas price from RPC: %w", err)
+			return nil, fmt.Errorf("failed to get gas price from network: %w", err)
 		}
 	}
 
+	// Parse contract fee using new units module (defaults to Mito)
 	var contractFee *big.Int
 	if b.config.ContractFee != "" {
-		contractFee, _ = new(big.Int).SetString(b.config.ContractFee, 10)
+		var err error
+		contractFee, err = units.ParseContractFeeInput(b.config.ContractFee)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse contract fee: %w", err)
+		}
+	} else {
+		contractFee = big.NewInt(0)
 	}
 
 	totalValue := new(big.Int).Add(txData.Value, contractFee)
@@ -133,10 +157,15 @@ func (b *Builder) GetChainID() (*big.Int, error) {
 		chainID, _ = new(big.Int).SetString(b.config.ChainID, 10)
 	}
 	if chainID == nil {
+		// Check if network is available for chain ID lookup
+		if b.ethClient == nil {
+			return nil, fmt.Errorf("RPC connection required to get chain ID automatically. Please provide --chain-id manually or set RPC URL with --rpc-url or 'mito config set-rpc'")
+		}
+
 		var err error
 		chainID, err = b.ethClient.ChainID(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to get chain ID from RPC: %w", err)
+			return nil, fmt.Errorf("failed to get chain ID from network: %w", err)
 		}
 	}
 

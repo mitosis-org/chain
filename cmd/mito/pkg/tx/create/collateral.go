@@ -1,14 +1,16 @@
 package create
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
+	"math/big"
 
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
+	"github.com/mitosis-org/chain/cmd/mito/internal/output"
+	"github.com/mitosis-org/chain/cmd/mito/internal/units"
+	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
+	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -74,17 +76,27 @@ func newCreateCollateralDepositCmd() *cobra.Command {
 				}
 			}
 
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			// Create formatter and format transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+
+			// Get fee and total value for display
+			fee := resolvedConfig.ContractFee
+			if fee == "" {
+				fee = "0"
 			}
 
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			feeAmount, _ := units.ParseContractFeeInput(fee)
+			collateralAmount, _ := utils.ParseValueAsWei(collateralFlags.amount)
+			totalValue := new(big.Int).Add(collateralAmount, feeAmount)
+
+			info := &output.CollateralDepositInfo{
+				ValidatorAddress: collateralFlags.validator,
+				CollateralAmount: collateralFlags.amount,
+				Fee:              feeAmount,
+				TotalValue:       totalValue,
 			}
 
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatCollateralDepositTransaction(tx, info)
 		},
 	}
 
@@ -145,17 +157,25 @@ func newCreateCollateralWithdrawCmd() *cobra.Command {
 				}
 			}
 
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			// Create formatter and format transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+
+			// Calculate fee for display
+			fee := resolvedConfig.ContractFee
+			if fee == "" {
+				fee = "0"
 			}
 
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			feeAmount, _ := units.ParseContractFeeInput(fee)
+
+			info := &output.CollateralWithdrawInfo{
+				ValidatorAddress: collateralFlags.validator,
+				ReceiverAddress:  collateralFlags.receiver,
+				CollateralAmount: collateralFlags.amount,
+				Fee:              feeAmount,
 			}
 
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatCollateralWithdrawTransaction(tx, info)
 		},
 	}
 
@@ -218,17 +238,16 @@ func newCreateCollateralSetPermittedOwnerCmd() *cobra.Command {
 				}
 			}
 
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			// Create formatter and format transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+
+			info := &output.CollateralPermissionInfo{
+				ValidatorAddress: collateralFlags.validator,
+				CollateralOwner:  collateralFlags.collateralOwner,
+				IsPermitted:      collateralFlags.isPermitted,
 			}
 
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatCollateralPermissionTransaction(tx, info)
 		},
 	}
 
@@ -289,17 +308,24 @@ func newCreateCollateralTransferOwnershipCmd() *cobra.Command {
 				}
 			}
 
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
+			// Create formatter and format transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+
+			// Calculate fee for display
+			fee := resolvedConfig.ContractFee
+			if fee == "" {
+				fee = "0"
 			}
 
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
+			feeAmount, _ := units.ParseContractFeeInput(fee)
+
+			info := &output.CollateralOwnershipInfo{
+				ValidatorAddress: collateralFlags.validator,
+				NewOwner:         collateralFlags.newOwner,
+				Fee:              feeAmount,
 			}
 
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatCollateralOwnershipTransaction(tx, info)
 		},
 	}
 

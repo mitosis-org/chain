@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/bindings"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
+	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 )
 
@@ -39,7 +40,7 @@ func (s *CollateralService) DepositCollateral(validatorAddr, amount string) (*ty
 	}
 
 	// Get contract fee
-	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
+	fee, err := units.ParseContractFeeInput(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -70,17 +71,6 @@ func (s *CollateralService) DepositCollateral(validatorAddr, amount string) (*ty
 		gasLimit = 500000
 	}
 
-	// Show summary
-	fmt.Println("===== Deposit Collateral Transaction =====")
-	fmt.Printf("Validator Address          : %s\n", valAddr.Hex())
-	fmt.Printf("Collateral Amount          : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
-	fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
-	fmt.Printf("Total Value                : %s MITO\n", utils.FormatWeiToEther(totalValue))
-	fmt.Println()
-	fmt.Println("🚨 IMPORTANT: Only permitted collateral owners can deposit collateral for a validator.")
-	fmt.Println("If your address is not a permitted collateral owner for this validator, the transaction will fail.")
-	fmt.Println()
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
@@ -107,7 +97,7 @@ func (s *CollateralService) WithdrawCollateral(validatorAddr, amount, receiver s
 	}
 
 	// Get contract fee
-	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
+	fee, err := units.ParseContractFeeInput(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -139,16 +129,6 @@ func (s *CollateralService) WithdrawCollateral(validatorAddr, amount, receiver s
 	if gasLimit == 0 {
 		gasLimit = 500000
 	}
-
-	// Show summary
-	fmt.Println("===== Withdraw Collateral Transaction =====")
-	fmt.Printf("Validator Address          : %s\n", valAddr.Hex())
-	fmt.Printf("Receiver Address           : %s\n", receiverAddr.Hex())
-	fmt.Printf("Collateral Amount          : %s MITO\n", utils.FormatWeiToEther(collateralAmount))
-	fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
-	fmt.Println()
-	fmt.Println("🚨 IMPORTANT: Only the collateral owner can withdraw collateral.")
-	fmt.Println()
 
 	// Create transaction data (withdraw only sends fee, not collateral)
 	txData := &TransactionData{
@@ -192,18 +172,6 @@ func (s *CollateralService) SetPermittedCollateralOwner(validatorAddr, collatera
 		gasLimit = 500000
 	}
 
-	// Show summary
-	permissionText := "DENY"
-	if isPermitted {
-		permissionText = "PERMIT"
-	}
-
-	fmt.Println("===== Set Permitted Collateral Owner Transaction =====")
-	fmt.Printf("Validator Address          : %s\n", valAddr.Hex())
-	fmt.Printf("Collateral Owner           : %s\n", collateralOwnerAddr.Hex())
-	fmt.Printf("Permission                 : %s\n", permissionText)
-	fmt.Println()
-
 	// Create transaction data (no value needed for permission update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
@@ -219,7 +187,7 @@ func (s *CollateralService) SetPermittedCollateralOwner(validatorAddr, collatera
 // TransferCollateralOwnership creates an unsigned transaction for transferring collateral ownership
 func (s *CollateralService) TransferCollateralOwnership(validatorAddr, newOwner string) (*types.Transaction, error) {
 	// Get contract fee
-	fee, err := utils.ParseValueAsWei(s.config.ContractFee)
+	fee, err := units.ParseContractFeeInput(s.config.ContractFee)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contract fee: %w", err)
 	}
@@ -251,13 +219,6 @@ func (s *CollateralService) TransferCollateralOwnership(validatorAddr, newOwner 
 	if gasLimit == 0 {
 		gasLimit = 500000
 	}
-
-	// Show summary
-	fmt.Println("===== Transfer Collateral Ownership Transaction =====")
-	fmt.Printf("Validator Address          : %s\n", valAddr.Hex())
-	fmt.Printf("New Owner                  : %s\n", newOwnerAddr.Hex())
-	fmt.Printf("Fee                        : %s MITO\n", utils.FormatWeiToEther(fee))
-	fmt.Println()
 
 	// Create transaction data
 	txData := &TransactionData{

@@ -1,15 +1,14 @@
 package create
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
+	"github.com/mitosis-org/chain/cmd/mito/internal/output"
 	"github.com/mitosis-org/chain/cmd/mito/internal/tx"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/validation"
+	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
 
@@ -61,6 +60,19 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
+			// Validate validator create fields
+			validateFields := &validation.ValidatorCreateFields{
+				PubKey:            validatorFlags.pubkey,
+				Operator:          validatorFlags.operator,
+				RewardManager:     validatorFlags.rewardManager,
+				CommissionRate:    validatorFlags.commissionRate,
+				Metadata:          validatorFlags.metadata,
+				InitialCollateral: validatorFlags.initialCollateral,
+			}
+			if err := validation.ValidateValidatorCreateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container (for validation and fee calculation)
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -79,31 +91,23 @@ func newCreateValidatorCreateCmd() *cobra.Command {
 			}
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.CreateValidator(req)
+			tx, err := container.ValidatorService.CreateValidatorWithOptions(req, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorCreateInfo{
+				PubKey:            validatorFlags.pubkey,
+				Operator:          validatorFlags.operator,
+				RewardManager:     validatorFlags.rewardManager,
+				CommissionRate:    validatorFlags.commissionRate,
+				Metadata:          validatorFlags.metadata,
+				InitialCollateral: validatorFlags.initialCollateral,
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorCreateTransaction(tx, info)
 		},
 	}
 
@@ -148,6 +152,16 @@ func newCreateValidatorUpdateMetadataCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
+			// Validate validator update fields
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Metadata",
+				NewValue:         metadata,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -156,31 +170,20 @@ func newCreateValidatorUpdateMetadataCmd() *cobra.Command {
 			defer container.Close()
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.UpdateMetadata(validatorAddr, metadata)
+			tx, err := container.ValidatorService.UpdateMetadataWithOptions(validatorAddr, metadata, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorUpdateInfo{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Metadata",
+				NewValue:         metadata,
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorUpdateTransaction(tx, info)
 		},
 	}
 
@@ -215,7 +218,16 @@ func newCreateValidatorUpdateOperatorCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
+			// Validate validator update fields
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Operator",
+				NewValue:         operator,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -224,31 +236,20 @@ func newCreateValidatorUpdateOperatorCmd() *cobra.Command {
 			defer container.Close()
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.UpdateOperator(validatorAddr, operator)
+			tx, err := container.ValidatorService.UpdateOperatorWithOptions(validatorAddr, operator, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorUpdateInfo{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Operator",
+				NewValue:         operator,
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorUpdateTransaction(tx, info)
 		},
 	}
 
@@ -283,7 +284,16 @@ func newCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
+			// Validate validator update fields
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Config",
+				NewValue:         commissionRate,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -292,31 +302,20 @@ func newCreateValidatorUpdateRewardConfigCmd() *cobra.Command {
 			defer container.Close()
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.UpdateRewardConfig(validatorAddr, commissionRate)
+			tx, err := container.ValidatorService.UpdateRewardConfigWithOptions(validatorAddr, commissionRate, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorUpdateInfo{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Config",
+				NewValue:         commissionRate,
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorUpdateTransaction(tx, info)
 		},
 	}
 
@@ -351,7 +350,16 @@ func newCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			// Validate required fields
+			// Validate validator update fields
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Manager",
+				NewValue:         rewardManager,
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -360,31 +368,20 @@ func newCreateValidatorUpdateRewardManagerCmd() *cobra.Command {
 			defer container.Close()
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.UpdateRewardManager(validatorAddr, rewardManager)
+			tx, err := container.ValidatorService.UpdateRewardManagerWithOptions(validatorAddr, rewardManager, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorUpdateInfo{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Reward Manager",
+				NewValue:         rewardManager,
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorUpdateTransaction(tx, info)
 		},
 	}
 
@@ -419,6 +416,16 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
+			// Validate validator update fields
+			validateFields := &validation.ValidatorUpdateFields{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Unjail",
+				NewValue:         "unjail",
+			}
+			if err := validation.ValidateValidatorUpdateFields(resolvedConfig, validateFields); err != nil {
+				return err
+			}
+
 			// Create container
 			container, err := container.NewContainer(resolvedConfig)
 			if err != nil {
@@ -427,31 +434,20 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 			defer container.Close()
 
 			// Create transaction directly (validation included)
-			tx, err := container.ValidatorService.UnjailValidator(validatorAddr)
+			tx, err := container.ValidatorService.UnjailValidatorWithOptions(validatorAddr, commonFlags.Unsigned)
 			if err != nil {
 				return fmt.Errorf("failed to create transaction: %w", err)
 			}
 
-			// Sign if not unsigned
-			if !commonFlags.Unsigned {
-				tx, err = container.TxBuilder.SignTransaction(tx)
-				if err != nil {
-					return fmt.Errorf("failed to sign transaction: %w", err)
-				}
+			// Format and output transaction
+			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
+			info := &output.ValidatorUpdateInfo{
+				ValidatorAddress: validatorAddr,
+				FieldName:        "Unjail",
+				NewValue:         "unjail validator",
 			}
 
-			// Convert to JSON and output
-			txJSON, err := json.Marshal(tx)
-			if err != nil {
-				return fmt.Errorf("failed to convert transaction to JSON: %w", err)
-			}
-
-			if commonFlags.OutputFile != "" {
-				return os.WriteFile(commonFlags.OutputFile, txJSON, 0644)
-			}
-
-			fmt.Println(string(txJSON))
-			return nil
+			return formatter.FormatValidatorUpdateTransaction(tx, info)
 		},
 	}
 
@@ -461,14 +457,4 @@ func newCreateValidatorUnjailCmd() *cobra.Command {
 	cmd.MarkFlagRequired("validator")
 
 	return cmd
-}
-
-// Transaction data structure for output
-type TransactionData struct {
-	To       string `json:"to"`
-	Value    string `json:"value"`
-	Data     string `json:"data"`
-	GasLimit uint64 `json:"gasLimit"`
-	GasPrice string `json:"gasPrice"`
-	ChainID  string `json:"chainId"`
 }
