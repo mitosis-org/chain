@@ -12,21 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewValidatorCmd returns the validator command group (read-only)
-func NewValidatorCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "validator",
-		Short: "Validator query commands",
-		Long:  "Commands for querying validator information",
-	}
-
-	cmd.AddCommand(newValidatorInfoCmd())
-
-	return cmd
-}
-
-// newValidatorInfoCmd creates the validator info command
-func newValidatorInfoCmd() *cobra.Command {
+// NewInfoCmd creates the validator info command
+func NewInfoCmd() *cobra.Command {
 	var commonFlags flags.CommonFlags
 	var validatorAddress string
 

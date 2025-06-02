@@ -1,11 +1,11 @@
 package commands
 
 import (
-	"github.com/mitosis-org/chain/cmd/mito/pkg/config"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/create"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/send"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/validator"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/version"
+	"github.com/mitosis-org/chain/cmd/mito/commands/config"
+	"github.com/mitosis-org/chain/cmd/mito/commands/query"
+	"github.com/mitosis-org/chain/cmd/mito/commands/tx/create"
+	"github.com/mitosis-org/chain/cmd/mito/commands/tx/send"
+	"github.com/mitosis-org/chain/cmd/mito/commands/version"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,7 @@ Features:
 		newTxCmd(),
 
 		// Query commands
-		validator.NewValidatorCmd(),
+		newQueryCmd(),
 
 		// Existing commands
 		config.NewConfigCmd(),
@@ -102,6 +102,27 @@ created through this command are automatically signed.`,
 	cmd.AddCommand(
 		send.NewValidatorCmd(),
 		send.NewCollateralCmd(),
+	)
+
+	return cmd
+}
+
+// newQueryCmd creates the query command with subcommands
+func newQueryCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "query",
+		Short: "Query blockchain data",
+		Long: `Commands for querying blockchain data
+
+This command provides access to read-only operations for:
+- query validator: Query validator information
+- query contract: Query contract-related information`,
+	}
+
+	// Add subcommands
+	cmd.AddCommand(
+		query.NewValidatorCmd(),
+		query.NewContractCmd(),
 	)
 
 	return cmd

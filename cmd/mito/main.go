@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mitosis-org/chain/cmd/mito/internal/commands"
+	"github.com/mitosis-org/chain/cmd/mito/commands"
 )
 
 func main() {

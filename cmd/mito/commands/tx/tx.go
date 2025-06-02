@@ -1,8 +1,8 @@
 package tx
 
 import (
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/create"
-	"github.com/mitosis-org/chain/cmd/mito/pkg/tx/send"
+	"github.com/mitosis-org/chain/cmd/mito/commands/tx/create"
+	"github.com/mitosis-org/chain/cmd/mito/commands/tx/send"
 	"github.com/spf13/cobra"
 )
 
