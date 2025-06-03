@@ -1,6 +1,8 @@
 package config
 
 import (
+	"math/big"
+
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 )
 
@@ -31,7 +33,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 		GasLimit:                     commonFlags.GasLimit,
 		GasPrice:                     commonFlags.GasPrice,
 		Nonce:                        commonFlags.Nonce,
-		ContractFee:                  commonFlags.ContractFee,
+		ContractFee:                  big.NewInt(0),
 		OutputFile:                   commonFlags.OutputFile,
 		Signed:                       commonFlags.Signed,
 		Unsigned:                     commonFlags.Unsigned,
@@ -51,7 +53,7 @@ type ResolvedConfig struct {
 	GasLimit                     uint64
 	GasPrice                     string
 	Nonce                        string
-	ContractFee                  string
+	ContractFee                  *big.Int
 	OutputFile                   string
 	Signed                       bool
 	Unsigned                     bool

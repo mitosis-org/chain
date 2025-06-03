@@ -7,7 +7,6 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/output"
-	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
@@ -60,18 +59,10 @@ func NewTransferOwnershipCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			// Calculate fee for display
-			fee := resolvedConfig.ContractFee
-			if fee == "" {
-				fee = "0"
-			}
-
-			feeAmount, _ := units.ParseContractFeeInput(fee)
-
 			info := &output.CollateralOwnershipInfo{
 				ValidatorAddress: collateralFlags.validator,
 				NewOwner:         collateralFlags.newOwner,
-				Fee:              feeAmount,
+				Fee:              resolvedConfig.ContractFee,
 			}
 
 			return formatter.FormatCollateralOwnershipTransaction(tx, info)

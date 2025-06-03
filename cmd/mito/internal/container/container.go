@@ -2,6 +2,7 @@ package container
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/mitosis-org/chain/cmd/mito/internal/client"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
@@ -40,13 +41,13 @@ func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
 		}
 
 		// Try to get contract fee if not specified
-		if resolvedConfig.ContractFee == "" {
+		if resolvedConfig.ContractFee.Cmp(big.NewInt(0)) == 0 {
 			contractFee, err := contract.Fee(nil)
 			if err != nil {
 				// Don't fail if we can't get contract fee - use default
-				resolvedConfig.ContractFee = "0"
+				resolvedConfig.ContractFee = big.NewInt(0)
 			} else {
-				resolvedConfig.ContractFee = contractFee.String()
+				resolvedConfig.ContractFee = contractFee
 			}
 		}
 	}

@@ -8,7 +8,6 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/output"
-	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
@@ -62,20 +61,13 @@ func NewDepositCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			// Get fee and total value for display
-			fee := resolvedConfig.ContractFee
-			if fee == "" {
-				fee = "0"
-			}
-
-			feeAmount, _ := units.ParseContractFeeInput(fee)
 			collateralAmount, _ := utils.ParseValueAsWei(collateralFlags.amount)
-			totalValue := new(big.Int).Add(collateralAmount, feeAmount)
+			totalValue := new(big.Int).Add(collateralAmount, resolvedConfig.ContractFee)
 
 			info := &output.CollateralDepositInfo{
 				ValidatorAddress: collateralFlags.validator,
 				CollateralAmount: collateralFlags.amount,
-				Fee:              feeAmount,
+				Fee:              resolvedConfig.ContractFee,
 				TotalValue:       totalValue,
 			}
 

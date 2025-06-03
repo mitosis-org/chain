@@ -115,25 +115,11 @@ func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, 
 		}
 	}
 
-	// Parse contract fee using new units module (defaults to Mito)
-	var contractFee *big.Int
-	if b.config.ContractFee != "" {
-		var err error
-		contractFee, err = units.ParseContractFeeInput(b.config.ContractFee)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse contract fee: %w", err)
-		}
-	} else {
-		contractFee = big.NewInt(0)
-	}
-
-	totalValue := new(big.Int).Add(txData.Value, contractFee)
-
 	// Create the transaction
 	tx := types.NewTransaction(
 		nonce,
 		txData.To,
-		totalValue,
+		txData.Value,
 		gasLimit,
 		gasPrice,
 		txData.Data,

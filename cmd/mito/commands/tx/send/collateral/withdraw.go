@@ -7,7 +7,6 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/output"
-	"github.com/mitosis-org/chain/cmd/mito/internal/units"
 	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
@@ -57,19 +56,13 @@ func NewWithdrawCmd() *cobra.Command {
 				return err
 			}
 
-			// Calculate fee for display
-			fee, err := units.ParseContractFeeInput(resolvedConfig.ContractFee)
-			if err != nil {
-				return fmt.Errorf("failed to get contract fee: %w", err)
-			}
-
 			// Display transaction information using formatter
 			formatter := output.NewTransactionFormatter("")
 			info := &output.CollateralWithdrawInfo{
 				ValidatorAddress: collateralFlags.validator,
 				ReceiverAddress:  collateralFlags.receiver,
 				CollateralAmount: collateralFlags.amount,
-				Fee:              fee,
+				Fee:              resolvedConfig.ContractFee,
 			}
 
 			if err := formatter.FormatCollateralWithdrawTransaction(tx, info); err != nil {
