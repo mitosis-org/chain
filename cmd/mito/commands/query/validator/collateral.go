@@ -71,7 +71,7 @@ func NewCollateralCmd() *cobra.Command {
 }
 
 func runValidatorCollateral(container *container.Container, validatorAddr common.Address, head uint64, tail uint64) error {
-	fmt.Println("\n=== Collateral Information ===")
+	fmt.Println("=== Collateral Information ===")
 
 	// Get permitted collateral owners count
 	permittedOwnersCount, err := container.Contract.PermittedCollateralOwnerSize(nil, validatorAddr)
