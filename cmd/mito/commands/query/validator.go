@@ -19,7 +19,6 @@ This command provides access to read-only operations for:
 	// Add subcommands
 	cmd.AddCommand(
 		validator.NewInfoCmd(),
-		validator.NewCollateralCmd(),
 		validator.NewConfigCmd(),
 	)
 
