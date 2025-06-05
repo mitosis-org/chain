@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewFeeCmd returns the contract fee query command
-func NewFeeCmd() *cobra.Command {
+// NewValidatorCmd returns the contract fee query command
+func NewValidatorCmd() *cobra.Command {
 	var commonFlags flags.CommonFlags
 
 	cmd := &cobra.Command{

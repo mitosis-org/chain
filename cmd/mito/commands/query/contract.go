@@ -13,12 +13,12 @@ func NewContractCmd() *cobra.Command {
 		Long: `Commands for querying contract-related information
 
 This command provides access to read-only operations for:
-- contract fee: Query current contract fee settings`,
+- contract validator: Query current validator contract settings`,
 	}
 
 	// Add subcommands
 	cmd.AddCommand(
-		contract.NewFeeCmd(),
+		contract.NewValidatorCmd(),
 	)
 
 	return cmd
