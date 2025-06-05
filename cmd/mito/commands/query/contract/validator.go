@@ -2,7 +2,6 @@ package contract
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
@@ -16,12 +15,9 @@ func NewFeeCmd() *cobra.Command {
 	var commonFlags flags.CommonFlags
 
 	cmd := &cobra.Command{
-		Use:   "fee",
-		Short: "Query current contract fee",
-		Long: `Query current contract fee from the ValidatorManager contract
-
-This command retrieves the current fee required for validator operations
-directly from the ValidatorManager contract on the blockchain.`,
+		Use:   "validator",
+		Short: "Query current validator contracts",
+		Long:  `Query current validator contracts from the ValidatorManager contract.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 
@@ -47,43 +43,29 @@ directly from the ValidatorManager contract on the blockchain.`,
 			}
 			defer container.Close()
 
-			return runContractFeeQuery(container, resolvedConfig)
+			return runContractQuery(container)
 		},
 	}
 
 	// Add network flags (no signing required for read-only operation)
 	flags.AddNetworkFlags(cmd, &commonFlags)
-
 	return cmd
 }
 
-func runContractFeeQuery(container *container.Container, config *config.ResolvedConfig) error {
-	fmt.Printf("Querying contract fee from ValidatorManager...\n")
-	fmt.Printf("Contract Address: %s\n", config.ValidatorManagerContractAddr)
-	fmt.Printf("RPC URL: %s\n\n", config.RpcURL)
+func runContractQuery(container *container.Container) error {
+	return runValidatorManagerQuery(container)
+}
 
+func runValidatorManagerQuery(container *container.Container) error {
 	// Get contract fee from the ValidatorManager contract
-	contractFee, err := container.Contract.Fee(nil)
+	contractFee, err := container.ValidatorManagerContract.Fee(nil)
 	if err != nil {
 		return fmt.Errorf("failed to get contract fee from blockchain: %w", err)
 	}
 
-	// Display contract fee information
-	fmt.Println("=== Contract Fee Information (from blockchain) ===")
-	fmt.Printf("Fee (wei): %s\n", contractFee.String())
-	fmt.Printf("Fee (Mito): %s\n", units.FormatWeiToMito(contractFee))
-	fmt.Printf("Fee (gwei): %s\n", units.FormatWeiToGwei(contractFee))
-	fmt.Printf("Fee (both units): %s\n", units.FormatWeiToBothUnits(contractFee))
-
-	if contractFee.Cmp(big.NewInt(0)) == 0 {
-		fmt.Printf("\nNote: Contract fee is currently set to 0 (no fee required)\n")
-	} else {
-		fmt.Printf("\nNote: This fee is required for validator operations such as:\n")
-		fmt.Printf("- Creating a new validator\n")
-		fmt.Printf("- Unjailing a validator\n")
-		fmt.Printf("- Transferring collateral ownership\n")
-		fmt.Printf("- Withdrawing collateral\n")
-	}
+	// Display contract fee information with aligned formatting
+	fmt.Printf("%-20s %s\n", "address", container.ValidatorManagerContract.GetAddress())
+	fmt.Printf("%-20s %s\n", "fee", units.FormatWeiToMito(contractFee))
 
 	return nil
 }
