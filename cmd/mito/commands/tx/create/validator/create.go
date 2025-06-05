@@ -94,6 +94,8 @@ func NewCreateCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
+
 	cmd.Flags().StringVar(&validatorFlags.pubkey, "pubkey", "", "Validator's public key (hex with 0x prefix)")
 	cmd.Flags().StringVar(&validatorFlags.operator, "operator", "", "Operator address")
 	cmd.Flags().StringVar(&validatorFlags.rewardManager, "reward-manager", "", "Reward manager address")

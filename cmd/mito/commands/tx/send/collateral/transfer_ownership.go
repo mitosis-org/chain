@@ -92,6 +92,7 @@ func NewTransferOwnershipCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddSendFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&collateralFlags.validator, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&collateralFlags.newOwner, "new-owner", "", "New owner address")
 

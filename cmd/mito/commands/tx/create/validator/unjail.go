@@ -70,6 +70,7 @@ func NewUnjailCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorAddr, "validator", "", "Address of the validator to unjail")
 	cmd.MarkFlagRequired("validator")
 

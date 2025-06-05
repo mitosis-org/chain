@@ -73,6 +73,7 @@ func NewWithdrawCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&collateralFlags.validator, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&collateralFlags.amount, "amount", "", "Amount to withdraw in MITO (e.g., \"1.5\")")
 	cmd.Flags().StringVar(&collateralFlags.receiver, "receiver", "", "Address to receive the withdrawn collateral")

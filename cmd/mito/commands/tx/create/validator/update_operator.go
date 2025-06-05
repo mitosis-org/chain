@@ -70,6 +70,7 @@ func NewUpdateOperatorCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorAddr, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&operator, "operator", "", "New operator address")
 	cmd.MarkFlagRequired("validator")

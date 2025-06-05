@@ -102,6 +102,7 @@ func NewUpdateRewardConfigCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddSendFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorAddr, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&commissionRate, "commission-rate", "", "New commission rate in percentage (e.g., \"5%\")")
 	cmd.MarkFlagRequired("validator")

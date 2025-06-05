@@ -77,6 +77,7 @@ func NewDepositCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&collateralFlags.validator, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&collateralFlags.amount, "amount", "", "Amount to deposit in MITO (e.g., \"1.5\")")
 

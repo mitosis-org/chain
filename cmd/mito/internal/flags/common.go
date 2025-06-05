@@ -68,10 +68,16 @@ func AddTransactionFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().StringVar(&flags.ContractFee, "contract-fee", "", "Contract fee")
 }
 
+func AddSendFlags(cmd *cobra.Command, flags *CommonFlags) {
+	cmd.Flags().BoolVar(&flags.Yes, "yes", false, "Skip confirmation prompts")
+}
+
+func AddCreateFlags(cmd *cobra.Command, flags *CommonFlags) {
+	cmd.Flags().BoolVar(&flags.Signed, "signed", false, "Create signed transaction")
+	cmd.Flags().BoolVar(&flags.Unsigned, "unsigned", false, "Create unsigned transaction")
+}
+
 // AddOutputFlags adds output-related flags
 func AddOutputFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().StringVar(&flags.OutputFile, "output", "", "Output file for transaction")
-	cmd.Flags().BoolVar(&flags.Signed, "signed", false, "Create signed transaction")
-	cmd.Flags().BoolVar(&flags.Unsigned, "unsigned", false, "Create unsigned transaction")
-	cmd.Flags().BoolVar(&flags.Yes, "yes", false, "Skip confirmation prompts")
 }

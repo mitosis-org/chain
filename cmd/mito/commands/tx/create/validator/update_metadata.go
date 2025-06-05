@@ -70,6 +70,7 @@ func NewUpdateMetadataCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddCreateFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorAddr, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&metadata, "metadata", "", "New validator metadata")
 	cmd.MarkFlagRequired("validator")

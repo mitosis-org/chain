@@ -98,6 +98,7 @@ func NewSetPermittedOwnerCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
+	flags.AddSendFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&collateralFlags.validator, "validator", "", "Validator address")
 	cmd.Flags().StringVar(&collateralFlags.collateralOwner, "collateral-owner", "", "Collateral owner address to permit or deny")
 	cmd.Flags().BoolVar(&collateralFlags.isPermitted, "permitted", false, "Whether to permit (true) or deny (false) the address")
