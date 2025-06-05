@@ -63,6 +63,11 @@ func FormatWeiToEther(wei *big.Int) string {
 
 	// Convert to string with precision
 	result := ethValue.Text('f', 18)
+
+	// Remove trailing zeros and decimal point if not needed
+	result = strings.TrimRight(result, "0")
+	result = strings.TrimRight(result, ".")
+
 	return result
 }
 

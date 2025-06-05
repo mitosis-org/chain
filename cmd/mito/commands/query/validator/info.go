@@ -2,7 +2,6 @@ package validator
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
@@ -52,13 +51,13 @@ func NewInfoCmd() *cobra.Command {
 			}
 			defer container.Close()
 
-			return runValidatorInfo(container, resolvedConfig, validatorAddr)
+			return runValidatorInfo(container, validatorAddr)
 		},
 	}
 
 	// Add flags
-	cmd.Flags().StringVar(&validatorAddress, "validator-address", "", "Validator address to query")
-	cmd.MarkFlagRequired("validator-address")
+	cmd.Flags().StringVar(&validatorAddress, "address", "", "Validator address to query")
+	cmd.MarkFlagRequired("address")
 
 	// Add network flags (no signing required for read-only operation)
 	flags.AddNetworkFlags(cmd, &commonFlags)
@@ -66,11 +65,7 @@ func NewInfoCmd() *cobra.Command {
 	return cmd
 }
 
-func runValidatorInfo(container *container.Container, config *config.ResolvedConfig, validatorAddr common.Address) error {
-	fmt.Printf("Querying validator information for: %s\n", validatorAddr.Hex())
-	fmt.Printf("Using contract: %s\n", config.ValidatorManagerContractAddr)
-	fmt.Printf("RPC URL: %s\n\n", config.RpcURL)
-
+func runValidatorInfo(container *container.Container, validatorAddr common.Address) error {
 	// Check if validator exists
 	isValidator, err := container.Contract.IsValidator(nil, validatorAddr)
 	if err != nil {
@@ -103,54 +98,6 @@ func runValidatorInfo(container *container.Container, config *config.ResolvedCon
 		fmt.Printf("Metadata: %s\n", string(validatorInfo.Metadata))
 	} else {
 		fmt.Printf("Metadata: (none)\n")
-	}
-
-	// Get additional information
-	if err := displayAdditionalInfo(container, validatorAddr); err != nil {
-		fmt.Printf("\nWarning: Could not retrieve additional information: %v\n", err)
-	}
-
-	return nil
-}
-
-func displayAdditionalInfo(container *container.Container, validatorAddr common.Address) error {
-	fmt.Println("\n=== Additional Information ===")
-
-	// Get global validator config
-	globalConfig, err := container.Contract.GlobalValidatorConfig(nil)
-	if err != nil {
-		return fmt.Errorf("failed to get global validator config: %w", err)
-	}
-
-	fmt.Printf("Initial Validator Deposit: %s MITO (%s wei)\n",
-		utils.FormatWeiToEther(globalConfig.InitialValidatorDeposit),
-		globalConfig.InitialValidatorDeposit.String())
-	fmt.Printf("Minimum Commission Rate: %s\n", utils.FormatBasisPointsToPercent(globalConfig.MinimumCommissionRate))
-	fmt.Printf("Commission Rate Update Delay: %s epochs\n", globalConfig.CommissionRateUpdateDelayEpoch.String())
-	fmt.Printf("Collateral Withdrawal Delay: %s seconds\n", globalConfig.CollateralWithdrawalDelaySeconds.String())
-
-	// Get permitted collateral owners count
-	permittedOwnersCount, err := container.Contract.PermittedCollateralOwnerSize(nil, validatorAddr)
-	if err != nil {
-		return fmt.Errorf("failed to get permitted collateral owners count: %w", err)
-	}
-
-	fmt.Printf("Permitted Collateral Owners Count: %s\n", permittedOwnersCount.String())
-
-	// List permitted collateral owners if any
-	if permittedOwnersCount.Uint64() > 0 {
-		fmt.Println("\n=== Permitted Collateral Owners ===")
-		for i := uint64(0); i < permittedOwnersCount.Uint64() && i < 10; i++ { // Limit to first 10
-			owner, err := container.Contract.PermittedCollateralOwnerAt(nil, validatorAddr, big.NewInt(int64(i)))
-			if err != nil {
-				fmt.Printf("Error getting owner at index %d: %v\n", i, err)
-				continue
-			}
-			fmt.Printf("%d: %s\n", i+1, owner.Hex())
-		}
-		if permittedOwnersCount.Uint64() > 10 {
-			fmt.Printf("... and %d more\n", permittedOwnersCount.Uint64()-10)
-		}
 	}
 
 	return nil
