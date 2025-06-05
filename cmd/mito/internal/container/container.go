@@ -11,13 +11,13 @@ import (
 
 // Container holds all dependencies for transaction operations
 type Container struct {
-	Config            *config.ResolvedConfig
-	EthClient         *client.EthereumClient
-	Contract          *client.ValidatorManagerContract
-	TxBuilder         *tx.Builder
-	TxSender          *tx.Sender
-	ValidatorService  *tx.ValidatorService
-	CollateralService *tx.CollateralService
+	Config                   *config.ResolvedConfig
+	EthClient                *client.EthereumClient
+	ValidatorManagerContract *client.ValidatorManagerContract
+	TxBuilder                *tx.Builder
+	TxSender                 *tx.Sender
+	ValidatorService         *tx.ValidatorService
+	CollateralService        *tx.CollateralService
 }
 
 // NewContainer creates a new dependency container
@@ -61,13 +61,13 @@ func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
 	collateralService := tx.NewCollateralService(resolvedConfig, txBuilder)
 
 	return &Container{
-		Config:            resolvedConfig,
-		EthClient:         ethClient,
-		Contract:          contract,
-		TxBuilder:         txBuilder,
-		TxSender:          txSender,
-		ValidatorService:  validatorService,
-		CollateralService: collateralService,
+		Config:                   resolvedConfig,
+		EthClient:                ethClient,
+		ValidatorManagerContract: contract,
+		TxBuilder:                txBuilder,
+		TxSender:                 txSender,
+		ValidatorService:         validatorService,
+		CollateralService:        collateralService,
 	}, nil
 }
 

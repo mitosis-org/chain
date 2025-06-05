@@ -44,17 +44,16 @@ func NewConfigCmd() *cobra.Command {
 }
 
 func runValidatorConfig(container *container.Container) error {
-	fmt.Println("=== Global Validator Config ===")
 	// Get global validator config
-	globalConfig, err := container.Contract.GlobalValidatorConfig(nil)
+	globalConfig, err := container.ValidatorManagerContract.GlobalValidatorConfig(nil)
 	if err != nil {
 		return fmt.Errorf("failed to get global validator config: %w", err)
 	}
 
-	fmt.Printf("Initial Validator Deposit: %s MITO\n", utils.FormatWeiToEther(globalConfig.InitialValidatorDeposit))
-	fmt.Printf("Minimum Commission Rate: %s\n", utils.FormatBasisPointsToPercent(globalConfig.MinimumCommissionRate))
-	fmt.Printf("Commission Rate Update Delay: %s epochs\n", globalConfig.CommissionRateUpdateDelayEpoch.String())
-	fmt.Printf("Collateral Withdrawal Delay: %s seconds\n", globalConfig.CollateralWithdrawalDelaySeconds.String())
+	fmt.Printf("%-30s %s\n", "Initial Validator Deposit", utils.FormatWeiToEther(globalConfig.InitialValidatorDeposit))
+	fmt.Printf("%-30s %s\n", "Minimum Commission Rate", utils.FormatBasisPointsToPercent(globalConfig.MinimumCommissionRate))
+	fmt.Printf("%-30s %s\n", "Commission Rate Update Delay", globalConfig.CommissionRateUpdateDelayEpoch.String())
+	fmt.Printf("%-30s %s\n", "Collateral Withdrawal Delay", globalConfig.CollateralWithdrawalDelaySeconds.String())
 
 	return nil
 }

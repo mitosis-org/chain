@@ -1,7 +1,9 @@
 package validator
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
@@ -67,7 +69,7 @@ func NewInfoCmd() *cobra.Command {
 
 func runValidatorInfo(container *container.Container, validatorAddr common.Address) error {
 	// Check if validator exists
-	isValidator, err := container.Contract.IsValidator(nil, validatorAddr)
+	isValidator, err := container.ValidatorManagerContract.IsValidator(nil, validatorAddr)
 	if err != nil {
 		return fmt.Errorf("failed to check if address is validator: %w", err)
 	}
@@ -78,26 +80,47 @@ func runValidatorInfo(container *container.Container, validatorAddr common.Addre
 	}
 
 	// Get validator info from contract
-	validatorInfo, err := container.Contract.ValidatorInfo(nil, validatorAddr)
+	validatorInfo, err := container.ValidatorManagerContract.ValidatorInfo(nil, validatorAddr)
 	if err != nil {
 		return fmt.Errorf("failed to get validator info: %w", err)
 	}
 
 	// Display validator information
-	fmt.Println("=== Validator Information ===")
-	fmt.Printf("Address: %s\n", validatorInfo.ValAddr.Hex())
-	fmt.Printf("Public Key: %x\n", validatorInfo.PubKey)
-	fmt.Printf("Operator: %s\n", validatorInfo.Operator.Hex())
-	fmt.Printf("Reward Manager: %s\n", validatorInfo.RewardManager.Hex())
-	fmt.Printf("Commission Rate: %s\n", utils.FormatBasisPointsToPercent(validatorInfo.CommissionRate))
-	fmt.Printf("Pending Commission Rate: %s\n", utils.FormatBasisPointsToPercent(validatorInfo.PendingCommissionRate))
-	fmt.Printf("Pending Commission Rate Update Epoch: %s\n", validatorInfo.PendingCommissionRateUpdateEpoch.String())
+	fmt.Printf("%-30s %s\n", "Address", validatorInfo.ValAddr.Hex())
+	fmt.Printf("%-30s %x\n", "Public Key", validatorInfo.PubKey)
+	fmt.Printf("%-30s %s\n", "Operator", validatorInfo.Operator.Hex())
+	fmt.Printf("%-30s %s\n", "Reward Manager", validatorInfo.RewardManager.Hex())
+	fmt.Printf("%-30s %s\n", "Commission Rate", utils.FormatBasisPointsToPercent(validatorInfo.CommissionRate))
+	fmt.Printf("%-30s %s\n", "Pending Commission Rate", utils.FormatBasisPointsToPercent(validatorInfo.PendingCommissionRate))
+	fmt.Printf("%-30s %s\n", "Update Epoch", validatorInfo.PendingCommissionRateUpdateEpoch.String())
 
 	// Display metadata if available
 	if len(validatorInfo.Metadata) > 0 {
-		fmt.Printf("Metadata: %s\n", string(validatorInfo.Metadata))
+		// Try to parse and format as JSON
+		var jsonData interface{}
+		if err := json.Unmarshal(validatorInfo.Metadata, &jsonData); err == nil {
+			// Successfully parsed as JSON, format it nicely
+			formatted, err := json.MarshalIndent(jsonData, "", "  ")
+			if err == nil {
+				lines := strings.Split(string(formatted), "\n")
+				if len(lines) > 0 {
+					// First line with label
+					fmt.Printf("%-30s %s\n", "Metadata", lines[0])
+					// Remaining lines with proper indentation
+					for i := 1; i < len(lines); i++ {
+						fmt.Printf("%-30s %s\n", "", lines[i])
+					}
+				}
+			} else {
+				// Fallback to raw string if formatting fails
+				fmt.Printf("%-30s %s\n", "Metadata", string(validatorInfo.Metadata))
+			}
+		} else {
+			// Not valid JSON, display as raw string
+			fmt.Printf("%-30s %s\n", "Metadata", string(validatorInfo.Metadata))
+		}
 	} else {
-		fmt.Printf("Metadata: (none)\n")
+		fmt.Printf("%-30s (none)\n", "Metadata")
 	}
 
 	return nil
