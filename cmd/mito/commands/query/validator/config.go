@@ -40,6 +40,8 @@ func NewConfigCmd() *cobra.Command {
 		},
 	}
 
+	flags.AddNetworkFlags(cmd, &commonFlags)
+
 	return cmd
 }
 

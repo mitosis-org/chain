@@ -19,7 +19,6 @@ func NewConfigCmd() *cobra.Command {
 	cmd.AddCommand(
 		newSetRpcCmd(),
 		newSetContractCmd(),
-		newSetChainIdCmd(),
 		newShowConfigCmd(),
 	)
 
@@ -28,6 +27,8 @@ func NewConfigCmd() *cobra.Command {
 
 // newSetRpcCmd creates the set-rpc command
 func newSetRpcCmd() *cobra.Command {
+	var network string
+
 	cmd := &cobra.Command{
 		Use:   "set-rpc <rpc-url>",
 		Short: "Set the default RPC URL",
@@ -41,29 +42,48 @@ func newSetRpcCmd() *cobra.Command {
 				return fmt.Errorf("failed to load config: %w", err)
 			}
 
-			cfg.RpcURL = rpcURL
+			// Get current network config
+			networkConfig := cfg.GetNetworkConfig(network)
+			networkConfig.RpcURL = rpcURL
+
+			// Set the updated network config
+			cfg.SetNetworkConfig(network, networkConfig)
 
 			if err := config.Save(cfg); err != nil {
 				return fmt.Errorf("failed to save config: %w", err)
 			}
 
-			fmt.Printf("✅ RPC URL set to: %s\n", rpcURL)
+			networkDisplay := network
+			if networkDisplay == "" || networkDisplay == "default" {
+				networkDisplay = "default"
+			}
+			fmt.Printf("✅ RPC URL set to: %s (network: %s)\n", rpcURL, networkDisplay)
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to 'default')")
 
 	return cmd
 }
 
 // newSetContractCmd creates the set-contract command
 func newSetContractCmd() *cobra.Command {
+	var network string
+
 	cmd := &cobra.Command{
-		Use:   "set-contract <contract-address>",
-		Short: "Set the default ValidatorManager contract address",
-		Long:  "Set the default ValidatorManager contract address for validator operations",
-		Args:  cobra.ExactArgs(1),
+		Use:   "set-contract --validator-manager <contract-address>",
+		Short: "Set the ValidatorManager contract address",
+		Long:  "Set the ValidatorManager contract address for validator operations",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			contractAddr := args[0]
+			contractAddr, err := cmd.Flags().GetString("validator-manager")
+			if err != nil {
+				return fmt.Errorf("failed to get validator-manager flag: %w", err)
+			}
+
+			if contractAddr == "" {
+				return fmt.Errorf("validator-manager address is required (use --validator-manager)")
+			}
 
 			// Validate address format
 			if _, err := utils.ValidateAddress(contractAddr); err != nil {
@@ -75,45 +95,29 @@ func newSetContractCmd() *cobra.Command {
 				return fmt.Errorf("failed to load config: %w", err)
 			}
 
-			cfg.ValidatorManagerContractAddr = contractAddr
+			// Get current network config
+			networkConfig := cfg.GetNetworkConfig(network)
+			networkConfig.ValidatorManagerContractAddr = contractAddr
+
+			// Set the updated network config
+			cfg.SetNetworkConfig(network, networkConfig)
 
 			if err := config.Save(cfg); err != nil {
 				return fmt.Errorf("failed to save config: %w", err)
 			}
 
-			fmt.Printf("✅ ValidatorManager contract address set to: %s\n", contractAddr)
+			networkDisplay := network
+			if networkDisplay == "" || networkDisplay == "default" {
+				networkDisplay = "default"
+			}
+			fmt.Printf("✅ ValidatorManager contract address set to: %s (network: %s)\n", contractAddr, networkDisplay)
 			return nil
 		},
 	}
 
-	return cmd
-}
-
-// newSetChainIdCmd creates the set-chain-id command
-func newSetChainIdCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "set-chain-id <chain-id>",
-		Short: "Set the default Chain ID",
-		Long:  "Set the default Chain ID for the network",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			chainID := args[0]
-
-			cfg, err := config.Load()
-			if err != nil {
-				return fmt.Errorf("failed to load config: %w", err)
-			}
-
-			cfg.ChainID = chainID
-
-			if err := config.Save(cfg); err != nil {
-				return fmt.Errorf("failed to save config: %w", err)
-			}
-
-			fmt.Printf("✅ Chain ID set to: %s\n", chainID)
-			return nil
-		},
-	}
+	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to 'default')")
+	cmd.Flags().String("validator-manager", "", "ValidatorManager contract address")
+	cmd.MarkFlagRequired("validator-manager")
 
 	return cmd
 }
@@ -131,26 +135,40 @@ func newShowConfigCmd() *cobra.Command {
 			}
 
 			fmt.Println("===== Current Configuration =====")
-			if cfg.RpcURL != "" {
-				fmt.Printf("RPC URL                      : %s\n", cfg.RpcURL)
+
+			// Show default network
+			fmt.Println("\n[default]")
+			if cfg.Default.RpcURL != "" {
+				fmt.Printf("rpc-url                                = %s\n", cfg.Default.RpcURL)
 			} else {
-				fmt.Printf("RPC URL                      : (not set)\n")
+				fmt.Printf("rpc-url                                = (not set)\n")
 			}
 
-			if cfg.ValidatorManagerContractAddr != "" {
-				fmt.Printf("ValidatorManager Contract    : %s\n", cfg.ValidatorManagerContractAddr)
+			if cfg.Default.ValidatorManagerContractAddr != "" {
+				fmt.Printf("validator-manager-contract-address     = %s\n", cfg.Default.ValidatorManagerContractAddr)
 			} else {
-				fmt.Printf("ValidatorManager Contract    : (not set)\n")
+				fmt.Printf("validator-manager-contract-address     = (not set)\n")
 			}
 
-			if cfg.ChainID != "" {
-				fmt.Printf("Chain ID                     : %s\n", cfg.ChainID)
-			} else {
-				fmt.Printf("Chain ID                     : (not set)\n")
+			// Show other networks
+			for _, networkName := range cfg.GetNetworkNames() {
+				networkConfig := cfg.GetNetworkConfig(networkName)
+				fmt.Printf("\n[%s]\n", networkName)
+				if networkConfig.RpcURL != "" {
+					fmt.Printf("rpc-url                                = %s\n", networkConfig.RpcURL)
+				} else {
+					fmt.Printf("rpc-url                                = (not set)\n")
+				}
+
+				if networkConfig.ValidatorManagerContractAddr != "" {
+					fmt.Printf("validator-manager-contract-address     = %s\n", networkConfig.ValidatorManagerContractAddr)
+				} else {
+					fmt.Printf("validator-manager-contract-address     = (not set)\n")
+				}
 			}
 
 			configPath, _ := config.GetPath()
-			fmt.Printf("Config file location         : %s\n", configPath)
+			fmt.Printf("\nConfig file location: %s\n", configPath)
 
 			return nil
 		},

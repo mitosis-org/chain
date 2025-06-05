@@ -7,6 +7,7 @@ import (
 // CommonFlags contains all common flags used across commands
 type CommonFlags struct {
 	// Network flags
+	Network                      string
 	RpcURL                       string
 	ChainID                      string
 	ValidatorManagerContractAddr string
@@ -55,6 +56,7 @@ func AddSigningFlags(cmd *cobra.Command, flags *CommonFlags) {
 
 // AddNetworkFlags adds only network-related flags
 func AddNetworkFlags(cmd *cobra.Command, flags *CommonFlags) {
+	cmd.Flags().StringVar(&flags.Network, "network", "", "Network name for configuration")
 	cmd.Flags().StringVar(&flags.RpcURL, "rpc-url", "", "RPC URL for Ethereum node")
 	cmd.Flags().StringVar(&flags.ChainID, "chain-id", "", "Chain ID for the network")
 	cmd.Flags().StringVar(&flags.ValidatorManagerContractAddr, "contract", "", "ValidatorManager contract address")

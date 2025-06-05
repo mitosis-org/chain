@@ -67,6 +67,8 @@ func NewCollateralCmd() *cobra.Command {
 	cmd.Flags().Uint64Var(&tail, "tail", 0, "Bottom N permitted collateral owners to query")
 	cmd.MarkFlagRequired("address")
 
+	flags.AddNetworkFlags(cmd, &commonFlags)
+
 	return cmd
 }
 

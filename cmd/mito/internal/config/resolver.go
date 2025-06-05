@@ -22,10 +22,14 @@ func NewResolver() (*Resolver, error) {
 
 // ResolveFlags resolves flag values with config file fallback
 func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig {
+	// Get network-specific configuration
+	networkConfig := r.config.GetNetworkConfig(commonFlags.Network)
+
 	return &ResolvedConfig{
-		RpcURL:                       resolveValue(commonFlags.RpcURL, r.config.RpcURL),
-		ValidatorManagerContractAddr: resolveValue(commonFlags.ValidatorManagerContractAddr, r.config.ValidatorManagerContractAddr),
-		ChainID:                      resolveValue(commonFlags.ChainID, r.config.ChainID),
+		Network:                      commonFlags.Network,
+		RpcURL:                       resolveValue(commonFlags.RpcURL, networkConfig.RpcURL),
+		ValidatorManagerContractAddr: resolveValue(commonFlags.ValidatorManagerContractAddr, networkConfig.ValidatorManagerContractAddr),
+		ChainID:                      commonFlags.ChainID,
 		PrivateKey:                   commonFlags.PrivateKey,
 		KeyfilePath:                  commonFlags.KeyfilePath,
 		KeyfilePassword:              commonFlags.KeyfilePassword,
@@ -43,6 +47,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 
 // ResolvedConfig contains resolved configuration values
 type ResolvedConfig struct {
+	Network                      string
 	RpcURL                       string
 	ValidatorManagerContractAddr string
 	ChainID                      string
