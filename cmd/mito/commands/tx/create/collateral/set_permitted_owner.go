@@ -60,13 +60,7 @@ func NewSetPermittedOwnerCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			info := &output.CollateralPermissionInfo{
-				ValidatorAddress: collateralFlags.validator,
-				CollateralOwner:  collateralFlags.collateralOwner,
-				IsPermitted:      collateralFlags.isPermitted,
-			}
-
-			return formatter.FormatCollateralPermissionTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

@@ -97,7 +97,6 @@ func NewCreateCmd() *cobra.Command {
 				Metadata:          validatorFlags.metadata,
 				InitialCollateral: validatorFlags.initialCollateral,
 			}
-
 			if err := formatter.FormatValidatorCreateTransaction(transaction, info); err != nil {
 				return fmt.Errorf("failed to format transaction: %w", err)
 			}
@@ -127,7 +126,6 @@ func NewCreateCmd() *cobra.Command {
 
 	// Add flags
 	flags.AddCommonFlags(cmd, &commonFlags)
-	flags.AddSendFlags(cmd, &commonFlags)
 	cmd.Flags().StringVar(&validatorFlags.pubkey, "pubkey", "", "Validator's public key (hex with 0x prefix)")
 	cmd.Flags().StringVar(&validatorFlags.operator, "operator", "", "Operator address")
 	cmd.Flags().StringVar(&validatorFlags.rewardManager, "reward-manager", "", "Reward manager address")

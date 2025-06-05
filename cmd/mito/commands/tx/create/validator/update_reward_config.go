@@ -58,13 +58,8 @@ func NewUpdateRewardConfigCmd() *cobra.Command {
 
 			// Format and output transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
-			info := &output.ValidatorUpdateInfo{
-				ValidatorAddress: validatorAddr,
-				FieldName:        "Reward Config",
-				NewValue:         commissionRate,
-			}
 
-			return formatter.FormatValidatorUpdateTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

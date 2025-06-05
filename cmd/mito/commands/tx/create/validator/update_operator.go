@@ -58,13 +58,8 @@ func NewUpdateOperatorCmd() *cobra.Command {
 
 			// Format and output transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
-			info := &output.ValidatorUpdateInfo{
-				ValidatorAddress: validatorAddr,
-				FieldName:        "Operator",
-				NewValue:         operator,
-			}
 
-			return formatter.FormatValidatorUpdateTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

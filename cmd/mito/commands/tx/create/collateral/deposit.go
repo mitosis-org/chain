@@ -2,13 +2,11 @@ package collateral
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
 	"github.com/mitosis-org/chain/cmd/mito/internal/container"
 	"github.com/mitosis-org/chain/cmd/mito/internal/flags"
 	"github.com/mitosis-org/chain/cmd/mito/internal/output"
-	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"github.com/mitosis-org/chain/cmd/mito/internal/validation"
 	"github.com/spf13/cobra"
 )
@@ -61,17 +59,7 @@ func NewDepositCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			collateralAmount, _ := utils.ParseValueAsWei(collateralFlags.amount)
-			totalValue := new(big.Int).Add(collateralAmount, resolvedConfig.ContractFee)
-
-			info := &output.CollateralDepositInfo{
-				ValidatorAddress: collateralFlags.validator,
-				CollateralAmount: collateralFlags.amount,
-				Fee:              resolvedConfig.ContractFee,
-				TotalValue:       totalValue,
-			}
-
-			return formatter.FormatCollateralDepositTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

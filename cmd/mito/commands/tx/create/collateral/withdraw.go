@@ -60,14 +60,7 @@ func NewWithdrawCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			info := &output.CollateralWithdrawInfo{
-				ValidatorAddress: collateralFlags.validator,
-				ReceiverAddress:  collateralFlags.receiver,
-				CollateralAmount: collateralFlags.amount,
-				Fee:              resolvedConfig.ContractFee,
-			}
-
-			return formatter.FormatCollateralWithdrawTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

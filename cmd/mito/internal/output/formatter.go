@@ -88,8 +88,7 @@ func (tf *TransactionFormatter) FormatValidatorCreateTransaction(tx *types.Trans
 	fmt.Printf("Initial Collateral         : %s MITO\n", info.InitialCollateral)
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatValidatorUpdateTransaction formats and outputs a validator update transaction
@@ -100,8 +99,7 @@ func (tf *TransactionFormatter) FormatValidatorUpdateTransaction(tx *types.Trans
 	fmt.Printf("New %s             : %s\n", info.FieldName, info.NewValue)
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatCollateralTransaction formats and outputs a collateral transaction
@@ -115,8 +113,7 @@ func (tf *TransactionFormatter) FormatCollateralTransaction(tx *types.Transactio
 	fmt.Printf("Amount                   : %s MITO\n", info.Amount)
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatCollateralDepositTransaction formats and outputs a collateral deposit transaction
@@ -132,8 +129,7 @@ func (tf *TransactionFormatter) FormatCollateralDepositTransaction(tx *types.Tra
 	fmt.Println("If your address is not a permitted collateral owner for this validator, the transaction will fail.")
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatCollateralWithdrawTransaction formats and outputs a collateral withdraw transaction
@@ -148,8 +144,7 @@ func (tf *TransactionFormatter) FormatCollateralWithdrawTransaction(tx *types.Tr
 	fmt.Println("🚨 IMPORTANT: Only the collateral owner can withdraw collateral.")
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatCollateralPermissionTransaction formats and outputs a collateral permission transaction
@@ -166,8 +161,7 @@ func (tf *TransactionFormatter) FormatCollateralPermissionTransaction(tx *types.
 	fmt.Printf("Permission                 : %s\n", permissionText)
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
 // FormatCollateralOwnershipTransaction formats and outputs a collateral ownership transfer transaction
@@ -179,12 +173,11 @@ func (tf *TransactionFormatter) FormatCollateralOwnershipTransaction(tx *types.T
 	fmt.Printf("Fee                        : %s\n", units.FormatWeiToBothUnits(info.Fee))
 	fmt.Println()
 
-	// Output transaction
-	return tf.outputTransaction(tx)
+	return nil
 }
 
-// outputTransaction outputs the transaction in the appropriate format
-func (tf *TransactionFormatter) outputTransaction(tx *types.Transaction) error {
+// OutputTransaction outputs the transaction in the appropriate format
+func (tf *TransactionFormatter) OutputTransaction(tx *types.Transaction) error {
 	// Create a formatted transaction object for JSON output
 	formattedTx := map[string]interface{}{
 		"type":                 fmt.Sprintf("0x%x", tx.Type()),

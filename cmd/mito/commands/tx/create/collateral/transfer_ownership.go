@@ -59,13 +59,7 @@ func NewTransferOwnershipCmd() *cobra.Command {
 			// Create formatter and format transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
 
-			info := &output.CollateralOwnershipInfo{
-				ValidatorAddress: collateralFlags.validator,
-				NewOwner:         collateralFlags.newOwner,
-				Fee:              resolvedConfig.ContractFee,
-			}
-
-			return formatter.FormatCollateralOwnershipTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 

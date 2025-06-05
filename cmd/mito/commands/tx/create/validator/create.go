@@ -79,16 +79,8 @@ func NewCreateCmd() *cobra.Command {
 
 			// Format and output transaction
 			formatter := output.NewTransactionFormatter(commonFlags.OutputFile)
-			info := &output.ValidatorCreateInfo{
-				PubKey:            validatorFlags.pubkey,
-				Operator:          validatorFlags.operator,
-				RewardManager:     validatorFlags.rewardManager,
-				CommissionRate:    validatorFlags.commissionRate,
-				Metadata:          validatorFlags.metadata,
-				InitialCollateral: validatorFlags.initialCollateral,
-			}
 
-			return formatter.FormatValidatorCreateTransaction(tx, info)
+			return formatter.OutputTransaction(tx)
 		},
 	}
 
