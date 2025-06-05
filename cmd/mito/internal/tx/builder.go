@@ -62,9 +62,6 @@ func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, 
 		if !ok {
 			return nil, fmt.Errorf("invalid nonce: %s", b.config.Nonce)
 		}
-	} else if unsigned {
-		// For unsigned transactions, use nonce 0 as default
-		nonce = 0
 	} else {
 		// Try to get signer address for nonce
 		signerAddr, err := b.GetSignerAddress()
