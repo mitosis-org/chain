@@ -113,9 +113,6 @@ build: BUILD_ARGS=-o $(BUILD_DIR)/
 build-mitosisd:
 	BINARY_NAME=mitosisd $(MAKE) build
 
-build-mivalidator:
-	BINARY_NAME=mivalidator $(MAKE) build
-
 build-midevtool:
 	BINARY_NAME=midevtool $(MAKE) build
 

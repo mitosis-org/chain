@@ -180,7 +180,3 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-    # Ignore fmt.Print* warnings in mivalidator command files
-    - path: "cmd/mivalidator/cmd/.+\\.go$"
-      linters: [ forbidigo ]
-      text: "fmt\\.(Print|Printf|Println)"

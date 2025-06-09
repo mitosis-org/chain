@@ -184,4 +184,4 @@ make devnet-clean
 
 ### Validator Operations
 
-For managing validators in the Mitosis network, please see the [Validator CLI documentation](cmd/mivalidator/README.md).
+For managing validators in the Mitosis network, please see the [MITO CLI documentation](cmd/mito/README.md).
