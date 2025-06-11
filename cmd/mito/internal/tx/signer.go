@@ -3,7 +3,6 @@ package tx
 import (
 	"crypto/ecdsa"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -137,7 +136,7 @@ func (s *Signer) getKeyfilePassword() (string, error) {
 
 	// Check if password file is provided
 	if s.config.KeyfilePasswordFile != "" {
-		passwordBytes, err := ioutil.ReadFile(s.config.KeyfilePasswordFile)
+		passwordBytes, err := os.ReadFile(s.config.KeyfilePasswordFile)
 		if err != nil {
 			return "", fmt.Errorf("failed to read password file: %w", err)
 		}
@@ -146,7 +145,7 @@ func (s *Signer) getKeyfilePassword() (string, error) {
 
 	// Prompt for password
 	fmt.Print("Enter keyfile password: ")
-	passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
+	passwordBytes, err := term.ReadPassword(syscall.Stdin)
 	if err != nil {
 		return "", fmt.Errorf("failed to read password: %w", err)
 	}
@@ -158,13 +157,13 @@ func (s *Signer) getKeyfilePassword() (string, error) {
 // loadPrivateKeyFromKeyfile loads a private key from a geth keyfile
 func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey, error) {
 	// Read keyfile
-	keyfileData, err := ioutil.ReadFile(keyfilePath)
+	keyfileData, err := os.ReadFile(keyfilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read keyfile: %w", err)
 	}
 
 	// Create a temporary keyfile directory
-	tempDir, err := ioutil.TempDir("", "temp_keyfile")
+	tempDir, err := os.MkdirTemp("", "temp_keyfile")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp directory: %w", err)
 	}
@@ -172,7 +171,7 @@ func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey,
 
 	// Copy keyfile to temp directory
 	tempKeyfilePath := filepath.Join(tempDir, filepath.Base(keyfilePath))
-	err = ioutil.WriteFile(tempKeyfilePath, keyfileData, 0600)
+	err = os.WriteFile(tempKeyfilePath, keyfileData, 0o600)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write temp keyfile: %w", err)
 	}

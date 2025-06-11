@@ -112,7 +112,8 @@ func validateSendCollateralWithdrawFields(config *config.ResolvedConfig, collate
 	validator string
 	amount    string
 	receiver  string
-}) error {
+},
+) error {
 	if err := validateSendCollateralFields(config); err != nil {
 		return err
 	}
