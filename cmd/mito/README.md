@@ -27,6 +27,10 @@ go build -o mito .
 ./mito config set-rpc https://rpc.dognet.mitosis.org
 ./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
+# Create or import account with cast wallet
+cast wallet new my-validator
+# or import existing: cast wallet import my-validator --interactive
+
 # Create a validator (online mode)
 ./mito tx send validator create \
   --pubkey 0x1234... \
@@ -35,7 +39,7 @@ go build -o mito .
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"MyValidator"}' \
-  --keyfile ./keystore/keyfile
+  --keyfile ~/.foundry/keystores/my-validator
 
 # Check validator info
 ./mito query validator info --address 0x1234...
@@ -145,7 +149,7 @@ Requires RPC connection and automatically detects:
   --pubkey 0x1234... \
   --operator 0x5678... \
   --commission-rate 5% \
-  --keyfile ./keystore/keyfile
+  --keyfile ~/.foundry/keystores/my-validator
 ```
 
 ### Offline Mode
@@ -350,30 +354,50 @@ Creates, signs, and broadcasts transactions to the network:
 Choose exactly one signing method:
 
 ```bash
-# Method 1: Private key (direct)
-./mito tx send collateral deposit \
-  --validator 0x1111... \
-  --amount 1.5 \
-  --private-key 0x1234...
-
-# Method 2: Keyfile (secure)
+# Method 1: Keyfile (recommended)
 ./mito tx send collateral deposit \
   --validator 0x1111... \
   --amount 1.5 \
   --keyfile ./keystore/keyfile
 
-# Method 3: Keyfile with password file
+# Method 2: Keyfile with password file
 ./mito tx send collateral deposit \
   --validator 0x1111... \
   --amount 1.5 \
   --keyfile ./keystore/keyfile \
   --keyfile-password-file ./password.txt
 
-# ERROR: Cannot combine signing methods
+# Method 3: Private key
 ./mito tx send collateral deposit \
-  --private-key 0x1234... \
-  --keyfile ./keystore/keyfile
-# Error: flags [private-key keyfile] are mutually exclusive
+  --validator 0x1111... \
+  --amount 1.5 \
+  --private-key 0x1234...
+```
+
+### Keyfile Compatibility
+
+Mito is compatible with standard Ethereum keystore formats ([EIP-2335](https://eips.ethereum.org/EIPS/eip-2335)) used by both **cast** (Foundry) and **geth**. We recommend using **cast wallet** for key management as it provides a more modern and user-friendly interface.
+
+#### Recommended: Using Cast Wallet
+
+Cast wallet provides excellent key management capabilities and is fully compatible with mito:
+
+```bash
+# Create a new account with cast
+cast wallet new my-validator-key
+
+# Import existing private key
+cast wallet import my-validator-key --interactive
+
+# List all accounts
+cast wallet list
+
+# Use cast keyfile with mito
+./mito tx send validator create \
+  --pubkey 0x1234... \
+  --operator 0x1234... \
+  --commission-rate 5% \
+  --keyfile ~/.foundry/keystores/my-validator-key
 ```
 
 ### Transaction Modes (Mutually Exclusive)
@@ -391,12 +415,6 @@ Choose exactly one transaction mode:
   --pubkey 0x1111... \
   --signed \
   --private-key 0x1234...
-
-# ERROR: Cannot combine modes
-./mito tx create validator create \
-  --unsigned \
-  --signed
-# Error: flags [unsigned signed] are mutually exclusive
 ```
 
 ## Advanced Usage
