@@ -225,7 +225,7 @@ build-help:
 	@echo "    make cross-build-all    - Build all binaries for all supported architectures"
 	@echo ""
 	@echo "  Output directories:"
-	@echo "    Current builds: $(BUILD_DIR)/"
+	@echo "    Current arch builds: $(BUILD_DIR)/"
 	@echo "    Cross builds: $(BUILD_DIR)/{os}-{arch}/"
 	@echo "  Supported OS: darwin, linux"
 	@echo "  Supported ARCH: amd64, arm64"
