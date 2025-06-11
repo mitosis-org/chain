@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -154,7 +153,7 @@ func (s *Signer) getKeyfilePassword() (string, error) {
 	return string(passwordBytes), nil
 }
 
-// loadPrivateKeyFromKeyfile loads a private key from a geth keyfile
+// loadPrivateKeyFromKeyfile loads a private key from a keyfile (supports geth, cast, and other wallet tools)
 func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey, error) {
 	// Read keyfile
 	keyfileData, err := os.ReadFile(keyfilePath)
@@ -162,48 +161,11 @@ func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey,
 		return nil, fmt.Errorf("failed to read keyfile: %w", err)
 	}
 
-	// Create a temporary keyfile directory
-	tempDir, err := os.MkdirTemp("", "temp_keyfile")
+	// Directly decrypt the keyfile using go-ethereum's DecryptKey
+	// This works for both geth keyfiles (with address field) and cast keyfiles (without address field)
+	parsedKey, err := keystore.DecryptKey(keyfileData, password)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create temp directory: %w", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	// Copy keyfile to temp directory
-	tempKeyfilePath := filepath.Join(tempDir, filepath.Base(keyfilePath))
-	err = os.WriteFile(tempKeyfilePath, keyfileData, 0o600)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write temp keyfile: %w", err)
-	}
-
-	// Create keyfile instance
-	ks := keystore.NewKeyStore(tempDir, keystore.StandardScryptN, keystore.StandardScryptP)
-
-	// Get accounts
-	accounts := ks.Accounts()
-	if len(accounts) == 0 {
-		return nil, fmt.Errorf("no accounts found in keyfile")
-	}
-
-	// Use the first account
-	account := accounts[0]
-
-	// Unlock the account
-	err = ks.Unlock(account, password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unlock keyfile: %w", err)
-	}
-
-	// Export the private key
-	key, err := ks.Export(account, password, password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to export private key: %w", err)
-	}
-
-	// Parse the exported key
-	parsedKey, err := keystore.DecryptKey(key, password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt key: %w", err)
+		return nil, fmt.Errorf("failed to decrypt keyfile: %w", err)
 	}
 
 	return parsedKey.PrivateKey, nil
