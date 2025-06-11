@@ -25,7 +25,7 @@ go build -o mito .
 ```bash
 # Configure defaults (one-time setup)
 ./mito config set-rpc https://rpc.dognet.mitosis.org
-./mito config set-contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
 # Create a validator (online mode)
 ./mito tx send validator create \
@@ -38,7 +38,7 @@ go build -o mito .
   --keyfile ./keystore/keyfile
 
 # Check validator info
-./mito validator info --validator-address 0x1234...
+./mito query validator info --address 0x1234...
 ```
 
 ## Configuration Management
@@ -49,8 +49,12 @@ Mito supports both explicit flags and configuration files for seamless usage:
 # Set default RPC URL
 ./mito config set-rpc https://rpc.dognet.mitosis.org
 
-# Set ValidatorManager contract address  
-./mito config set-contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+# Set ValidatorManager contract address
+./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+
+# Set configuration for specific network
+./mito config set-rpc https://custom-rpc.example.com --network testnet
+./mito config set-contract --validator-manager 0x1234... --network testnet
 
 # View current configuration
 ./mito config show
@@ -59,13 +63,37 @@ Mito supports both explicit flags and configuration files for seamless usage:
 **Output Example:**
 ```
 ===== Current Configuration =====
-RPC URL                      : https://rpc.dognet.mitosis.org
-ValidatorManager Contract    : 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
-Chain ID                     : (auto-detected from network)
-Config file location         : /Users/user/.mito/config.json
+
+[default]
+rpc-url                                = https://rpc.dognet.mitosis.org
+validator-manager-contract-address     = 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+
+[testnet]
+rpc-url                                = https://testnet-rpc.example.com
+validator-manager-contract-address     = 0x1234...
+
+Config file location: /Users/user/.mito/config.json
 ```
 
-Configuration is stored in `~/.mito/config.json` and automatically loaded for all commands.
+Configuration is stored in `~/.mito/config.json` and automatically loaded for all commands. You can configure different networks and switch between them using the `--network` flag.
+
+### Network Configuration
+
+Mito supports multiple network configurations. The default network is called `default`, but you can create and use custom network configurations:
+
+```bash
+# Configure mainnet
+./mito config set-rpc https://mainnet-rpc.example.com --network mainnet
+./mito config set-contract --validator-manager 0x1234... --network mainnet
+
+# Configure testnet
+./mito config set-rpc https://testnet-rpc.example.com --network testnet
+./mito config set-contract --validator-manager 0x1234... --network testnet
+
+# Use specific network for commands
+./mito query validator info --address 0x1234... --network testnet
+./mito tx send validator create --pubkey 0x1234... --network mainnet
+```
 
 ## Unit Handling
 
@@ -80,7 +108,7 @@ Mito provides unified unit handling across all monetary values:
 ```bash
 # Gas price examples (default: gwei)
 --gas-price 20          # 20 gwei
---gas-price 20gwei      # 20 gwei  
+--gas-price 20gwei      # 20 gwei
 --gas-price 20000000000wei  # 20 gwei
 --gas-price 0.00000002mito   # 20 gwei
 
@@ -132,8 +160,7 @@ Create transactions without network connectivity:
   --unsigned \
   --nonce 10 \
   --gas-price 20gwei \
-  --chain-id 125883 \
-  --contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+  --chain-id 125883
 
 # Offline signed transaction
 ./mito tx create collateral deposit \
@@ -143,8 +170,7 @@ Create transactions without network connectivity:
   --private-key 0xabc... \
   --nonce 15 \
   --gas-price 25gwei \
-  --chain-id 125883 \
-  --contract 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
+  --chain-id 125883
 ```
 
 ## Transaction Commands
@@ -160,7 +186,7 @@ Creates transactions without sending them to the network:
   --unsigned \
   --nonce 10
 
-# Create signed transaction  
+# Create signed transaction
 ./mito tx create validator create \
   --pubkey 0x1111... \
   --operator 0x2222... \
@@ -178,7 +204,7 @@ Creates transactions without sending them to the network:
   --receiver 0x4444... \
   --unsigned \
   --nonce 11 \
-  --output transaction.json
+  --output ./transaction.json
 ```
 
 ### Send Transactions (tx send)
@@ -251,10 +277,30 @@ Creates, signs, and broadcasts transactions to the network:
   --keyfile ./keystore/keyfile
 ```
 
-### Query Validator
+## Query Commands
+
+### Query Validator Information
 ```bash
-# Get validator information
-./mito validator info --validator-address 0x1111...
+# Get detailed validator information
+./mito query validator info --address 0x1111...
+
+# Get detailed validator information with collateral owner limits
+./mito query validator info --address 0x1111... --head 5 --tail 3
+
+# Get validator configuration
+./mito query validator config
+
+# Query with specific network
+./mito query validator info --address 0x1111... --network testnet
+```
+
+### Query Contract Information
+```bash
+# Query current validator contracts from the ValidatorManager contract
+./mito query contract validator
+
+# Query with specific network
+./mito query contract validator --network testnet
 ```
 
 ## Collateral Management
@@ -377,12 +423,20 @@ Choose exactly one transaction mode:
 
 ### Network Override
 ```bash
+# Override RPC URL for single command
 ./mito tx send validator create \
   --pubkey 0x1111... \
   --operator 0x2222... \
   --commission-rate 5% \
   --rpc-url https://custom-rpc.example.com \
-  --contract 0xCustomContractAddress... \
+  --keyfile ./keystore/keyfile
+
+# Use specific network configuration
+./mito tx send validator create \
+  --pubkey 0x1111... \
+  --operator 0x2222... \
+  --commission-rate 5% \
+  --network testnet \
   --keyfile ./keystore/keyfile
 ```
 
@@ -418,7 +472,7 @@ Mito provides comprehensive error handling and validation:
 ### Missing Configuration
 ```bash
 $ ./mito tx create validator create --pubkey 0x1111... --unsigned
-Error: RPC connection required to get chain ID automatically. 
+Error: RPC connection required to get chain ID automatically.
 Please provide --chain-id manually or set RPC URL with --rpc-url or 'mito config set-rpc'
 ```
 
@@ -449,7 +503,7 @@ mito
 │   │   ├── validator
 │   │   │   ├── create
 │   │   │   ├── update-operator
-│   │   │   ├── update-metadata  
+│   │   │   ├── update-metadata
 │   │   │   ├── update-reward-config
 │   │   │   ├── update-reward-manager
 │   │   │   └── unjail
@@ -461,8 +515,12 @@ mito
 │   └── send (online transaction broadcasting)
 │       ├── validator (same subcommands as create)
 │       └── collateral (same subcommands as create)
-├── validator
-│   └── info
+├── query
+│   ├── validator
+│   │   ├── info
+│   │   └── config
+│   └── contract
+│       └── validator
 ├── config
 │   ├── set-rpc
 │   ├── set-contract
@@ -479,11 +537,16 @@ The tool uses a modular architecture with:
 - **Output Formatting**: `internal/output/`
 - **Unit Conversion**: `internal/units/`
 - **Validation**: `internal/validation/`
-- **Command Structure**: `pkg/tx/`, `pkg/validator/`, `pkg/config/`
+- **Client Operations**: `internal/client/`
+- **Utility Functions**: `internal/utils/`
+- **Flag Management**: `internal/flags/`
+- **Dependency Injection**: `internal/container/`
+- **Command Structure**: `commands/tx/`, `commands/query/`, `commands/config/`, `commands/version/`
 
 ### Adding New Commands
-1. Create command file in appropriate `pkg/` directory
+1. Create command file in appropriate `commands/` directory
 2. Add validation logic in `internal/validation/`
 3. Add transaction logic in `internal/tx/`
 4. Add output formatting in `internal/output/`
-5. Register command in root command structure 
+5. Register command in root command structure (`commands/root.go`)
+6. Add any required client operations in `internal/client/`
