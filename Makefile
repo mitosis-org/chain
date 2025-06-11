@@ -106,10 +106,30 @@ endif
 ###                                  Build                                  ###
 ###############################################################################
 
+# Detect current OS and architecture
+HOST_OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+HOST_ARCH := $(shell uname -m)
+
+# Normalize architecture names
+ifeq ($(HOST_ARCH),x86_64)
+  HOST_ARCH := amd64
+endif
+ifeq ($(HOST_ARCH),aarch64)
+  HOST_ARCH := arm64
+endif
+
+# Convert darwin to match Go's GOOS for help display
+ifeq ($(HOST_OS),darwin)
+  HOST_GOOS := darwin
+else
+  HOST_GOOS := $(HOST_OS)
+endif
+
 BUILD_TARGETS := build install
 
 build: BUILD_ARGS=-o $(BUILD_DIR)/
 
+# Build targets for specific binaries (current architecture)
 build-mitosisd:
 	BINARY_NAME=mitosisd $(MAKE) build
 
@@ -119,18 +139,98 @@ build-midevtool:
 build-mito:
 	BINARY_NAME=mito $(MAKE) build
 
+# Build targets for cross-compilation
+# Usage: make cross-build-mitosisd darwin arm64
+
+# Validation function for cross-compilation
+define validate_cross_build
+	$(if $(filter $(1),darwin linux),,$(error Invalid OS: $(1). Valid options: darwin, linux))
+	$(if $(filter $(2),amd64 arm64),,$(error Invalid ARCH: $(2). Valid options: amd64, arm64))
+endef
+
+cross-build-mitosisd:
+	$(call validate_cross_build,$(word 2,$(MAKECMDGOALS)),$(word 3,$(MAKECMDGOALS)))
+	@mkdir -p $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/
+	@echo "Cross-building mitosisd for $(word 2,$(MAKECMDGOALS))/$(word 3,$(MAKECMDGOALS))..."
+	cd ${CURDIR}/cmd/mitosisd && GOOS=$(word 2,$(MAKECMDGOALS)) GOARCH=$(word 3,$(MAKECMDGOALS)) go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/ ./...
+
+cross-build-midevtool:
+	$(call validate_cross_build,$(word 2,$(MAKECMDGOALS)),$(word 3,$(MAKECMDGOALS)))
+	@mkdir -p $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/
+	@echo "Cross-building midevtool for $(word 2,$(MAKECMDGOALS))/$(word 3,$(MAKECMDGOALS))..."
+	cd ${CURDIR}/cmd/midevtool && GOOS=$(word 2,$(MAKECMDGOALS)) GOARCH=$(word 3,$(MAKECMDGOALS)) go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/ ./...
+
+cross-build-mito:
+	$(call validate_cross_build,$(word 2,$(MAKECMDGOALS)),$(word 3,$(MAKECMDGOALS)))
+	@mkdir -p $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/
+	@echo "Cross-building mito for $(word 2,$(MAKECMDGOALS))/$(word 3,$(MAKECMDGOALS))..."
+	cd ${CURDIR}/cmd/mito && GOOS=$(word 2,$(MAKECMDGOALS)) GOARCH=$(word 3,$(MAKECMDGOALS)) go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/ ./...
+
+# Build all binaries for current architecture
+build-all:
+	$(MAKE) build-mitosisd
+	$(MAKE) build-midevtool
+	$(MAKE) build-mito
+
+# Build all binaries for all supported architectures
+cross-build-all:
+	@echo "Building for all supported architectures..."
+	$(MAKE) cross-build-mitosisd darwin amd64
+	$(MAKE) cross-build-midevtool darwin amd64
+	$(MAKE) cross-build-mito darwin amd64
+	$(MAKE) cross-build-mitosisd darwin arm64
+	$(MAKE) cross-build-midevtool darwin arm64
+	$(MAKE) cross-build-mito darwin arm64
+	$(MAKE) cross-build-mitosisd linux amd64
+	$(MAKE) cross-build-midevtool linux amd64
+	$(MAKE) cross-build-mito linux amd64
+	$(MAKE) cross-build-mitosisd linux arm64
+	$(MAKE) cross-build-midevtool linux arm64
+	$(MAKE) cross-build-mito linux arm64
+	@echo "Cross-compilation complete! Binaries are in $(BUILD_DIR)/"
+
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
+	@echo "Building $(BINARY_NAME)..."
 	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(BUILD_DIR)/:
 	mkdir -p $(BUILD_DIR)/
 
-.PHONY: build
+# Allow specific arguments as fake targets for cross-compilation
+darwin linux amd64 arm64:
+	@:
+
+.PHONY: build build-all cross-build-all build-mitosisd build-midevtool build-mito cross-build-mitosisd cross-build-midevtool cross-build-mito install
 
 clean:
 	rm -rf $(BUILD_DIR)/ artifacts/
 
-.PHONY: clean
+# Show build help
+build-help:
+	@echo "Build Commands:"
+	@echo "  Current architecture builds:"
+	@echo "    make build-mitosisd     - Build mitosisd for current platform ($(HOST_GOOS)/$(HOST_ARCH))"
+	@echo "    make build-midevtool    - Build midevtool for current platform"
+	@echo "    make build-mito         - Build mito for current platform"
+	@echo "    make build-all          - Build all binaries for current platform"
+	@echo ""
+	@echo "  Cross-compilation builds:"
+	@echo "    make cross-build-mitosisd darwin amd64    - Build mitosisd for macOS x64"
+	@echo "    make cross-build-mitosisd darwin arm64    - Build mitosisd for macOS ARM64"
+	@echo "    make cross-build-mitosisd linux amd64     - Build mitosisd for Linux x64"
+	@echo "    make cross-build-mitosisd linux arm64     - Build mitosisd for Linux ARM64"
+	@echo "    (same pattern for cross-build-midevtool and cross-build-mito)"
+	@echo ""
+	@echo "  Bulk builds:"
+	@echo "    make cross-build-all    - Build all binaries for all supported architectures"
+	@echo ""
+	@echo "  Output directories:"
+	@echo "    Current arch builds: $(BUILD_DIR)/"
+	@echo "    Cross builds: $(BUILD_DIR)/{os}-{arch}/"
+	@echo "  Supported OS: darwin, linux"
+	@echo "  Supported ARCH: amd64, arm64"
+
+.PHONY: clean build-help
 
 ###############################################################################
 ###                                Linting                                  ###
