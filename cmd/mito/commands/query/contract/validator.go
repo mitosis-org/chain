@@ -29,7 +29,7 @@ func NewValidatorCmd() *cobra.Command {
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
 			// Validate required fields
-			if resolvedConfig.RpcURL == "" {
+			if resolvedConfig.RPCURL == "" {
 				return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
 			}
 			if resolvedConfig.ValidatorManagerContractAddr == "" {

@@ -208,7 +208,7 @@ func (tf *TransactionFormatter) OutputTransaction(tx *types.Transaction) error {
 
 	// Output to file or stdout
 	if tf.outputFile != "" {
-		return os.WriteFile(tf.outputFile, txJSON, 0644)
+		return os.WriteFile(tf.outputFile, txJSON, 0o600)
 	}
 
 	fmt.Println(string(txJSON))

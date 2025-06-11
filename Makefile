@@ -138,7 +138,7 @@ clean:
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
-golangci_lint_cmd=golangci-lint
+golangci_lint_cmd=$$(go env GOPATH)/bin/golangci-lint
 golangci_version=v1.64.8
 
 lint:
@@ -155,7 +155,7 @@ format:
 	@go install mvdan.cc/gofumpt@latest
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./tests/mocks/*" -not -path "./bindings/*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" | xargs gofumpt -w -l
-	$(golangci_lint_cmd) run --fix
+	@$(golangci_lint_cmd) run --fix
 .PHONY: format
 
 ###############################################################################

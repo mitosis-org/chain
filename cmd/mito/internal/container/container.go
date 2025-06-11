@@ -25,8 +25,8 @@ func NewContainer(resolvedConfig *config.ResolvedConfig) (*Container, error) {
 	// Create Ethereum client - allow nil for offline mode
 	var ethClient *client.EthereumClient
 	var err error
-	if resolvedConfig.RpcURL != "" {
-		ethClient, err = client.NewEthereumClient(resolvedConfig.RpcURL)
+	if resolvedConfig.RPCURL != "" {
+		ethClient, err = client.NewEthereumClient(resolvedConfig.RPCURL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create ethereum client: %w", err)
 		}

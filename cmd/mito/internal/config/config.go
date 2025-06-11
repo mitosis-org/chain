@@ -8,9 +8,13 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+const (
+	DefaultNetworkName = "default"
+)
+
 // NetworkConfig represents configuration for a specific network
 type NetworkConfig struct {
-	RpcURL                       string `toml:"rpc-url"`
+	RPCURL                       string `toml:"rpc-url"`
 	ValidatorManagerContractAddr string `toml:"validator-manager-contract-address"`
 }
 
@@ -28,7 +32,7 @@ func getConfigPath() (string, error) {
 	}
 
 	configDir := filepath.Join(homeDir, ".mito")
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create config directory: %w", err)
 	}
 
@@ -72,7 +76,7 @@ func Load() (*Config, error) {
 			// Parse rpc-url
 			if rpcURL, exists := sectionMap["rpc-url"]; exists {
 				if rpcStr, ok := rpcURL.(string); ok {
-					networkConfig.RpcURL = rpcStr
+					networkConfig.RPCURL = rpcStr
 				}
 			}
 
@@ -84,7 +88,7 @@ func Load() (*Config, error) {
 			}
 
 			// Store in appropriate location
-			if sectionName == "default" {
+			if sectionName == DefaultNetworkName {
 				config.Default = networkConfig
 			} else {
 				config.networks[sectionName] = networkConfig
@@ -106,15 +110,15 @@ func Save(config *Config) error {
 	rawData := make(map[string]interface{})
 
 	// Add default section
-	rawData["default"] = map[string]interface{}{
-		"rpc-url":                            config.Default.RpcURL,
+	rawData[DefaultNetworkName] = map[string]interface{}{
+		"rpc-url":                            config.Default.RPCURL,
 		"validator-manager-contract-address": config.Default.ValidatorManagerContractAddr,
 	}
 
 	// Add other networks as top-level sections
 	for name, networkConfig := range config.networks {
 		rawData[name] = map[string]interface{}{
-			"rpc-url":                            networkConfig.RpcURL,
+			"rpc-url":                            networkConfig.RPCURL,
 			"validator-manager-contract-address": networkConfig.ValidatorManagerContractAddr,
 		}
 	}
@@ -124,7 +128,7 @@ func Save(config *Config) error {
 		return fmt.Errorf("failed to marshal config: %w", err)
 	}
 
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0o600); err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 
@@ -138,7 +142,7 @@ func GetPath() (string, error) {
 
 // GetNetworkConfig returns the configuration for a specific network
 func (c *Config) GetNetworkConfig(networkName string) NetworkConfig {
-	if networkName == "" || networkName == "default" {
+	if networkName == "" || networkName == DefaultNetworkName {
 		return c.Default
 	}
 
@@ -152,7 +156,7 @@ func (c *Config) GetNetworkConfig(networkName string) NetworkConfig {
 
 // SetNetworkConfig sets the configuration for a specific network
 func (c *Config) SetNetworkConfig(networkName string, config NetworkConfig) {
-	if networkName == "" || networkName == "default" {
+	if networkName == "" || networkName == DefaultNetworkName {
 		c.Default = config
 		return
 	}

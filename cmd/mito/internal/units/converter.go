@@ -48,7 +48,7 @@ func ParseMitoToWei(mitoStr string) (*big.Int, error) {
 	// Convert to big.Int
 	weiInt, accuracy := weiFloat.Int(nil)
 	if accuracy != big.Exact {
-		return nil, fmt.Errorf("Mito precision exceeds 18 decimal places: %s", mitoStr)
+		return nil, fmt.Errorf("mito precision exceeds 18 decimal places: %s", mitoStr)
 	}
 
 	return weiInt, nil

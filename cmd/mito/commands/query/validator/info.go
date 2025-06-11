@@ -3,6 +3,7 @@ package validator
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"strings"
 
@@ -42,7 +43,7 @@ func NewInfoCmd() *cobra.Command {
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
 			// Validate required fields
-			if resolvedConfig.RpcURL == "" {
+			if resolvedConfig.RPCURL == "" {
 				return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
 			}
 			if resolvedConfig.ValidatorManagerContractAddr == "" {
@@ -178,6 +179,10 @@ func runValidatorCollateralOwnerList(container *container.Container, validatorAd
 		}
 
 		for i := uint64(0); i < end; i++ {
+			// Check for overflow before converting to int64
+			if i > math.MaxInt64 {
+				return fmt.Errorf("index %d exceeds maximum int64 value", i)
+			}
 			owner, err := container.ValidatorManagerContract.PermittedCollateralOwnerAt(nil, validatorAddr, big.NewInt(int64(i)))
 			if err != nil {
 				fmt.Printf("Error getting owner at index %d: %v\n", i, err)
@@ -186,8 +191,17 @@ func runValidatorCollateralOwnerList(container *container.Container, validatorAd
 			fmt.Printf("%-30s %s\n", fmt.Sprintf("%d:", i+1), owner.Hex())
 		}
 	} else {
+		// Check for overflow before converting count to int64
+		if count > math.MaxInt64 {
+			return fmt.Errorf("count %d exceeds maximum int64 value", count)
+		}
+		if count == 0 {
+			return nil // No items to process
+		}
 		printed := uint64(0)
-		for i := int64(count - 1); i >= 0 && printed < target; i-- {
+		countInt64 := int64(count)
+		startIdx := countInt64 - 1
+		for i := startIdx; i >= 0 && printed < target; i-- {
 			owner, err := container.ValidatorManagerContract.PermittedCollateralOwnerAt(nil, validatorAddr, big.NewInt(i))
 			if err != nil {
 				fmt.Printf("Error getting owner at index %d: %v\n", i, err)

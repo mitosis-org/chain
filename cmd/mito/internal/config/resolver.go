@@ -27,7 +27,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 
 	return &ResolvedConfig{
 		Network:                      commonFlags.Network,
-		RpcURL:                       resolveValue(commonFlags.RpcURL, networkConfig.RpcURL),
+		RPCURL:                       resolveValue(commonFlags.RPCURL, networkConfig.RPCURL),
 		ValidatorManagerContractAddr: resolveValue(commonFlags.ValidatorManagerContractAddr, networkConfig.ValidatorManagerContractAddr),
 		ChainID:                      commonFlags.ChainID,
 		PrivateKey:                   commonFlags.PrivateKey,
@@ -48,7 +48,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 // ResolvedConfig contains resolved configuration values
 type ResolvedConfig struct {
 	Network                      string
-	RpcURL                       string
+	RPCURL                       string
 	ValidatorManagerContractAddr string
 	ChainID                      string
 	PrivateKey                   string

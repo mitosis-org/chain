@@ -184,3 +184,12 @@ issues:
     - path: "cmd/mivalidator/cmd/.+\\.go$"
       linters: [ forbidigo ]
       text: "fmt\\.(Print|Printf|Println)"
+
+    - path: "cmd/mito/.+\\.go$"
+      linters: [ forbidigo ]
+      text: "fmt\\.(Print|Printf|Println)"
+
+    # Ignore MarkFlagRequired error checks in command files
+    - path: "cmd/mito/commands/.+\\.go$"
+      linters: [ errcheck ]
+      text: "cmd\\.MarkFlagRequired"
