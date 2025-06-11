@@ -200,10 +200,7 @@ $(BUILD_DIR)/:
 	mkdir -p $(BUILD_DIR)/
 
 # Allow make to accept additional arguments as fake targets for cross-compilation
-%:
-	@:
-
-.PHONY: build build-all cross-build-all build-mitosisd build-midevtool build-mito cross-build-mitosisd cross-build-midevtool cross-build-mito
+.PHONY: build build-all cross-build-all build-mitosisd build-midevtool build-mito cross-build-mitosisd cross-build-midevtool cross-build-mito install
 
 clean:
 	rm -rf $(BUILD_DIR)/ artifacts/
