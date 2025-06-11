@@ -1,0 +1,3 @@
+[submodule ".cursor/rules/shared-rules"]
+	path = .cursor/rules/shared-rules
+	url = https://github.com/mitosis-org/shared-rules
