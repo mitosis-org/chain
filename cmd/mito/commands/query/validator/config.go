@@ -24,7 +24,7 @@ func NewConfigCmd() *cobra.Command {
 			}
 			resolvedConfig := resolver.ResolveFlags(&commonFlags)
 
-			if resolvedConfig.RpcURL == "" {
+			if resolvedConfig.RPCURL == "" {
 				return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
 			}
 			if resolvedConfig.ValidatorManagerContractAddr == "" {

@@ -17,7 +17,7 @@ func NewConfigCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		newSetRpcCmd(),
+		newSetRPCCmd(),
 		newSetContractCmd(),
 		newShowConfigCmd(),
 	)
@@ -25,8 +25,8 @@ func NewConfigCmd() *cobra.Command {
 	return cmd
 }
 
-// newSetRpcCmd creates the set-rpc command
-func newSetRpcCmd() *cobra.Command {
+// newSetRPCCmd creates the set-rpc command
+func newSetRPCCmd() *cobra.Command {
 	var network string
 
 	cmd := &cobra.Command{
@@ -44,7 +44,7 @@ func newSetRpcCmd() *cobra.Command {
 
 			// Get current network config
 			networkConfig := cfg.GetNetworkConfig(network)
-			networkConfig.RpcURL = rpcURL
+			networkConfig.RPCURL = rpcURL
 
 			// Set the updated network config
 			cfg.SetNetworkConfig(network, networkConfig)
@@ -54,15 +54,15 @@ func newSetRpcCmd() *cobra.Command {
 			}
 
 			networkDisplay := network
-			if networkDisplay == "" || networkDisplay == "default" {
-				networkDisplay = "default"
+			if networkDisplay == "" || networkDisplay == config.DefaultNetworkName {
+				networkDisplay = config.DefaultNetworkName
 			}
 			fmt.Printf("✅ RPC URL set to: %s (network: %s)\n", rpcURL, networkDisplay)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to 'default')")
+	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to '"+config.DefaultNetworkName+"')")
 
 	return cmd
 }
@@ -107,15 +107,15 @@ func newSetContractCmd() *cobra.Command {
 			}
 
 			networkDisplay := network
-			if networkDisplay == "" || networkDisplay == "default" {
-				networkDisplay = "default"
+			if networkDisplay == "" || networkDisplay == config.DefaultNetworkName {
+				networkDisplay = config.DefaultNetworkName
 			}
 			fmt.Printf("✅ ValidatorManager contract address set to: %s (network: %s)\n", contractAddr, networkDisplay)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to 'default')")
+	cmd.Flags().StringVar(&network, "network", "", "Network name (defaults to '"+config.DefaultNetworkName+"')")
 	cmd.Flags().String("validator-manager", "", "ValidatorManager contract address")
 	cmd.MarkFlagRequired("validator-manager")
 
@@ -137,9 +137,9 @@ func newShowConfigCmd() *cobra.Command {
 			fmt.Println("===== Current Configuration =====")
 
 			// Show default network
-			fmt.Println("\n[default]")
-			if cfg.Default.RpcURL != "" {
-				fmt.Printf("rpc-url                                = %s\n", cfg.Default.RpcURL)
+			fmt.Printf("\n[%s]\n", config.DefaultNetworkName)
+			if cfg.Default.RPCURL != "" {
+				fmt.Printf("rpc-url                                = %s\n", cfg.Default.RPCURL)
 			} else {
 				fmt.Printf("rpc-url                                = (not set)\n")
 			}
@@ -154,8 +154,8 @@ func newShowConfigCmd() *cobra.Command {
 			for _, networkName := range cfg.GetNetworkNames() {
 				networkConfig := cfg.GetNetworkConfig(networkName)
 				fmt.Printf("\n[%s]\n", networkName)
-				if networkConfig.RpcURL != "" {
-					fmt.Printf("rpc-url                                = %s\n", networkConfig.RpcURL)
+				if networkConfig.RPCURL != "" {
+					fmt.Printf("rpc-url                                = %s\n", networkConfig.RPCURL)
 				} else {
 					fmt.Printf("rpc-url                                = (not set)\n")
 				}

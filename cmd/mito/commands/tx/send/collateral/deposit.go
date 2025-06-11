@@ -108,7 +108,8 @@ func NewDepositCmd() *cobra.Command {
 func validateSendCollateralDepositFields(config *config.ResolvedConfig, collateralFlags *struct {
 	validator string
 	amount    string
-}) error {
+},
+) error {
 	if err := validateSendCollateralFields(config); err != nil {
 		return err
 	}

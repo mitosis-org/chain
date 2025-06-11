@@ -146,7 +146,7 @@ func ValidateValidatorUpdateFields(config *config.ResolvedConfig, fields *Valida
 // ValidateNetworkFields validates network-related fields
 func ValidateNetworkFields(config *config.ResolvedConfig, requireNetwork bool) error {
 	if requireNetwork {
-		if config.RpcURL == "" {
+		if config.RPCURL == "" {
 			return fmt.Errorf("RPC URL is required (use --rpc-url or set with 'mito config set-rpc')")
 		}
 		if config.ValidatorManagerContractAddr == "" {

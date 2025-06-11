@@ -115,7 +115,8 @@ func validateSendCollateralSetPermittedOwnerFields(config *config.ResolvedConfig
 	validator       string
 	collateralOwner string
 	isPermitted     bool
-}) error {
+},
+) error {
 	if err := validateSendCollateralFields(config); err != nil {
 		return err
 	}

@@ -107,7 +107,8 @@ func NewTransferOwnershipCmd() *cobra.Command {
 func validateSendCollateralTransferOwnershipFields(config *config.ResolvedConfig, collateralFlags *struct {
 	validator string
 	newOwner  string
-}) error {
+},
+) error {
 	if err := validateSendCollateralFields(config); err != nil {
 		return err
 	}
