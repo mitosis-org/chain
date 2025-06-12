@@ -10,6 +10,7 @@ Mito is a command-line tool for interacting with the Mitosis blockchain, providi
 - **Transaction Management**: Create and send transactions with support for both signed and unsigned modes
 - **Validator Operations**: Create, update, and manage validators
 - **Collateral Management**: Deposit and withdraw collateral for validators
+- **Wallet Management**: Create, import, and manage wallets with cast-compatible keystore support
 - **Advanced Security**: Support for private keys and geth keyfiles with comprehensive validation
 - **Intelligent Error Handling**: Clear error messages and automatic fallbacks
 
@@ -27,9 +28,9 @@ go build -o mito .
 ./mito config set-rpc https://rpc.dognet.mitosis.org
 ./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
-# Create or import account with cast wallet
-cast wallet new my-validator
-# or import existing: cast wallet import my-validator --interactive
+# Create account with mito wallet or cast wallet
+./mito wallet new . my-validator
+# or: cast wallet new . my-validator
 
 # Create a validator (online mode)
 ./mito tx send validator create \
@@ -39,7 +40,7 @@ cast wallet new my-validator
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"MyValidator"}' \
-  --keyfile ~/.foundry/keystores/my-validator
+  --keyfile ./my-validator
 
 # Check validator info
 ./mito query validator info --address 0x1234...
@@ -348,6 +349,90 @@ Creates, signs, and broadcasts transactions to the network:
   --keyfile ./keystore/keyfile
 ```
 
+## Wallet Management
+
+Mito provides built-in wallet management capabilities fully compatible with cast (Foundry) keystore format. You can use either mito wallet commands or cast wallet commands interchangeably.
+
+### Create New Wallet
+```bash
+# Create new random keypair (display only)
+./mito wallet new
+
+# Create new keypair and save to keystore with account name
+./mito wallet new ~/.mito/keystores my-validator
+# Enter password when prompted
+
+# Create new keypair with auto-generated UUID name
+./mito wallet new ~/.mito/keystores
+# Enter password when prompted
+
+# Create with unsafe password (not recommended)
+./mito wallet new ~/.mito/keystores my-validator --unsafe-password mypassword
+```
+
+### Generate Mnemonic
+```bash
+# Generate 12-word mnemonic (default)
+./mito wallet new-mnemonic
+
+# Generate 24-word mnemonic with multiple accounts
+./mito wallet new-mnemonic --words 24 --accounts 3
+```
+
+### Import Existing Wallet
+```bash
+# Import from private key (interactive)
+./mito wallet import my-validator --interactive
+
+# Import from private key (non-interactive)
+./mito wallet import my-validator --private-key 0x1234... --unsafe-password mypass
+
+# Import from mnemonic
+./mito wallet import my-validator \
+  --mnemonic "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about" \
+  --unsafe-password mypass
+
+# Import with specific mnemonic index
+./mito wallet import my-validator \
+  --mnemonic "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about" \
+  --mnemonic-index 1 \
+  --unsafe-password mypass
+
+# Import to custom directory
+./mito wallet import my-validator \
+  --private-key 0x1234... \
+  --keystore-dir ./custom-keystores \
+  --unsafe-password mypass
+```
+
+### List Wallets
+```bash
+# List wallets in default directory (~/.mito/keystores)
+./mito wallet list
+
+# List wallets in custom directory
+./mito wallet list --dir ./custom-keystores
+```
+
+### Keystore Compatibility
+
+All mito wallet commands create keystores compatible with cast (Foundry) and geth. The keystores are stored in `~/.mito/keystores` by default, following the same format as cast's `~/.foundry/keystores`.
+
+```bash
+# You can use cast commands with mito keystores
+cast wallet list --dir ~/.mito/keystores
+
+# And use mito commands with cast keystores
+./mito wallet list --dir ~/.foundry/keystores
+
+# Use mito keystores with mito transactions
+./mito tx send validator create \
+  --pubkey 0x1234... \
+  --operator 0x5678... \
+  --commission-rate 5% \
+  --keyfile ~/.mito/keystores/my-validator
+```
+
 ## Security Features
 
 ### Signing Methods (Mutually Exclusive)
@@ -376,28 +461,30 @@ Choose exactly one signing method:
 
 ### Keyfile Compatibility
 
-Mito is compatible with standard Ethereum keystore formats ([EIP-2335](https://eips.ethereum.org/EIPS/eip-2335)) used by both **cast** (Foundry) and **geth**. We recommend using **cast wallet** for key management as it provides a more modern and user-friendly interface.
+Mito is compatible with standard Ethereum keystore formats ([EIP-2335](https://eips.ethereum.org/EIPS/eip-2335)) used by both **cast** (Foundry) and **geth**. You can use either **mito wallet** or **cast wallet** for key management.
 
-#### Recommended: Using Cast Wallet
+#### Key Management Options
 
-Cast wallet provides excellent key management capabilities and is fully compatible with mito:
+Both mito and cast provide excellent key management capabilities:
 
 ```bash
-# Create a new account with cast
+# Option 1: Using mito wallet (built-in)
+./mito wallet new ~/.mito/keystores
+./mito wallet import my-validator-key --interactive
+./mito wallet list
+
+# Option 2: Using cast wallet (external)
 cast wallet new my-validator-key
-
-# Import existing private key
 cast wallet import my-validator-key --interactive
-
-# List all accounts
 cast wallet list
 
-# Use cast keyfile with mito
+# Both create compatible keystores
 ./mito tx send validator create \
   --pubkey 0x1234... \
   --operator 0x1234... \
   --commission-rate 5% \
-  --keyfile ~/.foundry/keystores/my-validator-key
+  --keyfile ~/.mito/keystores/my-validator-key
+  # or --keyfile ~/.foundry/keystores/my-validator-key
 ```
 
 ### Transaction Modes (Mutually Exclusive)
@@ -539,6 +626,11 @@ mito
 │   │   └── config
 │   └── contract
 │       └── validator
+├── wallet
+│   ├── new (create new random keypair)
+│   ├── new-mnemonic (generate BIP39 mnemonic)
+│   ├── import (import private key or mnemonic)
+│   └── list (list accounts in keystore)
 ├── config
 │   ├── set-rpc
 │   ├── set-contract
