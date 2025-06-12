@@ -47,7 +47,7 @@ cast send or any other that requires a private key.`,
 			}
 
 			// Create keystore directory if it doesn't exist
-			if err := os.MkdirAll(keystoreDir, 0755); err != nil {
+			if err := os.MkdirAll(keystoreDir, 0o755); err != nil {
 				return fmt.Errorf("failed to create keystore directory: %w", err)
 			}
 

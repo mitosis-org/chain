@@ -16,9 +16,7 @@ import (
 
 // NewNewCmd creates the wallet new command
 func NewNewCmd() *cobra.Command {
-	var (
-		unsafePassword string
-	)
+	var unsafePassword string
 
 	cmd := &cobra.Command{
 		Use:   "new [path] [account_name]",
@@ -110,7 +108,7 @@ func formatPrivateKey(key *ecdsa.PrivateKey) string {
 // promptPassword prompts user for password securely
 func promptPassword() (string, error) {
 	fmt.Print("Enter password: ")
-	password, err := term.ReadPassword(int(syscall.Stdin))
+	password, err := term.ReadPassword(syscall.Stdin)
 	fmt.Println() // Add newline after password input
 	if err != nil {
 		return "", err
