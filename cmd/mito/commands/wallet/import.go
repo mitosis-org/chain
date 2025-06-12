@@ -17,14 +17,12 @@ import (
 // NewImportCmd creates the wallet import command
 func NewImportCmd() *cobra.Command {
 	var (
-		keystoreDir        string
-		interactive        bool
-		unsafePassword     string
-		mnemonicDerivPath  string
-		mnemonicIndex      int
-		mnemonicPassphrase string
-		mnemonic           string
-		privateKey         string
+		keystoreDir    string
+		interactive    bool
+		unsafePassword string
+		mnemonicIndex  int
+		mnemonic       string
+		privateKey     string
 	)
 
 	cmd := &cobra.Command{
@@ -125,9 +123,7 @@ cast send or any other that requires a private key.`,
 	cmd.Flags().BoolVarP(&interactive, "interactive", "i", false, "Open an interactive prompt to enter your private key")
 	cmd.Flags().StringVar(&privateKey, "private-key", "", "Use the provided private key")
 	cmd.Flags().StringVar(&mnemonic, "mnemonic", "", "Use the mnemonic phrase of mnemonic file at the specified path")
-	cmd.Flags().StringVar(&mnemonicPassphrase, "mnemonic-passphrase", "", "Use a BIP39 passphrase for the mnemonic")
-	cmd.Flags().StringVar(&mnemonicDerivPath, "mnemonic-derivation-path", "", "The wallet derivation path. Works with both --mnemonic-path and hardware wallets.")
-	cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Use the private key from the given mnemonic index. Used with --mnemonic-path.")
+	cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Use the private key from the given mnemonic index. Used with --mnemonic.")
 
 	return cmd
 }

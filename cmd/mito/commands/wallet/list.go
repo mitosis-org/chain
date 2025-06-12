@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/spf13/cobra"
 )
 
@@ -59,20 +58,4 @@ func NewListCmd() *cobra.Command {
 	cmd.Flags().StringVar(&dir, "dir", "", "List all the accounts in the keystore directory. Default keystore directory (~/.mito/keystores) is used if no path provided")
 
 	return cmd
-}
-
-// isValidKeystoreFile checks if a file is a valid keystore file
-func isValidKeystoreFile(filePath string) bool {
-	// Try to load the keystore file
-	ks := keystore.NewKeyStore(filepath.Dir(filePath), keystore.StandardScryptN, keystore.StandardScryptP)
-	accounts := ks.Accounts()
-
-	// Check if any account matches this file
-	for _, account := range accounts {
-		if account.URL.Path == filePath {
-			return true
-		}
-	}
-
-	return false
 }
