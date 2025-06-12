@@ -40,7 +40,7 @@ go build -o mito .
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"MyValidator"}' \
-  --keyfile ./my-validator
+  --account my-validator
 
 # Check validator info
 ./mito query validator info --address 0x1234...

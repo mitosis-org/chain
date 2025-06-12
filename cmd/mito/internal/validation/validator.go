@@ -35,12 +35,24 @@ func ValidateCreateTxFlagGroups(cmd *cobra.Command) error {
 		return fmt.Errorf("cannot specify both --signed and --unsigned")
 	}
 
-	// Check private key vs keyfile
+	// Check signing method flags (mutually exclusive)
 	privateKey := cmd.Flags().Changed("private-key")
 	keyfile := cmd.Flags().Changed("keyfile")
+	account := cmd.Flags().Changed("account")
 
-	if privateKey && keyfile {
-		return fmt.Errorf("cannot specify both --private-key and --keyfile")
+	signingMethods := 0
+	if privateKey {
+		signingMethods++
+	}
+	if keyfile {
+		signingMethods++
+	}
+	if account {
+		signingMethods++
+	}
+
+	if signingMethods > 1 {
+		return fmt.Errorf("cannot specify multiple signing methods (use only one of --private-key, --keyfile, or --account)")
 	}
 
 	// Check keyfile password options
@@ -60,8 +72,8 @@ func ValidateCreateTxFlagGroups(cmd *cobra.Command) error {
 
 	// Check if signing is required for signed transactions
 	if signed || (!signed && !unsigned) { // Default to signed
-		if !privateKey && !keyfile {
-			return fmt.Errorf("signing method is required for signed transactions (use --private-key or --keyfile)")
+		if signingMethods == 0 {
+			return fmt.Errorf("signing method is required for signed transactions (use --private-key, --keyfile, or --account)")
 		}
 	}
 
@@ -73,13 +85,25 @@ func ValidateSendTxFlagGroups(cmd *cobra.Command) error {
 	// Send transactions are always signed, so signing method is required
 	privateKey := cmd.Flags().Changed("private-key")
 	keyfile := cmd.Flags().Changed("keyfile")
+	account := cmd.Flags().Changed("account")
 
-	if !privateKey && !keyfile {
-		return fmt.Errorf("signing method is required for sending transactions (use --private-key or --keyfile)")
+	signingMethods := 0
+	if privateKey {
+		signingMethods++
+	}
+	if keyfile {
+		signingMethods++
+	}
+	if account {
+		signingMethods++
 	}
 
-	if privateKey && keyfile {
-		return fmt.Errorf("cannot specify both --private-key and --keyfile")
+	if signingMethods == 0 {
+		return fmt.Errorf("signing method is required for sending transactions (use --private-key, --keyfile, or --account)")
+	}
+
+	if signingMethods > 1 {
+		return fmt.Errorf("cannot specify multiple signing methods (use only one of --private-key, --keyfile, or --account)")
 	}
 
 	// Check keyfile password options
@@ -159,7 +183,7 @@ func ValidateNetworkFields(config *config.ResolvedConfig, requireNetwork bool) e
 // ValidateSigningFields validates signing-related fields
 func ValidateSigningFields(config *config.ResolvedConfig, requireSigning bool) error {
 	if requireSigning && !config.HasSigningMethod() {
-		return fmt.Errorf("signing method is required (use --private-key or --keyfile)")
+		return fmt.Errorf("signing method is required (use --private-key, --keyfile, or --account)")
 	}
 	return nil
 }
