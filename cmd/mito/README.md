@@ -417,6 +417,31 @@ Mito provides built-in wallet management capabilities fully compatible with cast
 ./mito wallet list --dir ./custom-keystores
 ```
 
+### Export Private Key
+```bash
+# Export private key from default keystore
+./mito wallet export my-validator
+# Enter password when prompted
+
+# Export from custom keystore directory
+./mito wallet export my-validator --keystore-dir ./custom-keystores
+
+# Export with unsafe password (not recommended)
+./mito wallet export my-validator --unsafe-password mypassword
+```
+
+### Delete Wallet
+```bash
+# Delete wallet with confirmation prompt
+./mito wallet delete my-validator
+
+# Delete from custom keystore directory
+./mito wallet delete my-validator --keystore-dir ./custom-keystores
+
+# Delete without confirmation (skip prompt)
+./mito wallet delete my-validator --yes
+```
+
 ### Keystore Compatibility
 
 All mito wallet commands create keystores compatible with cast (Foundry) and geth. The keystores are stored in `~/.mito/keystores` by default, following the same format as cast's `~/.foundry/keystores`.
@@ -633,7 +658,9 @@ mito
 │   ├── new (create new random keypair)
 │   ├── new-mnemonic (generate BIP39 mnemonic)
 │   ├── import (import private key or mnemonic)
-│   └── list (list accounts in keystore)
+│   ├── list (list accounts in keystore)
+│   ├── export (export private key from keystore)
+│   └── delete (delete keystore file)
 ├── config
 │   ├── set-rpc
 │   ├── set-contract

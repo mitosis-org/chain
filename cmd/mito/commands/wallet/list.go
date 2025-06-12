@@ -84,7 +84,7 @@ func NewListCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dir, "dir", "", "List all the accounts in the keystore directory. Default keystore directory (~/.mito/keystores) is used if no path provided")
+	cmd.Flags().StringVar(&dir, "keystore-dir", "", "List all the accounts in the keystore directory. Default keystore directory (~/.mito/keystores) is used if no path provided")
 
 	return cmd
 }

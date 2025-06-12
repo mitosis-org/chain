@@ -15,7 +15,9 @@ This command provides wallet management operations including:
 - wallet new: Create a new random keypair
 - wallet new-mnemonic: Create a new mnemonic with a set number of words
 - wallet import: Import a private key into an encrypted keystore
-- wallet list: List all accounts in the keystore directory`,
+- wallet list: List all accounts in the keystore directory
+- wallet export: Export a private key from an encrypted keystore
+- wallet delete: Delete an encrypted keystore file`,
 	}
 
 	// Add subcommands
@@ -24,6 +26,8 @@ This command provides wallet management operations including:
 		NewNewMnemonicCmd(),
 		NewImportCmd(),
 		NewListCmd(),
+		NewExportCmd(),
+		NewDeleteCmd(),
 	)
 
 	return cmd
