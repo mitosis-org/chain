@@ -9,7 +9,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
@@ -17,15 +16,16 @@ import (
 // NewNewCmd creates the wallet new command
 func NewNewCmd() *cobra.Command {
 	var unsafePassword string
+	var keystoreDir string
 
 	cmd := &cobra.Command{
-		Use:   "new [path] [account_name]",
+		Use:   "new [account_name]",
 		Short: "Create a new random keypair",
 		Long: `Create a new random keypair.
 
-If path is specified, then keypair will be written to an encrypted JSON keystore.
-If account_name is provided, the keystore file will be named using this account name.`,
-		Args: cobra.MaximumNArgs(2),
+If account_name is provided, the keypair will be saved to an encrypted JSON keystore.
+Use --keystore-dir to specify the keystore directory (default: ~/.mito/keystores).`,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Generate a new private key
 			privateKey, err := crypto.GenerateKey()
@@ -35,7 +35,7 @@ If account_name is provided, the keystore file will be named using this account 
 
 			address := crypto.PubkeyToAddress(privateKey.PublicKey)
 
-			// If no path specified, just print the keypair
+			// If no account name specified, just print the keypair
 			if len(args) == 0 {
 				fmt.Printf("Successfully created new keypair.\n")
 				fmt.Printf("Address:     %s\n", address.Hex())
@@ -43,12 +43,25 @@ If account_name is provided, the keystore file will be named using this account 
 				return nil
 			}
 
-			// If path specified, save to keystore
-			keystorePath := args[0]
+			// Account name provided, save to keystore
+			accountName := args[0]
 
-			// Check if directory exists
-			if _, err := os.Stat(keystorePath); os.IsNotExist(err) {
-				return fmt.Errorf("directory does not exist: %s", keystorePath)
+			// Determine keystore directory
+			var keystorePath string
+			if keystoreDir == "" {
+				// Use default keystore directory
+				homeDir, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf("failed to get user home directory: %w", err)
+				}
+				keystorePath = filepath.Join(homeDir, ".mito", "keystores")
+			} else {
+				keystorePath = keystoreDir
+			}
+
+			// Create keystore directory if it doesn't exist
+			if err := os.MkdirAll(keystorePath, 0700); err != nil {
+				return fmt.Errorf("failed to create keystore directory: %w", err)
 			}
 
 			// Get password
@@ -69,23 +82,10 @@ If account_name is provided, the keystore file will be named using this account 
 				return fmt.Errorf("failed to import key to keystore: %w", err)
 			}
 
-			// Determine final file name
-			var finalPath string
-			if len(args) >= 2 {
-				// Account name provided - rename to account name (like cast)
-				accountName := args[1]
-				finalPath = filepath.Join(keystorePath, accountName)
-				if err := os.Rename(account.URL.Path, finalPath); err != nil {
-					return fmt.Errorf("failed to rename keystore file: %w", err)
-				}
-			} else {
-				// No account name - use UUID (like cast)
-				oldPath := account.URL.Path
-				uuidName := uuid.New().String()
-				finalPath = filepath.Join(keystorePath, uuidName)
-				if err := os.Rename(oldPath, finalPath); err != nil {
-					return fmt.Errorf("failed to rename keystore file: %w", err)
-				}
+			// Rename to account name
+			finalPath := filepath.Join(keystorePath, accountName)
+			if err := os.Rename(account.URL.Path, finalPath); err != nil {
+				return fmt.Errorf("failed to rename keystore file: %w", err)
 			}
 
 			fmt.Printf("Created new encrypted keystore file: %s\n", finalPath)
@@ -96,6 +96,7 @@ If account_name is provided, the keystore file will be named using this account 
 	}
 
 	cmd.Flags().StringVar(&unsafePassword, "unsafe-password", "", "Password for the JSON keystore in cleartext (unsafe)")
+	cmd.Flags().StringVar(&keystoreDir, "keystore-dir", "", "Directory to store the keystore file (default: ~/.mito/keystores)")
 
 	return cmd
 }

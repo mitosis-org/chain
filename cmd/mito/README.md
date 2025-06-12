@@ -29,8 +29,8 @@ go build -o mito .
 ./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
 # Create account with mito wallet or cast wallet
-./mito wallet new . my-validator
-# or: cast wallet new . my-validator
+./mito wallet new my-validator
+# or: cast wallet new my-validator
 
 # Create a validator (online mode)
 ./mito tx send validator create \
@@ -358,16 +358,19 @@ Mito provides built-in wallet management capabilities fully compatible with cast
 # Create new random keypair (display only)
 ./mito wallet new
 
-# Create new keypair and save to keystore with account name
-./mito wallet new ~/.mito/keystores my-validator
+# Create new keypair and save to default keystore (~/.mito/keystores) with account name
+./mito wallet new my-validator
 # Enter password when prompted
 
-# Create new keypair with auto-generated UUID name
-./mito wallet new ~/.mito/keystores
+# Create new keypair and save to custom keystore directory
+./mito wallet new my-validator --keystore-dir ~/.foundry/keystores
 # Enter password when prompted
 
 # Create with unsafe password (not recommended)
-./mito wallet new ~/.mito/keystores my-validator --unsafe-password mypassword
+./mito wallet new my-validator --unsafe-password mypassword
+
+# Create with custom keystore directory and unsafe password
+./mito wallet new my-validator --keystore-dir ./custom-keystores --unsafe-password mypassword
 ```
 
 ### Generate Mnemonic
@@ -469,7 +472,7 @@ Both mito and cast provide excellent key management capabilities:
 
 ```bash
 # Option 1: Using mito wallet (built-in)
-./mito wallet new ~/.mito/keystores
+./mito wallet new my-validator-key
 ./mito wallet import my-validator-key --interactive
 ./mito wallet list
 
