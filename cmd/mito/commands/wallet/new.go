@@ -19,7 +19,7 @@ func NewNewCmd() *cobra.Command {
 	var keystoreDir string
 
 	cmd := &cobra.Command{
-		Use:   "new [account_name]",
+		Use:   "new <account_name>",
 		Short: "Create a new random keypair",
 		Long: `Create a new random keypair.
 

@@ -1,12 +1,38 @@
 package wallet
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
+
+// isValidKeystoreFile checks if a file is a valid Ethereum keystore file
+func isValidKeystoreFile(filePath string) bool {
+	// Read file content
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return false
+	}
+
+	// Try to parse as JSON
+	var keystore map[string]interface{}
+	if err := json.Unmarshal(content, &keystore); err != nil {
+		return false
+	}
+
+	// Check for required keystore fields
+	requiredFields := []string{"address", "crypto", "id", "version"}
+	for _, field := range requiredFields {
+		if _, exists := keystore[field]; !exists {
+			return false
+		}
+	}
+
+	return true
+}
 
 // NewListCmd creates the wallet list command
 func NewListCmd() *cobra.Command {
@@ -39,16 +65,19 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("failed to read keystore directory: %w", err)
 			}
 
-			// Filter for keystore files and extract account names
+			// Filter for valid keystore files only
 			for _, file := range files {
 				if file.IsDir() {
 					continue
 				}
 
 				fileName := file.Name()
-				// Don't check if it's a "valid" keystore file - just include all files
-				// This matches cast's behavior more closely
-				fmt.Printf("%s (Local)\n", fileName)
+				filePath := filepath.Join(keystoreDir, fileName)
+
+				// Only show valid keystore files
+				if isValidKeystoreFile(filePath) {
+					fmt.Printf("%s\n", fileName)
+				}
 			}
 
 			return nil

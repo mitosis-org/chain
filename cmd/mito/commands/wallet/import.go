@@ -26,7 +26,7 @@ func NewImportCmd() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "import <account_name>",
+		Use:   "import [account_name]",
 		Short: "Import a private key into an encrypted keystore",
 		Long: `Import a private key into an encrypted keystore.
 
