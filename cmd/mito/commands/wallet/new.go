@@ -60,7 +60,7 @@ Use --keystore-dir to specify the keystore directory (default: ~/.mito/keystores
 			}
 
 			// Create keystore directory if it doesn't exist
-			if err := os.MkdirAll(keystorePath, 0700); err != nil {
+			if err := os.MkdirAll(keystorePath, 0o755); err != nil {
 				return fmt.Errorf("failed to create keystore directory: %w", err)
 			}
 
