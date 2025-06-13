@@ -59,7 +59,7 @@ func AddSigningFlags(cmd *cobra.Command, flags *CommonFlags) {
 
 	// Account-based signing flags
 	cmd.Flags().StringVar(&flags.Account, "account", "", "Account name from keystore (use with wallet new)")
-	cmd.Flags().StringVar(&flags.KeystorePath, "keystore-path", "", "Custom keystore directory path (default: ~/.mito/keystores)")
+	cmd.Flags().StringVar(&flags.KeystorePath, "keystore-dir", "", "Custom keystore directory path (default: ~/.mito/keystores)")
 }
 
 // AddNetworkFlags adds only network-related flags
