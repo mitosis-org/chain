@@ -150,7 +150,7 @@ Requires RPC connection and automatically detects:
   --pubkey 0x1234... \
   --operator 0x5678... \
   --commission-rate 5% \
-  --keyfile ~/.foundry/keystores/my-validator
+  --account my-validator
 ```
 
 ### Offline Mode
@@ -498,7 +498,6 @@ Both mito and cast provide excellent key management capabilities:
 ```bash
 # Option 1: Using mito wallet (built-in)
 ./mito wallet new my-validator-key
-./mito wallet import my-validator-key --interactive
 ./mito wallet list
 
 # Option 2: Using cast wallet (external)
@@ -511,8 +510,8 @@ cast wallet list
   --pubkey 0x1234... \
   --operator 0x1234... \
   --commission-rate 5% \
-  --keyfile ~/.mito/keystores/my-validator-key
-  # or --keyfile ~/.foundry/keystores/my-validator-key
+  --account my-validator-key
+  # or --keyfile ~/.foundry/keystores/my-validator-key 
 ```
 
 ### Transaction Modes (Mutually Exclusive)
