@@ -18,6 +18,10 @@ type CommonFlags struct {
 	KeyfilePassword     string
 	KeyfilePasswordFile string
 
+	// Account-based signing flags
+	Account      string
+	KeystorePath string
+
 	// Transaction flags
 	GasLimit    uint64
 	GasPrice    string
@@ -52,6 +56,10 @@ func AddSigningFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().StringVar(&flags.KeyfilePath, "keyfile", "", "Path to keyfile")
 	cmd.Flags().StringVar(&flags.KeyfilePassword, "keyfile-password", "", "Password for keyfile")
 	cmd.Flags().StringVar(&flags.KeyfilePasswordFile, "keyfile-password-file", "", "File containing keyfile password")
+
+	// Account-based signing flags
+	cmd.Flags().StringVar(&flags.Account, "account", "", "Account name from keystore (use with wallet new)")
+	cmd.Flags().StringVar(&flags.KeystorePath, "keystore-dir", "", "Custom keystore directory path (default: ~/.mito/keystores)")
 }
 
 // AddNetworkFlags adds only network-related flags

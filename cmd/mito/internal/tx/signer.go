@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -23,11 +24,13 @@ type SigningMethod int
 const (
 	SigningMethodPrivateKey SigningMethod = iota
 	SigningMethodKeyfile
+	SigningMethodAccount
 )
 
 // Signer handles transaction signing with different methods
 type Signer struct {
-	config *config.ResolvedConfig
+	config        *config.ResolvedConfig
+	signingConfig *SigningConfig // Cache the signing config to avoid multiple password prompts
 }
 
 // SigningConfig holds the signing configuration
@@ -48,6 +51,10 @@ func NewSigner(config *config.ResolvedConfig) *Signer {
 
 // GetSigningConfig determines the signing method and returns the configuration
 func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
+	if s.signingConfig != nil {
+		return s.signingConfig, nil
+	}
+
 	config := &SigningConfig{}
 
 	// Check if private key is provided
@@ -59,6 +66,7 @@ func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
 		config.Method = SigningMethodPrivateKey
 		config.PrivateKey = privKey
 		config.Address = ethcrypto.PubkeyToAddress(privKey.PublicKey)
+		s.signingConfig = config
 		return config, nil
 	}
 
@@ -79,10 +87,37 @@ func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
 		config.KeyfilePath = s.config.KeyfilePath
 		config.KeyfilePassword = password
 		config.Address = ethcrypto.PubkeyToAddress(privKey.PublicKey)
+		s.signingConfig = config
 		return config, nil
 	}
 
-	return nil, fmt.Errorf("no signing method provided: use --private-key or --keyfile")
+	// Check if account is provided
+	if s.config.Account != "" {
+		keyfilePath, err := s.getKeystorePathFromAccount(s.config.Account)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get keystore path for account '%s': %w", s.config.Account, err)
+		}
+
+		password, err := s.getKeyfilePassword()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get keyfile password: %w", err)
+		}
+
+		privKey, err := loadPrivateKeyFromKeyfile(keyfilePath, password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load private key from keyfile: %w", err)
+		}
+
+		config.Method = SigningMethodAccount
+		config.PrivateKey = privKey
+		config.KeyfilePath = keyfilePath
+		config.KeyfilePassword = password
+		config.Address = ethcrypto.PubkeyToAddress(privKey.PublicKey)
+		s.signingConfig = config
+		return config, nil
+	}
+
+	return nil, fmt.Errorf("no signing method provided: use --private-key, --keyfile, or --account")
 }
 
 // SignTransaction signs a transaction with the configured signing method
@@ -169,4 +204,28 @@ func loadPrivateKeyFromKeyfile(keyfilePath, password string) (*ecdsa.PrivateKey,
 	}
 
 	return parsedKey.PrivateKey, nil
+}
+
+// getKeystorePathFromAccount returns the keystore file path for the given account name
+func (s *Signer) getKeystorePathFromAccount(accountName string) (string, error) {
+	// Determine keystore directory
+	var keystoreDir string
+	if s.config.KeystorePath != "" {
+		keystoreDir = s.config.KeystorePath
+	} else {
+		// Use default keystore directory
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user home directory: %w", err)
+		}
+		keystoreDir = filepath.Join(homeDir, ".mito", "keystores")
+	}
+
+	// Check if keystore file exists
+	keystoreFile := filepath.Join(keystoreDir, accountName)
+	if _, err := os.Stat(keystoreFile); os.IsNotExist(err) {
+		return "", fmt.Errorf("keystore file not found: %s", keystoreFile)
+	}
+
+	return keystoreFile, nil
 }

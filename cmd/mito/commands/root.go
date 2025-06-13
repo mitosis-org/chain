@@ -6,6 +6,7 @@ import (
 	"github.com/mitosis-org/chain/cmd/mito/commands/tx/create"
 	"github.com/mitosis-org/chain/cmd/mito/commands/tx/send"
 	"github.com/mitosis-org/chain/cmd/mito/commands/version"
+	"github.com/mitosis-org/chain/cmd/mito/commands/wallet"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,7 @@ Features:
 - Online/Offline transaction support
 - Comprehensive validator management
 - Extensible query operations
+- Wallet management utilities
 - Clean and maintainable architecture`,
 	}
 
@@ -34,6 +36,9 @@ Features:
 
 		// Query commands
 		newQueryCmd(),
+
+		// Wallet commands
+		wallet.NewWalletCmd(),
 
 		// Existing commands
 		config.NewConfigCmd(),
