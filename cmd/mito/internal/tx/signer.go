@@ -2,6 +2,8 @@ package tx
 
 import (
 	"crypto/ecdsa"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"os"
@@ -25,6 +27,7 @@ const (
 	SigningMethodPrivateKey SigningMethod = iota
 	SigningMethodKeyfile
 	SigningMethodAccount
+	SigningMethodPrivValidatorKey
 )
 
 // Signer handles transaction signing with different methods
@@ -40,6 +43,19 @@ type SigningConfig struct {
 	KeyfilePath     string
 	KeyfilePassword string
 	Address         common.Address
+}
+
+// PrivValidatorKey represents the structure of priv_validator_key.json
+type PrivValidatorKey struct {
+	Address string `json:"address"`
+	PubKey  struct {
+		Type  string `json:"type"`
+		Value string `json:"value"`
+	} `json:"pub_key"`
+	PrivKey struct {
+		Type  string `json:"type"`
+		Value string `json:"value"`
+	} `json:"priv_key"`
 }
 
 // NewSigner creates a new transaction signer
@@ -117,7 +133,22 @@ func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
 		return config, nil
 	}
 
-	return nil, fmt.Errorf("no signing method provided: use --private-key, --keyfile, or --account")
+	// Check if priv_validator_key.json is provided
+	if s.config.PrivValidatorKeyPath != "" {
+		privKey, err := loadPrivateKeyFromPrivValidatorKey(s.config.PrivValidatorKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load private key from priv_validator_key.json: %w", err)
+		}
+
+		config.Method = SigningMethodPrivValidatorKey
+		config.PrivateKey = privKey
+		config.KeyfilePath = s.config.PrivValidatorKeyPath
+		config.Address = ethcrypto.PubkeyToAddress(privKey.PublicKey)
+		s.signingConfig = config
+		return config, nil
+	}
+
+	return nil, fmt.Errorf("no signing method provided: use --private-key, --keyfile, --account, or --priv-validator-key")
 }
 
 // SignTransaction signs a transaction with the configured signing method
@@ -228,4 +259,38 @@ func (s *Signer) getKeystorePathFromAccount(accountName string) (string, error) 
 	}
 
 	return keystoreFile, nil
+}
+
+// loadPrivateKeyFromPrivValidatorKey loads a private key from cosmos priv_validator_key.json file
+func loadPrivateKeyFromPrivValidatorKey(keyfilePath string) (*ecdsa.PrivateKey, error) {
+	// Read the priv_validator_key.json file
+	keyfileData, err := os.ReadFile(keyfilePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read priv_validator_key.json: %w", err)
+	}
+
+	// Parse the JSON structure
+	var privValidatorKey PrivValidatorKey
+	if err := json.Unmarshal(keyfileData, &privValidatorKey); err != nil {
+		return nil, fmt.Errorf("failed to parse priv_validator_key.json: %w", err)
+	}
+
+	// Validate the private key type
+	if privValidatorKey.PrivKey.Type != "tendermint/PrivKeySecp256k1" {
+		return nil, fmt.Errorf("unsupported private key type: %s", privValidatorKey.PrivKey.Type)
+	}
+
+	// Decode the base64-encoded private key
+	privKeyBytes, err := base64.StdEncoding.DecodeString(privValidatorKey.PrivKey.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 private key: %w", err)
+	}
+
+	// Convert the raw bytes to ECDSA private key
+	privKey, err := ethcrypto.ToECDSA(privKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert to ECDSA private key: %w", err)
+	}
+
+	return privKey, nil
 }
