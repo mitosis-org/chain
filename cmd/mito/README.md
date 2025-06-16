@@ -2,8 +2,6 @@
 
 Mito is a command-line tool for interacting with the Mitosis blockchain, providing utilities for validator management, transaction handling, and EVM operations.
 
-[toc]
-
 ## Features
 
 - **Unified Unit Handling**: Consistent support for wei, gwei, and MITO units across all commands
