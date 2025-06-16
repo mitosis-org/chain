@@ -2,8 +2,6 @@ package tx
 
 import (
 	"crypto/ecdsa"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"os"
@@ -16,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
-	mitotypes "github.com/mitosis-org/chain/cmd/mito/internal/types"
+	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"golang.org/x/term"
 )
 
@@ -123,7 +121,7 @@ func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
 
 	// Check if priv_validator_key.json is provided
 	if s.config.PrivValidatorKeyPath != "" {
-		privKey, err := loadPrivateKeyFromPrivValidatorKey(s.config.PrivValidatorKeyPath)
+		privKey, err := utils.LoadPrivateKeyFromPrivValidatorKey(s.config.PrivValidatorKeyPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load private key from priv_validator_key.json: %w", err)
 		}
@@ -247,38 +245,4 @@ func (s *Signer) getKeystorePathFromAccount(accountName string) (string, error) 
 	}
 
 	return keystoreFile, nil
-}
-
-// loadPrivateKeyFromPrivValidatorKey loads a private key from cosmos priv_validator_key.json file
-func loadPrivateKeyFromPrivValidatorKey(keyfilePath string) (*ecdsa.PrivateKey, error) {
-	// Read the priv_validator_key.json file
-	keyfileData, err := os.ReadFile(keyfilePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read priv_validator_key.json: %w", err)
-	}
-
-	// Parse the JSON structure
-	var privValidatorKey mitotypes.PrivValidatorKey
-	if err := json.Unmarshal(keyfileData, &privValidatorKey); err != nil {
-		return nil, fmt.Errorf("failed to parse priv_validator_key.json: %w", err)
-	}
-
-	// Validate the private key type
-	if privValidatorKey.PrivKey.Type != "tendermint/PrivKeySecp256k1" {
-		return nil, fmt.Errorf("unsupported private key type: %s", privValidatorKey.PrivKey.Type)
-	}
-
-	// Decode the base64-encoded private key
-	privKeyBytes, err := base64.StdEncoding.DecodeString(privValidatorKey.PrivKey.Value)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 private key: %w", err)
-	}
-
-	// Convert the raw bytes to ECDSA private key
-	privKey, err := ethcrypto.ToECDSA(privKeyBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert to ECDSA private key: %w", err)
-	}
-
-	return privKey, nil
 }

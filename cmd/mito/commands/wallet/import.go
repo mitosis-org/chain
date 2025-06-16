@@ -3,8 +3,6 @@ package wallet
 import (
 	"bufio"
 	"crypto/ecdsa"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,7 +11,7 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/mitosis-org/chain/cmd/mito/internal/types"
+	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -74,7 +72,7 @@ cast send or any other that requires a private key.`,
 				}
 
 			case privValidatorKey != "":
-				key, err = loadPrivateKeyFromPrivValidatorKey(privValidatorKey)
+				key, err = utils.LoadPrivateKeyFromPrivValidatorKey(privValidatorKey)
 				if err != nil {
 					return fmt.Errorf("failed to load private key from priv_validator_key.json: %w", err)
 				}
@@ -137,40 +135,6 @@ cast send or any other that requires a private key.`,
 	cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Use the private key from the given mnemonic index. Used with --mnemonic.")
 
 	return cmd
-}
-
-// loadPrivateKeyFromPrivValidatorKey loads a private key from cosmos priv_validator_key.json file
-func loadPrivateKeyFromPrivValidatorKey(keyfilePath string) (*ecdsa.PrivateKey, error) {
-	// Read the priv_validator_key.json file
-	keyfileData, err := os.ReadFile(keyfilePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read priv_validator_key.json: %w", err)
-	}
-
-	// Parse the JSON structure
-	var privValidatorKey types.PrivValidatorKey
-	if err := json.Unmarshal(keyfileData, &privValidatorKey); err != nil {
-		return nil, fmt.Errorf("failed to parse priv_validator_key.json: %w", err)
-	}
-
-	// Validate the private key type
-	if privValidatorKey.PrivKey.Type != "tendermint/PrivKeySecp256k1" {
-		return nil, fmt.Errorf("unsupported private key type: %s", privValidatorKey.PrivKey.Type)
-	}
-
-	// Decode the base64-encoded private key
-	privKeyBytes, err := base64.StdEncoding.DecodeString(privValidatorKey.PrivKey.Value)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 private key: %w", err)
-	}
-
-	// Convert the raw bytes to ECDSA private key
-	privKey, err := crypto.ToECDSA(privKeyBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert to ECDSA private key: %w", err)
-	}
-
-	return privKey, nil
 }
 
 // getPrivateKeyInteractive prompts user to enter private key interactively
