@@ -16,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
+	mitotypes "github.com/mitosis-org/chain/cmd/mito/internal/types"
 	"golang.org/x/term"
 )
 
@@ -43,19 +44,6 @@ type SigningConfig struct {
 	KeyfilePath     string
 	KeyfilePassword string
 	Address         common.Address
-}
-
-// PrivValidatorKey represents the structure of priv_validator_key.json
-type PrivValidatorKey struct {
-	Address string `json:"address"`
-	PubKey  struct {
-		Type  string `json:"type"`
-		Value string `json:"value"`
-	} `json:"pub_key"`
-	PrivKey struct {
-		Type  string `json:"type"`
-		Value string `json:"value"`
-	} `json:"priv_key"`
 }
 
 // NewSigner creates a new transaction signer
@@ -270,7 +258,7 @@ func loadPrivateKeyFromPrivValidatorKey(keyfilePath string) (*ecdsa.PrivateKey, 
 	}
 
 	// Parse the JSON structure
-	var privValidatorKey PrivValidatorKey
+	var privValidatorKey mitotypes.PrivValidatorKey
 	if err := json.Unmarshal(keyfileData, &privValidatorKey); err != nil {
 		return nil, fmt.Errorf("failed to parse priv_validator_key.json: %w", err)
 	}

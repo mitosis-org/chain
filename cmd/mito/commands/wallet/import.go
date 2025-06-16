@@ -3,6 +3,8 @@ package wallet
 import (
 	"bufio"
 	"crypto/ecdsa"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,18 +13,20 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/mitosis-org/chain/cmd/mito/internal/types"
 	"github.com/spf13/cobra"
 )
 
 // NewImportCmd creates the wallet import command
 func NewImportCmd() *cobra.Command {
 	var (
-		keystoreDir    string
-		interactive    bool
-		unsafePassword string
-		mnemonicIndex  int
-		mnemonic       string
-		privateKey     string
+		keystoreDir      string
+		interactive      bool
+		unsafePassword   string
+		mnemonicIndex    int
+		mnemonic         string
+		privateKey       string
+		privValidatorKey string
 	)
 
 	cmd := &cobra.Command{
@@ -55,7 +59,7 @@ cast send or any other that requires a private key.`,
 			var err error
 
 			// Handle different input methods with proper precedence (like cast)
-			// Priority: interactive > private-key > mnemonic
+			// Priority: interactive > private-key > priv-validator-key > mnemonic
 			switch {
 			case interactive:
 				key, err = getPrivateKeyInteractive()
@@ -67,6 +71,12 @@ cast send or any other that requires a private key.`,
 				key, err = crypto.HexToECDSA(strings.TrimPrefix(privateKey, "0x"))
 				if err != nil {
 					return fmt.Errorf("failed to parse private key: %w", err)
+				}
+
+			case privValidatorKey != "":
+				key, err = loadPrivateKeyFromPrivValidatorKey(privValidatorKey)
+				if err != nil {
+					return fmt.Errorf("failed to load private key from priv_validator_key.json: %w", err)
 				}
 
 			case mnemonic != "":
@@ -81,7 +91,7 @@ cast send or any other that requires a private key.`,
 				}
 
 			default:
-				return fmt.Errorf("no private key source specified (use --interactive, --private-key, or --mnemonic)")
+				return fmt.Errorf("no private key source specified (use --interactive, --private-key, --priv-validator-key, or --mnemonic)")
 			}
 
 			// Get password for keystore encryption
@@ -122,10 +132,45 @@ cast send or any other that requires a private key.`,
 	// Wallet options - raw (matching cast)
 	cmd.Flags().BoolVarP(&interactive, "interactive", "i", false, "Open an interactive prompt to enter your private key")
 	cmd.Flags().StringVar(&privateKey, "private-key", "", "Use the provided private key")
+	cmd.Flags().StringVar(&privValidatorKey, "priv-validator-key", "", "Use the private key from cosmos priv_validator_key.json file")
 	cmd.Flags().StringVar(&mnemonic, "mnemonic", "", "Use the mnemonic phrase of mnemonic file at the specified path")
 	cmd.Flags().IntVar(&mnemonicIndex, "mnemonic-index", 0, "Use the private key from the given mnemonic index. Used with --mnemonic.")
 
 	return cmd
+}
+
+// loadPrivateKeyFromPrivValidatorKey loads a private key from cosmos priv_validator_key.json file
+func loadPrivateKeyFromPrivValidatorKey(keyfilePath string) (*ecdsa.PrivateKey, error) {
+	// Read the priv_validator_key.json file
+	keyfileData, err := os.ReadFile(keyfilePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read priv_validator_key.json: %w", err)
+	}
+
+	// Parse the JSON structure
+	var privValidatorKey types.PrivValidatorKey
+	if err := json.Unmarshal(keyfileData, &privValidatorKey); err != nil {
+		return nil, fmt.Errorf("failed to parse priv_validator_key.json: %w", err)
+	}
+
+	// Validate the private key type
+	if privValidatorKey.PrivKey.Type != "tendermint/PrivKeySecp256k1" {
+		return nil, fmt.Errorf("unsupported private key type: %s", privValidatorKey.PrivKey.Type)
+	}
+
+	// Decode the base64-encoded private key
+	privKeyBytes, err := base64.StdEncoding.DecodeString(privValidatorKey.PrivKey.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 private key: %w", err)
+	}
+
+	// Convert the raw bytes to ECDSA private key
+	privKey, err := crypto.ToECDSA(privKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert to ECDSA private key: %w", err)
+	}
+
+	return privKey, nil
 }
 
 // getPrivateKeyInteractive prompts user to enter private key interactively
