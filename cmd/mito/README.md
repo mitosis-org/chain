@@ -2,6 +2,8 @@
 
 Mito is a command-line tool for interacting with the Mitosis blockchain, providing utilities for validator management, transaction handling, and EVM operations.
 
+[toc]
+
 ## Features
 
 - **Unified Unit Handling**: Consistent support for wei, gwei, and MITO units across all commands
@@ -29,10 +31,9 @@ go build -o mito .
 ./mito config set-contract --validator-manager 0xECF7658978A03b3A35C2c5B33C449D74E8151Db0
 
 # Create account with mito wallet or cast wallet
-./mito wallet new my-validator
-# or: cast wallet new my-validator
+./mito wallet import my-val --priv-validator-key ~/.mitosisd/config/priv_validator_key.json
 
-# Create a validator (online mode)
+# Create a validator
 ./mito tx send validator create \
   --pubkey 0x1234... \
   --operator 0x5678... \
@@ -40,7 +41,7 @@ go build -o mito .
   --commission-rate 5% \
   --initial-collateral 1.5 \
   --metadata '{"name":"MyValidator"}' \
-  --account my-validator
+  --account my-val
 
 # Check validator info
 ./mito query validator info --address 0x1234...
