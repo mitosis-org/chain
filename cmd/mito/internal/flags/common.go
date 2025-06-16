@@ -13,10 +13,11 @@ type CommonFlags struct {
 	ValidatorManagerContractAddr string
 
 	// Signing flags
-	PrivateKey          string
-	KeyfilePath         string
-	KeyfilePassword     string
-	KeyfilePasswordFile string
+	PrivateKey           string
+	KeyfilePath          string
+	KeyfilePassword      string
+	KeyfilePasswordFile  string
+	PrivValidatorKeyPath string
 
 	// Account-based signing flags
 	Account      string
@@ -56,6 +57,7 @@ func AddSigningFlags(cmd *cobra.Command, flags *CommonFlags) {
 	cmd.Flags().StringVar(&flags.KeyfilePath, "keyfile", "", "Path to keyfile")
 	cmd.Flags().StringVar(&flags.KeyfilePassword, "keyfile-password", "", "Password for keyfile")
 	cmd.Flags().StringVar(&flags.KeyfilePasswordFile, "keyfile-password-file", "", "File containing keyfile password")
+	cmd.Flags().StringVar(&flags.PrivValidatorKeyPath, "priv-validator-key", "", "Path to cosmos priv_validator_key.json file")
 
 	// Account-based signing flags
 	cmd.Flags().StringVar(&flags.Account, "account", "", "Account name from keystore (use with wallet new)")

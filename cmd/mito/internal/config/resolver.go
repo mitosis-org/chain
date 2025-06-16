@@ -34,6 +34,7 @@ func (r *Resolver) ResolveFlags(commonFlags *flags.CommonFlags) *ResolvedConfig 
 		KeyfilePath:                  commonFlags.KeyfilePath,
 		KeyfilePassword:              commonFlags.KeyfilePassword,
 		KeyfilePasswordFile:          commonFlags.KeyfilePasswordFile,
+		PrivValidatorKeyPath:         commonFlags.PrivValidatorKeyPath,
 		Account:                      commonFlags.Account,
 		KeystorePath:                 commonFlags.KeystorePath,
 		GasLimit:                     commonFlags.GasLimit,
@@ -57,6 +58,7 @@ type ResolvedConfig struct {
 	KeyfilePath                  string
 	KeyfilePassword              string
 	KeyfilePasswordFile          string
+	PrivValidatorKeyPath         string
 	Account                      string
 	KeystorePath                 string
 	GasLimit                     uint64
@@ -79,7 +81,7 @@ func resolveValue(flagValue, configValue string) string {
 
 // HasSigningMethod checks if any signing method is configured
 func (r *ResolvedConfig) HasSigningMethod() bool {
-	return r.PrivateKey != "" || r.KeyfilePath != "" || r.Account != ""
+	return r.PrivateKey != "" || r.KeyfilePath != "" || r.Account != "" || r.PrivValidatorKeyPath != ""
 }
 
 // GetSigningMethod returns the configured signing method
@@ -92,6 +94,9 @@ func (r *ResolvedConfig) GetSigningMethod() string {
 	}
 	if r.Account != "" {
 		return "account"
+	}
+	if r.PrivValidatorKeyPath != "" {
+		return "priv-validator-key"
 	}
 	return ""
 }

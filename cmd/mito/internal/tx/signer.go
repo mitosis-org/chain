@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/mitosis-org/chain/cmd/mito/internal/config"
+	"github.com/mitosis-org/chain/cmd/mito/internal/utils"
 	"golang.org/x/term"
 )
 
@@ -25,6 +26,7 @@ const (
 	SigningMethodPrivateKey SigningMethod = iota
 	SigningMethodKeyfile
 	SigningMethodAccount
+	SigningMethodPrivValidatorKey
 )
 
 // Signer handles transaction signing with different methods
@@ -117,7 +119,22 @@ func (s *Signer) GetSigningConfig() (*SigningConfig, error) {
 		return config, nil
 	}
 
-	return nil, fmt.Errorf("no signing method provided: use --private-key, --keyfile, or --account")
+	// Check if priv_validator_key.json is provided
+	if s.config.PrivValidatorKeyPath != "" {
+		privKey, err := utils.LoadPrivateKeyFromPrivValidatorKey(s.config.PrivValidatorKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load private key from priv_validator_key.json: %w", err)
+		}
+
+		config.Method = SigningMethodPrivValidatorKey
+		config.PrivateKey = privKey
+		config.KeyfilePath = s.config.PrivValidatorKeyPath
+		config.Address = ethcrypto.PubkeyToAddress(privKey.PublicKey)
+		s.signingConfig = config
+		return config, nil
+	}
+
+	return nil, fmt.Errorf("no signing method provided: use --private-key, --keyfile, --account, or --priv-validator-key")
 }
 
 // SignTransaction signs a transaction with the configured signing method
