@@ -294,7 +294,8 @@ Transfer Ownership
 ./mito query validator info --address 0x1111...
 
 # Get detailed validator information with collateral owner limits
-./mito query validator info --address 0x1111... --head 5 --tail 3
+./mito query validator info --address 0x1111... --head 5
+./mito query validator info --address 0x1111... --tail 3
 
 # Get validator configuration
 ./mito query validator config
@@ -452,7 +453,7 @@ cast wallet list
   --operator 0x1234... \
   --commission-rate 5% \
   --account my-validator-key
-  # or --keyfile ~/.foundry/keystores/my-validator-key 
+  # or --keyfile ~/.foundry/keystores/my-validator-key
 ```
 
 ## Advanced Usage

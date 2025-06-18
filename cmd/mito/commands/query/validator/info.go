@@ -21,6 +21,7 @@ func NewInfoCmd() *cobra.Command {
 	var validatorAddress string
 	var head uint64
 	var tail uint64
+	const defaultHead = 5
 
 	cmd := &cobra.Command{
 		Use:   "info",
@@ -29,6 +30,10 @@ func NewInfoCmd() *cobra.Command {
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if head > 0 && tail > 0 {
 				return fmt.Errorf("either --head or --tail must be specified, not both")
+			}
+			if head == 0 && tail == 0 {
+				// If both are 0, use default head
+				head = defaultHead
 			}
 			return nil
 		},
@@ -159,12 +164,22 @@ func runValidatorCollateral(container *container.Container, validatorAddr common
 			fmt.Println()
 			fmt.Printf("Top %d Collateral Owners:\n", head)
 			fmt.Println("========================")
-			return runValidatorCollateralOwnerList(container, validatorAddr, permittedOwnersCount.Uint64(), head, false)
+			if err := runValidatorCollateralOwnerList(container, validatorAddr, permittedOwnersCount.Uint64(), head, false); err != nil {
+				return err
+			}
+			if permittedOwnersCount.Uint64() > head {
+				fmt.Println("(more...)")
+			}
 		} else if tail > 0 {
 			fmt.Println()
 			fmt.Printf("Bottom %d Collateral Owners:\n", tail)
 			fmt.Println("===========================")
-			return runValidatorCollateralOwnerList(container, validatorAddr, permittedOwnersCount.Uint64(), tail, true)
+			if permittedOwnersCount.Uint64() > tail {
+				fmt.Println("(skipped...)")
+			}
+			if err := runValidatorCollateralOwnerList(container, validatorAddr, permittedOwnersCount.Uint64(), tail, true); err != nil {
+				return err
+			}
 		}
 	}
 
