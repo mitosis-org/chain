@@ -17,11 +17,12 @@ import (
 
 // NewInfoCmd creates the validator info command
 func NewInfoCmd() *cobra.Command {
+	const defaultHead = 5
+
 	var commonFlags flags.CommonFlags
 	var validatorAddress string
 	var head uint64
 	var tail uint64
-	const defaultHead = 5
 
 	cmd := &cobra.Command{
 		Use:   "info",
