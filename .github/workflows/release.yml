@@ -1,0 +1,243 @@
+name: Release
+
+on:
+  push:
+    tags: 
+      - 'v*'        # mitosisd releases (vX.Y.Z)
+      - 'mito/v*'   # mito CLI releases (mito/vX.Y.Z)
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin]
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: '.go-version'
+          cache: true
+
+      - name: Determine release type and version
+        id: release_info
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          
+          if [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "RELEASE_TYPE=mitosisd" >> $GITHUB_OUTPUT
+            echo "VERSION=${TAG_NAME}" >> $GITHUB_OUTPUT
+            echo "BINARY_NAME=mitosisd" >> $GITHUB_OUTPUT
+          elif [[ "${TAG_NAME}" =~ ^mito/v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "RELEASE_TYPE=mito" >> $GITHUB_OUTPUT
+            echo "VERSION=${TAG_NAME#mito/}" >> $GITHUB_OUTPUT
+            echo "BINARY_NAME=mito" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid tag format: ${TAG_NAME}"
+            exit 1
+          fi
+
+      - name: Build mitosisd
+        if: steps.release_info.outputs.RELEASE_TYPE == 'mitosisd'
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ steps.release_info.outputs.VERSION }}
+        run: |
+          echo "🔨 Building mitosisd ${VERSION} for ${GOOS}-${GOARCH}"
+          go build -ldflags="-X main.version=${VERSION} -X github.com/cosmos/cosmos-sdk/version.Version=${VERSION}" \
+            -o build/mitosisd-${GOOS}-${GOARCH} ./cmd/mitosisd
+
+      - name: Build mito CLI
+        if: steps.release_info.outputs.RELEASE_TYPE == 'mito'
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ steps.release_info.outputs.VERSION }}
+        run: |
+          echo "🔨 Building mito CLI ${VERSION} for ${GOOS}-${GOARCH}"
+          go build -ldflags="-X main.version=${VERSION}" \
+            -o build/mito-${GOOS}-${GOARCH} ./cmd/mito
+
+      - name: Create checksums
+        run: |
+          cd build
+          for file in *; do
+            sha256sum "$file" > "$file.sha256"
+          done
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ steps.release_info.outputs.BINARY_NAME }}-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/*
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine release info
+        id: release_info
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          
+          if [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "RELEASE_TYPE=mitosisd" >> $GITHUB_OUTPUT
+            echo "VERSION=${TAG_NAME}" >> $GITHUB_OUTPUT
+            echo "COMPONENT_NAME=Mitosis Chain Node (mitosisd)" >> $GITHUB_OUTPUT
+            echo "DESCRIPTION=The core blockchain node for Mitosis Chain. Handles consensus, networking, and blockchain state management." >> $GITHUB_OUTPUT
+          elif [[ "${TAG_NAME}" =~ ^mito/v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "RELEASE_TYPE=mito" >> $GITHUB_OUTPUT
+            echo "VERSION=${TAG_NAME#mito/}" >> $GITHUB_OUTPUT
+            echo "COMPONENT_NAME=Mito CLI" >> $GITHUB_OUTPUT
+            echo "DESCRIPTION=Command-line interface for Mitosis Chain. Manage validators, transactions, and interact with the blockchain." >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Organize artifacts
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag for the same component
+          if [[ "${{ steps.release_info.outputs.RELEASE_TYPE }}" == "mitosisd" ]]; then
+            PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "${{ steps.release_info.outputs.TAG_NAME }}" | head -n1)
+          else
+            PREV_TAG=$(git tag --sort=-version:refname | grep -E '^mito/v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "${{ steps.release_info.outputs.TAG_NAME }}" | head -n1)
+          fi
+          
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          if [[ "${{ steps.release_info.outputs.RELEASE_TYPE }}" == "mitosisd" ]]; then
+            echo "### Node (mitosisd) Changes" >> $GITHUB_OUTPUT
+            git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD -- cmd/mitosisd/ app/ x/ >> $GITHUB_OUTPUT
+          else
+            echo "### CLI (mito) Changes" >> $GITHUB_OUTPUT
+            git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD -- cmd/mito/ >> $GITHUB_OUTPUT
+          fi
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+          body: |
+            # ${{ steps.release_info.outputs.COMPONENT_NAME }} ${{ steps.release_info.outputs.VERSION }}
+            
+            ${{ steps.release_info.outputs.DESCRIPTION }}
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## 📥 Installation
+            
+            ### Quick Install (Linux/macOS)
+            ```bash
+            # For mitosisd
+            curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
+            
+            # For mito CLI only
+            VERSION="${{ steps.release_info.outputs.VERSION }}" COMPONENT="mito" \
+            curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
+            ```
+            
+            ### Manual Download
+            Download the appropriate binary for your platform from the assets below:
+            
+            | Platform | Architecture | Download |
+            |----------|--------------|----------|
+            | Linux    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.release_info.outputs.TAG_NAME }}/${{ steps.release_info.outputs.RELEASE_TYPE }}-linux-amd64) |
+            | Linux    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.release_info.outputs.TAG_NAME }}/${{ steps.release_info.outputs.RELEASE_TYPE }}-linux-arm64) |
+            | macOS    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.release_info.outputs.TAG_NAME }}/${{ steps.release_info.outputs.RELEASE_TYPE }}-darwin-amd64) |
+            | macOS    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.release_info.outputs.TAG_NAME }}/${{ steps.release_info.outputs.RELEASE_TYPE }}-darwin-arm64) |
+            
+            ## 🔍 Verification
+            
+            All binaries include SHA256 checksums. Verify your download:
+            ```bash
+            sha256sum -c <binary>.sha256
+            ```
+            
+            ## 📖 Documentation
+            
+            - [Setup Guide](https://docs.mitosis.org/setup)
+            - [CLI Reference](https://docs.mitosis.org/cli)
+            - [Upgrade Guide](https://docs.mitosis.org/upgrade)
+            
+            ## 🆕 What's New in This Release
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(steps.release_info.outputs.VERSION, 'alpha') || contains(steps.release_info.outputs.VERSION, 'beta') || contains(steps.release_info.outputs.VERSION, 'rc') }}
+          generate_release_notes: true
+
+  docker:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    # Only build Docker images for mitosisd releases
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max 
