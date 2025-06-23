@@ -1,0 +1,94 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    # Wait for all quality workflows to complete
+    needs: []
+    steps:
+      - name: Wait for all quality checks
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { sha } = context.payload.pull_request?.head || context.payload;
+            
+            // Define required workflows
+            const requiredWorkflows = ['Lint', 'Security', 'Test', 'Build'];
+            
+            // Add benchmark check for PRs
+            if (context.eventName === 'pull_request') {
+              requiredWorkflows.push('Benchmark');
+            }
+            
+            console.log(`Checking workflows for commit: ${sha}`);
+            console.log(`Required workflows: ${requiredWorkflows.join(', ')}`);
+            
+            // Wait for workflows to complete
+            let allPassed = true;
+            const maxWaitTime = 30 * 60 * 1000; // 30 minutes
+            const startTime = Date.now();
+            
+            while (Date.now() - startTime < maxWaitTime) {
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner,
+                repo,
+                head_sha: sha,
+                status: 'completed'
+              });
+              
+              const completedWorkflows = runs.workflow_runs
+                .filter(run => requiredWorkflows.includes(run.name))
+                .reduce((acc, run) => {
+                  acc[run.name] = run.conclusion;
+                  return acc;
+                }, {});
+              
+              console.log('Completed workflows:', completedWorkflows);
+              
+              // Check if all required workflows are completed
+              const allCompleted = requiredWorkflows.every(name => 
+                completedWorkflows.hasOwnProperty(name)
+              );
+              
+              if (allCompleted) {
+                // Check if all passed
+                allPassed = requiredWorkflows.every(name => 
+                  completedWorkflows[name] === 'success'
+                );
+                break;
+              }
+              
+              // Wait 30 seconds before checking again
+              await new Promise(resolve => setTimeout(resolve, 30000));
+            }
+            
+            if (!allPassed) {
+              core.setFailed('❌ Quality gate failed - some workflows did not pass');
+            } else {
+              console.log('✅ Quality gate passed - all workflows successful');
+            }
+
+      - name: Quality Gate Summary
+        run: |
+          echo "## 🎯 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "All required quality checks have been completed and passed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Checked Workflows:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Lint" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Test" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "- ✅ Benchmark" >> $GITHUB_STEP_SUMMARY
+          fi 

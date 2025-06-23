@@ -1,0 +1,83 @@
+name: Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: '.go-version'
+          cache: true
+
+      - name: Install Gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run Gosec Security Scanner
+        run: |
+          gosec -fmt sarif -out gosec.sarif ./...
+        continue-on-error: true
+
+      - name: Add Security Training Context
+        if: always() && hashFiles('gosec.sarif') != ''
+        uses: SecureCodeWarrior/github-action-add-sarif-contextual-training@v1
+        with:
+          inputSarifFile: gosec.sarif
+          outputSarifFile: gosec-with-training.sarif
+        continue-on-error: true
+
+      - name: Upload SARIF file
+        if: always() && hashFiles('gosec-with-training.sarif') != '' && github.token != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gosec-with-training.sarif
+          category: gosec
+        continue-on-error: true
+
+      - name: Upload Raw SARIF file (fallback)
+        if: always() && hashFiles('gosec.sarif') != '' && hashFiles('gosec-with-training.sarif') == '' && github.token != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gosec.sarif
+          category: gosec
+        continue-on-error: true
+
+      - name: Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+        continue-on-error: true
+
+  dependency-check:
+    name: Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: '.go-version'
+          cache: true
+
+      - name: Check for known vulnerabilities
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+        continue-on-error: true 
