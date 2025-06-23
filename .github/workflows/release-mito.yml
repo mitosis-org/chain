@@ -1,0 +1,151 @@
+name: Release Mito CLI
+
+on:
+  push:
+    tags: 
+      - 'mito/v*'   # mito CLI releases (mito/vX.Y.Z)
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin]
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: '.go-version'
+          cache: true
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG_NAME#mito/}" >> $GITHUB_OUTPUT
+
+      - name: Build mito CLI
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          echo "🔨 Building mito CLI ${VERSION} for ${GOOS}-${GOARCH}"
+          go build -ldflags="-X main.version=${VERSION}" \
+            -o build/mito-${GOOS}-${GOARCH} ./cmd/mito
+
+      - name: Create checksums
+        run: |
+          cd build
+          for file in *; do
+            sha256sum "$file" > "$file.sha256"
+          done
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-mito-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/*
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG_NAME#mito/}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Organize artifacts
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous mito CLI tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^mito/v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "${{ steps.version.outputs.TAG_NAME }}" | head -n1)
+          
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "### CLI (mito) Changes" >> $GITHUB_OUTPUT
+          git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD -- cmd/mito/ >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+          body: |
+            # Mito CLI ${{ steps.version.outputs.VERSION }}
+            
+            Command-line interface for Mitosis Chain. Manage validators, transactions, and interact with the blockchain.
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## 📥 Installation
+            
+            ### Quick Install (Linux/macOS)
+            ```bash
+            VERSION="${{ steps.version.outputs.VERSION }}" COMPONENT="mito" \
+            curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
+            ```
+            
+            ### Manual Download
+            Download the appropriate binary for your platform from the assets below:
+            
+            | Platform | Architecture | Download |
+            |----------|--------------|----------|
+            | Linux    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-linux-amd64) |
+            | Linux    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-linux-arm64) |
+            | macOS    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-darwin-amd64) |
+            | macOS    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-darwin-arm64) |
+            
+            ## 🔍 Verification
+            
+            All binaries include SHA256 checksums. Verify your download:
+            ```bash
+            sha256sum -c <binary>.sha256
+            ```
+            
+            ## 📖 Documentation
+            
+            - [CLI Reference](https://docs.mitosis.org/cli)
+            - [User Guide](https://docs.mitosis.org/guide)
+            - [Commands Reference](https://docs.mitosis.org/commands)
+            
+            ## 🆕 What's New in This Release
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, 'alpha') || contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'rc') }}
+          generate_release_notes: true 
