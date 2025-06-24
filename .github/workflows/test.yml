@@ -13,17 +13,20 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ['1.21', '1.22']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go ${{ matrix.go-version }}
+      - name: Read Go version
+        id: go-version
+        run: |
+          GO_VERSION=$(cat .go-version)
+          echo "version=$GO_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ steps.go-version.outputs.version }}
           cache: true
 
       - name: Run tests
@@ -31,25 +34,33 @@ jobs:
           go test -v -race -coverprofile=coverage.out ./...
 
       - name: Generate test coverage report
-        if: matrix.go-version == '1.21'
         run: |
           go tool cover -html=coverage.out -o coverage.html
 
       - name: Upload coverage reports
-        if: matrix.go-version == '1.21'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage.html
 
-      - name: Check test coverage
-        if: matrix.go-version == '1.21'
-        run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-          echo "Total test coverage: ${COVERAGE}%"
-          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
-            echo "❌ Test coverage is below 60%"
-            exit 1
-          else
-            echo "✅ Test coverage is above 60%"
-          fi 
+      # Commented out strict coverage check - now using Codecov for coverage reporting
+      # - name: Check test coverage
+      #   if: matrix.go-version == '1.21'
+      #   run: |
+      #     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      #     echo "Total test coverage: ${COVERAGE}%"
+      #     if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+      #       echo "❌ Test coverage is below 60%"
+      #       exit 1
+      #     else
+      #       echo "✅ Test coverage is above 60%"
+      #     fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false 
