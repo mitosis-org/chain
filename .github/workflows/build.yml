@@ -10,11 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  # Quick build for PRs - only linux/amd64
-  pr-build:
-    name: PR Build (linux/amd64)
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,43 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries-linux-amd64
-          path: build/*
-
-  # Full multi-platform build for main branch
-  main-build:
-    name: Multi-Platform Build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    strategy:
-      matrix:
-        goos: [linux, darwin]
-        goarch: [amd64, arm64]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: '.go-version'
-          cache: true
-
-      - name: Build binaries
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-        run: |
-          # Build mitosisd
-          go build -o build/mitosisd-${GOOS}-${GOARCH} ./cmd/mitosisd
-          
-          # Build mito CLI
-          go build -o build/mito-${GOOS}-${GOARCH} ./cmd/mito
-          
-          # Build midevtool
-          go build -o build/midevtool-${GOOS}-${GOARCH} ./cmd/midevtool
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/* 
