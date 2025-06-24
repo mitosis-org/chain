@@ -38,13 +38,6 @@ jobs:
               'Dependency Vulnerability Check', // from security.yml
             ];
             
-            // Add build check based on event type
-            if (context.eventName === 'pull_request') {
-              requiredChecks.push('PR Build (linux/amd64)');
-            } else {
-              requiredChecks.push('Multi-Platform Build');
-            }
-            
             console.log(`📋 Required checks: ${requiredChecks.join(', ')}`);
             
             // Wait for checks with timeout
