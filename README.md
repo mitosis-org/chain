@@ -1,187 +1,118 @@
-# Mitosis Chain
+# mitosis
 
-## Architecture
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Security](https://github.com/mitosis-org/chain/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/security.yml)
+[![Quality Gate](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml)
 
-### Overview
+**Modular, contributor-friendly implementation of the Ethereum-compatible blockchain protocol**
 
-![architecture.png](assets/architecture.png)
+## What is Mitosis?
 
-The Mitosis Chain employs a modular architecture that separates execution from consensus.
+Mitosis is a new Ethereum-compatible blockchain implementation that is focused on being user-friendly, highly modular, as well as being fast and efficient. Mitosis is built on Cosmos SDK and is compatible with all Ethereum tooling and infrastructure. It features a unique modular architecture that separates execution from consensus, combining the best of both Ethereum and Cosmos ecosystems.
 
-- The execution layer is fully EVM-compatible, enabling unmodified Ethereum execution clients to process transactions, manage state, and execute smart contracts.
-- The consensus layer is built upon the Cosmos SDK and utilizes CometBFT for consensus.
-- The two layers communicate with each other using [Engine API](https://hackmd.io/@danielrachi/engine_api). The consensus layer utilizes [Octane](https://github.com/omni-network/omni/tree/main/octane) for Engine API implementation.
+## Goals
 
-Most of our logic exists on the execution layer, while the consensus layer is kept thin by having only minimal code and responsibilities for consensus.
+As a full Ethereum-compatible blockchain, Mitosis allows users to connect to the network and interact with smart contracts using familiar Ethereum tooling. Building a successful blockchain requires creating a high-quality implementation that is both secure and efficient, as well as being easy to use. It also requires building a strong community of contributors who can help support and improve the software.
 
-### Validator & Governance System
+More concretely, our goals are:
 
-In most Cosmos SDK-based chains, validator and governance systems are built using `x/staking`, `x/slashing`, `x/distribution`, and `x/gov` modules provided by Cosmos SDK.
-However, we don't use all of them. We implement most of the necessary logic as smart contracts in the EVM (execution layer). \
-For example:
-- A user stakes and delegates $MITO to a validator on EVM.
-- An operator creates and operates a validator on EVM.
-- Staking rewards are distributed on EVM.
-- For governance, users cast votes and proposals are executed on EVM.
+1. **Modularity**: Every component of Mitosis is built to be used as a library: well-tested, heavily documented and benchmarked. We envision that developers will import the node's crates, mix and match, and innovate on top of them.
 
-The contracts manage all user flows and serve as the source of truth.
-Some information from the contracts is delivered to the consensus layer through EVM logs on `ConsensusValidatorEntrypoint` and `ConsensusGovernanceEntrypoint` contracts.
-When an EVM block has been created and finalized on the consensus layer, the consensus layer parses and processes the EVM logs in the block.
+2. **Performance**: Mitosis aims to be fast, leveraging the proven Cosmos SDK architecture with full EVM compatibility. We optimize for DeFi and cross-chain operations with minimal latency.
 
-### Core Modules
+3. **Free for anyone to use any way they want**: Mitosis is free open source software, built for the community, by the community. By licensing the software under the Apache license, we want developers to use it without being bound by business licenses.
 
-#### `x/evmengine` (forked from Octane)
+4. **EVM Compatibility**: Full compatibility with Ethereum tooling, wallets, and infrastructure. Run your Ethereum dApps without changes while leveraging advanced Cosmos features.
 
-This module communicates with an execution client through Engine API and wraps an EVM block into one transaction in the consensus layer.
-Note that there can only be one transaction wrapped from an EVM block, and other types of transactions are prohibited in a consensus block. \
-This module is forked from [Octane](https://github.com/omni-network/omni/tree/main/octane). There are limited changes from the upstream for seamless integration with `x/evmvalidator` and `x/evmgov`.
+5. **Developer Experience**: Unified development experience using Solidity for all logic, standard Ethereum tooling, and familiar wallet integration.
 
-#### `x/evmvalidator`
+## Status
 
-This module manages a validator set on the consensus layer. Note that there are no features such as delegation and reward distribution because those features are implemented in contracts on EVM.
-Most states are managed in the EVM contracts, and this module simply applies validator set changes and consensus voting power updates delivered from `ConsensusValidatorEntrypoint`. \
-We could say this module is a lightweight version of `x/staking` that has EVM contracts as the source of truth.
-This module also implements some parts of interfaces of `x/staking` to integrate with `x/slashing` and `x/evidence`.
+Mitosis is under active development and is not yet ready for production use. We are working towards a stable release.
 
-#### `x/evmgov`
+## For Users
 
-This module provides arbitrary message execution from EVM. Governance on EVM can trigger arbitrary message execution against consensus layer modules. It can be used for cases such as module parameter changes.
-It is very lightweight compared to `x/gov` because there are no concepts such as proposals and voting power.
-These concepts are implemented in EVM contracts, and this module simply executes arbitrary messages delivered from `ConsensusGovernanceEntrypoint`.
-
-## Setup
-
-We categorize environments for setup into:
-- **Localnet**
-  - Localnet is for fast development and testing iterations in local environment.
-  - It runs a single validator for the mitosis chain.
-- **Devnet**
-  - Devnet is for development and testing with complete form of the components.
-  - It runs two validator nodes and a non-validator node for the mitosis chain.
-
-**Chain IDs**
-- **Localnet**
-  - Chain ID (EVM): `124899`
-  - Chain ID (Cosmos SDK): `mitosis-localnet-1`
-- **Devnet**
-  - Chain ID (EVM): `124864`
-  - Chain ID (Cosmos SDK): `mitosis-devnet-1`
-
-### Localnet
-
-You should run an execution client (`geth` or `reth`) and an consensus client (`mitosisd`) both.
-
-
-Pre-requisites
-
-Make sure you have fetched the GitHub submodules:
-
-```sh
-git submodule update --init --recursive
-```
-
-Setup and run an execution client (`geth` or `reth`):
+### Installation
 
 ```bash
-# It initializes geth. If there was already initialized, it remove all old data and re-initialize it.
-make setup-geth # or `make setup-reth`
+# Install latest release
+curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
 
-# Note that it just tries to use existing data instead of setting up geth automatically.
-# You should run `setup-geth` if you haven't initialized geth yet or want to reset it.
-make run-geth # or `make setup-reth`
+# Or download from releases
+wget https://github.com/mitosis-org/chain/releases/latest/download/mitosisd-linux-amd64
+chmod +x mitosisd-linux-amd64 && mv mitosisd-linux-amd64 /usr/local/bin/mitosisd
 ```
 
-Setup and run an consensus client (`mitosisd`):
+### Running a Node
+
 ```bash
-# It initializes mitosisd. If there was already initialized, it remove all old data and re-initialize it.
-make setup-mitosisd
+# Initialize node
+mitosisd init my-node --chain-id mitosis-localnet-1
 
-# Note that it just tries to use existing data instead of setting up mitosisd automatically.
-# You should run `setup-mitosisd` if you haven't initialized mitosisd yet or want to reset it.
-make run-mitosisd
+# Start node
+mitosisd start
 ```
 
-Remove all data (reset) of `geth` and `mitosisd`:
+## For Developers
+
+### Prerequisites
+
+- Go 1.24+
+- Git
+
+### Building from Source
+
+First, clone the repository:
+
 ```bash
-# Note that it won't be working as expected if you clean up only one of geth and mitosisd.
-make clean-geth # or `make clean-reth`
-make clean-mitosisd
+git clone https://github.com/mitosis-org/chain
+cd chain
 ```
 
-Deploy & Setup consensus entrypoint contracts:
+Next, build the binary:
+
 ```bash
-# Run this command in https://github.com/mitosis-org/protocol to deploy the consensus entrypoint contracts.
-# The deployed address would be:
-# - ConsensusGovernanceEntrypoint:  0x06c9918ff483fd88C65dD02E788427cfF04545b9
-# - ConsensusValidatorEntrypoint :  0x9866D79EF3e9c0c22Db2b55877013e13a60AD478
-./tools/deploy-consensus-entrypoints.sh
-
-# Note that `ConsensusGovernanceEntrypoint` address is managed in `app.toml`:
-#   [evmgov]
-#   entrypoint = "0x06c9918ff483fd88C65dD02E788427cfF04545b9"
-
-# Update `ConsensusValidatorEntrypoint` address in x/evmvalidator module.
-./build/midevtool governance execute \
-  --entrypoint 0x06c9918ff483fd88C65dD02E788427cfF04545b9 \
-  --private-key 0x5a496832ac0d7a484e6996301a5511dbc3b723d037bc61261ecaf425bd6a5b37 \
-  --msg '[{"@type":"/mitosis.evmvalidator.v1.MsgUpdateValidatorEntrypointContractAddr","authority":"mito1g86pactsvfrcglkvqzvdwkxhjshafu280q95p7","addr":"0x9866D79EF3e9c0c22Db2b55877013e13a60AD478"}]'
+make build
 ```
 
-### Devnet
+### Running Tests
 
-#### Build a dockerfile for mitosisd
 ```bash
-make devnet-build
+make test
 ```
 
-#### Setup and run the mitosis chain
-```bash
-# Init a mitosis chain.
-# It prepares a genesis file for the mitosis chain.
-make devnet-init
+### Contributing
 
-# Run nodes for a mitosis chain.
-make devnet-up
+If you want to contribute, or follow along with contributor discussion, you can use our GitHub discussions and issues.
 
-# Check the status of the nodes.
-docker logs mitosis-devnet-node-mitosisd-1
-docker logs mitosis-devnet-node-reth-1
+- Our contributor guidelines can be found in [CONTRIBUTING.md](CONTRIBUTING.md).
+- See our [Security Policy](SECURITY.md) for security-related contributions.
 
-# Check geth rpc is working properly.
-cast block-number --rpc-url http://localhost:18545
-# You can use `curl` instead if `cast` is not installed.
-curl -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":124864}' http://localhost:18545
-```
+## Getting Help
 
-#### Deploy consensus entrypoint contracts:
-```bash
-# Run this command in https://github.com/mitosis-org/protocol to deploy the consensus entrypoint contracts.
-# The deployed address would be:
-# - ConsensusGovernanceEntrypoint:  0x06c9918ff483fd88C65dD02E788427cfF04545b9
-# - ConsensusValidatorEntrypoint :  0x9866D79EF3e9c0c22Db2b55877013e13a60AD478
-RPC_URL="http://127.0.0.1:18545" ./tools/deploy-consensus-entrypoints.sh
-```
+If you have any questions:
 
-#### Create a validator for the mitosis chain
-```bash
-# It creates a validator for the `subval` node.
-# Note that it setup `ConsensusValidatorEntrypoint` address automatically.
-make devnet-create-validator
-```
+- Open a discussion with your question, or
+- Open an issue with the bug
+- Check our documentation at [docs.mitosis.org](https://docs.mitosis.org)
 
-#### Stop the mitosis chain and reset the data
-```bash
-# It stops the nodes.
-# You can start them again with keeping existing data through `make devnet-up`.
-make devnet-down
+## Security
 
-# It stops all nodes and removes all data of the nodes.
-# It also removes the initialization data which is created by `make devnet-init`.
-make devnet-clean
-```
+See [SECURITY.md](SECURITY.md).
 
-## Tools
+## Acknowledgements
 
-### Validator Operations
+Mitosis is built on the shoulders of giants. We would like to thank:
 
-For managing validators in the Mitosis network, please see the [MITO CLI documentation](cmd/mito/README.md).
+- **Cosmos SDK**: For providing the robust blockchain framework that powers our consensus layer
+- **CometBFT**: For the battle-tested Byzantine fault-tolerant consensus mechanism
+- **Octane**: For the EVM-Engine API integration that enables our modular architecture
+- **Ethereum**: For the EVM specification and the vibrant ecosystem that inspired this project
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0, ([LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0)
+
+at your option.

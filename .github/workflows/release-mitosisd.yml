@@ -1,0 +1,188 @@
+name: Release Mitosisd
+
+on:
+  push:
+    tags: 
+      - 'v*'        # mitosisd releases (vX.Y.Z)
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin]
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: '.go-version'
+          cache: true
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Build mitosisd
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          echo "🔨 Building mitosisd ${VERSION} for ${GOOS}-${GOARCH}"
+          go build -ldflags="-X main.version=${VERSION} -X github.com/cosmos/cosmos-sdk/version.Version=${VERSION}" \
+            -o build/mitosisd-${GOOS}-${GOARCH} ./cmd/mitosisd
+
+      - name: Create checksums
+        run: |
+          cd build
+          for file in *; do
+            sha256sum "$file" > "$file.sha256"
+          done
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-mitosisd-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/*
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Organize artifacts
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous mitosisd tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "${{ steps.version.outputs.TAG_NAME }}" | head -n1)
+          
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "### Node (mitosisd) Changes" >> $GITHUB_OUTPUT
+          git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD -- cmd/mitosisd/ app/ x/ >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+          body: |
+            # Mitosis Chain Node (mitosisd) ${{ steps.version.outputs.VERSION }}
+            
+            The core blockchain node for Mitosis Chain. Handles consensus, networking, and blockchain state management.
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## 📥 Installation
+            
+            ### Quick Install (Linux/macOS)
+            ```bash
+            curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
+            ```
+            
+            ### Manual Download
+            Download the appropriate binary for your platform from the assets below:
+            
+            | Platform | Architecture | Download |
+            |----------|--------------|----------|
+            | Linux    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mitosisd-linux-amd64) |
+            | Linux    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mitosisd-linux-arm64) |
+            | macOS    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mitosisd-darwin-amd64) |
+            | macOS    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mitosisd-darwin-arm64) |
+            
+            ## 🔍 Verification
+            
+            All binaries include SHA256 checksums. Verify your download:
+            ```bash
+            sha256sum -c <binary>.sha256
+            ```
+            
+            ## 📖 Documentation
+            
+            - [Setup Guide](https://docs.mitosis.org/setup)
+            - [Node Operation Guide](https://docs.mitosis.org/node)
+            - [Upgrade Guide](https://docs.mitosis.org/upgrade)
+            
+            ## 🆕 What's New in This Release
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, 'alpha') || contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'rc') }}
+          generate_release_notes: true
+
+  docker:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max 

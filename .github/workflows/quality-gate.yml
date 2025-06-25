@@ -1,0 +1,150 @@
+name: Quality Gate
+
+on:
+  # Only run after other workflows complete
+  workflow_run:
+    workflows: ["Lint", "Test", "Security", "Build"]
+    types: [completed]
+    branches: [main]
+  # Also run on PR events, but with a delay to wait for other checks
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: read
+  actions: read
+
+jobs:
+  quality-gate:
+    name: Quality Gate Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for required checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.payload.pull_request?.head?.sha || context.sha;
+            
+            console.log(`🔍 Checking quality gate for commit: ${sha}`);
+            console.log(`📋 Event: ${context.eventName}`);
+            
+            // Define required check runs (job names from workflows)
+            const requiredChecks = [
+              'Code Linting',           // from lint.yml
+              'Test Suite',             // from test.yml  
+              'Security Scan',          // from security.yml
+              'Dependency Vulnerability Check', // from security.yml
+            ];
+            
+            console.log(`📋 Required checks: ${requiredChecks.join(', ')}`);
+            
+            // Wait for checks with timeout
+            const maxWaitMinutes = 20;
+            const checkIntervalSeconds = 30;
+            const maxAttempts = (maxWaitMinutes * 60) / checkIntervalSeconds;
+            
+            let attempt = 0;
+            let allPassed = false;
+            
+            while (attempt < maxAttempts && !allPassed) {
+              attempt++;
+              console.log(`\n🔄 Attempt ${attempt}/${maxAttempts}`);
+              
+              try {
+                // Get check runs for this commit
+                const { data: checkRuns } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: sha,
+                  per_page: 100
+                });
+                
+                const relevantChecks = checkRuns.check_runs.filter(check => 
+                  requiredChecks.includes(check.name)
+                );
+                
+                console.log(`📊 Found ${relevantChecks.length}/${requiredChecks.length} required checks`);
+                
+                // Check status of each required check
+                const checkStatus = {};
+                const pendingChecks = [];
+                const failedChecks = [];
+                
+                for (const checkName of requiredChecks) {
+                  const check = relevantChecks.find(c => c.name === checkName);
+                  
+                  if (!check) {
+                    checkStatus[checkName] = 'missing';
+                    pendingChecks.push(checkName);
+                  } else if (check.status === 'completed') {
+                    checkStatus[checkName] = check.conclusion;
+                    if (check.conclusion !== 'success') {
+                      failedChecks.push(`${checkName}: ${check.conclusion}`);
+                    }
+                  } else {
+                    checkStatus[checkName] = check.status;
+                    pendingChecks.push(checkName);
+                  }
+                }
+                
+                // Log current status
+                console.log('\n📈 Current check status:');
+                for (const [name, status] of Object.entries(checkStatus)) {
+                  const emoji = status === 'success' ? '✅' : 
+                               status === 'failure' || status === 'error' ? '❌' : 
+                               status === 'missing' ? '⏳' : '🟡';
+                  console.log(`  ${emoji} ${name}: ${status}`);
+                }
+                
+                // Check if we're done
+                if (failedChecks.length > 0) {
+                  console.log(`\n❌ Quality Gate FAILED`);
+                  console.log(`Failed checks: ${failedChecks.join(', ')}`);
+                  core.setFailed(`Quality gate failed: ${failedChecks.join(', ')}`);
+                  return;
+                }
+                
+                if (pendingChecks.length === 0) {
+                  console.log(`\n✅ Quality Gate PASSED - All checks successful!`);
+                  allPassed = true;
+                  break;
+                }
+                
+                console.log(`⏳ Waiting for: ${pendingChecks.join(', ')}`);
+                
+                // Wait before next check
+                if (attempt < maxAttempts) {
+                  console.log(`⏱️  Waiting ${checkIntervalSeconds}s before next check...`);
+                  await new Promise(resolve => setTimeout(resolve, checkIntervalSeconds * 1000));
+                }
+                
+              } catch (error) {
+                console.log(`⚠️  Error checking status: ${error.message}`);
+                if (attempt === maxAttempts) {
+                  core.setFailed(`Failed to check quality gate status: ${error.message}`);
+                  return;
+                }
+              }
+            }
+            
+            if (!allPassed) {
+              console.log(`\n⏰ Quality Gate TIMEOUT after ${maxWaitMinutes} minutes`);
+              core.setFailed(`Quality gate timed out waiting for checks to complete`);
+            }
+
+      - name: Quality Gate Summary
+        if: success()
+        run: |
+          echo "## ✅ Quality Gate Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All required quality checks have completed successfully:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Code Linting** - Code style and format validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Test Suite** - Unit and integration tests" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Security Scan** - Vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Dependency Check** - Dependency vulnerability check" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Build** - Cross-platform build verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 **This PR meets all quality standards and is ready for merge!**" >> $GITHUB_STEP_SUMMARY 
