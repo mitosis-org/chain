@@ -31,11 +31,11 @@ jobs:
 
       - name: Run tests
         run: |
-          go test -v -race -coverprofile=coverage.out ./...
+          go test -v -race -coverprofile=coverage.txt ./...
 
       - name: Generate test coverage report
         run: |
-          go tool cover -html=coverage.out -o coverage.html
+          go tool cover -html=coverage.txt -o coverage.html
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -43,24 +43,9 @@ jobs:
           name: coverage-report
           path: coverage.html
 
-      # Commented out strict coverage check - now using Codecov for coverage reporting
-      # - name: Check test coverage
-      #   if: matrix.go-version == '1.21'
-      #   run: |
-      #     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-      #     echo "Total test coverage: ${COVERAGE}%"
-      #     if (( $(echo "$COVERAGE < 60" | bc -l) )); then
-      #       echo "❌ Test coverage is below 60%"
-      #       exit 1
-      #     else
-      #       echo "✅ Test coverage is above 60%"
-      #     fi
-
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.out
-          flags: unittests
-          name: codecov-umbrella
+          slug: ${{ github.repository }}
           fail_ci_if_error: false 
