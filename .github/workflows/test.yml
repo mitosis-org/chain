@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Read Go version
         id: go-version
@@ -29,23 +31,27 @@ jobs:
           go-version: ${{ steps.go-version.outputs.version }}
           cache: true
 
+      - name: Install go-junit-report
+        run: go install github.com/jstemmer/go-junit-report@latest
+
       - name: Run tests
         run: |
-          go test -v -race -coverprofile=coverage.txt ./...
+          go test -v -race -coverprofile=coverage.txt ./... 2>&1 | tee test_output.txt
 
-      - name: Generate test coverage report
+      - name: Generate JUnit XML
+        if: always()
         run: |
-          go tool cover -html=coverage.txt -o coverage.html
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.html
+          cat test_output.txt | go-junit-report > junit.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ${{ github.repository }}
-          fail_ci_if_error: false 
+          fail_ci_if_error: false
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
