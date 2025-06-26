@@ -1,6 +1,6 @@
 # mitosis
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Security](https://github.com/mitosis-org/chain/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/security.yml)
 [![Quality Gate](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml)
 
@@ -20,7 +20,7 @@ More concretely, our goals are:
 
 2. **Performance**: Mitosis aims to be fast, leveraging the proven Cosmos SDK architecture with full EVM compatibility. We optimize for DeFi and cross-chain operations with minimal latency.
 
-3. **Free for anyone to use any way they want**: Mitosis is free open source software, built for the community, by the community. By licensing the software under the Apache license, we want developers to use it without being bound by business licenses.
+3. **Free for anyone to use any way they want**: Mitosis is free open source software, built for the community, by the community. By licensing the software under the GNU General Public License v3.0 (GPLv3) plus the Open Interoperability Requirement (OIR), we want developers to use it freely and promote interoperability.
 
 4. **EVM Compatibility**: Full compatibility with Ethereum tooling, wallets, and infrastructure. Run your Ethereum dApps without changes while leveraging advanced Cosmos features.
 
@@ -111,8 +111,6 @@ Mitosis is built on the shoulders of giants. We would like to thank:
 
 ## License
 
-Licensed under either of
+This project is licensed under the GNU General Public License v3.0 (GPLv3) **plus the Open Interoperability Requirement (OIR)**.
 
-- Apache License, Version 2.0, ([LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0)
-
-at your option.
+See the [LICENSE](LICENSE) file for details.
