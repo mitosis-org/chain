@@ -4,11 +4,11 @@
 [![Security](https://github.com/mitosis-org/chain/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/security.yml)
 [![Quality Gate](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml)
 
-**Modular, contributor-friendly implementation of the Ethereum-compatible blockchain protocol**
+**Next-generation DeFi network enabling programmable liquidity across multiple protocols**
 
 ## What is Mitosis?
 
-Mitosis is a new Ethereum-compatible blockchain implementation that is focused on being user-friendly, highly modular, as well as being fast and efficient. Mitosis is built on Cosmos SDK and is compatible with all Ethereum tooling and infrastructure. It features a unique modular architecture that separates execution from consensus, combining the best of both Ethereum and Cosmos ecosystems.
+Mitosis is a Network for Programmable Liquidity that leads the next generation of DeFi through the tokenization of liquidity positions while ensuring seamless integration into the Mitosis Ecosystem. It transforms traditional DeFi positions into tokenized, programmable assets that can be seamlessly leveraged across multiple protocols. Mitosis allows liquidity providers to deposit once and seamlessly earn rewards across multiple protocols in the ecosystem, where your liquidity works harder and smarter.
 
 ## Goals
 
@@ -26,9 +26,6 @@ More concretely, our goals are:
 
 5. **Developer Experience**: Unified development experience using Solidity for all logic, standard Ethereum tooling, and familiar wallet integration.
 
-## Status
-
-Mitosis is under active development and is not yet ready for production use. We are working towards a stable release.
 
 ## For Users
 
