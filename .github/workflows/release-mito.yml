@@ -52,7 +52,7 @@ jobs:
           done
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: binaries-mito-${{ matrix.os }}-${{ matrix.arch }}
           path: build/*
@@ -74,7 +74,7 @@ jobs:
           echo "VERSION=${TAG_NAME#mito/}" >> $GITHUB_OUTPUT
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
