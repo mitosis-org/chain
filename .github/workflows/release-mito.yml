@@ -109,8 +109,6 @@ jobs:
             
             Command-line interface for Mitosis Chain. Manage validators, transactions, and interact with the blockchain.
             
-            ${{ steps.changelog.outputs.CHANGELOG }}
-            
             ## 📥 Installation
             
             ### Quick Install (Linux/macOS)

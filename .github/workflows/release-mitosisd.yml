@@ -110,8 +110,6 @@ jobs:
             
             The core blockchain node for Mitosis Chain. Handles consensus, networking, and blockchain state management.
             
-            ${{ steps.changelog.outputs.CHANGELOG }}
-            
             ## 📥 Installation
             
             ### Quick Install (Linux/macOS)
