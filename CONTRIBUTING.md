@@ -36,6 +36,147 @@ Welcome to Mitosis Chain! We're excited to have you contribute to the next-gener
    make build
    ```
 
+## 🏗️ Environment Setup
+
+We categorize development environments into:
+
+- **Localnet** - For fast development and testing iterations in local environment. Runs a single validator for the mitosis chain.
+- **Devnet** - For development and testing with complete form of components. Runs two validator nodes and a non-validator node for the mitosis chain.
+
+### Chain IDs
+
+- **Localnet**
+  - Chain ID (EVM): `124899`
+  - Chain ID (Cosmos SDK): `mitosis-localnet-1`
+- **Devnet**
+  - Chain ID (EVM): `124864`
+  - Chain ID (Cosmos SDK): `mitosis-devnet-1`
+
+### Localnet Setup
+
+Localnet requires running both an execution client (`geth` or `reth`) and a consensus client (`mitosisd`).
+
+**Prerequisites**
+```bash
+# Ensure submodules are fetched
+git submodule update --init --recursive
+```
+
+**Execution Client Setup**
+```bash
+# Initialize geth (removes old data if exists)
+make setup-geth
+# Alternative: make setup-reth
+
+# Run geth
+make run-geth
+# Alternative: make run-reth
+```
+
+**Consensus Client Setup**
+```bash
+# Initialize mitosisd (removes old data if exists)
+make setup-mitosisd
+
+# Run mitosisd
+make run-mitosisd
+```
+
+**Testing Localnet**
+```bash
+# Run localnet tests
+make localnet-test
+
+# Check if nodes are running
+curl -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":124899}' http://localhost:8545
+```
+
+**Cleanup Localnet**
+```bash
+# Clean both clients (must clean both together)
+make clean-geth    # or make clean-reth
+make clean-mitosisd
+```
+
+### Devnet Setup
+
+Devnet provides a more complete testing environment with multiple nodes.
+
+**Build Docker Image**
+```bash
+make devnet-build
+```
+
+**Initialize and Start Devnet**
+```bash
+# Initialize the mitosis chain
+make devnet-init
+
+# Start all nodes
+make devnet-up
+
+# Verify nodes are running
+docker logs mitosis-devnet-node-mitosisd-1
+docker logs mitosis-devnet-node-reth-1
+
+# Test RPC connectivity
+cast block-number --rpc-url http://localhost:18545
+# Or use curl:
+curl -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":124864}' http://localhost:18545
+```
+
+**Deploy Contracts (Required for Testing)**
+```bash
+# Deploy consensus entrypoint contracts
+# (Run this in https://github.com/mitosis-org/protocol)
+RPC_URL="http://127.0.0.1:18545" ./tools/deploy-consensus-entrypoints.sh
+
+# Create a validator for testing
+make devnet-create-validator
+```
+
+**Devnet Management**
+```bash
+# Stop nodes (keeps data)
+make devnet-down
+
+# Complete cleanup (removes all data)
+make devnet-clean
+```
+
+### Development Testing Workflow
+
+1. **Start with Localnet** for quick iterations:
+   ```bash
+   # Setup both services
+   make setup-geth && make setup-mitosisd
+   
+   # Run services in separate terminals or background
+   # Terminal 1:
+   make run-geth
+   
+   # Terminal 2 (or run in background with &):
+   make run-mitosisd
+   ```
+
+2. **Run unit tests** during development:
+   ```bash
+   make test
+   make test-unit
+   ```
+
+3. **Use Devnet** for integration testing:
+   ```bash
+   make devnet-up
+   make test-integration
+   ```
+
+4. **Clean up** when switching contexts:
+   ```bash
+   make clean-geth && make clean-mitosisd  # For localnet
+   make devnet-clean                       # For devnet
+   ```
+
 ## 🔄 Development Workflow
 
 ### 1. Create a Feature Branch

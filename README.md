@@ -79,6 +79,10 @@ make build
 make test
 ```
 
+### Development Environment
+
+For detailed development environment setup including localnet and devnet configurations, please see our [Contributing Guide](CONTRIBUTING.md#-environment-setup).
+
 ### Contributing
 
 If you want to contribute, or follow along with contributor discussion, you can use our GitHub discussions and issues.
