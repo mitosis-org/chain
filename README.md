@@ -1,6 +1,7 @@
 # mitosis
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![codecov](https://codecov.io/gh/mitosis-org/chain/graph/badge.svg?token=4Mkp1Ipjc3)](https://codecov.io/gh/mitosis-org/chain)
 [![Security](https://github.com/mitosis-org/chain/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/security.yml)
 [![Quality Gate](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml)
 
