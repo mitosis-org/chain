@@ -12,7 +12,7 @@ We actively support and provide security updates for the following versions of M
 
 ## Reporting a Vulnerability
 
-The Mitosis Chain team takes security vulnerabilities seriously. We appreciate your efforts to responsibly disclose any vulnerabilities you find.
+The team takes security vulnerabilities seriously. We appreciate your efforts to responsibly disclose any vulnerabilities you find.
 
 ### How to Report
 
@@ -53,7 +53,7 @@ We believe in responsible disclosure and ask that you:
 
 ### Security Features
 
-Mitosis Chain implements several security measures:
+chain implements several security measures:
 
 - **Code Audits**: Regular security audits of critical components
 - **Dependency Scanning**: Automated scanning for known vulnerabilities in dependencies
@@ -92,7 +92,7 @@ For security-related questions or concerns:
 
 ### Legal Safe Harbor
 
-Mitosis Labs will not pursue legal action against security researchers who:
+We will not pursue legal action against security researchers who:
 
 - Follow this responsible disclosure process
 - Act in good faith
