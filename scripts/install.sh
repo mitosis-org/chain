@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Mitosis Chain Installation Script
-# Usage: 
+# Usage:
 #   curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
 #   COMPONENT=mito curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
 
@@ -37,19 +37,19 @@ error() {
 # Detect platform
 detect_platform() {
     local os arch
-    
+
     case "$(uname -s)" in
         Linux*)  os="linux" ;;
         Darwin*) os="darwin" ;;
         *) error "Unsupported OS: $(uname -s)" ;;
     esac
-    
+
     case "$(uname -m)" in
         x86_64) arch="amd64" ;;
         arm64|aarch64) arch="arm64" ;;
         *) error "Unsupported architecture: $(uname -m)" ;;
     esac
-    
+
     echo "${os}-${arch}"
 }
 
@@ -57,7 +57,7 @@ detect_platform() {
 get_latest_version() {
     local component="$1"
     local version
-    
+
     if [[ "$component" == "mito" ]]; then
         # Get latest mito release (mito/vX.Y.Z)
         version=$(curl -s "https://api.github.com/repos/${REPO}/releases" | \
@@ -74,7 +74,7 @@ get_latest_version() {
                  head -n1 | \
                  cut -d'"' -f4)
     fi
-    
+
     if [[ -z "$version" ]]; then
         error "Failed to get latest version for ${component}"
     fi
@@ -85,7 +85,7 @@ get_latest_version() {
 get_tag_name() {
     local component="$1"
     local version="$2"
-    
+
     if [[ "$component" == "mito" ]]; then
         echo "mito/${version}"
     else
@@ -99,14 +99,14 @@ install_binary() {
     local platform="$2"
     local tag_name="$3"
     local url="https://github.com/${REPO}/releases/download/${tag_name}/${binary}-${platform}"
-    
+
     log "Downloading ${binary} from tag ${tag_name} for ${platform}..."
-    
+
     # Create temporary directory
     local temp_dir
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
-    
+
     # Download binary
     if command -v curl >/dev/null 2>&1; then
         curl -L -o "$binary" "$url"
@@ -115,14 +115,14 @@ install_binary() {
     else
         error "curl or wget is required"
     fi
-    
+
     # Download checksum
     if command -v curl >/dev/null 2>&1; then
         curl -L -o "${binary}.sha256" "${url}.sha256"
     elif command -v wget >/dev/null 2>&1; then
         wget -O "${binary}.sha256" "${url}.sha256"
     fi
-    
+
     # Verify checksum
     if command -v sha256sum >/dev/null 2>&1; then
         sha256sum -c "${binary}.sha256" || error "Checksum verification failed"
@@ -131,10 +131,10 @@ install_binary() {
     else
         warn "Cannot verify checksum: sha256sum or shasum not found"
     fi
-    
+
     # Make executable
     chmod +x "$binary"
-    
+
     # Install to target directory
     if [[ -w "$INSTALL_DIR" ]]; then
         mv "$binary" "$INSTALL_DIR/"
@@ -142,50 +142,50 @@ install_binary() {
         log "Installing to $INSTALL_DIR (requires sudo)"
         sudo mv "$binary" "$INSTALL_DIR/"
     fi
-    
+
     # Cleanup
     cd /
     rm -rf "$temp_dir"
-    
+
     log "Successfully installed ${binary} to ${INSTALL_DIR}/${binary}"
 }
 
 # Main installation function
 main() {
     log "🚀 Installing Mitosis Chain component: ${COMPONENT}"
-    
+
     # Validate component
     if [[ "$COMPONENT" != "mitosisd" && "$COMPONENT" != "mito" ]]; then
         error "Invalid component: ${COMPONENT}. Must be 'mitosisd' or 'mito'"
     fi
-    
+
     # Check prerequisites
     if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
         error "curl or wget is required"
     fi
-    
+
     # Detect platform
     local platform
     platform=$(detect_platform)
     log "Detected platform: $platform"
-    
+
     # Get version
     if [[ "$VERSION" == "latest" ]]; then
         VERSION=$(get_latest_version "$COMPONENT")
     fi
     log "Installing version: $VERSION"
-    
+
     # Get tag name
     local tag_name
     tag_name=$(get_tag_name "$COMPONENT" "$VERSION")
     log "Using release tag: $tag_name"
-    
+
     # Install binary
     install_binary "$COMPONENT" "$platform" "$tag_name"
-    
+
     log "✅ Installation complete!"
     echo
-    
+
     # Show component-specific next steps
     if [[ "$COMPONENT" == "mitosisd" ]]; then
         log "🎯 Next steps for Mitosis Chain Node:"
@@ -200,11 +200,11 @@ main() {
         echo "  3. Check version: mito version"
         echo "  4. View help: mito --help"
     fi
-    
+
     echo
-    log "📖 Documentation: https://docs.mitosis.org"
+    log "📖 Documentation: https://docs.mitosis.org/developers/"
     log "💬 Community: https://discord.gg/mitosis"
-    
+
     # Show installation info for other component
     if [[ "$COMPONENT" == "mitosisd" ]]; then
         echo
@@ -218,4 +218,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"
