@@ -2,7 +2,7 @@ name: Release Mito CLI
 
 on:
   push:
-    tags: 
+    tags:
       - 'mito/v*'   # mito CLI releases (mito/vX.Y.Z)
 
 permissions:
@@ -88,11 +88,11 @@ jobs:
         run: |
           # Get previous mito CLI tag
           PREV_TAG=$(git tag --sort=-version:refname | grep -E '^mito/v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "${{ steps.version.outputs.TAG_NAME }}" | head -n1)
-          
+
           if [ -z "$PREV_TAG" ]; then
             PREV_TAG=$(git rev-list --max-parents=0 HEAD)
           fi
-          
+
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           echo "## What's Changed" >> $GITHUB_OUTPUT
           echo "### CLI (mito) Changes" >> $GITHUB_OUTPUT
@@ -106,43 +106,37 @@ jobs:
           files: release/*
           body: |
             # Mito CLI ${{ steps.version.outputs.VERSION }}
-            
+
             Command-line interface for Mitosis Chain. Manage validators, transactions, and interact with the blockchain.
-            
+
             ## 📥 Installation
-            
+
             ### Quick Install (Linux/macOS)
             ```bash
             VERSION="${{ steps.version.outputs.VERSION }}" COMPONENT="mito" \
             curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
             ```
-            
+
             ### Manual Download
             Download the appropriate binary for your platform from the assets below:
-            
+
             | Platform | Architecture | Download |
             |----------|--------------|----------|
             | Linux    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-linux-amd64) |
             | Linux    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-linux-arm64) |
             | macOS    | x86_64       | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-darwin-amd64) |
             | macOS    | ARM64        | [Download](https://github.com/mitosis-org/chain/releases/download/${{ steps.version.outputs.TAG_NAME }}/mito-darwin-arm64) |
-            
+
             ## 🔍 Verification
-            
+
             All binaries include SHA256 checksums. Verify your download:
             ```bash
             sha256sum -c <binary>.sha256
             ```
-            
-            ## 📖 Documentation
-            
-            - [CLI Reference](https://docs.mitosis.org/cli)
-            - [User Guide](https://docs.mitosis.org/guide)
-            - [Commands Reference](https://docs.mitosis.org/commands)
-            
+
             ## 🆕 What's New in This Release
-            
+
             ${{ steps.changelog.outputs.CHANGELOG }}
           draft: false
           prerelease: ${{ contains(steps.version.outputs.VERSION, 'alpha') || contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'rc') }}
-          generate_release_notes: true 
+          generate_release_notes: true
