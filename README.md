@@ -27,61 +27,127 @@ More concretely, our goals are:
 
 5. **Developer Experience**: Unified development experience using Solidity for all logic, standard Ethereum tooling, and familiar wallet integration.
 
+## How to run a chain in testing environment
 
-## For Users
+We categorize testing development environments into:
 
-### Installation
+- **Localnet** - For fast development and testing iterations in local environment. Runs a single validator for the mitosis chain.
+- **Devnet** - For development and testing with complete form of components. Runs two validator nodes and a non-validator node for the mitosis chain.
 
+### Chain IDs
+
+- **Localnet**
+  - Chain ID (EVM): `124899`
+  - Chain ID (Cosmos SDK): `mitosis-localnet-1`
+- **Devnet**
+  - Chain ID (EVM): `124864`
+  - Chain ID (Cosmos SDK): `mitosis-devnet-1`
+
+### Localnet Setup
+
+Localnet requires running both an execution client (`geth` or `reth`) and a consensus client (`mitosisd`).
+
+**Prerequisites**
 ```bash
-# Install latest release
-curl -sSL https://raw.githubusercontent.com/mitosis-org/chain/main/scripts/install.sh | bash
-
-# Or download from releases
-wget https://github.com/mitosis-org/chain/releases/latest/download/mitosisd-linux-amd64
-chmod +x mitosisd-linux-amd64 && mv mitosisd-linux-amd64 /usr/local/bin/mitosisd
+# Ensure submodules are fetched
+git submodule update --init --recursive
 ```
 
-### Running a Node
-
+**Setup and Run Execution Client**
 ```bash
-# Initialize node
-mitosisd init my-node --chain-id mitosis-localnet-1
+# Initialize geth (removes old data if exists)
+make setup-geth
+# Alternative: make setup-reth
 
-# Start node
-mitosisd start
+# Run geth
+make run-geth
+# Alternative: make run-reth
 ```
 
-## For Developers
-
-### Prerequisites
-
-- Go 1.24+
-- Git
-
-### Building from Source
-
-First, clone the repository:
-
+**Setup and Run Consensus Client**
 ```bash
-git clone https://github.com/mitosis-org/chain
-cd chain
+# Initialize mitosisd (removes old data if exists)
+make setup-mitosisd
+
+# Run mitosisd
+make run-mitosisd
 ```
 
-Next, build the binary:
-
+**Deploy and Setup Consensus Entrypoint Contracts**
 ```bash
-make build
+# Run this command in https://github.com/mitosis-org/protocol to deploy the consensus entrypoint contracts.
+# The deployed address would be:
+# - ConsensusGovernanceEntrypoint:  0x06c9918ff483fd88C65dD02E788427cfF04545b9
+# - ConsensusValidatorEntrypoint :  0x9866D79EF3e9c0c22Db2b55877013e13a60AD478
+./tools/deploy-consensus-entrypoints.sh
+
+# Note that `ConsensusGovernanceEntrypoint` address is managed in `app.toml`:
+#   [evmgov]
+#   entrypoint = "0x06c9918ff483fd88C65dD02E788427cfF04545b9"
+
+# Update `ConsensusValidatorEntrypoint` address in x/evmvalidator module.
+./build/midevtool governance execute \
+  --entrypoint 0x06c9918ff483fd88C65dD02E788427cfF04545b9 \
+  --private-key 0x5a496832ac0d7a484e6996301a5511dbc3b723d037bc61261ecaf425bd6a5b37 \
+  --msg '[{"@type":"/mitosis.evmvalidator.v1.MsgUpdateValidatorEntrypointContractAddr","authority":"mito1g86pactsvfrcglkvqzvdwkxhjshafu280q95p7","addr":"0x9866D79EF3e9c0c22Db2b55877013e13a60AD478"}]'
 ```
 
-### Running Tests
-
+**Cleanup**
 ```bash
-make test
+# Clean both clients (must clean both together)
+make clean-geth    # or make clean-reth
+make clean-mitosisd
 ```
 
-### Development Environment
+### Devnet Setup
 
-For detailed development environment setup including localnet and devnet configurations, please see our [Contributing Guide](CONTRIBUTING.md#%EF%B8%8F-environment-setup).
+Devnet provides a more complete testing environment with multiple nodes.
+
+**Build Docker Image**
+```bash
+make devnet-build
+```
+
+**Initialize and Start Devnet**
+```bash
+# Initialize the mitosis chain
+make devnet-init
+
+# Start all nodes
+make devnet-up
+
+# Verify nodes are running
+docker logs mitosis-devnet-node-mitosisd-1
+docker logs mitosis-devnet-node-reth-1
+
+# Test RPC connectivity
+cast block-number --rpc-url http://localhost:18545
+# Or use curl:
+curl -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":124864}' http://localhost:18545
+```
+
+**Deploy Consensus Entrypoint Contracts (Required for Testing)**
+```bash
+# Run this in https://github.com/mitosis-org/protocol
+# The deployed address would be:
+# - ConsensusGovernanceEntrypoint:  0x06c9918ff483fd88C65dD02E788427cfF04545b9
+# - ConsensusValidatorEntrypoint :  0x9866D79EF3e9c0c22Db2b55877013e13a60AD478
+RPC_URL="http://127.0.0.1:18545" ./tools/deploy-consensus-entrypoints.sh
+```
+
+**Create a validator for testing**
+```bash
+make devnet-create-validator
+```
+
+**Devnet Management**
+```bash
+# Stop nodes (keeps data)
+make devnet-down
+
+# Complete cleanup (removes all data)
+make devnet-clean
+```
 
 ### Contributing
 
