@@ -117,7 +117,7 @@ chain/
 
 ## 📚 Additional Resources
 
-- [Mitosis Developer Docs](https://docs.mitosis.org/developers/)
+- [Mitosis Developer Docs](https://docs.mitosis.org/docs/developers/overview)
 - [Cosmos SDK Documentation](https://docs.cosmos.network/)
 
 ---

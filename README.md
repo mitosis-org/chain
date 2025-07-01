@@ -198,7 +198,7 @@ If you have any questions:
 
 - Open a discussion with your question, or
 - Open an issue with the bug
-- Check our [developer docs](https://docs.mitosis.org/developers/)
+- Check our [developer docs](https://docs.mitosis.org/docs/developers/overview)
 
 ## Security
 
