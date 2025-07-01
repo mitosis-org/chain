@@ -65,6 +65,7 @@ git commit -m "test: add unit tests for evmvalidator module"
 - `refactor`: Code refactoring
 - `test`: Adding or updating tests
 - `chore`: Build process or auxiliary tool changes
+- `perf`: Performance improvements
 
 ### 5. Push and Create Pull Request
 ```bash
@@ -86,8 +87,8 @@ Then create a Pull Request through GitHub with:
 - Add comments for exported functions and complex logic
 
 ### Solidity Code Style
-- Follow our [Solidity Style Guide](.cursor/rules/shared-rules/solidity/reference/coinbase-style-guide.mdc)
-- Use ERC7201 for storage patterns
+- Follow our [Solidity Style Guide](https://github.com/mitosis-org/shared-rules/blob/d4907cb7b140275919743f9200b80cdd1822cbca/solidity/reference/coinbase-style-guide.mdc)
+- Use ERC-7201 for storage patterns
 - Implement comprehensive tests for all contracts
 
 ### Project Structure
