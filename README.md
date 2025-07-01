@@ -4,6 +4,8 @@
 [![Security](https://github.com/mitosis-org/chain/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/security.yml)
 [![Quality Gate](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/mitosis-org/chain/actions/workflows/quality-gate.yml)
 
+![Mitosis Chain Banner](assets/banner.png)
+
 ## What is Mitosis Chain?
 
 Mitosis is a Network for Programmable Liquidity that leads the next generation of DeFi through the tokenization of liquidity positions while ensuring seamless integration into the Mitosis Ecosystem. It transforms traditional DeFi positions into tokenized, programmable assets that can be seamlessly leveraged across multiple protocols.
