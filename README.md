@@ -81,7 +81,7 @@ make test
 
 ### Development Environment
 
-For detailed development environment setup including localnet and devnet configurations, please see our [Contributing Guide](CONTRIBUTING.md#-environment-setup).
+For detailed development environment setup including localnet and devnet configurations, please see our [Contributing Guide](CONTRIBUTING.md#%EF%B8%8F-environment-setup).
 
 ### Contributing
 
