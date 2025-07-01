@@ -202,7 +202,7 @@ main() {
     fi
 
     echo
-    log "📖 Documentation: https://docs.mitosis.org/developers/"
+    log "📖 Documentation: https://docs.mitosis.org/docs/developers/overview"
     log "💬 Community: https://discord.gg/mitosis"
 
     # Show installation info for other component
