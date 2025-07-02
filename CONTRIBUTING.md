@@ -87,7 +87,7 @@ Then create a Pull Request through GitHub with:
 - Add comments for exported functions and complex logic
 
 ### Solidity Code Style
-- Follow our [Solidity Style Guide](https://github.com/mitosis-org/shared-rules/blob/d4907cb7b140275919743f9200b80cdd1822cbca/solidity/reference/coinbase-style-guide.mdc)
+- Follow our [Solidity Style Guide](https://github.com/mitosis-org/shared-rules/blob/main/solidity/reference/coinbase-style-guide.mdc)
 - Use ERC-7201 for storage patterns
 - Implement comprehensive tests for all contracts
 
