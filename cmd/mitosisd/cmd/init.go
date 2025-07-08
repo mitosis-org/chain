@@ -39,20 +39,24 @@ const (
 )
 
 type printInfo struct {
-	Moniker    string          `json:"moniker" yaml:"moniker"`
-	ChainID    string          `json:"chain_id" yaml:"chain_id"`
-	NodeID     string          `json:"node_id" yaml:"node_id"`
-	GenTxsDir  string          `json:"gentxs_dir" yaml:"gentxs_dir"`
-	AppMessage json.RawMessage `json:"app_message" yaml:"app_message"`
+	Moniker       string          `json:"moniker" yaml:"moniker"`
+	ChainID       string          `json:"chain_id" yaml:"chain_id"`
+	NodeID        string          `json:"node_id" yaml:"node_id"`
+	GenTxsDir     string          `json:"gentxs_dir" yaml:"gentxs_dir"`
+	AppMessage    json.RawMessage `json:"app_message" yaml:"app_message"`
+	EthGenesis    string          `json:"eth_genesis_path" yaml:"eth_genesis_path"`
+	EthChainID    string          `json:"eth_chain_id" yaml:"eth_chain_id"`
 }
 
-func newPrintInfo(moniker, chainID, nodeID, genTxsDir string, appMessage json.RawMessage) printInfo {
+func newPrintInfoWithEth(moniker, chainID, nodeID, genTxsDir string, appMessage json.RawMessage, ethGenesisPath string, ethChainID string) printInfo {
 	return printInfo{
 		Moniker:    moniker,
 		ChainID:    chainID,
 		NodeID:     nodeID,
 		GenTxsDir:  genTxsDir,
 		AppMessage: appMessage,
+		EthGenesis: ethGenesisPath,
+		EthChainID: ethChainID,
 	}
 }
 
@@ -167,7 +171,16 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				return errorsmod.Wrap(err, "Failed to export genesis file")
 			}
 
-			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
+			// Generate Ethereum genesis file
+			ethGenesisPath := filepath.Join(config.RootDir, "config", "eth_genesis.json")
+			if err = GenerateEthereumGenesis(chainID, ethGenesisPath); err != nil {
+				return errorsmod.Wrap(err, "Failed to generate Ethereum genesis file")
+			}
+
+			// Get Ethereum chain ID for display
+			ethChainID := GetEthChainIDFromCosmosChainID(chainID)
+			
+			toPrint := newPrintInfoWithEth(config.Moniker, chainID, nodeID, "", appState, ethGenesisPath, ethChainID.String())
 
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
 			return displayInfo(toPrint)
