@@ -78,6 +78,9 @@ func (s *ValidatorService) CreateValidatorWithOptions(req *CreateValidatorReques
 		return nil, fmt.Errorf("failed to parse initial collateral: %w", err)
 	}
 
+	// Calculate total value to send (collateral amount + fee)
+	totalValue := new(big.Int).Add(collateralAmount, s.config.ContractFee)
+
 	// Create the request
 	request := bindings.IValidatorManagerCreateValidatorRequest{
 		Operator:       operatorAddr,
@@ -106,7 +109,7 @@ func (s *ValidatorService) CreateValidatorWithOptions(req *CreateValidatorReques
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
-		Value:    collateralAmount,
+		Value:    totalValue,
 		Data:     data,
 		GasLimit: gasLimit,
 	}
@@ -145,7 +148,7 @@ func (s *ValidatorService) UpdateMetadataWithOptions(validatorAddr, metadata str
 		gasLimit = 500000
 	}
 
-	// Create transaction data
+	// Create transaction data (no value needed for metadata update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
@@ -192,7 +195,7 @@ func (s *ValidatorService) UpdateOperatorWithOptions(validatorAddr, newOperator 
 		gasLimit = 500000
 	}
 
-	// Create transaction data
+	// Create transaction data (no value needed for operator update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
@@ -245,7 +248,7 @@ func (s *ValidatorService) UpdateRewardConfigWithOptions(validatorAddr, commissi
 		gasLimit = 500000
 	}
 
-	// Create transaction data
+	// Create transaction data (no value needed for reward config update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
@@ -292,7 +295,7 @@ func (s *ValidatorService) UpdateRewardManagerWithOptions(validatorAddr, rewardM
 		gasLimit = 500000
 	}
 
-	// Create transaction data
+	// Create transaction data (no value needed for reward manager update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
@@ -337,7 +340,7 @@ func (s *ValidatorService) UnjailValidatorWithOptions(validatorAddr string, unsi
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
-		Value:    big.NewInt(0),
+		Value:    s.config.ContractFee,
 		Data:     data,
 		GasLimit: gasLimit,
 	}
