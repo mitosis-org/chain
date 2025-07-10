@@ -54,12 +54,18 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # ********** process linker flags **********
 
+# ldflags for mitosisd (Cosmos SDK app)
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=mitosis \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=mitosisd \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/cometbft/cometbft/version.TMCoreSemVer=$(CMTVERSION)
+
+# ldflags for mito (CLI tool)
+mito_ldflags = -X github.com/mitosis-org/chain/cmd/mito/commands/version.Version=$(VERSION) \
+			   -X github.com/mitosis-org/chain/cmd/mito/commands/version.GitCommit=$(COMMIT) \
+			   -X github.com/mitosis-org/chain/cmd/mito/commands/version.BuildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 
 # DB backend selection
 ifeq (cleveldb,$(findstring cleveldb,$(COSMOS_BUILD_OPTIONS)))
@@ -125,7 +131,7 @@ else
   HOST_GOOS := $(HOST_OS)
 endif
 
-BUILD_TARGETS := build install
+BUILD_TARGETS := build
 
 build: BUILD_ARGS=-o $(BUILD_DIR)/
 
@@ -164,7 +170,7 @@ cross-build-mito:
 	$(call validate_cross_build,$(word 2,$(MAKECMDGOALS)),$(word 3,$(MAKECMDGOALS)))
 	@mkdir -p $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/
 	@echo "Cross-building mito for $(word 2,$(MAKECMDGOALS))/$(word 3,$(MAKECMDGOALS))..."
-	cd ${CURDIR}/cmd/mito && GOOS=$(word 2,$(MAKECMDGOALS)) GOARCH=$(word 3,$(MAKECMDGOALS)) go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/ ./...
+	cd ${CURDIR}/cmd/mito && GOOS=$(word 2,$(MAKECMDGOALS)) GOARCH=$(word 3,$(MAKECMDGOALS)) go build -mod=readonly -tags "$(build_tags)" -ldflags '$(mito_ldflags)' -o $(BUILD_DIR)/$(word 2,$(MAKECMDGOALS))-$(word 3,$(MAKECMDGOALS))/ ./...
 
 # Build all binaries for current architecture
 build-all:
@@ -191,7 +197,11 @@ cross-build-all:
 
 $(BUILD_TARGETS): go.sum $(BUILD_DIR)/
 	@echo "Building $(BINARY_NAME)..."
-	cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
+	@if [ "$(BINARY_NAME)" = "mito" ]; then \
+		cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly -tags "$(build_tags)" -ldflags '$(mito_ldflags)' $(BUILD_ARGS) ./...; \
+	else \
+		cd ${CURDIR}/cmd/$(BINARY_NAME) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...; \
+	fi
 
 $(BUILD_DIR)/:
 	mkdir -p $(BUILD_DIR)/
@@ -199,6 +209,16 @@ $(BUILD_DIR)/:
 # Allow specific arguments as fake targets for cross-compilation
 darwin linux amd64 arm64:
 	@:
+
+install:
+	@GOBIN_PATH=$$(go env GOBIN); \
+	if [ -z "$$GOBIN_PATH" ]; then \
+		GOBIN_PATH=$$(go env GOPATH)/bin; \
+	fi; \
+	for bin in mitosisd mito midevtool; do \
+		BINARY_NAME=$$bin $(MAKE) build; \
+		cp build/$$bin $$GOBIN_PATH/$$bin; \
+	done
 
 .PHONY: build build-all cross-build-all build-mitosisd build-midevtool build-mito cross-build-mitosisd cross-build-midevtool cross-build-mito install
 
