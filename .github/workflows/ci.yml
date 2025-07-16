@@ -9,14 +9,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: [1.20.x, 1.21.x, 1.22.x]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Go
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
-          go-version-file: '.go-version'
+          go-version: ${{ matrix.go-version }}
           cache: true
-      - name: Go Build Cache
+
+      - name: Cache Go build and module paths
         uses: actions/cache@v4
         with:
           path: |
@@ -25,14 +34,19 @@ jobs:
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-build-
-      - name: Build
+
+      - name: Build binary
         run: make build
-      - name: Run linter
+
+      - name: Lint code
         run: make lint
+
       - name: Run unit tests
         run: make test-unit
+
       - name: Generate code coverage
         run: go test -coverprofile=coverage.txt -covermode=atomic ./...
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
