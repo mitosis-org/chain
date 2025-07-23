@@ -24,7 +24,7 @@ Instead, please report them via one of the following methods:
 2. **GitHub Security Advisories**: Use the [private vulnerability reporting feature](https://github.com/mitosis-org/chain/security/advisories/new)
 
 > 🔐 **Optional:** If your report contains sensitive information, we recommend encrypting it using PGP.  
-> Currently, no public key is provided — consider publishing one to enable secure disclosure.
+> Currently, no public key is available for encryption.
 
 
 ### What to Include
