@@ -21,14 +21,12 @@ We categorize testing development environments into:
 - **Localnet** - For fast development and testing iterations in local environment. Runs a single validator for the mitosis chain.
 - **Devnet** - For development and testing with complete form of components. Runs two validator nodes and a non-validator node for the mitosis chain.
 
-### Chain IDs
+## Chain IDs
 
-- **Localnet**
-  - Chain ID (EVM): `124899`
-  - Chain ID (Cosmos SDK): `mitosis-localnet-1`
-- **Devnet**
-  - Chain ID (EVM): `124864`
-  - Chain ID (Cosmos SDK): `mitosis-devnet-1`
+| Environment | EVM Chain ID | Cosmos SDK Chain ID    |
+|-------------|--------------|------------------------|
+| Localnet    | 124899       | mitosis-localnet-1    |
+| Devnet      | 124864       | mitosis-devnet-1      |
 
 ### Localnet Setup
 
