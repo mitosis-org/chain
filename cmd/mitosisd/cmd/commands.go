@@ -35,7 +35,6 @@ func initRootCmd(rootCmd *cobra.Command, txConfig client.TxConfig, basicManager 
 
 	rootCmd.AddCommand(
 		InitCmd(basicManager, app.DefaultNodeHome),
-		evmvalcli.GetGenesisValidatorCmd(app.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),
@@ -46,7 +45,7 @@ func initRootCmd(rootCmd *cobra.Command, txConfig client.TxConfig, basicManager 
 
 	rootCmd.AddCommand(
 		server.StatusCommand(),
-		genesisCommand(txConfig, app.DefaultNodeHome, basicManager),
+		genesisCommand(txConfig, app.DefaultNodeHome, basicManager, evmvalcli.GetGenesisValidatorCmd(app.DefaultNodeHome)),
 		queryCommand(),
 		txCommand(),
 		keys.Commands(),
