@@ -23,6 +23,12 @@ Instead, please report them via one of the following methods:
 1. **Email**: Send details to [security@mitosis.org](mailto:security@mitosis.org)
 2. **GitHub Security Advisories**: Use the [private vulnerability reporting feature](https://github.com/mitosis-org/chain/security/advisories/new)
 
+> 🔐 **Optional:** If your report contains sensitive information, we recommend encrypting it using PGP.  
+> Our public key is currently unavailable but will be published by [DATE]. In the meantime, please use one of the following secure methods:
+> - Use a secure file-sharing service with password protection and share the password via a separate channel.
+> - Encrypt your report using a tool like OpenSSL and share the decryption key via a separate channel.
+
+
 ### What to Include
 
 When reporting a vulnerability, please include:
