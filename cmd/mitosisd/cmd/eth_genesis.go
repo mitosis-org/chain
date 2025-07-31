@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 )
 
+// DefaultFundedAddress is the default Ethereum address that receives initial funding
+const DefaultFundedAddress = "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+
 // EthereumChainConfig represents the chain configuration for Ethereum genesis
 type EthereumChainConfig struct {
 	ChainID                 *big.Int `json:"chainId"`
@@ -92,7 +95,7 @@ func GenerateEthereumGenesis(chainID string, outputPath string) error {
 	}
 
 	// Default funded address (same as in existing genesis files)
-	defaultFundedAddress := "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+	defaultFundedAddress := DefaultFundedAddress
 
 	// Initial balance: 10,000,000 ETH for localnet
 	initialBalance := "10000000000000000000000000"
@@ -125,12 +128,12 @@ func GenerateEthereumGenesis(chainID string, outputPath string) error {
 
 	// Ensure the directory exists
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0750); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("failed to create directory %s: %w", dir, err)
 	}
 
 	// Write the genesis file
-	if err := os.WriteFile(outputPath, jsonData, 0600); err != nil {
+	if err := os.WriteFile(outputPath, jsonData, 0o600); err != nil {
 		return fmt.Errorf("failed to write ethereum genesis file: %w", err)
 	}
 

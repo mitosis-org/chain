@@ -161,6 +161,7 @@ issues:
     - ".*\\.pb\\.go$" # Ignore generated protobuf files
     - ".*\\.pulsar\\.go$" # Ignore generated protobuf files
     - "bindings/*" # Ignore generated contract bindings
+    - "tmp/*" # Ignore temporary files directory
 
   exclude-rules:
     - source: "^//\\s*go:generate\\s"

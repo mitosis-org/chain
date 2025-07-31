@@ -261,7 +261,7 @@ golangci_version=v1.64.8
 lint:
 	@echo "--> Running linter"
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run --timeout=10m
+	@$(golangci_lint_cmd) run --timeout=10m ./api/... ./app/... ./cmd/... ./types/... ./x/...
 
 lint-fix:
 	@echo "--> Running linter"

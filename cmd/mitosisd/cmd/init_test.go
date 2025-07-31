@@ -57,12 +57,12 @@ func TestDisplayInfo(t *testing.T) {
 	// Read captured output
 	out := make([]byte, 1024)
 	n, _ := r.Read(out)
-	
+
 	// Verify JSON output contains expected fields
 	var parsed printInfo
 	err = json.Unmarshal(out[:n], &parsed)
 	require.NoError(t, err)
-	
+
 	// Compare fields individually to avoid JSON formatting differences
 	assert.Equal(t, info.Moniker, parsed.Moniker)
 	assert.Equal(t, info.ChainID, parsed.ChainID)
@@ -70,34 +70,36 @@ func TestDisplayInfo(t *testing.T) {
 	assert.Equal(t, info.GenTxsDir, parsed.GenTxsDir)
 	assert.Equal(t, info.EthGenesis, parsed.EthGenesis)
 	assert.Equal(t, info.EthChainID, parsed.EthChainID)
-	
+
 	// For AppMessage, compare the content after parsing
 	var expectedMsg, actualMsg map[string]interface{}
-	json.Unmarshal(info.AppMessage, &expectedMsg)
-	json.Unmarshal(parsed.AppMessage, &actualMsg)
+	err = json.Unmarshal(info.AppMessage, &expectedMsg)
+	require.NoError(t, err)
+	err = json.Unmarshal(parsed.AppMessage, &actualMsg)
+	require.NoError(t, err)
 	assert.Equal(t, expectedMsg, actualMsg)
 }
 
 func TestGenerateEthereumGenesis_Integration(t *testing.T) {
 	// This tests the integration between init.go and eth_genesis.go
 	tempDir := t.TempDir()
-	
+
 	tests := []struct {
-		name           string
-		chainID        string
-		expectedEthID  int64
+		name            string
+		chainID         string
+		expectedEthID   int64
 		expectedBalance string
 	}{
 		{
-			name:           "localnet integration",
-			chainID:        "mitosis-localnet-1",
-			expectedEthID:  124899,
+			name:            "localnet integration",
+			chainID:         "mitosis-localnet-1",
+			expectedEthID:   124899,
 			expectedBalance: "10000000000000000000000000",
 		},
 		{
-			name:           "devnet integration",
-			chainID:        "mitosis-devnet-1",
-			expectedEthID:  124864,
+			name:            "devnet integration",
+			chainID:         "mitosis-devnet-1",
+			expectedEthID:   124864,
 			expectedBalance: "999000000000000000000000000",
 		},
 	}
@@ -105,7 +107,7 @@ func TestGenerateEthereumGenesis_Integration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ethGenesisPath := filepath.Join(tempDir, tt.chainID, "eth_genesis.json")
-			
+
 			// Test the function that would be called from InitCmd
 			err := GenerateEthereumGenesis(tt.chainID, ethGenesisPath)
 			require.NoError(t, err)
@@ -120,9 +122,9 @@ func TestGenerateEthereumGenesis_Integration(t *testing.T) {
 
 			// Verify chain ID mapping
 			assert.Equal(t, tt.expectedEthID, genesis.Config.ChainID.Int64())
-			
+
 			// Verify balance
-			fundedAddr := "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+			fundedAddr := DefaultFundedAddress
 			account, exists := genesis.Alloc[fundedAddr]
 			require.True(t, exists)
 			assert.Equal(t, tt.expectedBalance, account.Balance)
@@ -153,9 +155,9 @@ func TestInitCmd_EthGenesisCreation(t *testing.T) {
 	// Test that init command would create eth genesis in the right location
 	tempDir := t.TempDir()
 	configDir := filepath.Join(tempDir, "config")
-	
+
 	// Create config directory (simulating what InitCmd would do)
-	err := os.MkdirAll(configDir, 0755)
+	err := os.MkdirAll(configDir, 0o755)
 	require.NoError(t, err)
 
 	// Test eth genesis generation

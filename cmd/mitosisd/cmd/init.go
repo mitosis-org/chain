@@ -39,13 +39,13 @@ const (
 )
 
 type printInfo struct {
-	Moniker       string          `json:"moniker" yaml:"moniker"`
-	ChainID       string          `json:"chain_id" yaml:"chain_id"`
-	NodeID        string          `json:"node_id" yaml:"node_id"`
-	GenTxsDir     string          `json:"gentxs_dir" yaml:"gentxs_dir"`
-	AppMessage    json.RawMessage `json:"app_message" yaml:"app_message"`
-	EthGenesis    string          `json:"eth_genesis_path" yaml:"eth_genesis_path"`
-	EthChainID    string          `json:"eth_chain_id" yaml:"eth_chain_id"`
+	Moniker    string          `json:"moniker" yaml:"moniker"`
+	ChainID    string          `json:"chain_id" yaml:"chain_id"`
+	NodeID     string          `json:"node_id" yaml:"node_id"`
+	GenTxsDir  string          `json:"gentxs_dir" yaml:"gentxs_dir"`
+	AppMessage json.RawMessage `json:"app_message" yaml:"app_message"`
+	EthGenesis string          `json:"eth_genesis_path" yaml:"eth_genesis_path"`
+	EthChainID string          `json:"eth_chain_id" yaml:"eth_chain_id"`
 }
 
 func newPrintInfoWithEth(moniker, chainID, nodeID, genTxsDir string, appMessage json.RawMessage, ethGenesisPath string, ethChainID string) printInfo {
@@ -179,7 +179,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			// Get Ethereum chain ID for display
 			ethChainID := GetEthChainIDFromCosmosChainID(chainID)
-			
+
 			toPrint := newPrintInfoWithEth(config.Moniker, chainID, nodeID, "", appState, ethGenesisPath, ethChainID.String())
 
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)

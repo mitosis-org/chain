@@ -13,28 +13,28 @@ import (
 
 func TestGetEthChainIDFromCosmosChainID(t *testing.T) {
 	tests := []struct {
-		name           string
-		cosmosChainID  string
+		name            string
+		cosmosChainID   string
 		expectedChainID *big.Int
 	}{
 		{
-			name:           "localnet chain ID",
-			cosmosChainID:  "mitosis-localnet-1",
+			name:            "localnet chain ID",
+			cosmosChainID:   "mitosis-localnet-1",
 			expectedChainID: big.NewInt(124899),
 		},
 		{
-			name:           "devnet chain ID",
-			cosmosChainID:  "mitosis-devnet-1",
+			name:            "devnet chain ID",
+			cosmosChainID:   "mitosis-devnet-1",
 			expectedChainID: big.NewInt(124864),
 		},
 		{
-			name:           "custom chain ID",
-			cosmosChainID:  "custom-chain-123",
+			name:            "custom chain ID",
+			cosmosChainID:   "custom-chain-123",
 			expectedChainID: big.NewInt(100000),
 		},
 		{
-			name:           "empty chain ID",
-			cosmosChainID:  "",
+			name:            "empty chain ID",
+			cosmosChainID:   "",
 			expectedChainID: big.NewInt(100000),
 		},
 	}
@@ -51,13 +51,13 @@ func TestGenerateEthereumGenesis(t *testing.T) {
 	tempDir := t.TempDir()
 
 	tests := []struct {
-		name               string
-		chainID            string
-		outputPath         string
-		expectedBalance    string
-		expectedChainID    *big.Int
-		expectError        bool
-		validateGenesis    func(t *testing.T, genesis *EthereumGenesisSpec)
+		name            string
+		chainID         string
+		outputPath      string
+		expectedBalance string
+		expectedChainID *big.Int
+		expectError     bool
+		validateGenesis func(t *testing.T, genesis *EthereumGenesisSpec)
 	}{
 		{
 			name:            "generate localnet genesis",
@@ -76,15 +76,15 @@ func TestGenerateEthereumGenesis(t *testing.T) {
 				assert.Equal(t, uint64(0), *genesis.Config.ShanghaiTime)
 				assert.NotNil(t, genesis.Config.CancunTime)
 				assert.Equal(t, uint64(0), *genesis.Config.CancunTime)
-				
+
 				// Validate genesis parameters
 				assert.Equal(t, "0x0", genesis.Nonce)
 				assert.Equal(t, "0x0", genesis.Timestamp)
 				assert.Equal(t, "0x1c9c380", genesis.GasLimit)
 				assert.Equal(t, "0x0", genesis.Difficulty)
-				
+
 				// Validate alloc
-				fundedAddr := "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+				fundedAddr := DefaultFundedAddress
 				account, exists := genesis.Alloc[fundedAddr]
 				assert.True(t, exists)
 				assert.Equal(t, "10000000000000000000000000", account.Balance)
@@ -100,9 +100,9 @@ func TestGenerateEthereumGenesis(t *testing.T) {
 			validateGenesis: func(t *testing.T, genesis *EthereumGenesisSpec) {
 				// Validate chain ID
 				assert.Equal(t, big.NewInt(124864), genesis.Config.ChainID)
-				
+
 				// Validate devnet specific balance
-				fundedAddr := "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+				fundedAddr := DefaultFundedAddress
 				account, exists := genesis.Alloc[fundedAddr]
 				assert.True(t, exists)
 				assert.Equal(t, "999000000000000000000000000", account.Balance)
