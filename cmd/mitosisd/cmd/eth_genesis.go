@@ -64,7 +64,9 @@ type EthereumGenesisSpec struct {
 
 // AllocatedAccount represents a pre-funded account in the genesis
 type AllocatedAccount struct {
-	Balance string `json:"balance"`
+	Balance string            `json:"balance"`
+	Code    string            `json:"code,omitempty"`
+	Storage map[string]string `json:"storage,omitempty"`
 }
 
 // GetEthChainIDFromCosmosChainID derives the Ethereum chain ID from Cosmos chain ID
