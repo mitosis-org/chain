@@ -106,7 +106,7 @@ chain/
 
 ## 🤝 Community Guidelines
 
-- **Be respectful and inclusive**: Treat all community members with kindness and ensure an welcoming environment for everyone.
+- **Be respectful and inclusive**: Treat all community members with kindness and ensure a welcoming environment for everyone.
 - **Help newcomers get started**: Offer guidance to new contributors to help them navigate the project.
 - **Share knowledge and best practices**: Contribute tips or examples to improve the community's collective expertise.
 - **Follow our [Code of Conduct](CODE_OF_CONDUCT.md)**: Adhere to the guidelines outlined to maintain a positive community culture.
