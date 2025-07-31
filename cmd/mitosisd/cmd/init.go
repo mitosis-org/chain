@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 
@@ -36,6 +37,12 @@ const (
 
 	// FlagDefaultBondDenom defines the default denom to use in the genesis file.
 	FlagDefaultBondDenom = "default-denom"
+
+	// Ethereum genesis flags
+	FlagEthChainID     = "eth-chain-id"
+	FlagEthGasLimit    = "eth-gas-limit"
+	FlagEthFundedAddr  = "eth-funded-address"
+	FlagEthInitBalance = "eth-initial-balance"
 )
 
 type printInfo struct {
@@ -171,14 +178,39 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				return errorsmod.Wrap(err, "Failed to export genesis file")
 			}
 
-			// Generate Ethereum genesis file
+			// Generate Ethereum genesis file with custom options
 			ethGenesisPath := filepath.Join(config.RootDir, "config", "eth_genesis.json")
-			if err = GenerateEthereumGenesis(chainID, ethGenesisPath); err != nil {
+
+			// Get CLI flag values for Ethereum genesis customization
+			ethChainIDFlag, _ := cmd.Flags().GetInt64(FlagEthChainID)
+			ethGasLimit, _ := cmd.Flags().GetUint64(FlagEthGasLimit)
+			ethFundedAddr, _ := cmd.Flags().GetString(FlagEthFundedAddr)
+			ethInitBalance, _ := cmd.Flags().GetString(FlagEthInitBalance)
+
+			opts := EthGenesisOptions{
+				ChainID:        chainID,
+				OutputPath:     ethGenesisPath,
+				GasLimit:       ethGasLimit,
+				FundedAddress:  ethFundedAddr,
+				InitialBalance: ethInitBalance,
+			}
+
+			// Set custom Ethereum chain ID if provided
+			if ethChainIDFlag > 0 {
+				opts.EthChainID = big.NewInt(ethChainIDFlag)
+			}
+
+			if err = GenerateEthereumGenesisWithOptions(opts); err != nil {
 				return errorsmod.Wrap(err, "Failed to generate Ethereum genesis file")
 			}
 
 			// Get Ethereum chain ID for display
-			ethChainID := GetEthChainIDFromCosmosChainID(chainID)
+			var ethChainID *big.Int
+			if opts.EthChainID != nil {
+				ethChainID = opts.EthChainID
+			} else {
+				ethChainID = GetEthChainIDFromCosmosChainID(chainID)
+			}
 
 			toPrint := newPrintInfoWithEth(config.Moniker, chainID, nodeID, "", appState, ethGenesisPath, ethChainID.String())
 
@@ -193,6 +225,12 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(FlagDefaultBondDenom, "", "genesis file default denomination, if left blank default value is 'stake'")
 	cmd.Flags().Int64(flags.FlagInitHeight, 1, "specify the initial block height at genesis")
+
+	// Ethereum genesis flags
+	cmd.Flags().Int64(FlagEthChainID, 0, "ethereum chain ID (overrides default mapping)")
+	cmd.Flags().Uint64(FlagEthGasLimit, 0, "ethereum genesis gas limit (default: 30000000)")
+	cmd.Flags().String(FlagEthFundedAddr, "", "ethereum funded address (default: "+DefaultFundedAddress+")")
+	cmd.Flags().String(FlagEthInitBalance, "", "ethereum initial balance in wei (default: 999000000000000000000000000)")
 
 	return cmd
 }

@@ -9,30 +9,44 @@ import (
 )
 
 // DefaultFundedAddress is the default Ethereum address that receives initial funding
-const DefaultFundedAddress = "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
+const DefaultFundedAddress = "0xF530AC32044B7bCF6B6ac9E2B65d8eDb7794d64f"
+
+// BlobConfig represents blob configuration for specific network upgrades
+type BlobConfig struct {
+	Target                int `json:"target"`
+	Max                   int `json:"max"`
+	BaseFeeUpdateFraction int `json:"baseFeeUpdateFraction"`
+}
+
+// BlobSchedule represents the blob schedule configuration
+type BlobSchedule struct {
+	Cancun *BlobConfig `json:"cancun,omitempty"`
+	Prague *BlobConfig `json:"prague,omitempty"`
+}
 
 // EthereumChainConfig represents the chain configuration for Ethereum genesis
 type EthereumChainConfig struct {
-	ChainID                 *big.Int `json:"chainId"`
-	HomesteadBlock          *big.Int `json:"homesteadBlock"`
-	DAOForkBlock            *big.Int `json:"daoForkBlock,omitempty"`
-	DAOForkSupport          bool     `json:"daoForkSupport,omitempty"`
-	EIP150Block             *big.Int `json:"eip150Block"`
-	EIP155Block             *big.Int `json:"eip155Block"`
-	EIP158Block             *big.Int `json:"eip158Block"`
-	ByzantiumBlock          *big.Int `json:"byzantiumBlock"`
-	ConstantinopleBlock     *big.Int `json:"constantinopleBlock"`
-	PetersburgBlock         *big.Int `json:"petersburgBlock"`
-	IstanbulBlock           *big.Int `json:"istanbulBlock"`
-	BerlinBlock             *big.Int `json:"berlinBlock"`
-	LondonBlock             *big.Int `json:"londonBlock"`
-	ArrowGlacierBlock       *big.Int `json:"arrowGlacierBlock,omitempty"`
-	GrayGlacierBlock        *big.Int `json:"grayGlacierBlock,omitempty"`
-	MergeNetsplitBlock      *big.Int `json:"mergeNetsplitBlock,omitempty"`
-	TerminalTotalDifficulty *big.Int `json:"terminalTotalDifficulty"`
-	ShanghaiTime            *uint64  `json:"shanghaiTime"`
-	CancunTime              *uint64  `json:"cancunTime"`
-	PragueTime              *uint64  `json:"pragueTime,omitempty"`
+	ChainID                 *big.Int      `json:"chainId"`
+	HomesteadBlock          *big.Int      `json:"homesteadBlock"`
+	DAOForkBlock            *big.Int      `json:"daoForkBlock,omitempty"`
+	DAOForkSupport          bool          `json:"daoForkSupport,omitempty"`
+	EIP150Block             *big.Int      `json:"eip150Block"`
+	EIP155Block             *big.Int      `json:"eip155Block"`
+	EIP158Block             *big.Int      `json:"eip158Block"`
+	ByzantiumBlock          *big.Int      `json:"byzantiumBlock"`
+	ConstantinopleBlock     *big.Int      `json:"constantinopleBlock"`
+	PetersburgBlock         *big.Int      `json:"petersburgBlock"`
+	IstanbulBlock           *big.Int      `json:"istanbulBlock"`
+	BerlinBlock             *big.Int      `json:"berlinBlock"`
+	LondonBlock             *big.Int      `json:"londonBlock"`
+	ArrowGlacierBlock       *big.Int      `json:"arrowGlacierBlock,omitempty"`
+	GrayGlacierBlock        *big.Int      `json:"grayGlacierBlock,omitempty"`
+	MergeNetsplitBlock      *big.Int      `json:"mergeNetsplitBlock,omitempty"`
+	TerminalTotalDifficulty *big.Int      `json:"terminalTotalDifficulty"`
+	ShanghaiTime            *uint64       `json:"shanghaiTime"`
+	CancunTime              *uint64       `json:"cancunTime"`
+	PragueTime              *uint64       `json:"pragueTime,omitempty"`
+	BlobSchedule            *BlobSchedule `json:"blobSchedule,omitempty"`
 }
 
 // EthereumGenesisSpec represents the Ethereum genesis specification
@@ -68,13 +82,51 @@ func GetEthChainIDFromCosmosChainID(cosmosChainID string) *big.Int {
 	}
 }
 
+// EthGenesisOptions contains options for generating Ethereum genesis
+type EthGenesisOptions struct {
+	ChainID        string
+	OutputPath     string
+	EthChainID     *big.Int
+	GasLimit       uint64
+	FundedAddress  string
+	InitialBalance string
+}
+
 // GenerateEthereumGenesis creates an Ethereum genesis file
 func GenerateEthereumGenesis(chainID string, outputPath string) error {
-	ethChainID := GetEthChainIDFromCosmosChainID(chainID)
+	return GenerateEthereumGenesisWithOptions(EthGenesisOptions{
+		ChainID:    chainID,
+		OutputPath: outputPath,
+	})
+}
 
-	// Create chain config with all EIPs enabled from genesis (similar to existing configs)
+// GenerateEthereumGenesisWithOptions creates an Ethereum genesis file with custom options
+func GenerateEthereumGenesisWithOptions(opts EthGenesisOptions) error {
+	// Determine Ethereum chain ID
+	var ethChainID *big.Int
+	if opts.EthChainID != nil {
+		ethChainID = opts.EthChainID
+	} else {
+		ethChainID = GetEthChainIDFromCosmosChainID(opts.ChainID)
+	}
+
+	// Create chain config with all EIPs enabled from genesis
 	zero := big.NewInt(0)
 	zeroTime := uint64(0)
+
+	// Create blob schedule configuration
+	blobSchedule := &BlobSchedule{
+		Cancun: &BlobConfig{
+			Target:                3,
+			Max:                   6,
+			BaseFeeUpdateFraction: 3338477,
+		},
+		Prague: &BlobConfig{
+			Target:                6,
+			Max:                   9,
+			BaseFeeUpdateFraction: 5007716,
+		},
+	}
 
 	chainConfig := &EthereumChainConfig{
 		ChainID:                 ethChainID,
@@ -92,29 +144,38 @@ func GenerateEthereumGenesis(chainID string, outputPath string) error {
 		ShanghaiTime:            &zeroTime,
 		CancunTime:              &zeroTime,
 		PragueTime:              &zeroTime,
+		BlobSchedule:            blobSchedule,
 	}
 
-	// Default funded address (same as in existing genesis files)
-	defaultFundedAddress := DefaultFundedAddress
+	// Determine funded address
+	fundedAddress := opts.FundedAddress
+	if fundedAddress == "" {
+		fundedAddress = DefaultFundedAddress
+	}
 
-	// Initial balance: 10,000,000 ETH for localnet
-	initialBalance := "10000000000000000000000000"
-	if chainID == "mitosis-devnet-1" {
-		// 999,000,000 ETH for devnet
+	// Determine initial balance
+	initialBalance := opts.InitialBalance
+	if initialBalance == "" {
+		// Default balance: 999,000,000 ETH
 		initialBalance = "999000000000000000000000000"
 	}
 
+	// Determine gas limit
+	gasLimit := opts.GasLimit
+	if gasLimit == 0 {
+		gasLimit = 30000000 // Default: 30,000,000
+	}
+	gasLimitStr := fmt.Sprintf("%d", gasLimit)
+
 	genesis := &EthereumGenesisSpec{
 		Config:     chainConfig,
-		Nonce:      "0x0",
-		Timestamp:  "0x0",
+		Nonce:      "0",
+		Timestamp:  "0",
 		ExtraData:  "0x",
-		GasLimit:   "0x1c9c380", // 30,000,000 gas limit
-		Difficulty: "0x0",       // PoS from start
-		MixHash:    "0x0000000000000000000000000000000000000000000000000000000000000000",
-		Coinbase:   "0x0000000000000000000000000000000000000000",
+		GasLimit:   gasLimitStr,
+		Difficulty: "0",
 		Alloc: map[string]AllocatedAccount{
-			defaultFundedAddress: {
+			fundedAddress: {
 				Balance: initialBalance,
 			},
 		},
@@ -127,13 +188,13 @@ func GenerateEthereumGenesis(chainID string, outputPath string) error {
 	}
 
 	// Ensure the directory exists
-	dir := filepath.Dir(outputPath)
+	dir := filepath.Dir(opts.OutputPath)
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("failed to create directory %s: %w", dir, err)
 	}
 
 	// Write the genesis file
-	if err := os.WriteFile(outputPath, jsonData, 0o600); err != nil {
+	if err := os.WriteFile(opts.OutputPath, jsonData, 0o600); err != nil {
 		return fmt.Errorf("failed to write ethereum genesis file: %w", err)
 	}
 

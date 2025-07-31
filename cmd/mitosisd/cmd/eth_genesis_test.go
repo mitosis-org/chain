@@ -78,16 +78,27 @@ func TestGenerateEthereumGenesis(t *testing.T) {
 				assert.Equal(t, uint64(0), *genesis.Config.CancunTime)
 
 				// Validate genesis parameters
-				assert.Equal(t, "0x0", genesis.Nonce)
-				assert.Equal(t, "0x0", genesis.Timestamp)
-				assert.Equal(t, "0x1c9c380", genesis.GasLimit)
-				assert.Equal(t, "0x0", genesis.Difficulty)
+				assert.Equal(t, "0", genesis.Nonce)
+				assert.Equal(t, "0", genesis.Timestamp)
+				assert.Equal(t, "30000000", genesis.GasLimit)
+				assert.Equal(t, "0", genesis.Difficulty)
+
+				// Validate blob schedule
+				assert.NotNil(t, genesis.Config.BlobSchedule)
+				assert.NotNil(t, genesis.Config.BlobSchedule.Cancun)
+				assert.Equal(t, 3, genesis.Config.BlobSchedule.Cancun.Target)
+				assert.Equal(t, 6, genesis.Config.BlobSchedule.Cancun.Max)
+				assert.Equal(t, 3338477, genesis.Config.BlobSchedule.Cancun.BaseFeeUpdateFraction)
+				assert.NotNil(t, genesis.Config.BlobSchedule.Prague)
+				assert.Equal(t, 6, genesis.Config.BlobSchedule.Prague.Target)
+				assert.Equal(t, 9, genesis.Config.BlobSchedule.Prague.Max)
+				assert.Equal(t, 5007716, genesis.Config.BlobSchedule.Prague.BaseFeeUpdateFraction)
 
 				// Validate alloc
 				fundedAddr := DefaultFundedAddress
 				account, exists := genesis.Alloc[fundedAddr]
 				assert.True(t, exists)
-				assert.Equal(t, "10000000000000000000000000", account.Balance)
+				assert.Equal(t, "999000000000000000000000000", account.Balance)
 			},
 		},
 		{

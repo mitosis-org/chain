@@ -94,7 +94,7 @@ func TestGenerateEthereumGenesis_Integration(t *testing.T) {
 			name:            "localnet integration",
 			chainID:         "mitosis-localnet-1",
 			expectedEthID:   124899,
-			expectedBalance: "10000000000000000000000000",
+			expectedBalance: "999000000000000000000000000",
 		},
 		{
 			name:            "devnet integration",
