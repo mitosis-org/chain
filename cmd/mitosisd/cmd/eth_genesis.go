@@ -34,14 +34,14 @@ type EthereumChainConfig struct {
 
 // EthereumGenesisSpec represents the Ethereum genesis specification
 type EthereumGenesisSpec struct {
-	Config     *EthereumChainConfig       `json:"config"`
-	Nonce      string                     `json:"nonce"`
-	Timestamp  string                     `json:"timestamp"`
-	ExtraData  string                     `json:"extraData"`
-	GasLimit   string                     `json:"gasLimit"`
-	Difficulty string                     `json:"difficulty"`
-	MixHash    string                     `json:"mixHash"`
-	Coinbase   string                     `json:"coinbase"`
+	Config     *EthereumChainConfig        `json:"config"`
+	Nonce      string                      `json:"nonce"`
+	Timestamp  string                      `json:"timestamp"`
+	ExtraData  string                      `json:"extraData"`
+	GasLimit   string                      `json:"gasLimit"`
+	Difficulty string                      `json:"difficulty"`
+	MixHash    string                      `json:"mixHash"`
+	Coinbase   string                      `json:"coinbase"`
 	Alloc      map[string]AllocatedAccount `json:"alloc"`
 }
 
@@ -68,11 +68,11 @@ func GetEthChainIDFromCosmosChainID(cosmosChainID string) *big.Int {
 // GenerateEthereumGenesis creates an Ethereum genesis file
 func GenerateEthereumGenesis(chainID string, outputPath string) error {
 	ethChainID := GetEthChainIDFromCosmosChainID(chainID)
-	
+
 	// Create chain config with all EIPs enabled from genesis (similar to existing configs)
 	zero := big.NewInt(0)
 	zeroTime := uint64(0)
-	
+
 	chainConfig := &EthereumChainConfig{
 		ChainID:                 ethChainID,
 		HomesteadBlock:          zero,
@@ -93,7 +93,7 @@ func GenerateEthereumGenesis(chainID string, outputPath string) error {
 
 	// Default funded address (same as in existing genesis files)
 	defaultFundedAddress := "0x2FB9C04d3225b55C964f9ceA934Cc8cD6070a3fF"
-	
+
 	// Initial balance: 10,000,000 ETH for localnet
 	initialBalance := "10000000000000000000000000"
 	if chainID == "mitosis-devnet-1" {
