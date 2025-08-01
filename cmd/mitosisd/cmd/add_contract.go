@@ -131,8 +131,13 @@ func runAddContract(cmd *cobra.Command, args []string) error {
 }
 
 func readBytecodeFromArtifact(artifactFile string, useCreationCode bool) (string, error) {
-	// Path has already been validated by validateArtifactFile, safe to use directly
-	data, err := os.ReadFile(artifactFile)
+	// Clean and validate the path before reading
+	cleanPath := filepath.Clean(artifactFile)
+	if strings.Contains(cleanPath, "..") {
+		return "", fmt.Errorf("invalid artifact file path: path traversal detected")
+	}
+
+	data, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read artifact file: %w", err)
 	}
@@ -150,14 +155,20 @@ func readBytecodeFromArtifact(artifactFile string, useCreationCode bool) (string
 }
 
 func readGenesisFile(genesisFile string) (*EthereumGenesisSpec, error) {
+	// Clean and validate the path first
+	cleanPath := filepath.Clean(genesisFile)
+	if strings.Contains(cleanPath, "..") {
+		return nil, fmt.Errorf("invalid genesis file path: path traversal detected")
+	}
+
 	// Validate genesis file path for security
 	const maxFileSize = 50 * 1024 * 1024 // 50MB limit for genesis files
 	allowedExtensions := []string{".json"}
-	if err := validateFilePath(genesisFile, allowedExtensions, maxFileSize); err != nil {
+	if err := validateFilePath(cleanPath, allowedExtensions, maxFileSize); err != nil {
 		return nil, fmt.Errorf("invalid genesis file path: %w", err)
 	}
 
-	data, err := os.ReadFile(genesisFile)
+	data, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -187,7 +198,7 @@ func writeGenesisFile(genesisFile string, genesis *EthereumGenesisSpec) error {
 
 	// Create backup
 	timestamp := time.Now().Format("20060102_150405") // Format: YYYYMMDD_HHMMSS
-	backupFile := fmt.Sprintf("%s.backup_%s", genesisFile, timestamp)
+	backupFile := fmt.Sprintf("%s.backup_%s", cleanGenesisFile, timestamp)
 	if err := safeCopyFile(cleanGenesisFile, backupFile); err != nil {
 		// Note: backup failure is non-fatal, continue with operation
 		_ = err // Suppress lint warning about unused error
