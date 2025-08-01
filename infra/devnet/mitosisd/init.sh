@@ -37,7 +37,7 @@ VAL_ADDR="0x$(echo -n "$COMPRESSED_PUBKEY" | xxd -r -p | sha256sum | head -c 40)
 
 # Add validator to evmvalidator genesis state
 # Parameters: pubkey, collateral_owner, collateral (gwei), extra_voting_power, jailed
-$MITOSISD add-genesis-validator "$COMPRESSED_PUBKEY" "$VAL_ADDR" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
+$MITOSISD genesis add-validator "$COMPRESSED_PUBKEY" "$VAL_ADDR" 1000000000000000 0 false --home "$MITOSISD_HOME" # 1M MITO as collateral
 
 # artifacts
 mkdir -p "$ARTIFACTS_DIR"

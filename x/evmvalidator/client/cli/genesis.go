@@ -24,11 +24,11 @@ import (
 // GetGenesisValidatorCmd returns a command to add a genesis validator to the evmvalidator module
 func GetGenesisValidatorCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-validator [pubkey] [collateral-owner] [collateral] [extra-voting-power] [jailed]",
+		Use:   "add-validator [pubkey] [collateral-owner] [collateral] [extra-voting-power] [jailed]",
 		Short: "Add a genesis validator to the evmvalidator module",
 		Long: `Add a genesis validator to the evmvalidator module.
 Example:
-$ mitosisd add-genesis-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c677893690b88473aa3aac0f3ec 0x0123456789abcdef0123456789abcdef01234567 1000000000000000000 0 false
+$ mitosisd genesis add-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c677893690b88473aa3aac0f3ec 0x0123456789abcdef0123456789abcdef01234567 1000000000000000000 0 false
 `,
 		Args: cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
