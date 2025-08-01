@@ -87,10 +87,10 @@ func genesisCommand(txConfig client.TxConfig, defaultNodeHome string, basicManag
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
 	}
-	
+
 	// Add our custom genesis commands
 	cmd.AddCommand(NewAddContractCmd())
-	
+
 	return cmd
 }
 

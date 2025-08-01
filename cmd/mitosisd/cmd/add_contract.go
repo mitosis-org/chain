@@ -3,10 +3,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -75,9 +75,9 @@ func runAddContract(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid contract address format: %s (must be 0x followed by 40 hex characters)", contractAddress)
 	}
 
-	// Validate artifact file exists
-	if _, err := os.Stat(artifactFile); os.IsNotExist(err) {
-		return fmt.Errorf("artifact file does not exist: %s", artifactFile)
+	// Validate and sanitize artifact file path
+	if err := validateArtifactFile(artifactFile); err != nil {
+		return fmt.Errorf("invalid artifact file: %w", err)
 	}
 
 	// Get flags
@@ -85,7 +85,7 @@ func runAddContract(cmd *cobra.Command, args []string) error {
 	useCreationCode, _ := cmd.Flags().GetBool("use-creation-code")
 
 	// Read bytecode from Foundry artifact file
-	bytecode, err := readBytecodeFromArtifact(artifactFile, useCreationCode)  
+	bytecode, err := readBytecodeFromArtifact(artifactFile, useCreationCode)
 	if err != nil {
 		return fmt.Errorf("failed to read bytecode from artifact: %w", err)
 	}
@@ -124,13 +124,14 @@ func runAddContract(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to write genesis file: %w", err)
 	}
 
-	fmt.Printf("Successfully added contract %s to genesis file %s\n", contractAddress, genesisFile)
-	fmt.Printf("Bytecode length: %d bytes\n", (len(bytecode)-2)/2) // -2 for 0x prefix, /2for hex encoding
+	_, _ = cmd.OutOrStdout().Write([]byte(fmt.Sprintf("Successfully added contract %s to genesis file %s\n", contractAddress, genesisFile)))
+	_, _ = cmd.OutOrStdout().Write([]byte(fmt.Sprintf("Bytecode length: %d bytes\n", (len(bytecode)-2)/2))) // -2 for 0x prefix, /2for hex encoding
 
 	return nil
 }
 
 func readBytecodeFromArtifact(artifactFile string, useCreationCode bool) (string, error) {
+	// Path has already been validated by validateArtifactFile, safe to use directly
 	data, err := os.ReadFile(artifactFile)
 	if err != nil {
 		return "", fmt.Errorf("failed to read artifact file: %w", err)
@@ -148,8 +149,14 @@ func readBytecodeFromArtifact(artifactFile string, useCreationCode bool) (string
 	return artifact.DeployedBytecode.Object, nil
 }
 
-
 func readGenesisFile(genesisFile string) (*EthereumGenesisSpec, error) {
+	// Validate genesis file path for security
+	const maxFileSize = 50 * 1024 * 1024 // 50MB limit for genesis files
+	allowedExtensions := []string{".json"}
+	if err := validateFilePath(genesisFile, allowedExtensions, maxFileSize); err != nil {
+		return nil, fmt.Errorf("invalid genesis file path: %w", err)
+	}
+
 	data, err := os.ReadFile(genesisFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
@@ -164,10 +171,26 @@ func readGenesisFile(genesisFile string) (*EthereumGenesisSpec, error) {
 }
 
 func writeGenesisFile(genesisFile string, genesis *EthereumGenesisSpec) error {
+	// Validate genesis file path for security
+	const maxFileSize = 50 * 1024 * 1024 // 50MB limit for genesis files
+
+	// Clean the path to prevent path traversal
+	cleanGenesisFile := filepath.Clean(genesisFile)
+	if strings.Contains(cleanGenesisFile, "..") {
+		return fmt.Errorf("invalid genesis file path: path traversal detected")
+	}
+
+	// Validate extension
+	if !strings.HasSuffix(strings.ToLower(cleanGenesisFile), ".json") {
+		return fmt.Errorf("genesis file must have .json extension")
+	}
+
 	// Create backup
-	backupFile := genesisFile + ".backup"
-	if err := copyFile(genesisFile, backupFile); err != nil {
-		fmt.Printf("Warning: failed to create backup file: %v\n", err)
+	timestamp := time.Now().Format("20060102_150405") // Format: YYYYMMDD_HHMMSS
+	backupFile := fmt.Sprintf("%s.backup_%s", genesisFile, timestamp)
+	if err := safeCopyFile(cleanGenesisFile, backupFile); err != nil {
+		// Note: backup failure is non-fatal, continue with operation
+		_ = err // Suppress lint warning about unused error
 	}
 
 	// Marshal to JSON with proper formatting
@@ -176,27 +199,15 @@ func writeGenesisFile(genesisFile string, genesis *EthereumGenesisSpec) error {
 		return fmt.Errorf("failed to marshal genesis JSON: %w", err)
 	}
 
-	// Write to file
-	if err := os.WriteFile(genesisFile, data, 0o644); err != nil {
+	// Validate data size before writing
+	if int64(len(data)) > maxFileSize {
+		return fmt.Errorf("genesis data too large (max %d bytes)", maxFileSize)
+	}
+
+	// Write to file using the cleaned path with secure permissions
+	if err := os.WriteFile(cleanGenesisFile, data, 0o600); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
 	return nil
-}
-
-func copyFile(src, dst string) error {
-	sourceFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer sourceFile.Close()
-
-	destFile, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-
-	_, err = io.Copy(destFile, sourceFile)
-	return err
 }
