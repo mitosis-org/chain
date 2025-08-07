@@ -71,11 +71,12 @@ git commit -m "test: add unit tests for evmvalidator module"
 ```bash
 git push origin feature/your-feature-name
 ```
-
-Then create a Pull Request through GitHub with:
-- Clear title and description
-- Reference any related issues
-- Include screenshots/demos if applicable
+Then follow these steps to create a Pull Request through GitHub:
+- Push your branch: The above command uploads your changes to your forked repository.
+- Open a Pull Request: Go to the GitHub repository, click "Pull requests," then "New Pull Request." Select your branch (`feature/your-feature-name`) as the compare branch.
+- Fill out the form: Use a clear title (e.g., `docs: improve PR instructions`) and description. Reference related issues (e.g., `Fixes #123`) if applicable.
+- Add visuals (optional): Include screenshots or demos if your changes affect the UI or require visual explanation.
+- Submit: Click "Create pull request" to submit for review.
 
 ## 📝 Coding Standards
 
@@ -105,10 +106,10 @@ chain/
 
 ## 🤝 Community Guidelines
 
-- Be respectful and inclusive
-- Help newcomers get started
-- Share knowledge and best practices
-- Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
+- **Be respectful and inclusive**: Treat all community members with kindness and ensure a welcoming environment for everyone.
+- **Help newcomers get started**: Offer guidance to new contributors to help them navigate the project.
+- **Share knowledge and best practices**: Contribute tips or examples to improve the community's collective expertise.
+- **Follow our [Code of Conduct](CODE_OF_CONDUCT.md)**: Adhere to the guidelines outlined to maintain a positive community culture.
 
 ## 🆘 Getting Help
 
