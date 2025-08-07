@@ -24,26 +24,33 @@ import (
 
 // parsePubkey parses pubkey from either hex or base64 format
 func parsePubkey(pubkeyStr string) ([]byte, error) {
-	// Try hex format first (with or without 0x prefix)
-	pubkeyStr = strings.TrimPrefix(pubkeyStr, "0x")
+	// Remove 0x prefix if present
+	cleanStr := strings.TrimPrefix(pubkeyStr, "0x")
 
-	// Check if it looks like hex (only contains hex characters)
-	if len(pubkeyStr) == 66 && isHexString(pubkeyStr) { // 33 bytes * 2 = 66 hex chars
-		return hex.DecodeString(pubkeyStr)
+	// Try hex format first if it looks like hex
+	if isHexString(cleanStr) {
+		pubkey, err := hex.DecodeString(cleanStr)
+		if err == nil && len(pubkey) == 33 {
+			return pubkey, nil
+		}
+		// If hex decoding succeeded but wrong length, it's an invalid pubkey
+		if err == nil {
+			return nil, fmt.Errorf("invalid pubkey length: got %d bytes, expected 33 bytes for compressed secp256k1", len(pubkey))
+		}
+		// If hex decoding failed, fall through to try base64
 	}
 
 	// Try base64 format
 	pubkey, err := base64.StdEncoding.DecodeString(pubkeyStr)
-	if err == nil && len(pubkey) == 33 { // secp256k1 compressed pubkey is 33 bytes
-		return pubkey, nil
+	if err == nil {
+		if len(pubkey) == 33 {
+			return pubkey, nil
+		}
+		// Base64 decoded successfully but wrong length
+		return nil, fmt.Errorf("invalid pubkey length: got %d bytes, expected 33 bytes for compressed secp256k1", len(pubkey))
 	}
 
-	// If base64 failed, try hex anyway
-	pubkey, hexErr := hex.DecodeString(pubkeyStr)
-	if hexErr == nil && len(pubkey) == 33 {
-		return pubkey, nil
-	}
-
+	// If both hex and base64 decoding failed, return error
 	return nil, fmt.Errorf("invalid pubkey format: must be 33-byte compressed secp256k1 key in hex or base64 format")
 }
 

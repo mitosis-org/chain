@@ -345,5 +345,76 @@ func BenchmarkIsHexString(b *testing.B) {
 	}
 }
 
+// TestParsePubkey_ImprovedLogic tests the improved parsing logic
+func TestParsePubkey_ImprovedLogic(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         string
+		expectError   bool
+		expectedError string
+		description   string
+	}{
+		{
+			name:          "32 byte hex should fail with specific error",
+			input:         "107dd702ec9618b9f928a308f4fb6719ac6f4e21d667bde8dde2291b2d3375d7", // 32 bytes
+			expectError:   true,
+			expectedError: "invalid pubkey length: got 32 bytes, expected 33 bytes",
+			description:   "32-byte hex should be detected and rejected with specific error",
+		},
+		{
+			name:          "34 byte hex should fail with specific error",
+			input:         "03107dd702ec9618b9f928a308f4fb6719ac6f4e21d667bde8dde2291b2d3375d7aa", // 34 bytes
+			expectError:   true,
+			expectedError: "invalid pubkey length: got 34 bytes, expected 33 bytes",
+			description:   "34-byte hex should be detected and rejected with specific error",
+		},
+		{
+			name:          "valid base64 with wrong length should fail with specific error",
+			input:         base64.StdEncoding.EncodeToString(make([]byte, 32)), // 32 bytes
+			expectError:   true,
+			expectedError: "invalid pubkey length: got 32 bytes, expected 33 bytes",
+			description:   "Valid base64 but wrong length should be rejected with specific error",
+		},
+		{
+			name:          "64-char valid hex should be consistent",
+			input:         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", // 64 chars = 32 bytes, all valid hex
+			expectError:   true,
+			expectedError: "invalid pubkey length: got 32 bytes, expected 33 bytes",
+			description:   "64-char valid hex should be handled consistently (not skip first hex attempt)",
+		},
+		{
+			name:        "66-char valid hex should work",
+			input:       validHexPubkey,
+			expectError: false,
+			description: "66-char valid hex should work as before",
+		},
+		{
+			name:          "mixed format - looks like hex but isn't",
+			input:         "03107dd702ec9618b9f928a308f4fb6719ac6f4e21d667bde8dde2291b2d3375gx", // contains 'g' and 'x'
+			expectError:   true,
+			expectedError: "invalid pubkey format",
+			description:   "String that looks like hex but contains invalid chars should fail gracefully",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pubkey, err := parsePubkey(tt.input)
+
+			if tt.expectError {
+				require.Error(t, err, tt.description)
+				if tt.expectedError != "" {
+					require.Contains(t, err.Error(), tt.expectedError, "Error message should contain expected text")
+				}
+				require.Nil(t, pubkey, "pubkey should be nil on error")
+			} else {
+				require.NoError(t, err, tt.description)
+				require.NotNil(t, pubkey, "pubkey should not be nil on success")
+				require.Len(t, pubkey, 33, "pubkey should be 33 bytes")
+			}
+		})
+	}
+}
+
 // Additional integration tests can be added here when needed.
 // For now, we focus on testing the core parsing functionality.
