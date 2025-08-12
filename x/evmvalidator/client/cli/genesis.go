@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -21,34 +22,72 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// parsePubkey parses pubkey from either hex or base64 format
+func parsePubkey(pubkeyStr string) ([]byte, error) {
+	// Remove 0x prefix if present
+	cleanStr := strings.TrimPrefix(pubkeyStr, "0x")
+
+	// Try hex format first if it looks like hex
+	if isHexString(cleanStr) {
+		pubkey, err := hex.DecodeString(cleanStr)
+		if err == nil && len(pubkey) == 33 {
+			return pubkey, nil
+		}
+		// If hex decoding succeeded but wrong length, it's an invalid pubkey
+		if err == nil {
+			return nil, fmt.Errorf("invalid pubkey length: got %d bytes, expected 33 bytes for compressed secp256k1", len(pubkey))
+		}
+		// If hex decoding failed, fall through to try base64
+	}
+
+	// Try base64 format
+	pubkey, err := base64.StdEncoding.DecodeString(pubkeyStr)
+	if err == nil {
+		if len(pubkey) == 33 {
+			return pubkey, nil
+		}
+		// Base64 decoded successfully but wrong length
+		return nil, fmt.Errorf("invalid pubkey length: got %d bytes, expected 33 bytes for compressed secp256k1", len(pubkey))
+	}
+
+	// If both hex and base64 decoding failed, return error
+	return nil, fmt.Errorf("invalid pubkey format: must be 33-byte compressed secp256k1 key in hex or base64 format")
+}
+
+// isHexString checks if a string contains only hex characters
+func isHexString(s string) bool {
+	for _, c := range s {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+			return false
+		}
+	}
+	return true
+}
+
 // GetGenesisValidatorCmd returns a command to add a genesis validator to the evmvalidator module
 func GetGenesisValidatorCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-validator [pubkey] [collateral-owner] [collateral] [extra-voting-power] [jailed]",
 		Short: "Add a genesis validator to the evmvalidator module",
 		Long: `Add a genesis validator to the evmvalidator module.
-Example:
+
+The pubkey can be provided in either format:
+- Hex format: 03a98478cf8213c7fea5a328d89675b5b544fb0c677893690b88473aa3aac0f3ec
+- Base64 format (Tendermint): AxB91wLslhi5+SijCPT7Zxmsb04h1me96N3iKRstM3XX
+
+Examples:
 $ mitosisd genesis add-validator 03a98478cf8213c7fea5a328d89675b5b544fb0c677893690b88473aa3aac0f3ec 0x0123456789abcdef0123456789abcdef01234567 1000000000000000000 0 false
+$ mitosisd genesis add-validator AxB91wLslhi5+SijCPT7Zxmsb04h1me96N3iKRstM3XX 0x0123456789abcdef0123456789abcdef01234567 1000000000000000000 0 false
 `,
 		Args: cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			cdc := clientCtx.Codec
 
-			// Parse pubkey (hex format)
-			pubkeyHex := args[0]
-			if len(pubkeyHex) < 2 {
-				return fmt.Errorf("pubkey too short")
-			}
-
-			// Remove 0x prefix if present
-			if pubkeyHex[:2] == "0x" {
-				pubkeyHex = pubkeyHex[2:]
-			}
-
-			pubkey, err := hex.DecodeString(pubkeyHex)
+			// Parse pubkey (supports both hex and base64 format)
+			pubkey, err := parsePubkey(args[0])
 			if err != nil {
-				return errors.Wrap(err, "failed to decode pubkey string")
+				return errors.Wrap(err, "failed to parse pubkey")
 			}
 
 			valAddr, err := types.PubkeyToEthAddress(pubkey)
