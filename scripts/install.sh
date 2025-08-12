@@ -107,30 +107,35 @@ install_binary() {
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
 
-    # Download binary
+    # Download binary with platform suffix first
+    local binary_with_platform="${binary}-${platform}"
+    
     if command -v curl >/dev/null 2>&1; then
-        curl -L -o "$binary" "$url"
+        curl -L -o "$binary_with_platform" "$url"
     elif command -v wget >/dev/null 2>&1; then
-        wget -O "$binary" "$url"
+        wget -O "$binary_with_platform" "$url"
     else
         error "curl or wget is required"
     fi
 
     # Download checksum
     if command -v curl >/dev/null 2>&1; then
-        curl -L -o "${binary}.sha256" "${url}.sha256"
+        curl -L -o "${binary_with_platform}.sha256" "${url}.sha256"
     elif command -v wget >/dev/null 2>&1; then
-        wget -O "${binary}.sha256" "${url}.sha256"
+        wget -O "${binary_with_platform}.sha256" "${url}.sha256"
     fi
 
     # Verify checksum
     if command -v sha256sum >/dev/null 2>&1; then
-        sha256sum -c "${binary}.sha256" || error "Checksum verification failed"
+        sha256sum -c "${binary_with_platform}.sha256" || error "Checksum verification failed"
     elif command -v shasum >/dev/null 2>&1; then
-        shasum -a 256 -c "${binary}.sha256" || error "Checksum verification failed"
+        shasum -a 256 -c "${binary_with_platform}.sha256" || error "Checksum verification failed"
     else
         warn "Cannot verify checksum: sha256sum or shasum not found"
     fi
+    
+    # Rename to simple binary name after verification
+    mv "$binary_with_platform" "$binary"
 
     # Make executable
     chmod +x "$binary"
