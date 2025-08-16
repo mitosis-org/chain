@@ -100,18 +100,12 @@ func (s *ValidatorService) CreateValidatorWithOptions(req *CreateValidatorReques
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000 // Default gas limit
-	}
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    totalValue,
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -142,18 +136,12 @@ func (s *ValidatorService) UpdateMetadataWithOptions(validatorAddr, metadata str
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (no value needed for metadata update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -189,18 +177,12 @@ func (s *ValidatorService) UpdateOperatorWithOptions(validatorAddr, newOperator 
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (no value needed for operator update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -242,18 +224,12 @@ func (s *ValidatorService) UpdateRewardConfigWithOptions(validatorAddr, commissi
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (no value needed for reward config update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -289,18 +265,12 @@ func (s *ValidatorService) UpdateRewardManagerWithOptions(validatorAddr, rewardM
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (no value needed for reward manager update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -331,18 +301,12 @@ func (s *ValidatorService) UnjailValidatorWithOptions(validatorAddr string, unsi
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    s.config.ContractFee,
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction

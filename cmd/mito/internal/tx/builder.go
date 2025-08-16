@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mitosis-org/chain/cmd/mito/internal/client"
@@ -86,7 +87,31 @@ func (b *Builder) CreateTransactionFromDataWithOptions(txData *TransactionData, 
 		gasLimit = b.config.GasLimit
 	}
 	if gasLimit == 0 {
-		gasLimit = 500000 // Default
+		if b.ethClient != nil && !unsigned {
+			// Only estimate gas for signed transactions since we need a valid from address
+			fromAddr, err := b.GetSignerAddress()
+			if err != nil {
+				// Fallback to default if we can't get signer address
+				gasLimit = 200000
+			} else {
+				msg := ethereum.CallMsg{
+					From:  fromAddr,
+					To:    &txData.To,
+					Value: txData.Value,
+					Data:  txData.Data,
+				}
+
+				estimatedGas, err := b.ethClient.EstimateGas(context.Background(), msg)
+				if err != nil {
+					return nil, fmt.Errorf("gas estimation failed: %w", err)
+				} else {
+					// Add 20% buffer to estimated gas
+					gasLimit = estimatedGas + (estimatedGas / 5)
+				}
+			}
+		} else {
+			gasLimit = 200000 // Conservative default when no RPC available or unsigned transaction
+		}
 	}
 
 	// Determine gas price - use specified gas price or get from client

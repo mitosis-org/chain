@@ -58,18 +58,12 @@ func (s *CollateralService) DepositCollateral(validatorAddr, amount string) (*ty
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    totalValue,
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -111,18 +105,12 @@ func (s *CollateralService) WithdrawCollateral(validatorAddr, amount, receiver s
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (withdraw only sends fee, not collateral)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    s.config.ContractFee,
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -153,18 +141,12 @@ func (s *CollateralService) SetPermittedCollateralOwner(validatorAddr, collatera
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data (no value needed for permission update)
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    big.NewInt(0),
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
@@ -195,18 +177,12 @@ func (s *CollateralService) TransferCollateralOwnership(validatorAddr, newOwner 
 		return nil, fmt.Errorf("failed to pack function call: %w", err)
 	}
 
-	// Set default gas limit if not provided
-	gasLimit := s.config.GasLimit
-	if gasLimit == 0 {
-		gasLimit = 500000
-	}
-
 	// Create transaction data
 	txData := &TransactionData{
 		To:       common.HexToAddress(s.config.ValidatorManagerContractAddr),
 		Value:    s.config.ContractFee,
 		Data:     data,
-		GasLimit: gasLimit,
+		GasLimit: 0, // Let builder handle gas estimation
 	}
 
 	// Create transaction
