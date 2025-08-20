@@ -81,6 +81,10 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
 		panic(err)
 	}
+	// Register staking query handler for compatibility
+	if err := stakingtypes.RegisterQueryHandlerClient(context.Background(), mux, stakingtypes.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -151,6 +155,8 @@ func (am AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConf
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
+	// Register staking query service for compatibility
+	stakingtypes.RegisterQueryServer(cfg.QueryServer(), keeper.NewStakingQueryServer(am.keeper))
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
