@@ -33,7 +33,7 @@ func (app *MitosisApp) setupUpgradeHandlers() {
 	}
 }
 
-// setUpgradeStoreLoaders sets custom store loaders to customize the rootMultiStore
+// setupUpgradeStoreLoaders sets custom store loaders to customize the rootMultiStore
 // initialization for software upgrades.
 func (app *MitosisApp) setupUpgradeStoreLoaders() {
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
